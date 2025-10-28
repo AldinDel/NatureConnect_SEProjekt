@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Results</title>
+</head>
+<body>
+<h1>Event Search Results</h1>
+
+<p th:if="${#lists.isEmpty(events)}">No results found.</p>
+<ul th:each="event : ${events}">
+    <li th:text="${event.name}"></li>
+</ul>
+</body>
+</html>
