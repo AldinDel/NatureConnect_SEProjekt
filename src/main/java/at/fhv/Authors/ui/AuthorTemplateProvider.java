@@ -17,6 +17,8 @@ public class AuthorTemplateProvider {
         List<Author> authors = Arrays.asList(new Author("Ralph", "Hoch"), new Author("FH", "Vorarlberg"));
         return new ModelAndView("nature_connect", "authors", authors);
     }
+
+
 }
 
 

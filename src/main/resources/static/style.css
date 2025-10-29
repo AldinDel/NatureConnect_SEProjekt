@@ -8,7 +8,7 @@ body {
 }
 
 .find-event {
-    position: sticky; top: 10px; color: white;
+    position: sticky; top: 6px; color: white;
     background: darkblue;
 }
 :root{
