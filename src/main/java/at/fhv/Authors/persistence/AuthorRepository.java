@@ -9,3 +9,5 @@ import java.util.UUID;
 @Repository
 public interface AuthorRepository extends JpaRepository<Author, Long> {
 }
+
+//public interface EventRepository extends JpaRepository<>{}
