@@ -4,6 +4,8 @@ body {
     background-position: center;
     background-attachment: fixed;  /* Bild bleibt beim Scrollen stehen */
     background-repeat: no-repeat;
+    background-color: rgba(0, 0, 0, 0.4); /* 40% schwarze Überlagerung */
+    background-blend-mode: darken; /* oder: multiply */
     color: white;
 }
 
@@ -29,6 +31,8 @@ body {
     display: flex; align-items: center; gap: 15px;
     padding: 12px 20px;
 }
+
+
 .nc-logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--nc-text)}
 .nc-logo svg{width:28px; height:28px; border-radius:50%}
 .nc-brand{font-size:1.1rem; letter-spacing:0.2px}
@@ -99,7 +103,9 @@ body {
     display:grid; grid-template-columns: 1.2fr 1fr 1fr 1fr auto;
     align-items:center; gap:0;
     width:min(1100px,92vw);
-    background:#fff; border-radius:999px; padding:6px;
+    background:rgba(255,255,255,0.9);
+    border-radius:999px;
+    padding:2px 4px;
     box-shadow:0 12px 30px rgba(0,0,0,.25);
     overflow:hidden;
     margin-top: 130px;
@@ -108,7 +114,7 @@ body {
 /* Felder */
 .nc-field{
     position:relative; display:flex; align-items:center;
-    padding:12px 18px; min-height:56px;
+    padding:6px 12px; min-height:44px;
     border-right:1px solid rgba(0,0,0,.08);
 }
 .nc-field:last-of-type{ border-right:none; }
