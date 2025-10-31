@@ -1,4 +1,6 @@
 body {
+    margin: 0;
+    padding: 0;
     background-image: url("../images/pexels-andreimike-1271619.jpg");
     background-size: cover;
     background-position: center;
@@ -32,7 +34,12 @@ body {
     padding: 12px 20px;
 }
 
-
+.nc-logo img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
 .nc-logo{display:flex; align-items:center; gap:10px; text-decoration:none; color:var(--nc-text)}
 .nc-logo svg{width:28px; height:28px; border-radius:50%}
 .nc-brand{font-size:1.1rem; letter-spacing:0.2px}
@@ -137,7 +144,7 @@ body {
 /* Button */
 .nc-find-btn{
     background:#0f2740; color:#fff; border:none; cursor:pointer;
-    padding:14px 22px; border-radius:999px; font-weight:700; min-height:48px; margin-left:8px;
+    padding:10px 20px; border-radius:999px; font-weight:700; min-height:42px; margin-left:2px;
     box-shadow: inset 0 0 0 2px rgba(255,255,255,.15);
 }
 .nc-find-btn:hover{ filter:brightness(1.05); }

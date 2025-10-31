@@ -7,40 +7,25 @@
 </head>
 <header class="nc-header">
     <div class="nc-container">
+        <!-- Logo -->
         <a class="nc-logo" href="/" aria-label="NATUREConnect Home">
-            <!-- Platzhalter-Logo (SVG) -->
-            <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="16" r="15" fill="#e8f3ea"/><path d="M16 6l7 20-7-6-7 6 7-20z" fill="#2f6b3a"/></svg>
+            <img src="/images/NatureConnectLogo.png" alt="Logo">
             <span class="nc-brand"><strong>NATURE</strong>Connect</span>
         </a>
 
-        <!--Test-->
-
-        <!-- Hamburger (oder Bürger Menü genannt) für Mobile -->
-        <button class="nc-burger" aria-label="Toggle navigation" aria-expanded="false" aria-controls="nc-nav">
-            <span></span><span></span><span></span>
-        </button>
-
-        <nav id="nc-nav" class="nc-nav" aria-label="Primary">
+        <!-- Navigation -->
+        <nav class="nc-nav" aria-label="Primary">
             <ul class="nc-left">
                 <li><a class="is-active" href="/">Home</a></li>
                 <li><a href="/events">Events</a></li>
-                <li><a href="/locations">Locations</a></li>
-                <!--li><a href="/profile">My Profile</a></li-->
+
             </ul>
 
-            <ul class="nc-right" aria-label="Utility">
-                <li class="nc-utility"><a href="/about">About Us</a></li>
-                <li class="nc-utility"><a href="/contact">Contact Us</a></li>
+            <ul class="nc-right">
+                <li><a href="/about">About Us</a></li>
+                <li><span class="divider">|</span></li>
+                <li><a href="/contact">Contact Us</a></li>
                 <li><a class="nc-login" href="/login">Log In</a></li>
-                <li>
-                    <a class="nc-search" href="/search" aria-label="Search">
-                        <!-- Lupe (SVG) -->
-                        <!--svg viewBox="0 0 24 24" aria-hidden="true">
-                            <circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" fill="none"/>
-                            <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-                        </svg-->
-                    </a>
-                </li>
             </ul>
         </nav>
     </div>
