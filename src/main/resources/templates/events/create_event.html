@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Create new Event</title>
+    <link rel="stylesheet" th:href="@{/style.css}" href="/style.css" />
+    <style>
+        .event-form-wrap { max-width: 980px; margin: 48px auto; padding: 0 16px; }
+        .event-form-title { font-size: 28px; font-weight: 700; color: #0f2740; margin: 0 0 18px; }
+        .event-form-hr { height: 1px; background: #e6e8ec; border: 0; margin: 0 0 28px; }
+        .event-form { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 40px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        .form-label { font-size: 14px; color: #1c2a3a; }
+        .form-input, .form-select, .form-textarea {
+            width: 100%; background: #fff; border: 1px solid #d7dbe2; border-radius: 8px;
+            padding: 10px 12px; font-size: 14px; color: #1b1b1b; outline: none;
+        }
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            border-color: #89a7ff; box-shadow: 0 0 0 3px rgba(137,167,255,.25);
+        }
+        .form-textarea { min-height: 110px; resize: vertical; }
+        .photo-card { background: linear-gradient(#f4f5f7,#e9ecf0); border:1px solid #d7dbe2; border-radius:10px; height:180px; display:grid; place-items:center; color:#9aa4b2; }
+        .upload-btn { margin-top:12px; padding:8px 14px; border-radius:999px; background:#0f2740; color:#fff; border:none; cursor:pointer; }
+        .form-actions { grid-column:1/-1; display:flex; gap:10px; margin-top:8px; }
+        .btn-primary{ background:#0f2740; color:#fff; border:0; border-radius:999px; padding:10px 24px; cursor:pointer; }
+        .btn-ghost{ background:transparent; color:#0f2740; border:1px solid #c9d1db; border-radius:999px; padding:10px 24px; cursor:pointer; }
+    </style>
+</head>
+<body>
+
+<!-- Dein bestehender Header (kannst du hier 1:1 einfügen oder als Fragment einbinden) -->
+<header class="nc-header">
+    <div class="nc-container">
+        <a class="nc-logo" th:href="@{/}" href="/" aria-label="NATUREConnect Home">
+            <img src="/images/NatureConnectLogo.png" alt="Logo">
+            <span class="nc-brand"><strong>NATURE</strong>Connect</span>
+        </a>
+        <nav class="nc-nav" aria-label="Primary">
+            <ul class="nc-left">
+                <li><a th:href="@{/'/}" href="/">Home</a></li>
+                <li class="dropdown">
+                    <a href="#" class="dropbtn">Events ▾</a>
+                    <ul class="dropdown-content">
+                        <li><a th:href="@{/events/new}" href="/events/new">Create Event</a></li>
+                        <li><a th:href="@{/events/edit}" href="/events/edit">Edit Event</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <ul class="nc-right">
+                <li><a th:href="@{/about}" href="/about">About Us</a></li>
+                <li><span class="divider">|</span></li>
+                <li><a th:href="@{/contact}" href="/contact">Contact Us</a></li>
+                <li><a class="nc-login" th:href="@{/login}" href="/login">Log In</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+<main class="event-form-wrap">
+    <h1 class="event-form-title">Create new Event</h1>
+    <hr class="event-form-hr">
+
+    <form class="event-form" th:action="@{/events}" action="/events" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label class="form-label">Photo:</label>
+            <div class="photo-card"><span>Image preview</span></div>
+            <input type="file" name="photo" id="photo" accept="image/*" style="display:none">
+            <button type="button" class="upload-btn" onclick="document.getElementById('photo').click()">Upload Photo</button>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="title">Title:</label>
+            <input id="title" name="title" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="description">Description:</label>
+            <textarea id="description" name="description" class="form-textarea"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="date">Date:</label>
+            <input id="date" name="date" type="date" class="form-input" required>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="location">Location:</label>
+            <input id="location" name="location" class="form-input" placeholder="e.g., Vienna">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="category">Category:</label>
+            <select id="category" name="category" class="form-select">
+                <option value="">Select…</option>
+                <option value="hiking">Hiking</option>
+                <option value="canyoning">Canyoning</option>
+                <option value="kayak">Kayak</option>
+                <option value="climbing">Climbing</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="difficulty">Difficulty level:</label>
+            <select id="difficulty" name="difficulty" class="form-select">
+                <option value="">Select…</option>
+                <option>Easy</option>
+                <option>Moderate</option>
+                <option>Hard</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="capacity">Capacity:</label>
+            <input id="capacity" name="capacity" type="number" min="1" step="1" class="form-input" placeholder="e.g., 20">
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="price">Price:</label>
+            <input id="price" name="price" type="number" min="0" step="0.01" class="form-input" placeholder="e.g., 49.90">
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Save</button>
+            <a th:href="@{/events}" href="/events" class="btn-ghost">Cancel</a>
+        </div>
+    </form>
+</main>
+</body>
+</html>

@@ -29,5 +29,13 @@ public class EventController {
         // Diese Seite wird nach der Suche geladen (später anlegen)
         return "events/list";
     }
+
+    @GetMapping("/events/new")
+    public String showCreateForm(Model model) {
+        // Optional: model.addAttribute("event", new EventDto());
+        return "events/create_event"; // lädt templates/events/create_event.html
+    }
+
+
 }
 

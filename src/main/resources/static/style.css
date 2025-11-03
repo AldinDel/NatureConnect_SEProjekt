@@ -209,3 +209,84 @@ body {
     display: none !important;
     -webkit-appearance: none !important;
 }
+
+/* === Dropdown nur für Events === */
+
+.dropdown {
+    position: relative;
+}
+
+/* Hauptlink ("Events") */
+.dropbtn {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* Dropdown-Inhalt */
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #ffffff;  /* weißer Hintergrund */
+    min-width: 180px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 0;
+    margin-top: 8px;
+    list-style: none;
+    z-index: 10;
+}
+
+/* Dropdown-Links */
+.dropdown-content li a {
+    display: block;
+    padding: 10px 16px;
+    text-decoration: none;
+    color: #000;
+}
+
+.dropdown-content li a:hover {
+    background-color: #f2f2f2;
+}
+
+/* Trennlinie */
+.dropdown-content li + li {
+    border-top: 1px solid #ccc;
+}
+
+/* Sichtbar beim Hover */
+.dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Dropdown standardmäßig verstecken – überschreibt .nc-nav ul { display:flex } */
+.nc-nav .dropdown .dropdown-content {
+    display: none;              /* wichtiger als .nc-nav ul */
+    position: absolute;
+    left: 0;
+    top: 100%;
+    background: #fff;
+    min-width: 180px;
+    box-shadow: 0 8px 16px rgba(0,0,0,.2);
+    border-radius: 8px;
+    padding: 0;
+    margin-top: 8px;
+    list-style: none;
+    z-index: 10;
+}
+
+/* Nur bei Hover anzeigen */
+.nc-nav .dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Links im Dropdown */
+.nc-nav .dropdown .dropdown-content li a {
+    display: block;
+    padding: 10px 16px;
+    color: #000;
+    text-decoration: none;
+}
+.nc-nav .dropdown .dropdown-content li + li { border-top: 1px solid #ccc; }
+.nc-nav .dropdown .dropdown-content li a:hover { background: #f2f2f2; }

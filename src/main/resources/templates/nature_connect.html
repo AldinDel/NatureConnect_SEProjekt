@@ -14,11 +14,18 @@
         </a>
 
         <!-- Navigation -->
-        <nav class="nc-nav" aria-label="Primary">
+        <nav class="nc-nav" id="nc-nav" aria-label="Primary">
             <ul class="nc-left">
                 <li><a class="is-active" href="/">Home</a></li>
-                <li><a href="/events">Events</a></li>
 
+                <!-- Events mit Dropdown -->
+                <li class="dropdown">
+                    <a href="#" class="dropbtn">Events ▾</a>
+                    <ul class="dropdown-content">
+                        <li role="none"><a role="menuitem" th:href="@{/events/new}">Create Event</a></li>
+                        <li><a href="/events/edit">Edit Event</a></li>
+                    </ul>
+                </li>
             </ul>
 
             <ul class="nc-right">
@@ -30,7 +37,6 @@
         </nav>
     </div>
 </header>
-
 
 <!-- ab hier beginnt dann alles ab "Natur is calling."-->
 <body>
@@ -107,4 +113,24 @@
             burger.setAttribute('aria-expanded', open ? 'true' : 'false');
         });
     }
+
 </script>
+
+<script>
+    // ARIA expanded toggeln (Hover/Focus)
+    const dd = document.querySelector('.has-dropdown');
+    if (dd) {
+        const trigger = dd.querySelector('.with-caret');
+        const open = () => trigger.setAttribute('aria-expanded', 'true');
+        const close = () => trigger.setAttribute('aria-expanded', 'false');
+
+        dd.addEventListener('mouseenter', open);
+        dd.addEventListener('mouseleave', close);
+        dd.addEventListener('focusin', open);
+        dd.addEventListener('focusout', (e) => {
+            if (!dd.contains(e.relatedTarget)) close();
+        });
+    }
+</script>
+
+
