@@ -20,19 +20,24 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.flywaydb:flyway-core:11.7.2'
+    implementation 'org.flywaydb:flyway-database-postgresql:11.7.2'
+
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-validation' // neu: Bean Validation
-    implementation 'org.flywaydb:flyway-core'                               // neu: DB-Migrationen
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
 
-    runtimeOnly 'org.postgresql:postgresql'                                  // neu: PostgreSQL-Treiber
-    // runtimeOnly 'com.h2database:h2' // H2 nur, wenn du parallel lokal testen willst (auskommentiert lassen)
+    runtimeOnly 'org.postgresql:postgresql'
 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
+
+
+
+
 
 
 tasks.named('test') {
