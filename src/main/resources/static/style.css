@@ -20,7 +20,7 @@ body {
     --nc-bg-hover:#122d4a;
     --nc-text:#e7edf4;
     --nc-muted:#a8b7c9;
-    --nc-accent:#ffffff;    /* helle Akzente */
+    --nc-accent:#fffffff;    /* helle Akzente */
     --nc-pill:#1d3a5d;      /* Button-Hintergrund */
 }
 .nc-header{
