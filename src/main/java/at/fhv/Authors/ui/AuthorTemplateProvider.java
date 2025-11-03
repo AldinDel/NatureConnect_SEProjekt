@@ -23,10 +23,10 @@ public class AuthorTemplateProvider {
         return new ModelAndView("nature_connect", "authors", authors);
     }
 
-    @GetMapping("/events")
-    public ModelAndView showEventList(Model model) {
-
-        return new ModelAndView("events/events_list", "events_list", null);
+    @GetMapping("/ui/events")
+    public String showEventList() {
+        // einfach zur "echten" Liste weiterleiten
+        return "redirect:/events";
     }
 }
 

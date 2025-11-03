@@ -23,7 +23,11 @@
                     <a href="#" class="dropbtn">Events ▾</a>
                     <ul class="dropdown-content">
                         <li role="none"><a role="menuitem" th:href="@{/events/new}">Create Event</a></li>
-                        <li><a href="/events/edit">Edit Event</a></li>
+                        <!--<li><a href="/events/edit">Edit Event</a></li>-->
+                        <li><a th:href="@{/events}" href="/events">Events Overview</a></li>
+                        <li><a th:href="@{/events/new}" href="/events/new">Create Event</a></li>
+                        <li><a th:href="@{/events/edit}" href="/events/edit">Edit Event</a></li>
+
                     </ul>
                 </li>
             </ul>

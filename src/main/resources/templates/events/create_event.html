@@ -28,7 +28,7 @@
 </head>
 <body>
 
-<!-- Dein bestehender Header (kannst du hier 1:1 einfügen oder als Fragment einbinden) -->
+<!--bestehender Header-->
 <header class="nc-header">
     <div class="nc-container">
         <a class="nc-logo" th:href="@{/}" href="/" aria-label="NATUREConnect Home">
@@ -41,6 +41,9 @@
                 <li class="dropdown">
                     <a href="#" class="dropbtn">Events ▾</a>
                     <ul class="dropdown-content">
+                        <li><a th:href="@{/events/new}" href="/events/new">Create Event</a></li>
+                        <!--<li><a th:href="@{/events/edit}" href="/events/edit">Edit Event</a></li>-->
+                        <li><a th:href="@{/events}" href="/events">Events Overview</a></li>
                         <li><a th:href="@{/events/new}" href="/events/new">Create Event</a></li>
                         <li><a th:href="@{/events/edit}" href="/events/edit">Edit Event</a></li>
                     </ul>
@@ -63,10 +66,28 @@
     <form class="event-form" th:action="@{/events}" action="/events" method="post" enctype="multipart/form-data">
         <div class="form-group">
             <label class="form-label">Photo:</label>
-            <div class="photo-card"><span>Image preview</span></div>
+            <div id="photoCard" class="photo-card"><span id="photoHint">Image preview</span></div>
             <input type="file" name="photo" id="photo" accept="image/*" style="display:none">
             <button type="button" class="upload-btn" onclick="document.getElementById('photo').click()">Upload Photo</button>
         </div>
+
+        <!-- gehört zum form label photo-->
+        <script>
+            const fileInput = document.getElementById('photo');
+            const card = document.getElementById('photoCard');
+            const hint = document.getElementById('photoHint');
+            fileInput.addEventListener('change', () => {
+                const f = fileInput.files && fileInput.files[0];
+                if (f) {
+                    const url = URL.createObjectURL(f);
+                    card.style.background = `center / cover no-repeat url('${url}')`;
+                    hint.style.display = 'none';
+                } else {
+                    card.style.background = 'linear-gradient(#f4f5f7,#e9ecf0)';
+                    hint.style.display = 'block';
+                }
+            });
+        </script>
 
         <div class="form-group">
             <label class="form-label" for="title">Title:</label>
@@ -89,13 +110,12 @@
         </div>
 
         <div class="form-group">
-            <label class="form-label" for="category">Category:</label>
-            <select id="category" name="category" class="form-select">
+            <label class="form-label" for="level">Difficulty level:</label>
+            <select id="level" name="level" class="form-select">
                 <option value="">Select…</option>
-                <option value="hiking">Hiking</option>
-                <option value="canyoning">Canyoning</option>
-                <option value="kayak">Kayak</option>
-                <option value="climbing">Climbing</option>
+                <option>Beginner</option>
+                <option>Intermediate</option>
+                <option>Advanced</option>
             </select>
         </div>
 

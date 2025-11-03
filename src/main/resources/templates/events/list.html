@@ -1,15 +1,49 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Search Results</title>
+    <meta charset="UTF-8" />
+    <title>Events</title>
 </head>
 <body>
-<h1>Event Search Results</h1>
+<header style="display:flex;justify-content:space-between;align-items:center;">
+    <h1>Event Overview</h1>
+    <a th:href="@{/events/new}">Create Event</a>
+</header>
 
-<p th:if="${#lists.isEmpty(events)}">No results found.</p>
-<ul th:each="event : ${events}">
-    <li th:text="${event.name}"></li>
-</ul>
+<div th:if="${success}" style="color:green;margin:8px 0;" th:text="${success}"></div>
+
+<!-- Simple Grid -->
+<div style="display:flex;flex-wrap:wrap;gap:20px;">
+    <div th:each="ev : ${events}" style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;width:300px;">
+        <img th:if="${ev.imageUrl}" th:src="${ev.imageUrl}"
+             alt="" style="width:100%;height:160px;object-fit:cover;display:block;">
+
+        <div style="padding:14px;">
+            <div style="font-size:0.8rem;opacity:.7;" th:text="${ev.category}">Category</div>
+            <h3 style="margin:.25rem 0;" th:text="${ev.title}">Title</h3>
+            <p style="font-size:.9rem;opacity:.8;height:44px;overflow:hidden;text-overflow:ellipsis;"
+               th:text="${ev.description}">Desc</p>
+
+            <ul style="list-style:none;padding:0;margin:.5rem 0;font-size:.9rem;opacity:.9;">
+                <li th:if="${ev.date != null}">
+                    <span th:text="${#temporals.format(ev.date, 'dd.MM.yyyy')}">01.01.2026</span>
+                    <span th:if="${ev.startTime != null}"> · <span th:text="${#temporals.format(ev.startTime, 'HH:mm')}">08:00</span></span>
+                    <span th:if="${ev.endTime != null}"> – <span th:text="${#temporals.format(ev.endTime, 'HH:mm')}">17:00</span></span>
+                </li>
+                <li th:if="${ev.location != null}" th:text="${ev.location}">Location</li>
+                <li>
+                    <span th:if="${ev.capacity != null}" th:text="${ev.capacity} + ' Participants'">Participants</span>
+                    <span th:if="${ev.audience != null}"> · </span>
+                    <span th:if="${ev.audience != null}" th:text="${ev.audience}">Audience</span>
+                </li>
+            </ul>
+
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <strong th:if="${ev.price != null}"
+                        th:text="'€ ' + ${#numbers.formatDecimal(ev.price, 1, 'COMMA', 2, 'POINT')}">€ 0,00</strong>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
