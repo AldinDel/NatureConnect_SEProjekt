@@ -24,3 +24,5 @@ public class AuthorApplicationRunner implements ApplicationRunner {
         List<Author> authors = authorRepository.findAll();
     }
 }
+
+//test
