@@ -1,7 +1,7 @@
 body {
     margin: 0;
     padding: 0;
-    background-image: url("../images/pexels-andreimike-1271619.jpg");
+    background-image: url("../images/ManOnMountain.jpg");
     background-size: cover;
     background-position: center;
     background-attachment: fixed;  /* Bild bleibt beim Scrollen stehen */
@@ -94,16 +94,17 @@ body {
 }
 
 .home-text{
-    font-size: 70px;
-    line-height: 1.08;         /* kompakter */
-    margin: 0;                 /* Standardabstand weg */
+    font-size: 5rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.1;              /* Standardabstand weg */
 }
 
 .home-text-2{
-    font-size: 30px;
-    line-height: 1.2;
-    margin: 12px 0 0;          /* nur 12px Abstand nach oben */
-    color: black;
+    font-size: 1.4rem;
+    color: #e0e0e0;
+    margin-top: 10px;
+    letter-spacing: 0.5px;
 }
 /* Suchleiste Container */
 .nc-searchbar{
