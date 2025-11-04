@@ -1,0 +1,265 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #fff;
+    margin: 0;
+    padding: 40px 0;
+}
+
+.event-overview {
+    width: 90%;
+    max-width: 1000px;
+    background: #fff;
+    margin: 0 auto;
+    padding: 40px;
+    border-radius: 16px;
+}
+
+.event-overview h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #111827;
+}
+
+.event-overview p {
+    color: #6b7280;
+    margin-bottom: 24px;
+}
+
+/* --- Search Bar --- */
+.search-bar {
+    display: flex;
+    align-items: center;
+    background: #f3f4f6;
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 30px;
+}
+
+.search-icon {
+    margin-right: 10px;
+    color: #9ca3af;
+}
+
+.search-bar input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 15px;
+    color: #374151;
+}
+
+/* --- Categories --- */
+.category-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 40px;
+}
+
+.category-bar button {
+    background: #f3f4f6;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+    color: #111827;
+}
+
+.category-bar button:hover {
+    background: #e5e7eb;
+}
+
+.category-bar button.active {
+    background: #111827;
+    color: #fff;
+}
+
+/* --- Event Cards --- */
+.event-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+}
+
+.event-card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    transition: transform 0.2s;
+}
+
+.event-card:hover {
+    transform: translateY(-4px);
+}
+
+/* Image */
+.card-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.tag {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #fff;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* Content */
+.card-content {
+    padding: 20px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.card-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.difficulty {
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.difficulty.yellow {
+    background: #fef9c3;
+    color: #854d0e;
+}
+
+.difficulty.green {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.card-content p {
+    color: #4b5563;
+    font-size: 14px;
+    margin-bottom: 16px;
+}
+
+/* Details */
+.details {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 16px 0;
+    color: #4b5563;
+    font-size: 14px;
+}
+
+.details li {
+    margin-bottom: 4px;
+}
+
+/* Footer */
+.footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.price {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.view-btn {
+    background: #111827;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.edit-btn {
+    background: #f3f4f6;
+    color: #111827;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: 0.2s;
+    text-decoration: none;
+}
+
+.edit-btn:hover {
+    background: #e5e7eb;
+}
+
+.view-btn:hover {
+    background: #1f2937;
+}
+.footer .buttons {
+    display: flex;
+    gap: 10px;
+}
+
+html, body {
+    background: #ffffff !important;
+    background-image: none !important;
+    background-size: none !important;
+    background-attachment: scroll !important;
+}
+
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    background: #ffffff !important;
+}
+
+.nc-header {
+    margin: 0 !important;
+    padding: 0 !important;
+    position: fixed; /* so it sticks perfectly to the top edge */
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background-color: #0b2545 !important; /* your dark navy */
+    box-shadow: none !important;
+    border: none !important;
+}
+
+.nc-container {
+    margin: 0 auto;
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 80px;
+}
+
+.event-overview {
+    margin-top: 70px; /* gives breathing space below the fixed header */
+}

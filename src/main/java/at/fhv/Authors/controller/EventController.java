@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Controller
 public class EventController {
@@ -44,12 +45,6 @@ public class EventController {
         return "events/create_event"; // lädt templates/events/create_event.html
     }
 
-    // event liste
-    @GetMapping("/events")
-    public String list(Model model) {
-        model.addAttribute("events", repo.findAll());
-        return "events/list"; // templates/events/list.html
-    }
 
     // speichern von formular
     @PostMapping("/events")
@@ -84,6 +79,15 @@ public class EventController {
     public String overviewAlias() {
         return "redirect:/events";
     }
+
+    @GetMapping("/events")
+    public String showAllEvents(Model model) {
+        List<Event> events = repo.findAll();
+        model.addAttribute("events", events);
+        return "events/list";
+    }
+
+
 
 
 }

@@ -1,49 +1,106 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <title>Events</title>
+    <meta charset="UTF-8">
+    <title>NatureConnect</title>
+    <link rel="stylesheet" th:href="@{../style.css}">
+    <link rel="stylesheet" th:href="@{../events.css}">
 </head>
+
 <body>
-<header style="display:flex;justify-content:space-between;align-items:center;">
-    <h1>Event Overview</h1>
-    <a th:href="@{/events/new}">Create Event</a>
-</header>
+<header class="nc-header">
+    <div class="nc-container">
+        <!-- Logo -->
+        <a class="nc-logo" href="/" aria-label="NATUREConnect Home">
+            <img src="/images/NatureConnectLogo.png" alt="Logo">
+            <span class="nc-brand"><strong>NATURE</strong>Connect</span>
+        </a>
 
-<div th:if="${success}" style="color:green;margin:8px 0;" th:text="${success}"></div>
+        <!-- Navigation -->
+        <nav class="nc-nav" id="nc-nav" aria-label="Primary">
+            <ul class="nc-left">
+                <li><a class="is-active" href="/">Home</a></li>
 
-<!-- Simple Grid -->
-<div style="display:flex;flex-wrap:wrap;gap:20px;">
-    <div th:each="ev : ${events}" style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;width:300px;">
-        <img th:if="${ev.imageUrl}" th:src="${ev.imageUrl}"
-             alt="" style="width:100%;height:160px;object-fit:cover;display:block;">
-
-        <div style="padding:14px;">
-            <div style="font-size:0.8rem;opacity:.7;" th:text="${ev.category}">Category</div>
-            <h3 style="margin:.25rem 0;" th:text="${ev.title}">Title</h3>
-            <p style="font-size:.9rem;opacity:.8;height:44px;overflow:hidden;text-overflow:ellipsis;"
-               th:text="${ev.description}">Desc</p>
-
-            <ul style="list-style:none;padding:0;margin:.5rem 0;font-size:.9rem;opacity:.9;">
-                <li th:if="${ev.date != null}">
-                    <span th:text="${#temporals.format(ev.date, 'dd.MM.yyyy')}">01.01.2026</span>
-                    <span th:if="${ev.startTime != null}"> · <span th:text="${#temporals.format(ev.startTime, 'HH:mm')}">08:00</span></span>
-                    <span th:if="${ev.endTime != null}"> – <span th:text="${#temporals.format(ev.endTime, 'HH:mm')}">17:00</span></span>
-                </li>
-                <li th:if="${ev.location != null}" th:text="${ev.location}">Location</li>
-                <li>
-                    <span th:if="${ev.capacity != null}" th:text="${ev.capacity} + ' Participants'">Participants</span>
-                    <span th:if="${ev.audience != null}"> · </span>
-                    <span th:if="${ev.audience != null}" th:text="${ev.audience}">Audience</span>
+                <!-- Events mit Dropdown -->
+                <li class="dropdown has-dropdown">
+                    <a href="#" class="dropbtn with-caret" aria-haspopup="true" aria-expanded="false">Events ▾</a>
+                    <ul class="dropdown-content" role="menu" aria-label="Events">
+                        <li role="none"><a role="menuitem" th:href="@{/events/new}">Create Event</a></li>
+                        <li role="none"><a role="menuitem" th:href="@{/events}" href="/events">Events Overview</a></li>
+                        <li role="none"><a role="menuitem" th:href="@{/events/new}" href="/events/new">Create Event</a></li>
+                        <li role="none"><a role="menuitem" th:href="@{/events/edit}" href="/events/edit">Edit Event</a></li>
+                    </ul>
                 </li>
             </ul>
 
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-                <strong th:if="${ev.price != null}"
-                        th:text="'€ ' + ${#numbers.formatDecimal(ev.price, 1, 'COMMA', 2, 'POINT')}">€ 0,00</strong>
+            <ul class="nc-right">
+                <li><a href="/about">About Us</a></li>
+                <li><span class="divider">|</span></li>
+                <li><a href="/contact">Contact Us</a></li>
+                <li><a class="nc-login" href="/login">Log In</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+<section class="event-overview">
+    <h1>Event Overview</h1>
+    <p>Discover exciting events and activities near you</p>
+
+    <div class="search-bar">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Browse Events...">
+    </div>
+
+    <div class="category-bar">
+        <button class="active">All Events</button>
+        <button>Camping</button>
+        <button>Swimming</button>
+        <button>Hiking</button>
+        <button>Canyoning</button>
+        <button>Football Camp</button>
+        <button>Climbing</button>
+    </div>
+
+    <div class="event-grid">
+        <!-- Thymeleaf loop through all events -->
+        <div class="event-card" th:each="event : ${events}">
+            <div class="card-image">
+                <img th:src="${event.imageUrl}" alt="Event Image">
+                <span class="tag" th:text="${event.category}">Outdoor</span>
+            </div>
+
+            <div class="card-content">
+                <div class="card-header">
+                    <h3 th:text="${event.title}">Event Title</h3>
+                    <span class="difficulty yellow" th:text="${event.difficulty}">Intermediate</span>
+                </div>
+
+                <p th:text="${event.description}">
+                    Event description here...
+                </p>
+
+                <ul class="details">
+                    <li>📅 <span th:text="${#temporals.format(event.date, 'MMMM dd, yyyy')}">October 25, 2025</span></li>
+                    <li>🕒 <span th:text="${event.time}">08:00 AM - 5:00 PM</span></li>
+                    <li>📍 <span th:text="${event.location}">Appenzell, Switzerland</span></li>
+                    <li>👥 <span th:text="${event.participants}">12 / 20 Participants</span> •
+                        <span th:text="${event.participantType}">For Companies</span>
+                    </li>
+                </ul>
+
+                <div class="footer">
+                    <span class="price" th:text="'€ ' + ${event.price}">€ 45,00</span>
+                    <div class="buttons">
+                        <a th:href="@{'/events/' + ${event.id}}" class="view-btn">View Details</a>
+                        <a th:href="@{'/events/edit/' + ${event.id}}" class="edit-btn">Edit</a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
+</section>
+
+
 </body>
 </html>
+
