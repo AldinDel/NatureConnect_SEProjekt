@@ -19,15 +19,13 @@
                 <li><a class="is-active" href="/">Home</a></li>
 
                 <!-- Events mit Dropdown -->
-                <li class="dropdown">
-                    <a href="#" class="dropbtn">Events ▾</a>
-                    <ul class="dropdown-content">
+                <li class="dropdown has-dropdown">
+                    <a href="#" class="dropbtn with-caret" aria-haspopup="true" aria-expanded="false">Events ▾</a>
+                    <ul class="dropdown-content" role="menu" aria-label="Events">
                         <li role="none"><a role="menuitem" th:href="@{/events/new}">Create Event</a></li>
-                        <!--<li><a href="/events/edit">Edit Event</a></li>-->
-                        <li><a th:href="@{/events}" href="/events">Events Overview</a></li>
-                        <li><a th:href="@{/events/new}" href="/events/new">Create Event</a></li>
-                        <li><a th:href="@{/events/edit}" href="/events/edit">Edit Event</a></li>
-
+                        <li role="none"><a role="menuitem" th:href="@{/events}" href="/events">Events Overview</a></li>
+                        <li role="none"><a role="menuitem" th:href="@{/events/new}" href="/events/new">Create Event</a></li>
+                        <li role="none"><a role="menuitem" th:href="@{/events/edit}" href="/events/edit">Edit Event</a></li>
                     </ul>
                 </li>
             </ul>

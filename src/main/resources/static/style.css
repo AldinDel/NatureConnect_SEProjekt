@@ -6,7 +6,7 @@ body {
     background-position: center;
     background-attachment: fixed;  /* Bild bleibt beim Scrollen stehen */
     background-repeat: no-repeat;
-    background-color: rgba(0, 0, 0, 0.5); /* 40% schwarze Überlagerung */
+    background-color: rgba(0, 0, 0, 0.7); /* 40% schwarze Überlagerung */
     background-blend-mode: darken; /* oder: multiply */
     color: white;
 }
@@ -247,7 +247,6 @@ body {
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     border-radius: 8px;
     padding: 0;
-    margin-top: 8px;
     list-style: none;
     z-index: 10;
 }
@@ -285,7 +284,6 @@ body {
     box-shadow: 0 8px 16px rgba(0,0,0,.2);
     border-radius: 8px;
     padding: 0;
-    margin-top: 8px;
     list-style: none;
     z-index: 10;
 }
@@ -304,3 +302,56 @@ body {
 }
 .nc-nav .dropdown .dropdown-content li + li { border-top: 1px solid #ccc; }
 .nc-nav .dropdown .dropdown-content li a:hover { background: #f2f2f2; }
+
+/* --- Dropdown: robustes Verhalten --- */
+
+/* Elterncontainer ist Ankerpunkt für absolute Positionierung */
+.dropdown { position: relative; }
+
+/* Klick-/Hover-Ziel als Block, damit es keine "Löcher" gibt */
+.dropbtn {
+    display: block;
+    padding: 10px 12px;
+    text-decoration: none;
+}
+
+/* Menü: direkt unter dem Button, KEIN margin, hoher z-index */
+.dropdown-content,
+.nc-nav .dropdown .dropdown-content {
+    position: absolute;
+    top: 100%;          /* sitzt direkt unter dem Trigger */
+    left: 0;
+    display: none;      /* standardmäßig versteckt */
+    list-style: none;
+    margin: 0;          /* <— wichtig: KEIN margin-top */
+    padding: 4px 0;
+    min-width: 220px;
+    background: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 8px 16px rgba(0,0,0,.2);
+    border-radius: 8px;
+    z-index: 1000;      /* vor der Leiste */
+}
+
+/* Offen solange Maus im gesamten Container ist (Button ODER Menü) */
+.dropdown:hover > .dropdown-content { display: block; }
+
+/* Offen wenn per Klick .open gesetzt wird (siehe JS unten) */
+.dropdown.open > .dropdown-content { display: block; }
+
+/* Links im Dropdown */
+.dropdown-content li a,
+.nc-nav .dropdown .dropdown-content li a {
+    display: block;
+    padding: 10px 16px;
+    color: #000;
+    text-decoration: none;
+    white-space: nowrap;
+}
+.dropdown-content li + li,
+.nc-nav .dropdown .dropdown-content li + li { border-top: 1px solid #ccc; }
+.dropdown-content li a:hover,
+.nc-nav .dropdown .dropdown-content li a:hover { background: #f2f2f2; }
+
+/* WICHTIG: Eltern sollen das Dropdown nicht abschneiden */
+.nc-header, .nc-nav, .nc-left, .nc-right { overflow: visible; }
