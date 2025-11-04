@@ -20,9 +20,9 @@ public class AuthorApplicationRunner implements ApplicationRunner {
     public void run(ApplicationArguments args) throws Exception {
         // TBD: access Database
 
-        authorRepository.save(new Author("Test", "Test", "email"));
+        //authorRepository.save(new Author("Test", "Test", "email"));
         List<Author> authors = authorRepository.findAll();
     }
 }
 
-//test
+
