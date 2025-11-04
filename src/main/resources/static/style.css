@@ -355,3 +355,193 @@ body {
 
 /* WICHTIG: Eltern sollen das Dropdown nicht abschneiden */
 .nc-header, .nc-nav, .nc-left, .nc-right { overflow: visible; }
+
+
+
+/* ==========================================================
+   CREATE NEW EVENT PAGE STYLES
+   ========================================================== */
+
+/* Nur auf Seiten mit dem Create-Event-Formular */
+.create-event-page {
+    font-family: 'Inter', sans-serif;
+    color: #f5f7fa; /* Helle Schriftfarbe */
+    background-image: url("../images/ManOnMountain.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-color: rgba(0, 0, 0, 0.5);
+    background-blend-mode: darken;
+}
+
+/* Überschrift */
+.create-event-page h1,
+.create-event-page h2 {
+    color: #f0f4f8;
+    text-align: center;
+    font-weight: 600;
+    margin-bottom: 1.2rem;
+}
+
+/* Formular-Container */
+.create-event-page form {
+    max-width: 900px;
+    margin: 60px auto;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 40px;
+    border-radius: 20px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+}
+
+/* Labels */
+.create-event-page label {
+    display: block;
+    color: #f0f4f8;
+    font-weight: 500;
+    margin-bottom: 6px;
+}
+
+/* Inputs, Selects, Textareas */
+.create-event-page input[type="text"],
+.create-event-page input[type="date"],
+.create-event-page input[type="number"],
+.create-event-page textarea,
+.create-event-page select {
+    width: 100%;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.92);
+    color: #0f2740;
+    font-size: 15px;
+    outline: none;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.create-event-page input::placeholder,
+.create-event-page textarea::placeholder {
+    color: #7a7a7a;
+}
+
+/* Textarea */
+.create-event-page textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* Upload-Button */
+.create-event-page .upload-btn {
+    display: block;
+    width: 100%;
+    background: #0f2740;
+    color: white;
+    border: none;
+    border-radius: 999px;
+    padding: 10px 18px;
+    margin-top: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s ease;
+}
+
+.create-event-page .upload-btn:hover {
+    background: #18385c;
+    transform: scale(1.03);
+}
+
+/* Submit-Button */
+.create-event-page .submit-btn {
+    display: block;
+    width: 100%;
+    background: #0f2740;
+    color: white;
+    border: none;
+    border-radius: 999px;
+    padding: 12px 18px;
+    font-size: 16px;
+    margin-top: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s ease;
+}
+
+.create-event-page .submit-btn:hover {
+    background: #18385c;
+}
+
+/* Bildvorschau */
+.create-event-page .image-preview {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.8);
+    color: #6c7a89;
+    font-size: 14px;
+    font-style: italic;
+    height: 200px;
+    margin-bottom: 10px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .create-event-page form {
+        padding: 24px;
+    }
+    .create-event-page h1 {
+        font-size: 1.8rem;
+    }
+}
+
+/* Haupt-Button (Save) */
+.btn-primary {
+    background: #0f2740;
+    color: #fff;
+    border: 0;
+    border-radius: 999px;
+    padding: 10px 24px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.25s ease;
+}
+
+/* Hover-Effekt für Save */
+.btn-primary:hover {
+    background: #18385c;
+    transform: scale(1.03);
+}
+
+/* Cancel-Button (Ghost) */
+.btn-ghost {
+    background: transparent;
+    color: #fff !important;
+    border: 1px solid #c9d1db;
+    border-radius: 999px;
+    padding: 10px 24px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.25s ease;
+}
+
+/* Hover-Effekt für Cancel */
+.btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #e63946; /* Rahmen in der Schriftfarbe */
+    transform: scale(1.03);
+}
+
+.btn-ghost,
+.btn-primary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 16px;          /* gleiche Schriftgröße */
+    line-height: 1;           /* verhindert "höheren" Link-Text */
+    height: 44px;             /* gleiche Gesamthöhe */
+    min-width: 120px;         /* optional, für gleiche Breite */
+    box-sizing: border-box;   /* Padding einberechnen */
+    text-decoration: none;    /* kein Unterstrich beim <a> */
+}

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8" />
-    <title>Create new Event</title>
+    <title>Create Event</title>
     <link rel="stylesheet" th:href="@{/style.css}" href="/style.css" />
     <style>
         .event-form-wrap { max-width: 980px; margin: 48px auto; padding: 0 16px; }
@@ -26,8 +26,8 @@
         .btn-ghost{ background:transparent; color:#0f2740; border:1px solid #c9d1db; border-radius:999px; padding:10px 24px; cursor:pointer; }
     </style>
 </head>
-<body>
 
+<body class="create-event-page">
 <!--bestehender Header-->
 <header class="nc-header">
     <div class="nc-container">
@@ -38,13 +38,13 @@
         <nav class="nc-nav" aria-label="Primary">
             <ul class="nc-left">
                 <li><a th:href="@{/'/}" href="/">Home</a></li>
-                <li class="dropdown">
+                <li-- class="dropdown">
                     <a href="#" class="dropbtn">Events ▾</a>
                     <ul class="dropdown-content">
-                        <li><a th:href="@{/events/new}" href="/events/new">Create Event</a></li>
+                        <!--li><a th:href="@{/events}" href="/events">Create Event</a></li>-->
                         <!--<li><a th:href="@{/events/edit}" href="/events/edit">Edit Event</a></li>-->
-                        <li><a th:href="@{/events}" href="/events">Events Overview</a></li>
-                        <li><a th:href="@{/events/new}" href="/events/new">Create Event</a></li>
+                        <li><a th:href="@{/events}" href="/events">Events</a></li>
+                        <li><a th:href="@{/events}" href="/events">Create Event</a></li>
                         <li><a th:href="@{/events/edit}" href="/events/edit">Edit Event</a></li>
                     </ul>
                 </li>
@@ -60,7 +60,7 @@
 </header>
 
 <main class="event-form-wrap">
-    <h1 class="event-form-title">Create new Event</h1>
+    <h1 class="event-form-title">Create Event</h1>
     <hr class="event-form-hr">
 
     <form class="event-form" th:action="@{/events}" action="/events" method="post" enctype="multipart/form-data">
