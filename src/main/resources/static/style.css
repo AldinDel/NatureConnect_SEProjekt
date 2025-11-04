@@ -485,6 +485,24 @@ body {
     margin-bottom: 10px;
 }
 
+/* Zeitbereich (von - bis) */
+.time-range .time-inputs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.time-range .time-inputs input[type="time"] {
+    flex: 1;
+    min-width: 0;
+}
+
+.time-range .time-separator {
+    color: #f5f7fa;
+    font-weight: 500;
+    font-size: 14px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .create-event-page form {
@@ -544,4 +562,59 @@ body {
     min-width: 120px;         /* optional, für gleiche Breite */
     box-sizing: border-box;   /* Padding einberechnen */
     text-decoration: none;    /* kein Unterstrich beim <a> */
+}
+
+/* =============================
+   Event Form Layout Optimized
+   ============================= */
+
+/* Grid für das ganze Formular */
+.event-form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px 32px;
+    align-items: start;
+}
+
+/* Jede Eingabegruppe */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Felder, die sich über beide Spalten erstrecken (z. B. Description, Buttons) */
+.form-span-2 {
+    grid-column: span 2;
+}
+
+/* Organizer und Category auf gleicher Linie */
+#organizer,
+#category {
+    width: 100%;
+}
+
+/* Min/Max Participants nebeneinander */
+#minParticipants,
+#maxParticipants {
+    width: 100%;
+}
+
+/* Button-Reihe */
+.form-actions {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: center;   /* Zentriert horizontal */
+    gap: 20px;                 /* Abstand zwischen Save & Cancel */
+    margin-top: 24px;          /* etwas mehr Abstand nach oben */
+}
+
+/* Responsives Verhalten */
+@media (max-width: 768px) {
+    .event-form {
+        grid-template-columns: 1fr;
+    }
+    .form-span-2 {
+        grid-column: span 1;
+    }
 }
