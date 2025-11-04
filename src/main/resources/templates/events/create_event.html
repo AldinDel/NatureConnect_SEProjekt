@@ -19,11 +19,37 @@
             border-color: #89a7ff; box-shadow: 0 0 0 3px rgba(137,167,255,.25);
         }
         .form-textarea { min-height: 110px; resize: vertical; }
-        .photo-card { background: linear-gradient(#f4f5f7,#e9ecf0); border:1px solid #d7dbe2; border-radius:10px; height:180px; display:grid; place-items:center; color:#9aa4b2; }
+        .photo-card {
+            background: linear-gradient(#f4f5f7,#e9ecf0);
+            border:1px solid #d7dbe2;
+            border-radius:10px;
+            min-height:180px;
+            display:flex;
+            align-items: center;
+            justify-content: center;
+            color:#9aa4b2;
+            overflow: hidden;
+            position: relative;
+            padding: 12px;
+        }
+        .photo-card img {
+            max-width: 100%;
+            max-height: 400px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border-radius: 6px;
+        }
         .upload-btn { margin-top:12px; padding:8px 14px; border-radius:999px; background:#0f2740; color:#fff; border:none; cursor:pointer; }
+        .upload-btn:hover { background:#1a3a5c; }
         .form-actions { grid-column:1/-1; display:flex; gap:10px; margin-top:8px; }
         .btn-primary{ background:#0f2740; color:#fff; border:0; border-radius:999px; padding:10px 24px; cursor:pointer; }
-        .btn-ghost{ background:transparent; color:#0f2740; border:1px solid #c9d1db; border-radius:999px; padding:10px 24px; cursor:pointer; }
+        .btn-primary:hover { background:#1a3a5c; }
+        .btn-ghost{ background:transparent; color:#0f2740; border:1px solid #c9d1db; border-radius:999px; padding:10px 24px; cursor:pointer; text-decoration: none; display: inline-block; }
+        .btn-ghost:hover { background:#f4f5f7; }
+        .time-inputs { display: flex; align-items: center; gap: 12px; }
+        .time-separator { color: #6b7280; font-size: 14px; }
+        .form-span-2 { grid-column: 1 / -1; }
     </style>
 </head>
 
@@ -37,14 +63,12 @@
         </a>
         <nav class="nc-nav" aria-label="Primary">
             <ul class="nc-left">
-                <li><a th:href="@{/'/}" href="/">Home</a></li>
-                <li-- class="dropdown">
+                <li><a th:href="@{/}" href="/">Home</a></li>
+                <li class="dropdown">
                     <a href="#" class="dropbtn">Events ▾</a>
                     <ul class="dropdown-content">
-                        <!--li><a th:href="@{/events}" href="/events">Create Event</a></li>-->
-                        <!--<li><a th:href="@{/events/edit}" href="/events/edit">Edit Event</a></li>-->
                         <li><a th:href="@{/events}" href="/events">Events</a></li>
-                        <li><a th:href="@{/events}" href="/events">Create Event</a></li>
+                        <li><a th:href="@{/events/create}" href="/events/create">Create Event</a></li>
                         <li><a th:href="@{/events/edit}" href="/events/edit">Edit Event</a></li>
                     </ul>
                 </li>
@@ -68,7 +92,9 @@
         <!-- PHOTO -->
         <div class="form-group">
             <label class="form-label">Photo:</label>
-            <div id="photoCard" class="photo-card"><span id="photoHint">Image preview</span></div>
+            <div id="photoCard" class="photo-card">
+                <span id="photoHint">Image preview</span>
+            </div>
             <input type="file" name="photo" id="photo" accept="image/*" style="display:none">
             <button type="button" class="upload-btn" onclick="document.getElementById('photo').click()">Upload Photo</button>
         </div>
@@ -163,6 +189,49 @@
     </form>
 
 </main>
+
+<script>
+    // Image Preview Funktionalität
+    const photoInput = document.getElementById('photo');
+    const photoCard = document.getElementById('photoCard');
+    const photoHint = document.getElementById('photoHint');
+
+    photoInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                // Entferne den "Image preview" Text
+                photoHint.style.display = 'none';
+
+                // Erstelle oder aktualisiere das Bild
+                let img = photoCard.querySelector('img');
+                if (!img) {
+                    img = document.createElement('img');
+                    photoCard.appendChild(img);
+                }
+                img.src = e.target.result;
+                img.alt = 'Event Photo Preview';
+            };
+
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Optional: Form Validation
+    const form = document.querySelector('.event-form');
+    form.addEventListener('submit', function(event) {
+        const minParticipants = parseInt(document.getElementById('minParticipants').value) || 0;
+        const maxParticipants = parseInt(document.getElementById('maxParticipants').value) || 0;
+
+        if (maxParticipants > 0 && minParticipants > maxParticipants) {
+            event.preventDefault();
+            alert('Min participants cannot be greater than max participants!');
+        }
+    });
+</script>
 
 </body>
 </html>
