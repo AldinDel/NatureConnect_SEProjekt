@@ -1,6 +1,8 @@
 package at.fhv.Authors.domain.model;
 
+import at.fhv.Authors.config.PostgreSQLEnumType;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Type;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -34,6 +36,7 @@ public class Event {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "difficulty", nullable = false)
+    @Type(PostgreSQLEnumType.class)  // ← DIESE ZEILE HINZUFÜGEN
     private Difficulty difficulty;
 
     @Column(name = "min_participants", nullable = false)
@@ -64,7 +67,7 @@ public class Event {
         this.price = price;
     }
 
-    // --- Getter & Setter ---
+    // --- Getter & Setter (bleiben gleich) ---
     public Long getId() { return id; }
 
     public String getTitle() { return title; }

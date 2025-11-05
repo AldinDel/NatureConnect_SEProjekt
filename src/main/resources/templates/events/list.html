@@ -81,11 +81,9 @@
 
                 <ul class="details">
                     <li>📅 <span th:text="${#temporals.format(event.date, 'MMMM dd, yyyy')}">October 25, 2025</span></li>
-                    <li>🕒 <span th:text="${event.time}">08:00 AM - 5:00 PM</span></li>
+                    <li>🕒 <span th:text="${#temporals.format(event.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(event.endTime, 'HH:mm')}">08:00 AM - 5:00 PM</span></li>
                     <li>📍 <span th:text="${event.location}">Appenzell, Switzerland</span></li>
-                    <li>👥 <span th:text="${event.participants}">12 / 20 Participants</span> •
-                        <span th:text="${event.participantType}">For Companies</span>
-                    </li>
+                    <li>👥 <span th:text="${event.minParticipants} + ' - ' + ${event.maxParticipants} + ' Participants'">12 / 20 Participants</span></li>
                 </ul>
 
                 <div class="footer">
