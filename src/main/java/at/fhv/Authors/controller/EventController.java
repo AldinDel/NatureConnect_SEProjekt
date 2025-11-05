@@ -140,6 +140,7 @@ public class EventController {
             updatedEvent.setPrice(BigDecimal.ZERO);
         }
 
+
         // WICHTIG: Kopiere alle Felder vom updatedEvent zum existingEvent
         existingEvent.setTitle(updatedEvent.getTitle());
         existingEvent.setDescription(updatedEvent.getDescription());
