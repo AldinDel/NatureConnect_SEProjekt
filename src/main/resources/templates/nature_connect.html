@@ -3,12 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>NatureConnect</title>
-    <link rel="stylesheet" th:href="@{../style.css}">
+    <link rel="stylesheet" th:href="@{/style.css}" href="/style.css">
+
 </head>
 <header class="nc-header">
     <div class="nc-container">
-        <!-- Logo -->
-        <a class="nc-logo" href="/" aria-label="NATUREConnect Home">
+
+        <!-- Logo führt auf Startseite -->
+        <a class="nc-logo" th:href="@{/}" href="/" aria-label="NATUREConnect Home">
             <img src="/images/NatureConnectLogo.png" alt="Logo">
             <span class="nc-brand"><strong>NATURE</strong>Connect</span>
         </a>
@@ -16,18 +18,18 @@
         <!-- Navigation -->
         <nav class="nc-nav" id="nc-nav" aria-label="Primary">
             <ul class="nc-left">
-                <li><a class="is-active" href="/">Home</a></li>
+                <!-- Home-Link -->
+                <li><a th:href="@{/}" href="/" class="is-active">Home</a></li>
 
                 <!-- Events mit Dropdown -->
                 <li class="dropdown has-dropdown">
                     <a href="#" class="dropbtn with-caret" aria-haspopup="true" aria-expanded="false">Events ▾</a>
                     <ul class="dropdown-content" role="menu" aria-label="Events">
-                        <li role="none"><a role="menuitem" th:href="@{/events/new}">Create Event</a></li>
-                        <li role="none"><a role="menuitem" th:href="@{/events}" href="/events">Events Overview</a></li>
+                        <li role="none"><a role="menuitem" th:href="@{/events}" href="/events">All Events</a></li>
                         <li role="none"><a role="menuitem" th:href="@{/events/new}" href="/events/new">Create Event</a></li>
-                        <li role="none"><a role="menuitem" th:href="@{/events/edit}" href="/events/edit">Edit Event</a></li>
                     </ul>
                 </li>
+
             </ul>
 
             <ul class="nc-right">
