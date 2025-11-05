@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>NatureConnect</title>
-    <link rel="stylesheet" th:href="@{../style.css}">
-    <link rel="stylesheet" th:href="@{../events.css}">
+    <title>NatureConnect - Events</title>
+    <link rel="stylesheet" th:href="@{/style.css}">
+    <link rel="stylesheet" th:href="@{/events.css}">
 </head>
 
 <body>
 <header class="nc-header">
     <div class="nc-container">
         <!-- Logo -->
-        <a class="nc-logo" href="/" aria-label="NATUREConnect Home">
+        <a class="nc-logo" th:href="@{/}" href="/" aria-label="NATUREConnect Home">
             <img src="/images/NatureConnectLogo.png" alt="Logo">
             <span class="nc-brand"><strong>NATURE</strong>Connect</span>
         </a>
@@ -19,29 +19,28 @@
         <!-- Navigation -->
         <nav class="nc-nav" id="nc-nav" aria-label="Primary">
             <ul class="nc-left">
-                <li><a class="is-active" href="/">Home</a></li>
+                <li><a th:href="@{/}" href="/">Home</a></li>
 
                 <!-- Events mit Dropdown -->
                 <li class="dropdown has-dropdown">
                     <a href="#" class="dropbtn with-caret" aria-haspopup="true" aria-expanded="false">Events ▾</a>
                     <ul class="dropdown-content" role="menu" aria-label="Events">
-                        <li role="none"><a role="menuitem" th:href="@{/events/new}">Create Event</a></li>
                         <li role="none"><a role="menuitem" th:href="@{/events}" href="/events">Events Overview</a></li>
                         <li role="none"><a role="menuitem" th:href="@{/events/new}" href="/events/new">Create Event</a></li>
-                        <li role="none"><a role="menuitem" th:href="@{/events/edit}" href="/events/edit">Edit Event</a></li>
                     </ul>
                 </li>
             </ul>
 
             <ul class="nc-right">
-                <li><a href="/about">About Us</a></li>
+                <li><a th:href="@{/about}" href="/about">About Us</a></li>
                 <li><span class="divider">|</span></li>
-                <li><a href="/contact">Contact Us</a></li>
-                <li><a class="nc-login" href="/login">Log In</a></li>
+                <li><a th:href="@{/contact}" href="/contact">Contact Us</a></li>
+                <li><a class="nc-login" th:href="@{/login}" href="/login">Log In</a></li>
             </ul>
         </nav>
     </div>
 </header>
+
 <section class="event-overview">
     <h1>Event Overview</h1>
     <p>Discover exciting events and activities near you</p>
@@ -65,7 +64,7 @@
         <!-- Thymeleaf loop through all events -->
         <div class="event-card" th:each="event : ${events}">
             <div class="card-image">
-                <img th:src="${event.imageUrl}" alt="Event Image">
+                <img th:src="@{${event.imageUrl}}" th:alt="${event.title}" alt="Event Image">
                 <span class="tag" th:text="${event.category}">Outdoor</span>
             </div>
 
@@ -81,16 +80,16 @@
 
                 <ul class="details">
                     <li>📅 <span th:text="${#temporals.format(event.date, 'MMMM dd, yyyy')}">October 25, 2025</span></li>
-                    <li>🕒 <span th:text="${#temporals.format(event.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(event.endTime, 'HH:mm')}">08:00 AM - 5:00 PM</span></li>
+                    <li>🕒 <span th:text="${#temporals.format(event.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(event.endTime, 'HH:mm')}">08:00 - 17:00</span></li>
                     <li>📍 <span th:text="${event.location}">Appenzell, Switzerland</span></li>
-                    <li>👥 <span th:text="${event.minParticipants} + ' - ' + ${event.maxParticipants} + ' Participants'">12 / 20 Participants</span></li>
+                    <li>👥 <span th:text="${event.minParticipants} + ' - ' + ${event.maxParticipants} + ' Participants'">5 - 20 Participants</span></li>
                 </ul>
 
                 <div class="footer">
-                    <span class="price" th:text="'€ ' + ${event.price}">€ 45,00</span>
+                    <span class="price" th:text="'€ ' + ${#numbers.formatDecimal(event.price, 1, 2)}">€ 45.00</span>
                     <div class="buttons">
-                        <a th:href="@{'/events/' + ${event.id}}" class="view-btn">View Details</a>
-                        <a th:href="@{'/events/edit/' + ${event.id}}" class="edit-btn">Edit</a>
+                        <a th:href="@{/events/{id}(id=${event.id})}" class="view-btn">View Details</a>
+                        <a th:href="@{/events/{id}/edit(id=${event.id})}" class="edit-btn">Edit</a>
                     </div>
                 </div>
             </div>
@@ -98,7 +97,5 @@
     </div>
 </section>
 
-
 </body>
 </html>
-

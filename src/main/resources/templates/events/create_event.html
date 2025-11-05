@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8" />
-    <title>Create Event</title>
+    <title th:text="${isEdit} ? 'Edit Event' : 'Create Event'">Create Event</title>
     <link rel="stylesheet" th:href="@{/style.css}" href="/style.css" />
     <style>
         .event-form-wrap { max-width: 980px; margin: 48px auto; padding: 0 16px; }
@@ -68,8 +68,7 @@
                     <a href="#" class="dropbtn">Events ▾</a>
                     <ul class="dropdown-content">
                         <li><a th:href="@{/events}" href="/events">Events</a></li>
-                        <li><a th:href="@{/events/create}" href="/events/create">Create Event</a></li>
-                        <li><a th:href="@{/events/edit}" href="/events/edit">Edit Event</a></li>
+                        <li><a th:href="@{/events/new}" href="/events/new">Create Event</a></li>
                     </ul>
                 </li>
             </ul>
@@ -84,16 +83,21 @@
 </header>
 
 <main class="event-form-wrap">
-    <h1 class="event-form-title">Create Event</h1>
+    <h1 class="event-form-title" th:text="${isEdit} ? 'Edit Event' : 'Create Event'">Create Event</h1>
     <hr class="event-form-hr">
 
-    <form class="event-form" th:action="@{/events}" action="/events" method="post" enctype="multipart/form-data">
+    <form class="event-form"
+          th:action="${isEdit} ? @{/events/{id}(id=${event.id})} : @{/events}"
+          th:object="${event}"
+          method="post"
+          enctype="multipart/form-data">
 
         <!-- PHOTO -->
         <div class="form-group">
             <label class="form-label">Photo:</label>
             <div id="photoCard" class="photo-card">
-                <span id="photoHint">Image preview</span>
+                <img th:if="${event.imageUrl}" th:src="@{${event.imageUrl}}" alt="Event Photo">
+                <span id="photoHint" th:unless="${event.imageUrl}">Image preview</span>
             </div>
             <input type="file" name="photo" id="photo" accept="image/*" style="display:none">
             <button type="button" class="upload-btn" onclick="document.getElementById('photo').click()">Upload Photo</button>
@@ -102,63 +106,63 @@
         <!-- TITLE -->
         <div class="form-group">
             <label class="form-label" for="title">Title:</label>
-            <input id="title" name="title" class="form-input" required>
+            <input id="title" name="title" th:field="*{title}" class="form-input" required>
         </div>
 
         <!-- ORGANIZER -->
         <div class="form-group">
             <label class="form-label" for="organizer">Organizer:</label>
-            <input id="organizer" name="organizer" class="form-input" placeholder="e.g., John Doe / Mountain Adventures">
+            <input id="organizer" name="organizer" th:field="*{organizer}" class="form-input" placeholder="e.g., John Doe / Mountain Adventures">
         </div>
 
         <!-- CATEGORY -->
         <div class="form-group">
             <label class="form-label" for="category">Category:</label>
-            <select id="category" name="category" class="form-select">
+            <select id="category" name="category" th:field="*{category}" class="form-select">
                 <option value="">Select…</option>
-                <option>Hiking</option>
-                <option>Camping</option>
-                <option>Climbing</option>
-                <option>Kayaking</option>
-                <option>Wildlife Tour</option>
+                <option value="Hiking">Hiking</option>
+                <option value="Camping">Camping</option>
+                <option value="Climbing">Climbing</option>
+                <option value="Kayaking">Kayaking</option>
+                <option value="Wildlife Tour">Wildlife Tour</option>
             </select>
         </div>
 
         <!-- DESCRIPTION -->
         <div class="form-group form-span-2">
             <label class="form-label" for="description">Description:</label>
-            <textarea id="description" name="description" class="form-textarea"></textarea>
+            <textarea id="description" name="description" th:field="*{description}" class="form-textarea"></textarea>
         </div>
 
         <!-- DATE -->
         <div class="form-group">
             <label class="form-label" for="date">Date:</label>
-            <input id="date" name="date" type="date" class="form-input" required>
+            <input id="date" name="date" type="date" th:field="*{date}" class="form-input" required>
         </div>
 
         <!-- TIME RANGE -->
         <div class="form-group time-range">
             <label class="form-label">Time:</label>
             <div class="time-inputs">
-                <input id="startTime" name="startTime" type="time" class="form-input" required>
+                <input id="startTime" name="startTime" type="time" th:field="*{startTime}" class="form-input" required>
                 <span class="time-separator">to</span>
-                <input id="endTime" name="endTime" type="time" class="form-input" required>
+                <input id="endTime" name="endTime" type="time" th:field="*{endTime}" class="form-input" required>
             </div>
         </div>
 
         <!-- LOCATION -->
         <div class="form-group">
             <label class="form-label" for="location">Location:</label>
-            <input id="location" name="location" class="form-input" placeholder="e.g., Vienna">
+            <input id="location" name="location" th:field="*{location}" class="form-input" placeholder="e.g., Vienna" required>
         </div>
 
         <!-- DIFFICULTY -->
         <div class="form-group">
             <label class="form-label" for="difficulty">Difficulty level:</label>
-            <select id="difficulty" name="difficulty" class="form-select">
+            <select id="difficulty" name="difficulty" th:field="*{difficulty}" class="form-select" required>
                 <option value="">Select…</option>
                 <option value="BEGINNER">Beginner</option>
-                <option value="INTERMEDIATE">Moderate</option>
+                <option value="INTERMEDIATE">Intermediate</option>
                 <option value="ADVANCED">Advanced</option>
             </select>
         </div>
@@ -166,24 +170,24 @@
         <!-- MIN/MAX PARTICIPANTS -->
         <div class="form-group">
             <label class="form-label" for="minParticipants">Min participants:</label>
-            <input id="minParticipants" name="minParticipants" type="number" min="1" class="form-input" placeholder="e.g., 5">
+            <input id="minParticipants" name="minParticipants" type="number" min="1" th:field="*{minParticipants}" value="1" class="form-input" placeholder="e.g., 5" required>
         </div>
 
         <div class="form-group">
             <label class="form-label" for="maxParticipants">Max participants:</label>
-            <input id="maxParticipants" name="maxParticipants" type="number" min="1" class="form-input" placeholder="e.g., 20">
+            <input id="maxParticipants" name="maxParticipants" type="number" min="1" th:field="*{maxParticipants}" class="form-input" placeholder="e.g., 20" required>
         </div>
 
         <!-- PRICE -->
         <div class="form-group">
             <label class="form-label" for="price">Price:</label>
-            <input id="price" name="price" type="number" min="0" step="0.01" class="form-input" placeholder="e.g., 49.90">
+            <input id="price" name="price" type="number" min="0" step="0.01" th:field="*{price}" value="0" class="form-input" placeholder="e.g., 49.90" required>
         </div>
 
         <!-- BUTTONS -->
         <div class="form-actions">
-            <button type="submit" class="btn-primary">Save</button>
-            <a href="/events" class="btn-ghost">Cancel</a>
+            <button type="submit" class="btn-primary" th:text="${isEdit} ? 'Update' : 'Save'">Save</button>
+            <a th:href="@{/events}" href="/events" class="btn-ghost">Cancel</a>
         </div>
 
     </form>
@@ -204,7 +208,9 @@
 
             reader.onload = function(e) {
                 // Entferne den "Image preview" Text
-                photoHint.style.display = 'none';
+                if (photoHint) {
+                    photoHint.style.display = 'none';
+                }
 
                 // Erstelle oder aktualisiere das Bild
                 let img = photoCard.querySelector('img');
@@ -220,15 +226,26 @@
         }
     });
 
-    // Optional: Form Validation
+    // Form Validation
     const form = document.querySelector('.event-form');
     form.addEventListener('submit', function(event) {
         const minParticipants = parseInt(document.getElementById('minParticipants').value) || 0;
         const maxParticipants = parseInt(document.getElementById('maxParticipants').value) || 0;
+        const startTime = document.getElementById('startTime').value;
+        const endTime = document.getElementById('endTime').value;
 
+        // Validate participants
         if (maxParticipants > 0 && minParticipants > maxParticipants) {
             event.preventDefault();
             alert('Min participants cannot be greater than max participants!');
+            return;
+        }
+
+        // Validate time order
+        if (startTime && endTime && endTime <= startTime) {
+            event.preventDefault();
+            alert('End time must be after start time!');
+            return;
         }
     });
 </script>
