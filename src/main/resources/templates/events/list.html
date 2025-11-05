@@ -47,26 +47,53 @@
     <h1>Event Overview</h1>
     <p>Discover exciting events and activities near you</p>
 
-    <div class="search-bar">
-        <span class="search-icon">🔍</span>
-        <input type="text" placeholder="Browse Events...">
-    </div>
+    <!-- 🔍 Search & Filter Form -->
+    <form th:action="@{/events/search}" method="get" class="search-form">
 
-    <div class="category-bar">
-        <button class="active">All Events</button>
-        <button>Camping</button>
-        <button>Swimming</button>
-        <button>Hiking</button>
-        <button>Canyoning</button>
-        <button>Football Camp</button>
-        <button>Climbing</button>
-    </div>
+        <!-- Keyword search -->
+        <div class="search-bar">
+            <span class="search-icon">🔍</span>
+            <input type="text" name="q" placeholder="Browse Events..." th:value="${param.q}">
+        </div>
 
+        <!-- Category buttons -->
+        <div class="category-bar">
+            <button type="submit" name="category" value=""
+                    th:classappend="${param.category == null or param.category == ''} ? 'active' : ''">
+                All Events
+            </button>
+            <button type="submit" name="category" value="Camping"
+                    th:classappend="${param.category == 'Camping'} ? 'active' : ''">
+                Camping
+            </button>
+            <button type="submit" name="category" value="Swimming"
+                    th:classappend="${param.category == 'Swimming'} ? 'active' : ''">
+                Swimming
+            </button>
+            <button type="submit" name="category" value="Hiking"
+                    th:classappend="${param.category == 'Hiking'} ? 'active' : ''">
+                Hiking
+            </button>
+            <button type="submit" name="category" value="Canyoning"
+                    th:classappend="${param.category == 'Canyoning'} ? 'active' : ''">
+                Canyoning
+            </button>
+            <button type="submit" name="category" value="Football Camp"
+                    th:classappend="${param.category == 'Football Camp'} ? 'active' : ''">
+                Football Camp
+            </button>
+            <button type="submit" name="category" value="Climbing"
+                    th:classappend="${param.category == 'Climbing'} ? 'active' : ''">
+                Climbing
+            </button>
+        </div>
+    </form>
+
+    <!-- Events grid -->
     <div class="event-grid">
-        <!-- Thymeleaf loop through all events -->
         <div class="event-card" th:each="event : ${events}">
             <div class="card-image">
-                <img th:src="@{${event.imageUrl}}" th:alt="${event.title}" alt="Event Image">
+                <img th:src="@{${event.imageUrl}}" th:alt="${event.title}">
                 <span class="tag" th:text="${event.category}">Outdoor</span>
             </div>
 
@@ -76,19 +103,17 @@
                     <span class="difficulty yellow" th:text="${event.difficulty}">Intermediate</span>
                 </div>
 
-                <p th:text="${event.description}">
-                    Event description here...
-                </p>
+                <p th:text="${event.description}">Event description here...</p>
 
                 <ul class="details">
-                    <li>📅 <span th:text="${#temporals.format(event.date, 'MMMM dd, yyyy')}">October 25, 2025</span></li>
-                    <li>🕒 <span th:text="${#temporals.format(event.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(event.endTime, 'HH:mm')}">08:00 - 17:00</span></li>
-                    <li>📍 <span th:text="${event.location}">Appenzell, Switzerland</span></li>
-                    <li>👥 <span th:text="${event.minParticipants} + ' - ' + ${event.maxParticipants} + ' Participants'">5 - 20 Participants</span></li>
+                    <li>📅 <span th:text="${#temporals.format(event.date, 'MMMM dd, yyyy')}"></span></li>
+                    <li>🕒 <span th:text="${#temporals.format(event.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(event.endTime, 'HH:mm')}"></span></li>
+                    <li>📍 <span th:text="${event.location}"></span></li>
+                    <li>👥 <span th:text="${event.minParticipants} + ' - ' + ${event.maxParticipants} + ' Participants'"></span></li>
                 </ul>
 
                 <div class="footer">
-                    <span class="price" th:text="'€ ' + ${#numbers.formatDecimal(event.price, 1, 2)}">€ 45.00</span>
+                    <span class="price" th:text="'€ ' + ${#numbers.formatDecimal(event.price, 1, 2)}"></span>
                     <div class="buttons">
                         <a th:href="@{/events/{id}(id=${event.id})}" class="view-btn">View Details</a>
                         <a th:href="@{/events/{id}/edit(id=${event.id})}" class="edit-btn">Edit</a>

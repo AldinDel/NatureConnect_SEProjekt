@@ -19,6 +19,8 @@ import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+import java.util.Map;
+
 
 @Controller
 public class EventController {
@@ -28,7 +30,8 @@ public class EventController {
     public EventController(EventRepository repo) {
         this.repo = repo;
     }
-
+    /*
+    wurde ersetzt (ganz unten)
     @GetMapping("/events/search")
     public String search(
             @RequestParam(required = false) String q,
@@ -46,6 +49,7 @@ public class EventController {
 
         return "events/list";
     }
+    */
 
     // Formular zum Erstellen anzeigen
     @GetMapping("/events/new")
@@ -200,4 +204,73 @@ public class EventController {
         model.addAttribute("events", events);
         return "events/list";
     }
+
+
+    @GetMapping("/events/search")
+    public String searchEvents(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(required = false) String activity,
+            @RequestParam(required = false) String category, // 🔥 für dein Event Overview Filter
+            Model model
+    ) {
+        List<Event> results = repo.findAll();
+
+        // --- Keyword ---
+        if (q != null && !q.isBlank()) {
+            String keyword = q.toLowerCase();
+            results = results.stream()
+                    .filter(e ->
+                            (e.getTitle() != null && e.getTitle().toLowerCase().contains(keyword)) ||
+                                    (e.getDescription() != null && e.getDescription().toLowerCase().contains(keyword)))
+                    .toList();
+        }
+
+        // --- Location ---
+        if (location != null && !location.isBlank()) {
+            results = results.stream()
+                    .filter(e -> e.getLocation() != null &&
+                            e.getLocation().toLowerCase().contains(location.toLowerCase()))
+                    .toList();
+        }
+
+        // --- Date ---
+        if (date != null) {
+            results = results.stream()
+                    .filter(e -> e.getDate() != null && e.getDate().isEqual(date))
+                    .toList();
+        }
+
+        // --- Activity ---
+        if (activity != null && !activity.isBlank()) {
+            results = results.stream()
+                    .filter(e -> e.getCategory() != null &&
+                            e.getCategory().equalsIgnoreCase(activity))
+                    .toList();
+        }
+
+        // --- Category (von Event Overview) ---
+        if (category != null && !category.isBlank()) {
+            results = results.stream()
+                    .filter(e -> e.getCategory() != null &&
+                            e.getCategory().equalsIgnoreCase(category))
+                    .toList();
+        }
+
+        // --- Ergebnisse + Parameter zurückgeben ---
+        model.addAttribute("events", results);
+        model.addAttribute("param", Map.of(
+                "q", q != null ? q : "",
+                "location", location != null ? location : "",
+                "date", date != null ? date.toString() : "",
+                "activity", activity != null ? activity : "",
+                "category", category != null ? category : ""
+        ));
+
+        return "events/list";
+    }
+
+
+
 }
