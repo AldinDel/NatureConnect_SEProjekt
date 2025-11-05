@@ -3,6 +3,8 @@ package at.fhv.Authors.domain.model;
 import at.fhv.Authors.config.PostgreSQLEnumType;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -22,6 +24,7 @@ public class Event {
     @Column(columnDefinition = "TEXT")
     private String description;
 
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     @Column(nullable = false)
     private LocalDate date;
 
