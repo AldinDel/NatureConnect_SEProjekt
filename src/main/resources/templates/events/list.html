@@ -8,6 +8,9 @@
 </head>
 
 <body>
+<!-- Erfolgsmeldung Popup -->
+<div th:if="${success}" id="success-popup" class="popup-message" th:text="${success}"></div>
+
 <header class="nc-header">
     <div class="nc-container">
         <!-- Logo -->

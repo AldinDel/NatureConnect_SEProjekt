@@ -178,6 +178,17 @@
             <input id="maxParticipants" name="maxParticipants" type="number" min="1" th:field="*{maxParticipants}" class="form-input" placeholder="e.g., 20" required>
         </div>
 
+        <!-- EQUIPMENT -->
+        <div class="form-group">
+            <label class="form-label">Equipment:</label>
+            <div id="equipment-list">
+                <div class="equipment-item">
+                    <input type="text" name="equipmentNames" class="form-input" placeholder="e.g., Tent, Backpack, Helmet">
+                </div>
+            </div>
+            <button type="button" id="add-equipment" class="btn-ghost" style="margin-top: 8px;">+ Add Equipment</button>
+        </div>
+
         <!-- PRICE -->
         <div class="form-group">
             <label class="form-label" for="price">Price:</label>
@@ -249,6 +260,34 @@
         }
     });
 </script>
+
+<script>
+    // Equipment hinzufügen/entfernen
+    document.getElementById("add-equipment").addEventListener("click", function() {
+        const list = document.getElementById("equipment-list");
+
+        const newItem = document.createElement("div");
+        newItem.classList.add("equipment-item");
+
+        newItem.innerHTML = `
+            <input type="text" name="equipmentNames" class="form-input" placeholder="e.g., Tent, Backpack, Helmet">
+            <button type="button" class="remove-equipment" style="margin-left:8px; border:none; background:none; color:#e63946; font-weight:bold; cursor:pointer;">✕</button>
+        `;
+
+        list.appendChild(newItem);
+
+        // Entfernen-Button aktivieren
+        newItem.querySelector(".remove-equipment").addEventListener("click", function() {
+            newItem.remove();
+        });
+    });
+</script>
+
+
+
+
+
+
 
 </body>
 </html>

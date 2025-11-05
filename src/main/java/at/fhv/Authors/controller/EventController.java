@@ -72,6 +72,7 @@ public class EventController {
     @PostMapping("/events")
     public String create(@ModelAttribute("event") Event event,
                          @RequestParam(value = "photo", required = false) MultipartFile photo,
+                         @RequestParam(value = "equipmentNames", required = false) List<String> equipmentNames,
                          RedirectAttributes ra) throws IOException {
 
         // Validierung: End-Zeit muss nach Start-Zeit sein
@@ -107,6 +108,17 @@ public class EventController {
         }
 
         repo.save(event);
+
+        // Equipment (nur Testausgabe)
+        if (equipmentNames != null && !equipmentNames.isEmpty()) {
+            System.out.println("Equipment added:");
+            for (String eq : equipmentNames) {
+                if (eq != null && !eq.trim().isEmpty()) {
+                    System.out.println("- " + eq);
+                }
+            }
+        }
+
         ra.addFlashAttribute("success", "Event created successfully!");
         return "redirect:/events";
     }

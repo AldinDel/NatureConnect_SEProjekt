@@ -631,3 +631,46 @@ body {
         grid-column: span 1;
     }
 }
+
+/* =============================
+   Equipment-Felder (Create Event)
+   ============================= */
+
+.equipment-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+#add-equipment {
+    font-size: 14px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid #c9d1db;
+    color: #fff;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#add-equipment:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.05);
+}
+
+.remove-equipment {
+    background: none;
+    border: none;
+    color: #e63946;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.2s ease;
+}
+
+.remove-equipment:hover {
+    color: #ff4d5a;
+    transform: scale(1.2);
+}
+
