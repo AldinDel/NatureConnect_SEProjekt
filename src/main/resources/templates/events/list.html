@@ -11,6 +11,7 @@
 <!-- Erfolgsmeldung Popup -->
 <div th:if="${success}" id="success-popup" class="popup-message" th:text="${success}"></div>
 
+<!-- Header -->
 <header class="nc-header">
     <div class="nc-container">
         <!-- Logo -->
@@ -28,7 +29,8 @@
                 <li class="dropdown has-dropdown">
                     <a href="#" class="dropbtn with-caret" aria-haspopup="true" aria-expanded="false">Events ▾</a>
                     <ul class="dropdown-content" role="menu" aria-label="Events">
-                      <li role="none"><a role="menuitem" th:href="@{/events/new}" href="/events/new">Create Event</a></li>
+                        <li role="none"><a role="menuitem" th:href="@{/events/new}" href="/events/new">Create Event</a>
+                        </li>
                     </ul>
                 </li>
             </ul>
@@ -47,13 +49,13 @@
     <h1>Event Overview</h1>
     <p>Discover exciting events and activities near you</p>
 
-    <!-- 🔍 Search & Filter Form -->
+    <!-- Search & Filter Form -->
     <form th:action="@{/events/search}" method="get" class="search-form">
 
         <!-- Keyword search -->
         <div class="search-bar">
-            <span class="search-icon">🔍</span>
-            <input type="text" name="q" placeholder="Browse Events..." th:value="${param.q}">
+            <i data-lucide="search" class="search-icon" aria-hidden="true"></i>
+            <input type="text" name="q" placeholder="Browse Events..." th:value="${param.q}" aria-label="Search events">
         </div>
 
         <!-- Category buttons -->
@@ -66,50 +68,177 @@
                     th:classappend="${param.category == 'Camping'} ? 'active' : ''">
                 Camping
             </button>
-            <button type="submit" name="category" value="Swimming"
-                    th:classappend="${param.category == 'Swimming'} ? 'active' : ''">
-                Swimming
+            <button type="submit" name="category" value="Kayaking"
+                    th:classappend="${param.category == 'Kayaking'} ? 'active' : ''">
+                Kayaking
             </button>
             <button type="submit" name="category" value="Hiking"
                     th:classappend="${param.category == 'Hiking'} ? 'active' : ''">
                 Hiking
             </button>
-            <button type="submit" name="category" value="Canyoning"
-                    th:classappend="${param.category == 'Canyoning'} ? 'active' : ''">
-                Canyoning
-            </button>
-            <button type="submit" name="category" value="Football Camp"
-                    th:classappend="${param.category == 'Football Camp'} ? 'active' : ''">
-                Football Camp
+
+            <button type="submit" name="category" value="Wildlife Tour"
+                    th:classappend="${param.category == 'Wildlife Tour'} ? 'active' : ''">
+                Wildlife Tour
             </button>
             <button type="submit" name="category" value="Climbing"
                     th:classappend="${param.category == 'Climbing'} ? 'active' : ''">
                 Climbing
             </button>
+            <button type="button" id="open-filters" class="filter-btn-inline">
+                <svg xmlns="http://www.w3.org/2000/svg" class="filter-icon" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor">
+                    <line x1="4" y1="21" x2="4" y2="14"></line>
+                    <line x1="4" y1="10" x2="4" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12" y2="3"></line>
+                    <line x1="20" y1="21" x2="20" y2="16"></line>
+                    <line x1="20" y1="12" x2="20" y2="3"></line>
+                    <line x1="1" y1="14" x2="7" y2="14"></line>
+                    <line x1="9" y1="8" x2="15" y2="8"></line>
+                    <line x1="17" y1="16" x2="23" y2="16"></line>
+                </svg>
+                More Filters
+            </button>
         </div>
     </form>
+
+    <!-- Filter Panel wird rechts dann angezeigt -->
+    <div id="filter-panel" class="filter-panel">
+        <div class="filter-header">
+            <h3>More Filters</h3>
+            <button type="button" id="close-filters" class="close-btn">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+
+        <form th:action="@{/events/search}" method="get" class="filter-form">
+
+            <!-- Location -->
+            <div class="filter-group">
+                <label for="location">Location</label>
+                <input list="location-list" id="location" name="location" placeholder="Enter a location...">
+                <datalist id="location-list">
+                    <option value="Vienna">
+                    <option value="Salzburg">
+                    <option value="Innsbruck">
+                    <option value="Graz">
+                    <option value="Dornbirn">
+                </datalist>
+            </div>
+
+
+            <div class="filter-group">
+                <label>Category</label>
+                <select name="category">
+                    <option value="">All Categories</option>
+                    <option value="Hiking">Hiking</option>
+                    <option value="Camping">Camping</option>
+                    <option value="Kayaking">Kayaking</option>
+                    <option value="Climbing">Climbing</option>
+                    <option value="Wildlife Tour">Wildlife Tour</option>
+                </select>
+            </div>
+
+
+            <div class="filter-group">
+                <label>Date Range</label>
+                <div class="date-range">
+                    <input type="date" name="startDate" id="startDate">
+                    <span>to</span>
+                    <input type="date" name="endDate" id="endDate">
+                </div>
+            </div>
+
+            <!-- difficulty -->
+            <div class="filter-group">
+                <label>Difficulty</label>
+                <div class="checkbox-group">
+                    <label><input type="radio" name="difficulty" value=""> Any</label>
+                    <label><input type="radio" name="difficulty" value="Easy"> Easy</label>
+                    <label><input type="radio" name="difficulty" value="Intermediate"> Intermediate</label>
+                    <label><input type="radio" name="difficulty" value="Hard"> Hard</label>
+                </div>
+            </div>
+
+            <!-- Price range -->
+            <div class="filter-group">
+                <label>Price Range (€)</label>
+                <div class="price-range">
+                    <input type="number" name="minPrice" placeholder="Min" min="0">
+                    <span>–</span>
+                    <input type="number" name="maxPrice" placeholder="Max" min="0">
+                </div>
+            </div>
+
+            <button type="submit" class="apply-btn">Apply Filters</button>
+        </form>
+    </div>
+    <div id="overlay" class="overlay"></div>
+    <!-- Event Meta Bar -->
+    <div class="event-meta-bar">
+        <div class="event-count">
+            <span th:text="${#lists.size(events)} + ' Events found'">0 Events found</span>
+        </div>
+        <!-- Sortieren -->
+        <div class="sort-options">
+            <form th:action="@{/events/search}" method="get">
+                <input type="hidden" name="q" th:value="${param.q}"/>
+                <input type="hidden" name="category" th:value="${param.category}"/>
+
+                <div class="sort-select-wrapper">
+                    <label for="sort" class="sort-label">Sort by:</label>
+
+                    <div class="sort-select">
+                        <select id="sort" name="sort" onchange="this.form.submit()" th:value="${sort}">
+                            <option value="" th:selected="${sort == null or sort == ''}">Default</option>
+                            <option value="dateAsc" th:selected="${sort == 'dateAsc'}">Date: Soonest First</option>
+                            <option value="dateDesc" th:selected="${sort == 'dateDesc'}">Date: Latest First</option>
+                            <option value="priceAsc" th:selected="${sort == 'priceAsc'}">Price: Low → High</option>
+                            <option value="priceDesc" th:selected="${sort == 'priceDesc'}">Price: High → Low</option>
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <!-- Ende Sortieren -->
+    </div>
+
 
     <!-- Events grid -->
     <div class="event-grid">
         <div class="event-card" th:each="event : ${events}">
             <div class="card-image">
                 <img th:src="@{${event.imageUrl}}" th:alt="${event.title}">
-                <span class="tag" th:text="${event.category}">Outdoor</span>
+                <span class="tag"
+                      th:text="${event.category != null ? event.category : 'General'}"
+                      th:classappend="|tag-${#strings.toLowerCase(event.category != null ? event.category : 'general')}|">
+                </span>
             </div>
 
             <div class="card-content">
                 <div class="card-header">
                     <h3 th:text="${event.title}">Event Title</h3>
-                    <span class="difficulty yellow" th:text="${event.difficulty}">Intermediate</span>
+                    <span class="difficulty yellow"
+                          th:text="${#strings.capitalize(#strings.toLowerCase(event.difficulty.name()))}">
+                        Intermediate
+                    </span>
                 </div>
 
                 <p th:text="${event.description}">Event description here...</p>
 
                 <ul class="details">
-                    <li>📅 <span th:text="${#temporals.format(event.date, 'MMMM dd, yyyy')}"></span></li>
-                    <li>🕒 <span th:text="${#temporals.format(event.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(event.endTime, 'HH:mm')}"></span></li>
-                    <li>📍 <span th:text="${event.location}"></span></li>
-                    <li>👥 <span th:text="${event.minParticipants} + ' - ' + ${event.maxParticipants} + ' Participants'"></span></li>
+                    <li><i data-lucide="calendar"></i>
+                        <span th:text="${#temporals.format(event.date, 'MMMM dd, yyyy')}"></span>
+                    </li>
+                    <li><i data-lucide="clock"></i>
+                        <span th:text="${#temporals.format(event.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(event.endTime, 'HH:mm')}"></span>
+                    </li>
+                    <li><i data-lucide="map-pin"></i>
+                        <span th:text="${event.location}"></span>
+                    </li>
+                    <li><i data-lucide="users"></i>
+                        <span th:text="${event.minParticipants} + ' - ' + ${event.maxParticipants} + ' Participants'"></span>
                 </ul>
 
                 <div class="footer">
@@ -123,6 +252,36 @@
         </div>
     </div>
 </section>
+
+<!-- Script Sachen ka ob man das darf -->
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    lucide.createIcons();
+</script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<script>
+    lucide.createIcons();
+
+    const openBtn = document.getElementById("open-filters");
+    const closeBtn = document.getElementById("close-filters");
+    const panel = document.getElementById("filter-panel");
+    const overlay = document.getElementById("overlay");
+
+    openBtn.addEventListener("click", () => {
+        panel.classList.add("open");
+        overlay.classList.add("active");
+    });
+
+    closeBtn.addEventListener("click", () => {
+        panel.classList.remove("open");
+        overlay.classList.remove("active");
+    });
+
+    overlay.addEventListener("click", () => {
+        panel.classList.remove("open");
+        overlay.classList.remove("active");
+    });
+</script>
 
 </body>
 </html>

@@ -1,5 +1,6 @@
 package at.fhv.Authors.controller;
 
+import at.fhv.Authors.domain.model.Difficulty;
 import at.fhv.Authors.domain.model.Event;
 import at.fhv.Authors.persistence.EventRepository;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -17,6 +18,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.Map;
@@ -193,6 +195,7 @@ public class EventController {
         return "redirect:/events";
     }
 
+    // Ab Hier Overview
     @GetMapping("/events/overview")
     public String overviewAlias() {
         return "redirect:/events";
@@ -210,14 +213,19 @@ public class EventController {
     public String searchEvents(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String location,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) String difficulty,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
             @RequestParam(required = false) String activity,
-            @RequestParam(required = false) String category, // 🔥 für dein Event Overview Filter
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String sort,
             Model model
     ) {
         List<Event> results = repo.findAll();
 
-        // --- Keyword ---
+        // Keyword Suche
         if (q != null && !q.isBlank()) {
             String keyword = q.toLowerCase();
             results = results.stream()
@@ -227,7 +235,7 @@ public class EventController {
                     .toList();
         }
 
-        // --- Location ---
+        // Location
         if (location != null && !location.isBlank()) {
             results = results.stream()
                     .filter(e -> e.getLocation() != null &&
@@ -235,14 +243,45 @@ public class EventController {
                     .toList();
         }
 
-        // --- Date ---
-        if (date != null) {
+        // Difficulty
+        if (difficulty != null && !difficulty.isBlank()) {
+            try {
+                Difficulty filterValue = Difficulty.valueOf(difficulty.toUpperCase());
+                results = results.stream()
+                        .filter(e -> e.getDifficulty() == filterValue)
+                        .toList();
+            } catch (IllegalArgumentException ex) {
+            }
+        }
+
+        // Date
+        if (startDate != null || endDate != null) {
             results = results.stream()
-                    .filter(e -> e.getDate() != null && e.getDate().isEqual(date))
+                    .filter(e -> {
+                        if (e.getDate() == null) return false;
+                        boolean afterStart = (startDate == null || !e.getDate().isBefore(startDate));
+                        boolean beforeEnd = (endDate == null || !e.getDate().isAfter(endDate));
+                        return afterStart && beforeEnd;
+                    })
                     .toList();
         }
 
-        // --- Activity ---
+        // Price range
+        if (minPrice != null || maxPrice != null) {
+            results = results.stream()
+                    .filter(e -> {
+                        if (e.getPrice() == null) return false;
+
+                        BigDecimal price = e.getPrice();
+                        boolean aboveMin = (minPrice == null || price.compareTo(BigDecimal.valueOf(minPrice)) >= 0);
+                        boolean belowMax = (maxPrice == null || price.compareTo(BigDecimal.valueOf(maxPrice)) <= 0);
+
+                        return aboveMin && belowMax;
+                    })
+                    .toList();
+        }
+
+        // Activity
         if (activity != null && !activity.isBlank()) {
             results = results.stream()
                     .filter(e -> e.getCategory() != null &&
@@ -250,7 +289,7 @@ public class EventController {
                     .toList();
         }
 
-        // --- Category (von Event Overview) ---
+        // Category
         if (category != null && !category.isBlank()) {
             results = results.stream()
                     .filter(e -> e.getCategory() != null &&
@@ -258,19 +297,21 @@ public class EventController {
                     .toList();
         }
 
-        // --- Ergebnisse + Parameter zurückgeben ---
-        model.addAttribute("events", results);
-        model.addAttribute("param", Map.of(
-                "q", q != null ? q : "",
-                "location", location != null ? location : "",
-                "date", date != null ? date.toString() : "",
-                "activity", activity != null ? activity : "",
-                "category", category != null ? category : ""
-        ));
+        // Sortieren
+        if (sort != null && !sort.isBlank()) {
+            switch (sort) {
+                case "dateAsc" -> results.sort(Comparator.comparing(Event::getDate, Comparator.nullsLast(Comparator.naturalOrder())));
+                case "dateDesc" -> results.sort(Comparator.comparing(Event::getDate, Comparator.nullsLast(Comparator.naturalOrder())).reversed());
+                case "priceAsc" -> results.sort(Comparator.comparing(Event::getPrice, Comparator.nullsLast(Comparator.naturalOrder())));
+                case "priceDesc" -> results.sort(Comparator.comparing(Event::getPrice, Comparator.nullsLast(Comparator.naturalOrder())).reversed());
+            }
+        }
 
+        model.addAttribute("events", results);
+        model.addAttribute("count", results.size());
+        model.addAttribute("sort", sort);
         return "events/list";
     }
-
 
 
 }
