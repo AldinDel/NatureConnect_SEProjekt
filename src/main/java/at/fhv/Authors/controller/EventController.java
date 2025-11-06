@@ -267,7 +267,6 @@ public class EventController {
             @RequestParam(required = false) String sort,
             Model model
     ) {
-        System.out.println("🔍 Search query: " + q);
         List<Event> results = repo.findAll();
         if (q != null) {
             String trimmed = q.trim();
@@ -396,7 +395,7 @@ public class EventController {
 
     @ExceptionHandler(org.springframework.web.method.annotation.HandlerMethodValidationException.class)
     public String handleValidationException(Exception ex, Model model) {
-        model.addAttribute("error", "Invalid search input. Please use only letters and up to 75 characters 🌿");
+        model.addAttribute("error", "Invalid search input. Please use only letters and up to 75 characters ");
         model.addAttribute("events", List.of());
         return "events/list";
     }
