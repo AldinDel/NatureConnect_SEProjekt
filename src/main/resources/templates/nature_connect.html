@@ -64,7 +64,8 @@
                     maxlength="75"
                     pattern="^[A-Za-zÀ-ž0-9\s.,'-]+$"
                     title="Please enter at least 3 characters (letters or numbers only)"
-                    required
+                    oninvalid="this.setCustomValidity('Please enter at least 3 characters if you want to search by name!')"
+                    oninput="this.setCustomValidity('')"
             >
         </label>
 
@@ -86,8 +87,15 @@
         <label class="nc-field nc-split">
             <span class="nc-label">Date</span>
             <div class="nc-input-select">
-                <input type="date" name="date" placeholder="Select a Date">
-                <svg class="nc-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="currentColor"/></svg>
+                <input
+                        type="date"
+                        name="startDate"
+                        placeholder="Select a Date"
+                        th:value="${param.startDate}"
+                >
+                <svg class="nc-caret" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M6 9l6 6 6-6" fill="currentColor"/>
+                </svg>
             </div>
         </label>
 
@@ -97,11 +105,11 @@
             <div class="nc-input-select">
                 <select name="activity">
                     <option value="" selected>Choose an activity</option>
-                    <option value="hiking">Hiking</option>
-                    <option value="canyoning">Canyoning</option>
-                    <option value="kayaking">Kayaking</option>
-                    <option value="wildlife-tour">Wildlife tour</option>
-                    <option value="climbing">Climbing</option>
+                    <option value="Hiking">Hiking</option>
+                    <option value="Camping">Camping</option>
+                    <option value="Kayaking">Kayaking</option>
+                    <option value="Climbing">Climbing</option>
+                    <option value="Wildlife Tour">Wildlife Tour</option>
                 </select>
                 <svg class="nc-caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="currentColor"/></svg>
             </div>

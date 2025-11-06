@@ -103,18 +103,38 @@ public class EventController {
         // Bild speichern (optional)
         if (photo != null && !photo.isEmpty()) {
             Path uploadDir = Paths.get("uploads");
+            System.out.println("UPLOAD DIR → " + uploadDir.toAbsolutePath());
             Files.createDirectories(uploadDir);
 
-            String ext = StringUtils.getFilenameExtension(photo.getOriginalFilename());
-            String filename = UUID.randomUUID().toString() + (ext != null ? "." + ext : "");
+
+            // --- Erweiterung robust bestimmen ---
+            String originalName = photo.getOriginalFilename();
+            String ext = StringUtils.getFilenameExtension(originalName);
+
+            if (ext == null || ext.isBlank()) {
+                String contentType = photo.getContentType(); // z. B. image/avif
+                if (contentType != null && contentType.startsWith("image/")) {
+                    ext = contentType.substring(6); // ergibt "avif", "jpeg", etc.
+                } else {
+                    ext = "jpg"; // Fallback
+                }
+            }
+
+            // --- Alles auf lowercase, um Fehler zu vermeiden ---
+            ext = ext.toLowerCase();
+
+            // --- Dateiname generieren ---
+            String filename = UUID.randomUUID().toString() + "." + ext;
             Path target = uploadDir.resolve(filename);
 
             try (var in = photo.getInputStream()) {
                 Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
             }
 
+            // --- Nur relativen Pfad speichern! ---
             event.setImageUrl("/uploads/" + filename);
         }
+
 
         repo.save(event);
 
@@ -179,18 +199,37 @@ public class EventController {
         // Bild: Behalte altes Bild, wenn kein neues hochgeladen wird
         if (photo != null && !photo.isEmpty()) {
             Path uploadDir = Paths.get("uploads");
+            System.out.println("UPLOAD DIR → " + uploadDir.toAbsolutePath());
             Files.createDirectories(uploadDir);
 
-            String ext = StringUtils.getFilenameExtension(photo.getOriginalFilename());
-            String filename = UUID.randomUUID().toString() + (ext != null ? "." + ext : "");
+            // --- Erweiterung robust bestimmen ---
+            String originalName = photo.getOriginalFilename();
+            String ext = StringUtils.getFilenameExtension(originalName);
+
+            if (ext == null || ext.isBlank()) {
+                String contentType = photo.getContentType(); // z. B. image/avif
+                if (contentType != null && contentType.startsWith("image/")) {
+                    ext = contentType.substring(6); // ergibt "avif", "jpeg", etc.
+                } else {
+                    ext = "jpg"; // Fallback
+                }
+            }
+
+            // --- Alles auf lowercase, um Fehler zu vermeiden ---
+            ext = ext.toLowerCase();
+
+            // --- Dateiname generieren ---
+            String filename = UUID.randomUUID().toString() + "." + ext;
             Path target = uploadDir.resolve(filename);
 
             try (var in = photo.getInputStream()) {
                 Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
             }
 
+            // --- Nur relativen Pfad speichern! ---
             existingEvent.setImageUrl("/uploads/" + filename);
         }
+
         // Falls kein neues Bild: behalte das alte (bereits in existingEvent)
 
         repo.save(existingEvent);
@@ -212,7 +251,9 @@ public class EventController {
     }
 
     @GetMapping("/events/search")
+
     public String searchEvents(
+
             @RequestParam(required = false) String q,
 
             @RequestParam(required = false) String location,
@@ -226,21 +267,26 @@ public class EventController {
             @RequestParam(required = false) String sort,
             Model model
     ) {
+        System.out.println("🔍 Search query: " + q);
         List<Event> results = repo.findAll();
-        if (q != null && !q.isBlank() && q.trim().length() < 3) {
-            model.addAttribute("error", "Search query must be at least 3 characters long.");
-            model.addAttribute("events", List.of());
-            return "events/list";
-        }
-
-        // Keyword Suche
-        if (q != null && !q.isBlank()) {
-            String keyword = q.toLowerCase();
-            results = results.stream()
-                    .filter(e ->
-                            (e.getTitle() != null && e.getTitle().toLowerCase().contains(keyword)) ||
-                                    (e.getDescription() != null && e.getDescription().toLowerCase().contains(keyword)))
-                    .toList();
+        if (q != null) {
+            String trimmed = q.trim();
+            if (!trimmed.isEmpty()) {
+                if (trimmed.length() < 3) {
+                    model.addAttribute("error", "Search query must be at least 3 characters long.");
+                    model.addAttribute("events", List.of());
+                    return "events/list";
+                } else {
+                    String keyword = trimmed.toLowerCase();
+                    results = results.stream()
+                            .filter(e -> {
+                                String title = e.getTitle() != null ? e.getTitle().toLowerCase() : "";
+                                String desc = e.getDescription() != null ? e.getDescription().toLowerCase() : "";
+                                return title.contains(keyword) || desc.contains(keyword);
+                            })
+                            .toList();
+                }
+            }
         }
 
 
@@ -267,10 +313,26 @@ public class EventController {
         if (startDate != null || endDate != null) {
             results = results.stream()
                     .filter(e -> {
-                        if (e.getDate() == null) return false;
-                        boolean afterStart = (startDate == null || !e.getDate().isBefore(startDate));
-                        boolean beforeEnd = (endDate == null || !e.getDate().isAfter(endDate));
-                        return afterStart && beforeEnd;
+                        LocalDate eventDate = e.getDate();
+                        if (eventDate == null) return false;
+
+                        // Nur startDate (z. B. Home)
+                        if (endDate == null && startDate != null) {
+                            // Nur Events, die an genau diesem Datum sind
+                            return eventDate.isEqual(startDate);
+                        }
+
+                        // Nur endDate (selten)
+                        if (startDate == null && endDate != null) {
+                            return !eventDate.isAfter(endDate);
+                        }
+
+                        // Beide gesetzt (Overview)
+                        if (startDate != null && endDate != null) {
+                            return !eventDate.isBefore(startDate) && !eventDate.isAfter(endDate);
+                        }
+
+                        return true;
                     })
                     .toList();
         }
@@ -320,6 +382,16 @@ public class EventController {
         model.addAttribute("count", results.size());
         model.addAttribute("sort", sort);
         return "events/list";
+    }
+    @GetMapping("/events/{id}")
+    public String showEventDetails(@PathVariable("id") Long id, Model model, RedirectAttributes ra) {
+        Event event = repo.findById(id).orElse(null);
+        if (event == null) {
+            ra.addFlashAttribute("error", "Event not found!");
+            return "redirect:/events";
+        }
+        model.addAttribute("event", event);
+        return "events/details";
     }
 
     @ExceptionHandler(org.springframework.web.method.annotation.HandlerMethodValidationException.class)
