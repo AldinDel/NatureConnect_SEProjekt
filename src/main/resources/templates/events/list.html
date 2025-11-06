@@ -8,8 +8,47 @@
 </head>
 
 <body>
+
 <!-- Erfolgsmeldung Popup -->
-<div th:if="${success}" id="success-popup" class="popup-message" th:text="${success}"></div>
+<p th:text="'Success: ' + ${success} + ' | Error: ' + ${error}"></p>
+
+<!-- Erfolgsmeldung Popup -->
+<div th:if="${success != null}" id="success-popup" class="popup-message" th:text="${success}"></div>
+<div th:if="${error != null}" id="error-popup" class="popup-message error" th:text="${error}"></div>
+
+<style>
+    .popup-message {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #4caf50;
+        color: #fff;
+        padding: 14px 22px;
+        border-radius: 8px;
+        font-weight: 500;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        animation: fadeInOut 4s ease forwards;
+        z-index: 9999 !important;
+    }
+    .popup-message.error {
+        background: #e53935;
+    }
+    @keyframes fadeInOut {
+        0% { opacity: 0; transform: translateY(-10px); }
+        10%, 90% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(-10px); }
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const popup = document.getElementById("success-popup");
+        const errorPopup = document.getElementById("error-popup");
+        if (popup) setTimeout(() => popup.style.display = "none", 4000);
+        if (errorPopup) setTimeout(() => errorPopup.style.display = "none", 4500);
+    });
+</script>
+
 
 <!-- Header -->
 <header class="nc-header">
@@ -55,10 +94,20 @@
         <!-- Keyword search -->
         <div class="search-bar">
             <i data-lucide="search" class="search-icon" aria-hidden="true"></i>
-            <input type="text" name="q" placeholder="Browse Events..." th:value="${param.q}" aria-label="Search events">
+            <input
+                    type="text"
+                    name="q"
+                    placeholder="Browse Events..."
+                    th:value="${param.q}"
+                    aria-label="Search events"
+                    minlength="3"
+                    maxlength="75"
+                    pattern="^[A-Za-zÀ-ž0-9\s.,'-]+$"
+                    title="Please enter at least 3 valid characters (letters or numbers only)"
+            >
+
         </div>
 
-        <!-- Category buttons -->
         <div class="category-bar">
             <button type="submit" name="category" value=""
                     th:classappend="${param.category == null or param.category == ''} ? 'active' : ''">
@@ -76,7 +125,6 @@
                     th:classappend="${param.category == 'Hiking'} ? 'active' : ''">
                 Hiking
             </button>
-
             <button type="submit" name="category" value="Wildlife Tour"
                     th:classappend="${param.category == 'Wildlife Tour'} ? 'active' : ''">
                 Wildlife Tour
@@ -85,7 +133,10 @@
                     th:classappend="${param.category == 'Climbing'} ? 'active' : ''">
                 Climbing
             </button>
-            <button type="button" id="open-filters" class="filter-btn-inline">
+
+            <!-- Filterbutton -->
+            <button type="button" id="open-filters" class="filter-btn-inline"
+                    th:classappend="${param.location != null or param.minPrice != null or param.maxPrice != null or param.difficulty != null} ? 'active' : ''">
                 <svg xmlns="http://www.w3.org/2000/svg" class="filter-icon" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor">
                     <line x1="4" y1="21" x2="4" y2="14"></line>
@@ -111,6 +162,7 @@
                 <i data-lucide="x"></i>
             </button>
         </div>
+
 
         <form th:action="@{/events/search}" method="get" class="filter-form">
 

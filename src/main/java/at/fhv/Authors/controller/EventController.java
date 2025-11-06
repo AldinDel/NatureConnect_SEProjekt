@@ -10,6 +10,9 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import jakarta.validation.Valid;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -208,10 +211,10 @@ public class EventController {
         return "events/list";
     }
 
-
     @GetMapping("/events/search")
     public String searchEvents(
             @RequestParam(required = false) String q,
+
             @RequestParam(required = false) String location,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
@@ -224,6 +227,11 @@ public class EventController {
             Model model
     ) {
         List<Event> results = repo.findAll();
+        if (q != null && !q.isBlank() && q.trim().length() < 3) {
+            model.addAttribute("error", "Search query must be at least 3 characters long.");
+            model.addAttribute("events", List.of());
+            return "events/list";
+        }
 
         // Keyword Suche
         if (q != null && !q.isBlank()) {
@@ -234,6 +242,7 @@ public class EventController {
                                     (e.getDescription() != null && e.getDescription().toLowerCase().contains(keyword)))
                     .toList();
         }
+
 
         // Location
         if (location != null && !location.isBlank()) {
@@ -310,6 +319,13 @@ public class EventController {
         model.addAttribute("events", results);
         model.addAttribute("count", results.size());
         model.addAttribute("sort", sort);
+        return "events/list";
+    }
+
+    @ExceptionHandler(org.springframework.web.method.annotation.HandlerMethodValidationException.class)
+    public String handleValidationException(Exception ex, Model model) {
+        model.addAttribute("error", "Invalid search input. Please use only letters and up to 75 characters 🌿");
+        model.addAttribute("events", List.of());
         return "events/list";
     }
 

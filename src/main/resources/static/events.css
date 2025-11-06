@@ -643,6 +643,16 @@ html, body {
     color: #9ca3af;
 }
 
+.category-bar button.active {
+    background-color: #0f2740;
+    color: #fff;
+    border-color: #0f2740;
+}
+
+.category-bar button {
+    transition: all 0.2s ease;
+}
+
 .overlay.active {
     display: block;
 }

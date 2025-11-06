@@ -56,7 +56,16 @@
             <span class="sr-only">Search</span>
             <!-- Lupe -->
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" fill="none"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            <input type="text" name="q" placeholder="Search">
+            <input
+                    type="text"
+                    name="q"
+                    placeholder="Search events..."
+                    minlength="3"
+                    maxlength="75"
+                    pattern="^[A-Za-zÀ-ž0-9\s.,'-]+$"
+                    title="Please enter at least 3 characters (letters or numbers only)"
+                    required
+            >
         </label>
 
         <!-- Location -->
