@@ -268,8 +268,8 @@ body {
 
 html, body {
     background: #ffffff !important;
-    background-image: none !important;
-    background-size: none !important;
+    background-image: auto !important;
+    background-size: auto !important;
     background-attachment: scroll !important;
 }
 
