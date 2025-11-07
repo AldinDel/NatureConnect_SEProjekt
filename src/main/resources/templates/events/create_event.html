@@ -54,6 +54,51 @@
 </head>
 
 <body class="create-event-page">
+<!-- Erfolgsmeldung Popup -->
+<div th:if="${success}" id="success-popup" class="popup-message" th:text="${success}"></div>
+
+<style>
+    .popup-message {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #4caf50;
+        color: #fff;
+        padding: 14px 22px;
+        border-radius: 8px;
+        font-weight: 500;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        animation: fadeInOut 3s ease forwards;
+        z-index: 1000;
+        letter-spacing: 0.3px;
+    }
+    @keyframes fadeInOut {
+        0% { opacity: 0; transform: translateY(-10px); }
+        10%, 90% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 0; transform: translateY(-10px); }
+    }
+</style>
+
+<script>
+    // Popup automatisch ausblenden nach 3,5 Sekunden
+    document.addEventListener("DOMContentLoaded", () => {
+        const popup = document.getElementById("success-popup");
+        if (popup) {
+            setTimeout(() => {
+                popup.style.display = "none";
+            }, 3500);
+        }
+    });
+</script>
+
+<div th:if="${error}" id="error-popup" class="popup-message error" th:text="${error}"></div>
+
+<style>
+    .popup-message.error {
+        background: #e53935;
+    }
+</style>
+
 <!--bestehender Header-->
 <header class="nc-header">
     <div class="nc-container">

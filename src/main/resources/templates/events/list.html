@@ -3,18 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <title>NatureConnect - Events</title>
+    <!-- Stylesheets-->
     <link rel="stylesheet" th:href="@{/style.css}">
     <link rel="stylesheet" th:href="@{/events.css}">
 </head>
 
 <body>
+
+<!-- Erfolg und Fehlermeldungen für Popups oben rechts-->
+<p th:text="'Success: ' + ${success} + ' | Error: ' + ${error}"></p>
+
 <!-- Erfolgsmeldung Popup -->
-<div th:if="${success}" id="success-popup" class="popup-message" th:text="${success}"></div>
+<div th:if="${success != null}" id="success-popup" class="popup-message" th:text="${success}"></div>
+<!-- Fehlerpopup-->
+<div th:if="${error != null}" id="error-popup" class="popup-message error" th:text="${error}"></div>
+
+<!-- Popup Styling-->
+<style>
+    .popup-message {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #4caf50;
+        color: #fff;
+        padding: 14px 22px;
+        border-radius: 8px;
+        font-weight: 500;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        animation: fadeInOut 4s ease forwards;
+        z-index: 9999 !important;
+    }
+
+    .popup-message.error {
+        background: #e53935;
+    }
+
+    @keyframes fadeInOut {
+        0% {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        10%, 90% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        100% {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+    }
+</style>
+
+<!-- Popup-Timeout script -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const popup = document.getElementById("success-popup");
+        const errorPopup = document.getElementById("error-popup");
+        if (popup) setTimeout(() => popup.style.display = "none", 3000);
+        if (errorPopup) setTimeout(() => errorPopup.style.display = "none", 3500);
+    });
+</script>
+
 
 <!-- Header -->
 <header class="nc-header">
     <div class="nc-container">
-        <!-- Logo -->
+        <!-- Logo mit Link zur Website -->
         <a class="nc-logo" th:href="@{/}" href="/" aria-label="NATUREConnect Home">
             <img src="/images/NatureConnectLogo.png" alt="Logo">
             <span class="nc-brand"><strong>NATURE</strong>Connect</span>
@@ -25,7 +79,7 @@
             <ul class="nc-left">
                 <li><a th:href="@{/}" href="/">Home</a></li>
 
-                <!-- Events mit Dropdown -->
+                <!-- Dropdown-Menü für Events -->
                 <li class="dropdown has-dropdown">
                     <a href="#" class="dropbtn with-caret" aria-haspopup="true" aria-expanded="false">Events ▾</a>
                     <ul class="dropdown-content" role="menu" aria-label="Events">
@@ -45,21 +99,34 @@
     </div>
 </header>
 
+<!-- Eventübersicht-->
 <section class="event-overview">
     <h1>Event Overview</h1>
     <p>Discover exciting events and activities near you</p>
 
-    <!-- Search & Filter Form -->
+    <!-- Suchleiste -->
     <form th:action="@{/events/search}" method="get" class="search-form">
 
         <!-- Keyword search -->
         <div class="search-bar">
             <i data-lucide="search" class="search-icon" aria-hidden="true"></i>
-            <input type="text" name="q" placeholder="Browse Events..." th:value="${param.q}" aria-label="Search events">
+            <input
+                    type="text"
+                    name="q"
+                    placeholder="Browse Events..."
+                    th:value="${param.q}"
+                    aria-label="Search events"
+                    minlength="3"
+                    maxlength="75"
+                    pattern="^[A-Za-zÀ-ž0-9\s.,'-]+$"
+                    title="Please enter at least 3 valid characters (letters or numbers only)"
+            >
+
         </div>
 
-        <!-- Category buttons -->
+        <!-- Kategorie-Filter-->
         <div class="category-bar">
+            <!-- Buttons filtern direkt-->
             <button type="submit" name="category" value=""
                     th:classappend="${param.category == null or param.category == ''} ? 'active' : ''">
                 All Events
@@ -76,7 +143,6 @@
                     th:classappend="${param.category == 'Hiking'} ? 'active' : ''">
                 Hiking
             </button>
-
             <button type="submit" name="category" value="Wildlife Tour"
                     th:classappend="${param.category == 'Wildlife Tour'} ? 'active' : ''">
                 Wildlife Tour
@@ -85,7 +151,10 @@
                     th:classappend="${param.category == 'Climbing'} ? 'active' : ''">
                 Climbing
             </button>
-            <button type="button" id="open-filters" class="filter-btn-inline">
+
+            <!-- Erweiterter Filter -->
+            <button type="button" id="open-filters" class="filter-btn-inline"
+                    th:classappend="${param.location != null or param.minPrice != null or param.maxPrice != null or param.difficulty != null} ? 'active' : ''">
                 <svg xmlns="http://www.w3.org/2000/svg" class="filter-icon" viewBox="0 0 24 24" fill="none"
                      stroke="currentColor">
                     <line x1="4" y1="21" x2="4" y2="14"></line>
@@ -103,7 +172,7 @@
         </div>
     </form>
 
-    <!-- Filter Panel wird rechts dann angezeigt -->
+    <!-- Seitliches Filterpanel -->
     <div id="filter-panel" class="filter-panel">
         <div class="filter-header">
             <h3>More Filters</h3>
@@ -112,8 +181,9 @@
             </button>
         </div>
 
+        <!-- Filterformular-->
         <form th:action="@{/events/search}" method="get" class="filter-form">
-
+            <input type="hidden" name="q" th:value="${param.q}"/>
             <!-- Location -->
             <div class="filter-group">
                 <label for="location">Location</label>
@@ -127,7 +197,7 @@
                 </datalist>
             </div>
 
-
+            <!-- Kategorie-->
             <div class="filter-group">
                 <label>Category</label>
                 <select name="category">
@@ -140,13 +210,23 @@
                 </select>
             </div>
 
-
+            <!-- Datum -->
             <div class="filter-group">
                 <label>Date Range</label>
                 <div class="date-range">
-                    <input type="date" name="startDate" id="startDate">
+                    <input
+                            type="date"
+                            name="startDate"
+                            id="startDate"
+                            th:value="${param.startDate}"
+                    >
                     <span>to</span>
-                    <input type="date" name="endDate" id="endDate">
+                    <input
+                            type="date"
+                            name="endDate"
+                            id="endDate"
+                            th:value="${param.endDate}"
+                    >
                 </div>
             </div>
 
@@ -174,13 +254,16 @@
             <button type="submit" class="apply-btn">Apply Filters</button>
         </form>
     </div>
+
+    <!-- Overlay hinter dem Panel -->
     <div id="overlay" class="overlay"></div>
-    <!-- Event Meta Bar -->
+
+    <!-- Event Meta Bar (Anzahl und Sortierung) -->
     <div class="event-meta-bar">
         <div class="event-count">
             <span th:text="${#lists.size(events)} + ' Events found'">0 Events found</span>
         </div>
-        <!-- Sortieren -->
+        <!-- Sortiermenü -->
         <div class="sort-options">
             <form th:action="@{/events/search}" method="get">
                 <input type="hidden" name="q" th:value="${param.q}"/>
@@ -201,18 +284,18 @@
                 </div>
             </form>
         </div>
-        <!-- Ende Sortieren -->
     </div>
 
 
-    <!-- Events grid -->
+    <!-- Event cards -->
     <div class="event-grid">
         <div class="event-card" th:each="event : ${events}">
             <div class="card-image">
-                <img th:src="@{${event.imageUrl}}" th:alt="${event.title}">
+                <img th:src="${event.imageUrl != null} ? ${event.imageUrl} : @{/images/default_event.jpg}"
+                     th:alt="${event.title}">
                 <span class="tag"
                       th:text="${event.category != null ? event.category : 'General'}"
-                      th:classappend="|tag-${#strings.toLowerCase(event.category != null ? event.category : 'general')}|">
+                      th:classappend="|tag-${#strings.replace(#strings.toLowerCase(event.category != null ? event.category : 'general'), ' ', '-')}|">
                 </span>
             </div>
 
@@ -253,7 +336,7 @@
     </div>
 </section>
 
-<!-- Script sachen-->
+<!-- Scripts -->
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>
     lucide.createIcons();
@@ -261,7 +344,7 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>
     lucide.createIcons();
-
+    <!-- Filter panel öffnen und schließen -->
     const openBtn = document.getElementById("open-filters");
     const closeBtn = document.getElementById("close-filters");
     const panel = document.getElementById("filter-panel");

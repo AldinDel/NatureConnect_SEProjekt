@@ -5,6 +5,7 @@ body {
     padding: 40px 0;
 }
 
+/* Hauptcontainer für die gesamte Event-Übersicht */
 .event-overview {
     width: 90%;
     max-width: 1000px;
@@ -14,6 +15,7 @@ body {
     border-radius: 16px;
 }
 
+/* Überschrift und Beschreibung */
 .event-overview h1 {
     font-size: 38px;
     font-weight: 700;
@@ -26,6 +28,7 @@ body {
     margin-bottom: 24px;
 }
 
+/* Search Bar */
 .search-bar {
     position: relative;
     display: flex;
@@ -36,6 +39,7 @@ body {
     margin-bottom: 30px;
 }
 
+/* Such-Icon links im Input */
 .search-bar .search-icon,
 .search-bar svg.search-icon {
     position: absolute;
@@ -51,6 +55,7 @@ body {
 
 }
 
+/* Textfeld für die Suche */
 .search-bar input[type="text"],
 .search-bar input {
     flex: 1;
@@ -62,6 +67,7 @@ body {
     padding-left: 30px;
 }
 
+/* Category filter buttons */
 .category-bar {
     display: flex;
     flex-wrap: wrap;
@@ -69,6 +75,7 @@ body {
     margin-bottom: 40px;
 }
 
+/* Buttons (All, Camping, Hiking,...) */
 .category-bar button {
     background: #f3f4f6;
     border: none;
@@ -80,21 +87,25 @@ body {
     color: #111827;
 }
 
+/* Effekt */
 .category-bar button:hover {
     background: #e5e7eb;
 }
 
+/* Aktive Kategorie */
 .category-bar button.active {
     background: #111827;
     color: #fff;
 }
 
+/* Event grid & cards */
 .event-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 24px;
 }
 
+/* Einzelne Eventkarte */
 .event-card {
     background: #fff;
     border-radius: 12px;
@@ -103,22 +114,26 @@ body {
     transition: transform 0.2s;
 }
 
+/* Effekt für Karten */
 .event-card:hover {
     transform: translateY(-4px);
 }
 
+/* Card image und category tags */
 .card-image {
     position: relative;
     height: 200px;
     overflow: hidden;
 }
 
+/* Bilddarstellung */
 .card-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 
+/* Kategorie-Tag (oben rechts am Bild */
 .tag {
     position: absolute;
     top: 12px;
@@ -132,6 +147,7 @@ body {
     text-transform: capitalize;
 }
 
+/* Farbvarianten für jede Kategorie */
 .tag-camping {
     background: #dcfce7;
     color: #166534;
@@ -164,10 +180,12 @@ body {
     color: #374151;
 }
 
+/* Card content */
 .card-content {
     padding: 20px;
 }
 
+/* Header - Titel und Schwierigkeitsgrad */
 .card-header {
     display: flex;
     justify-content: space-between;
@@ -181,6 +199,7 @@ body {
     color: #111827;
 }
 
+/* Schwierigkeitsanzeige */
 .difficulty {
     padding: 4px 10px;
     border-radius: 8px;
@@ -198,12 +217,14 @@ body {
     color: #166534;
 }
 
+/* Beschreibungstext */
 .card-content p {
     color: #4b5563;
     font-size: 14px;
     margin-bottom: 16px;
 }
 
+/* Event details */
 .details {
     list-style: none;
     padding: 0;
@@ -229,6 +250,7 @@ body {
     color: #111827;
 }
 
+/* View Button */
 .view-btn {
     background: #111827;
     color: #fff;
@@ -240,6 +262,7 @@ body {
     transition: 0.2s;
 }
 
+/* Edit Button */
 .edit-btn {
     background: #f3f4f6;
     color: #111827;
@@ -253,6 +276,7 @@ body {
     text-decoration: none;
 }
 
+/* Edit Button Effekt */
 .edit-btn:hover {
     background: #e5e7eb;
 }
@@ -643,13 +667,23 @@ html, body {
     color: #9ca3af;
 }
 
+.category-bar button.active {
+    background-color: #0f2740;
+    color: #fff;
+    border-color: #0f2740;
+}
+
+.category-bar button {
+    transition: all 0.2s ease;
+}
+
 .overlay.active {
     display: block;
 }
 
 
 .event-overview {
-    margin-top: 70px;
+    margin-top: 50px;
 }
 
 
