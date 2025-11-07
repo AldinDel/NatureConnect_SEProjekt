@@ -145,6 +145,8 @@
                 <span id="photoHint" th:unless="${event.imageUrl}">Image preview</span>
             </div>
             <input type="file" name="photo" id="photo" accept="image/*" style="display:none">
+            <input type="hidden" name="imageUrl" id="imageUrl">
+            <span id="photoUploadStatus" style="font-size:12px;color:#555;"></span>
             <button type="button" class="upload-btn" onclick="document.getElementById('photo').click()">Upload Photo</button>
         </div>
 
@@ -256,36 +258,6 @@
 </main>
 
 <script>
-    // Image Preview Funktionalität
-    const photoInput = document.getElementById('photo');
-    const photoCard = document.getElementById('photoCard');
-    const photoHint = document.getElementById('photoHint');
-
-    photoInput.addEventListener('change', function(event) {
-        const file = event.target.files[0];
-
-        if (file && file.type.startsWith('image/')) {
-            const reader = new FileReader();
-
-            reader.onload = function(e) {
-                // Entferne den "Image preview" Text
-                if (photoHint) {
-                    photoHint.style.display = 'none';
-                }
-
-                // Erstelle oder aktualisiere das Bild
-                let img = photoCard.querySelector('img');
-                if (!img) {
-                    img = document.createElement('img');
-                    photoCard.appendChild(img);
-                }
-                img.src = e.target.result;
-                img.alt = 'Event Photo Preview';
-            };
-
-            reader.readAsDataURL(file);
-        }
-    });
 
     // Form Validation
     const form = document.querySelector('.event-form');
@@ -340,10 +312,64 @@
 
 </script>
 
+<script>
+    // Cloudinary-Konfiguration
+    const CLOUD_NAME = 'dwsnx7jof';
+    const UPLOAD_PRESET = 'events_unsigned';
+    const UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
 
+    const photoInput = document.getElementById('photo');
+    const photoCard = document.getElementById('photoCard');
+    const photoHint = document.getElementById('photoHint');
+    const imageUrlInput = document.getElementById('imageUrl');
+    const uploadStatus = document.getElementById('photoUploadStatus');
 
+    photoInput.addEventListener('change', async function (event) {
+        const file = event.target.files[0];
+        if (!file) return;
 
+        // Status anzeigen
+        uploadStatus.textContent = 'Uploading image...';
+        uploadStatus.style.color = '#555';
 
+        try {
+            const fd = new FormData();
+            fd.append('file', file);
+            fd.append('upload_preset', UPLOAD_PRESET);
+
+            const res = await fetch(UPLOAD_URL, { method: 'POST', body: fd });
+            const data = await res.json();
+
+            if (!data.secure_url) {
+                console.error('Cloudinary upload error:', data);
+                uploadStatus.textContent = 'Upload failed.';
+                uploadStatus.style.color = '#e53935';
+                return;
+            }
+
+            // URL in hidden Feld schreiben
+            imageUrlInput.value = data.secure_url;
+
+            // Vorschau aktualisieren
+            if (photoHint) photoHint.style.display = 'none';
+            let img = photoCard.querySelector('img');
+            if (!img) {
+                img = document.createElement('img');
+                photoCard.appendChild(img);
+            }
+            img.src = data.secure_url;
+            img.alt = 'Event Photo';
+
+            // Erfolg
+            uploadStatus.textContent = 'Upload complete ✔';
+            uploadStatus.style.color = '#2e7d32';
+        } catch (err) {
+            console.error(err);
+            uploadStatus.textContent = 'Upload failed.';
+            uploadStatus.style.color = '#e53935';
+        }
+    });
+</script>
 
 
 </body>

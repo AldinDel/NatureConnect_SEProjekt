@@ -4,7 +4,6 @@ import at.fhv.Authors.domain.model.Difficulty;
 import at.fhv.Authors.domain.model.Event;
 import at.fhv.Authors.domain.model.Equipment;
 import at.fhv.Authors.domain.model.EventEquipment;
-import at.fhv.Authors.domain.model.EventEquipmentId;
 import at.fhv.Authors.persistence.EquipmentRepository;
 import at.fhv.Authors.persistence.EventEquipmentRepository;
 import at.fhv.Authors.persistence.EventRepository;
@@ -12,25 +11,15 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
-import jakarta.validation.Valid;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
-import java.util.Map;
 
 
 @Controller
@@ -93,7 +82,8 @@ public class EventController {
     @PostMapping("/events")
     public String create(
             @ModelAttribute("event") Event event,
-            @RequestParam(value = "photo", required = false) MultipartFile photo,
+            @RequestParam(value = "imageUrl", required = false) String imageUrl,
+            @RequestParam(value = "photo", required = false) MultipartFile photo, // bleibt optional drin, wird ignoriert
             @RequestParam(value = "equipmentNames", required = false) List<String> equipmentNames,
             @RequestParam(value = "equipmentPrices", required = false) List<BigDecimal> equipmentPrices,
             @RequestParam(value = "equipmentRentable", required = false) List<String> equipmentRentableFlags,
@@ -117,39 +107,9 @@ public class EventController {
             event.setPrice(BigDecimal.ZERO);
         }
 
-        // Bild speichern (optional)
-        if (photo != null && !photo.isEmpty()) {
-            Path uploadDir = Paths.get("uploads");
-            System.out.println("UPLOAD DIR → " + uploadDir.toAbsolutePath());
-            Files.createDirectories(uploadDir);
-
-
-            // --- Erweiterung robust bestimmen ---
-            String originalName = photo.getOriginalFilename();
-            String ext = StringUtils.getFilenameExtension(originalName);
-
-            if (ext == null || ext.isBlank()) {
-                String contentType = photo.getContentType(); // z. B. image/avif
-                if (contentType != null && contentType.startsWith("image/")) {
-                    ext = contentType.substring(6); // ergibt "avif", "jpeg", etc.
-                } else {
-                    ext = "jpg"; // Fallback
-                }
-            }
-
-            // --- Alles auf lowercase, um Fehler zu vermeiden ---
-            ext = ext.toLowerCase();
-
-            // --- Dateiname generieren ---
-            String filename = UUID.randomUUID().toString() + "." + ext;
-            Path target = uploadDir.resolve(filename);
-
-            try (var in = photo.getInputStream()) {
-                Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
-            }
-
-            // --- Nur relativen Pfad speichern! ---
-            event.setImageUrl("/uploads/" + filename);
+        // Cloudinary-URL übernehmen
+        if (imageUrl != null && !imageUrl.isBlank()) {
+            event.setImageUrl(imageUrl.trim());
         }
 
         //Event speichern
@@ -192,21 +152,13 @@ public class EventController {
     @PostMapping("/events/{id}")
     public String update(@PathVariable("id") Long id,
                          @ModelAttribute("event") Event updatedEvent,
-                         @RequestParam(value = "photo", required = false) MultipartFile photo,
+                         @RequestParam(value = "imageUrl", required = false) String imageUrl,
                          RedirectAttributes ra) throws IOException {
 
         Event existingEvent = repo.findById(id).orElse(null);
         if (existingEvent == null) {
             ra.addFlashAttribute("error", "Event not found!");
             return "redirect:/events";
-        }
-
-        // Validierung: End-Zeit muss nach Start-Zeit sein
-        if (updatedEvent.getEndTime() != null && updatedEvent.getStartTime() != null) {
-            if (!updatedEvent.getEndTime().isAfter(updatedEvent.getStartTime())) {
-                ra.addFlashAttribute("error", "End time must be after start time!");
-                return "redirect:/events/" + id + "/edit";
-            }
         }
 
         // Standardwerte setzen falls null
@@ -232,41 +184,11 @@ public class EventController {
         existingEvent.setMaxParticipants(updatedEvent.getMaxParticipants());
         existingEvent.setPrice(updatedEvent.getPrice());
 
-        // Bild: Behalte altes Bild, wenn kein neues hochgeladen wird
-        if (photo != null && !photo.isEmpty()) {
-            Path uploadDir = Paths.get("uploads");
-            System.out.println("UPLOAD DIR → " + uploadDir.toAbsolutePath());
-            Files.createDirectories(uploadDir);
-
-            // --- Erweiterung robust bestimmen ---
-            String originalName = photo.getOriginalFilename();
-            String ext = StringUtils.getFilenameExtension(originalName);
-
-            if (ext == null || ext.isBlank()) {
-                String contentType = photo.getContentType(); // z. B. image/avif
-                if (contentType != null && contentType.startsWith("image/")) {
-                    ext = contentType.substring(6); // ergibt "avif", "jpeg", etc.
-                } else {
-                    ext = "jpg"; // Fallback
-                }
-            }
-
-            // --- Alles auf lowercase, um Fehler zu vermeiden ---
-            ext = ext.toLowerCase();
-
-            // --- Dateiname generieren ---
-            String filename = UUID.randomUUID().toString() + "." + ext;
-            Path target = uploadDir.resolve(filename);
-
-            try (var in = photo.getInputStream()) {
-                Files.copy(in, target, StandardCopyOption.REPLACE_EXISTING);
-            }
-
-            // --- Nur relativen Pfad speichern! ---
-            existingEvent.setImageUrl("/uploads/" + filename);
+        // NEU: nur setzen, wenn neue URL kam
+        if (imageUrl != null && !imageUrl.isBlank()) {
+            existingEvent.setImageUrl(imageUrl.trim());
         }
 
-        // Falls kein neues Bild: behalte das alte (bereits in existingEvent)
 
         repo.save(existingEvent);
         ra.addFlashAttribute("success", "Event updated successfully!");
