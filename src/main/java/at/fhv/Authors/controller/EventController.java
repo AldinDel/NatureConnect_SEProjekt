@@ -2,9 +2,15 @@ package at.fhv.Authors.controller;
 
 import at.fhv.Authors.domain.model.Difficulty;
 import at.fhv.Authors.domain.model.Event;
+import at.fhv.Authors.domain.model.Equipment;
+import at.fhv.Authors.domain.model.EventEquipment;
+import at.fhv.Authors.domain.model.EventEquipmentId;
+import at.fhv.Authors.persistence.EquipmentRepository;
+import at.fhv.Authors.persistence.EventEquipmentRepository;
 import at.fhv.Authors.persistence.EventRepository;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -31,6 +37,12 @@ import java.util.Map;
 public class EventController {
 
     private final EventRepository repo;
+
+    @Autowired
+    private EquipmentRepository equipmentRepo;
+
+    @Autowired
+    private EventEquipmentRepository eventEquipmentRepo;
 
     public EventController(EventRepository repo) {
         this.repo = repo;
@@ -79,10 +91,15 @@ public class EventController {
 
     // Event erstellen
     @PostMapping("/events")
-    public String create(@ModelAttribute("event") Event event,
-                         @RequestParam(value = "photo", required = false) MultipartFile photo,
-                         @RequestParam(value = "equipmentNames", required = false) List<String> equipmentNames,
-                         RedirectAttributes ra) throws IOException {
+    public String create(
+            @ModelAttribute("event") Event event,
+            @RequestParam(value = "photo", required = false) MultipartFile photo,
+            @RequestParam(value = "equipmentNames", required = false) List<String> equipmentNames,
+            @RequestParam(value = "equipmentPrices", required = false) List<BigDecimal> equipmentPrices,
+            @RequestParam(value = "equipmentRentable", required = false) List<String> equipmentRentableFlags,
+            @RequestParam(value = "requiredFlags", required = false) List<String> requiredFlags,
+            RedirectAttributes ra) throws IOException {
+
 
         // Validierung: End-Zeit muss nach Start-Zeit sein
         if (event.getEndTime() != null && event.getStartTime() != null) {
@@ -135,16 +152,35 @@ public class EventController {
             event.setImageUrl("/uploads/" + filename);
         }
 
-
+        //Event speichern
         repo.save(event);
 
-        // Equipment (nur Testausgabe)
+        // --- Equipment speichern & verknüpfen ---
         if (equipmentNames != null && !equipmentNames.isEmpty()) {
-            System.out.println("Equipment added:");
-            for (String eq : equipmentNames) {
-                if (eq != null && !eq.trim().isEmpty()) {
-                    System.out.println("- " + eq);
-                }
+            for (int i = 0; i < equipmentNames.size(); i++) {
+                String name = equipmentNames.get(i);
+                if (name == null || name.trim().isEmpty()) continue;
+
+                BigDecimal price = (equipmentPrices != null && equipmentPrices.size() > i && equipmentPrices.get(i) != null)
+                        ? equipmentPrices.get(i)
+                        : BigDecimal.ZERO;
+
+                boolean rentable = (equipmentRentableFlags != null && equipmentRentableFlags.size() > i);
+                boolean required = (requiredFlags != null && requiredFlags.size() > i);
+
+                // Prüfen, ob Equipment schon existiert
+                Equipment eq = equipmentRepo.findByNameIgnoreCase(name.trim())
+                        .orElseGet(() -> {
+                            Equipment newEq = new Equipment();
+                            newEq.setName(name.trim());
+                            newEq.setUnitPrice(price);
+                            newEq.setRentable(rentable);
+                            return equipmentRepo.save(newEq);
+                        });
+
+                // Verknüpfung Event <-> Equipment speichern
+                EventEquipment link = new EventEquipment(event.getId(), eq.getId(), required);
+                eventEquipmentRepo.save(link);
             }
         }
 

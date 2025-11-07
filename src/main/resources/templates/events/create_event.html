@@ -224,15 +224,20 @@
         </div>
 
         <!-- EQUIPMENT -->
-        <div class="form-group">
+        <div class="form-group form-span-2">
             <label class="form-label">Equipment:</label>
             <div id="equipment-list">
-                <div class="equipment-item">
-                    <input type="text" name="equipmentNames" class="form-input" placeholder="e.g., Tent, Backpack, Helmet">
+                <div class="equipment-item" style="display:flex;align-items:center;gap:8px;">
+                    <input type="text" name="equipmentNames" class="form-input" placeholder="e.g., Tent">
+                    <input type="number" name="equipmentPrices" class="form-input" placeholder="Price (e.g. 19.99)" step="0.01" min="0" style="width:120px;">
+                    <label><input type="checkbox" name="equipmentRentable" checked> Rentable</label>
+                    <label><input type="checkbox" name="requiredFlags"> Required</label>
+                    <button type="button" class="remove-equipment" style="border:none;background:none;color:#e63946;font-weight:bold;cursor:pointer;">✕</button>
                 </div>
             </div>
             <button type="button" id="add-equipment" class="btn-ghost" style="margin-top: 8px;">+ Add Equipment</button>
         </div>
+
 
         <!-- PRICE -->
         <div class="form-group">
@@ -307,25 +312,32 @@
 </script>
 
 <script>
-    // Equipment hinzufügen/entfernen
+    // Equipment hinzufügen / entfernen
     document.getElementById("add-equipment").addEventListener("click", function() {
         const list = document.getElementById("equipment-list");
 
         const newItem = document.createElement("div");
         newItem.classList.add("equipment-item");
+        newItem.style.display = "flex";
+        newItem.style.alignItems = "center";
+        newItem.style.gap = "10px";
 
         newItem.innerHTML = `
-            <input type="text" name="equipmentNames" class="form-input" placeholder="e.g., Tent, Backpack, Helmet">
-            <button type="button" class="remove-equipment" style="margin-left:8px; border:none; background:none; color:#e63946; font-weight:bold; cursor:pointer;">✕</button>
-        `;
+        <input type="text" name="equipmentNames" class="form-input" placeholder="e.g., Backpack">
+        <label style="font-size:13px;">
+            <input type="checkbox" name="requiredFlags"> Required
+        </label>
+        <button type="button" class="remove-equipment" style="border:none; background:none; color:#e63946; font-weight:bold; cursor:pointer;">✕</button>
+    `;
 
         list.appendChild(newItem);
 
-        // Entfernen-Button aktivieren
-        newItem.querySelector(".remove-equipment").addEventListener("click", function() {
+        // Button "✕" löscht den Eintrag
+        newItem.querySelector(".remove-equipment").addEventListener("click", () => {
             newItem.remove();
         });
     });
+
 </script>
 
 
