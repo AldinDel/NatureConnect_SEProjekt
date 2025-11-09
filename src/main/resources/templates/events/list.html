@@ -102,6 +102,7 @@
 
 <!-- Eventübersicht-->
 <section class="event-overview">
+    <a th:href="@{/}" href="/" class="back-link">← Back to Home</a>
     <h1>Event Overview</h1>
     <p>Discover exciting events and activities near you</p>
 
@@ -182,13 +183,19 @@
             </button>
         </div>
 
-        <!-- Filterformular-->
+        <!-- Filterformular -->
         <form th:action="@{/events/search}" method="get" class="filter-form">
+            <!-- damit Suchwort bestehen bleibt -->
             <input type="hidden" name="q" th:value="${param.q}"/>
+
             <!-- Location -->
             <div class="filter-group">
                 <label for="location">Location</label>
-                <input list="location-list" id="location" name="location" placeholder="Enter a location...">
+                <input list="location-list"
+                       id="location"
+                       name="location"
+                       placeholder="Enter a location..."
+                       th:value="${param.location}">
                 <datalist id="location-list">
                     <option value="Vienna">
                     <option value="Salzburg">
@@ -198,16 +205,20 @@
                 </datalist>
             </div>
 
-            <!-- Kategorie-->
+            <!-- Kategorie -->
             <div class="filter-group">
-                <label>Category</label>
-                <select name="category">
-                    <option value="">All Categories</option>
-                    <option value="Hiking">Hiking</option>
-                    <option value="Camping">Camping</option>
-                    <option value="Kayaking">Kayaking</option>
-                    <option value="Climbing">Climbing</option>
-                    <option value="Wildlife Tour">Wildlife Tour</option>
+                <label for="category" class="filter-label">Category</label>
+                <select id="category" name="category" class="filter-select">
+                    <option value=""
+                            th:selected="${param.category == null or param.category == ''}">
+                        All Categories
+                    </option>
+                    <option value="Hiking" th:selected="${param.category == 'Hiking'}">Hiking</option>
+                    <option value="Camping" th:selected="${param.category == 'Camping'}">Camping</option>
+                    <option value="Kayaking" th:selected="${param.category == 'Kayaking'}">Kayaking</option>
+                    <option value="Climbing" th:selected="${param.category == 'Climbing'}">Climbing</option>
+                    <option value="Wildlife Tour" th:selected="${param.category == 'Wildlife Tour'}">Wildlife Tour
+                    </option>
                 </select>
             </div>
 
@@ -215,40 +226,46 @@
             <div class="filter-group">
                 <label>Date Range</label>
                 <div class="date-range">
-                    <input
-                            type="date"
-                            name="startDate"
-                            id="startDate"
-                            th:value="${param.startDate}"
-                    >
+                    <input type="date" name="startDate" id="startDate" th:value="${param.startDate}">
                     <span>to</span>
-                    <input
-                            type="date"
-                            name="endDate"
-                            id="endDate"
-                            th:value="${param.endDate}"
-                    >
+                    <input type="date" name="endDate" id="endDate" th:value="${param.endDate}">
                 </div>
             </div>
 
-            <!-- difficulty -->
+            <!-- Difficulty -->
             <div class="filter-group">
                 <label>Difficulty</label>
                 <div class="checkbox-group">
-                    <label><input type="radio" name="difficulty" value=""> Any</label>
-                    <label><input type="radio" name="difficulty" value="Easy"> Easy</label>
-                    <label><input type="radio" name="difficulty" value="Intermediate"> Intermediate</label>
-                    <label><input type="radio" name="difficulty" value="Hard"> Hard</label>
+                    <label>
+                        <input type="radio" name="difficulty" value=""
+                               th:checked="${param.difficulty == null or param.difficulty == ''}">
+                        Any
+                    </label>
+                    <label>
+                        <input type="radio" name="difficulty" value="BEGINNER"
+                               th:checked="${param.difficulty == 'BEGINNER'}">
+                        Beginner
+                    </label>
+                    <label>
+                        <input type="radio" name="difficulty" value="INTERMEDIATE"
+                               th:checked="${param.difficulty == 'INTERMEDIATE'}">
+                        Intermediate
+                    </label>
+                    <label>
+                        <input type="radio" name="difficulty" value="ADVANCED"
+                               th:checked="${param.difficulty == 'ADVANCED'}">
+                        Advanced
+                    </label>
                 </div>
             </div>
 
-            <!-- Price range -->
+            <!-- Preis -->
             <div class="filter-group">
                 <label>Price Range (€)</label>
                 <div class="price-range">
-                    <input type="number" name="minPrice" placeholder="Min" min="0">
+                    <input type="number" name="minPrice" placeholder="Min" min="0" th:value="${param.minPrice}">
                     <span>–</span>
-                    <input type="number" name="maxPrice" placeholder="Max" min="0">
+                    <input type="number" name="maxPrice" placeholder="Max" min="0" th:value="${param.maxPrice}">
                 </div>
             </div>
 
@@ -256,8 +273,9 @@
         </form>
     </div>
 
-    <!-- Overlay hinter dem Panel -->
+    <!-- Overlay -->
     <div id="overlay" class="overlay"></div>
+
 
     <!-- Event Meta Bar (Anzahl und Sortierung) -->
     <div class="event-meta-bar">

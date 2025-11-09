@@ -1,4 +1,4 @@
-package at.fhv.Authors.controller;
+package at.fhv.Event.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 

@@ -1,6 +1,6 @@
-package at.fhv.Authors.domain.model;
+package at.fhv.Event.domain.model;
 
-import at.fhv.Authors.config.PostgreSQLEnumType;
+import at.fhv.Event.config.PostgreSQLEnumType;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -8,11 +8,16 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "event", schema = "nature_connect")
 @Access(AccessType.FIELD)
 public class Event {
+
+    @OneToMany(mappedBy = "event", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EventEquipment> eventEquipments = new ArrayList<>();
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,6 +35,7 @@ public class Event {
 
     @Column(name = "start_time", nullable = false)
     private LocalTime startTime;
+
 
     @Column(name = "end_time", nullable = false)
     private LocalTime endTime;
@@ -71,6 +77,10 @@ public class Event {
     }
 
     // --- Getter & Setter (bleiben gleich) ---
+    public List<EventEquipment> getEventEquipments() {
+        return eventEquipments;
+    }
+
     public Long getId() { return id; }
 
     public String getTitle() { return title; }
@@ -111,4 +121,5 @@ public class Event {
 
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
 }

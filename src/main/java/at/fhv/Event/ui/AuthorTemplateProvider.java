@@ -1,7 +1,7 @@
-package at.fhv.Authors.ui;
+package at.fhv.Event.ui;
 
-import at.fhv.Authors.domain.Author;
-import at.fhv.Authors.persistence.AuthorRepository;
+import at.fhv.Event.domain.Events;
+import at.fhv.Event.persistence.BookingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,12 +15,12 @@ import java.util.List;
 public class AuthorTemplateProvider {
 
     @Autowired
-    private AuthorRepository authorRepository;
+    private BookingRepository bookingRepository;
 
     @GetMapping("/authors")
     public ModelAndView getAuthorTemplate(Model model) {
-        List<Author> authors = Arrays.asList(new Author("Ralph", "Hoch"), new Author("FH", "Vorarlberg"));
-        return new ModelAndView("nature_connect", "authors", authors);
+        List<Events> events = Arrays.asList(new Events("Ralph", "Hoch"), new Events("FH", "Vorarlberg"));
+        return new ModelAndView("nature_connect", "authors", events);
     }
 
     @GetMapping("/ui/events")

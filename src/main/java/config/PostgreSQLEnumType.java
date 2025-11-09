@@ -1,6 +1,6 @@
-package at.fhv.Authors.config;
+package at.fhv.Event.config;
 
-import at.fhv.Authors.domain.model.Difficulty;
+import at.fhv.Event.domain.model.Difficulty;
 import org.hibernate.engine.spi.SharedSessionContractImplementor;
 import org.hibernate.usertype.UserType;
 

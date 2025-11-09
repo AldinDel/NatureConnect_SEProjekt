@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8"/>
     <title>Events</title>
     <link rel="icon" type="image/png" th:href="@{/images/NatureConnectLogo.png}" href="/images/NatureConnectLogo.png">
 
@@ -30,12 +30,15 @@
             <ul style="list-style:none;padding:0;margin:.5rem 0;font-size:.9rem;opacity:.9;">
                 <li>
                     <span th:text="${#temporals.format(ev.date, 'dd.MM.yyyy')}">01.01.2026</span>
-                    <span th:if="${ev.startTime}"> · <span th:text="${#temporals.format(ev.startTime, 'HH:mm')}">08:00</span></span>
-                    <span th:if="${ev.endTime}"> – <span th:text="${#temporals.format(ev.endTime, 'HH:mm')}">17:00</span></span>
+                    <span th:if="${ev.startTime}"> · <span
+                            th:text="${#temporals.format(ev.startTime, 'HH:mm')}">08:00</span></span>
+                    <span th:if="${ev.endTime}"> – <span
+                            th:text="${#temporals.format(ev.endTime, 'HH:mm')}">17:00</span></span>
                 </li>
                 <li th:text="${ev.location}">Location</li>
                 <li>
-                    <span th:if="${ev.capacity != null}" th:text="${ev.capacity} + ' Participants'">12 Participants</span>
+                    <span th:if="${ev.capacity != null}"
+                          th:text="${ev.capacity} + ' Participants'">12 Participants</span>
                     <span th:if="${ev.audience}"> · </span>
                     <span th:text="${ev.audience}">For Individuals</span>
                 </li>

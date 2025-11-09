@@ -1,12 +1,10 @@
-package at.fhv.Authors.domain.model;
+package at.fhv.Event.domain.model;
 
 import jakarta.persistence.*;
 
-import java.util.*;
-
 @Entity
 @Access(AccessType.FIELD)
-public class Author {
+public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,9 +15,9 @@ public class Author {
     @Column(unique = true)
     private String email;
 
-    public Author() {}
+    public Booking() {}
 
-    public Author(String firstName, String lastName, String email) {
+    public Booking(String firstName, String lastName, String email) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -27,6 +25,6 @@ public class Author {
 
     @Override
     public String toString() {
-        return "Author{" + "id=" + id + ", firstName='" + firstName + '\'' + ", lastName='" + lastName + '\'' + ", email='" + email + '\'' + '}';
+        return "Booking{" + "id=" + id + ", firstName='" + firstName + '\'' + ", lastName='" + lastName + '\'' + ", email='" + email + '\'' + '}';
     }
 }

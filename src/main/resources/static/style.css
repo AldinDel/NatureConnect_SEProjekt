@@ -422,6 +422,7 @@ body {
 .create-event-page input[type="number"],
 .create-event-page textarea,
 .create-event-page select {
+    font-family: 'Inter', sans-serif !important;
     width: 100%;
     padding: 10px 14px;
     border: none;
@@ -432,6 +433,13 @@ body {
     outline: none;
     box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(35%);
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+
 
 .create-event-page input::placeholder,
 .create-event-page textarea::placeholder {
@@ -506,6 +514,7 @@ body {
 }
 
 .time-range .time-inputs input[type="time"] {
+    font-family: 'Inter'; !important
     flex: 1;
     min-width: 0;
 }
@@ -545,37 +554,55 @@ body {
 }
 
 /* Cancel-Button (Ghost) */
+/* Cancel-Button (Ghost) */
 .btn-ghost {
-    background: transparent;
-    color: #fff !important;
-    border: 1px solid #c9d1db;
+    background-color: transparent !important;
+    color: #f3d9d9 !important; /* sanftes hellrosé */
+    border: 1px solid rgba(255, 255, 255, 0.6);
     border-radius: 999px;
-    padding: 10px 24px;
+    padding: 8px 22px;
     cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    top: 0;
     font-weight: 500;
-    transition: all 0.25s ease;
+    -webkit-appearance: none; /* verhindert Standard-Styling (Safari/Chrome) */
+    appearance: none;
 }
 
-/* Hover-Effekt für Cancel */
+/* Hover-Effekt */
 .btn-ghost:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: #e63946; /* Rahmen in der Schriftfarbe */
-    transform: scale(1.03);
+    background-color: rgba(255, 255, 255, 0.08) !important; /* leicht transparent */
+    color: #ffe6e6 !important; /* hübsches weiches Rot */
+    border-color: rgba(255, 236, 236, 0.7);
+    transform: translateY(-1px);
 }
 
+/* Fokus- und Klickzustand (Fix gegen komplett Weiß!) */
+.btn-ghost:focus,
+.btn-ghost:active {
+    background-color: rgba(255, 255, 255, 0.08) !important; /* bleibt transparent */
+    color: #ffffff !important;
+    border-color: rgba(243, 232, 232, 0.8) !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Einheitlicher Look */
 .btn-ghost,
 .btn-primary {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    font-size: 16px;          /* gleiche Schriftgröße */
-    line-height: 1;           /* verhindert "höheren" Link-Text */
-    height: 44px;             /* gleiche Gesamthöhe */
-    min-width: 120px;         /* optional, für gleiche Breite */
-    box-sizing: border-box;   /* Padding einberechnen */
-    text-decoration: none;    /* kein Unterstrich beim <a> */
+    font-size: 16px;
+    line-height: 1;
+    height: 44px;
+    min-width: 120px;
+    box-sizing: border-box;
+    text-decoration: none;
 }
+
 
 /* =============================
    Event Form Layout Optimized
@@ -673,6 +700,49 @@ body {
     color: #ff4d5a;
     transform: scale(1.2);
 }
+
+.equipment-item {
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.btn-primary {
+    transition: all 0.25s ease;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.btn-ghost {
+    transition: all 0.25s ease;
+}
+
+.btn-ghost:hover {
+    transform: translateY(-1px);
+    background-color: #f8fafc;
+}
+
+.nc-field input[type="date"] {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 14px;
+    color: #111;
+    letter-spacing: 0.2px;
+}
+
+/* optional: Kalender-Icon im Date-Feld angleichen */
+.nc-field input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(35%);
+    opacity: 0.8;
+    cursor: pointer;
+}
+
+
 
 .popup-message {
     position: fixed;

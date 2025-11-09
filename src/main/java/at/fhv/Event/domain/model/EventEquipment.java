@@ -1,5 +1,6 @@
-package at.fhv.Authors.domain.model;
+package at.fhv.Event.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 
 @Entity
@@ -15,6 +16,15 @@ public class EventEquipment {
     @Column(name = "equipment_id")
     private Long equipmentId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_id", insertable = false, updatable = false)
+    @JsonBackReference
+    private Event event;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "equipment_id", insertable = false, updatable = false)
+    private Equipment equipment;
+
     @Column(nullable = false)
     private boolean required = false;
 
@@ -28,6 +38,13 @@ public class EventEquipment {
 
     public Long getEventId() { return eventId; }
     public Long getEquipmentId() { return equipmentId; }
+
+    public Equipment getEquipment() { return equipment; }
+    public void setEquipment(Equipment equipment) { this.equipment = equipment; }
+
     public boolean isRequired() { return required; }
     public void setRequired(boolean required) { this.required = required; }
+
+    public Event getEvent() { return event; }
+    public void setEvent(Event event) { this.event = event; }
 }

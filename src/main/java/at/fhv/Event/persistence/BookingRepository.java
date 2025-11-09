@@ -1,13 +1,11 @@
-package at.fhv.Authors.persistence;
+package at.fhv.Event.persistence;
 
-import at.fhv.Authors.domain.model.Author;
+import at.fhv.Event.domain.model.Booking;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.UUID;
-
 @Repository
-public interface AuthorRepository extends JpaRepository<Author, Long> {
+public interface BookingRepository extends JpaRepository<Booking, Long> {
 }
 
 //public interface EventRepository extends JpaRepository<>{}

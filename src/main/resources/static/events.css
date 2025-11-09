@@ -667,6 +667,21 @@ html, body {
     color: #9ca3af;
 }
 
+.back-link {
+    display: inline-block;
+    margin-bottom: 5px;
+    color: #0f2740;
+    font-weight: 500;
+    font-size: 13.5px;
+    text-decoration: none;
+    transition: all 0.25s ease;
+}
+
+.back-link:hover {
+    color: #1a3a5c;
+    transform: translateX(-4px);
+}
+
 .category-bar button.active {
     background-color: #0f2740;
     color: #fff;
