@@ -199,22 +199,32 @@ body {
     color: #111827;
 }
 
-/* Schwierigkeitsanzeige */
+/* Difficulty Labels */
 .difficulty {
+    font-weight: 600;
     padding: 4px 10px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 500;
+    border-radius: 12px;
+    font-size: 0.9em;
+    display: inline-block;
+    text-transform: capitalize;
 }
 
-.difficulty.yellow {
-    background: #fef9c3;
-    color: #854d0e;
+/* Beginner */
+.beginner {
+    background-color: #C8F7C5;
+    color: #206B2F;
 }
 
-.difficulty.green {
-    background: #dcfce7;
-    color: #166534;
+/* Intermediate */
+.intermediate {
+    background-color: #FFF5C2;
+    color: #8B7400;
+}
+
+/*  Advanced */
+.advanced {
+    background-color: #FFD1D1;
+    color: #9E1A1A;
 }
 
 /* Beschreibungstext */
@@ -668,18 +678,26 @@ html, body {
 }
 
 .back-link {
-    display: inline-block;
-    margin-bottom: 5px;
-    color: #0f2740;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14.5px;
     font-weight: 500;
-    font-size: 13.5px;
     text-decoration: none;
+    color: #0b2545;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    padding: 8px 14px;
+    border-radius: 10px;
     transition: all 0.25s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .back-link:hover {
-    color: #1a3a5c;
-    transform: translateX(-4px);
+    background-color: #e9eef5;
+    color: #0b2545;
+    transform: translateX(-2px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
 }
 
 .category-bar button.active {

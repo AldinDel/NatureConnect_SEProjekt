@@ -37,7 +37,6 @@
 </header>
 
 <body>
-<!-- 🌷 Popups -->
 <div th:if="${success != null}" id="success-popup" class="popup-message" th:text="${success}"></div>
 <div th:if="${error != null}" id="error-popup" class="popup-message error" th:text="${error}"></div>
 
@@ -47,7 +46,7 @@
         <p class="home-text-2">Because the best memories are made outside.</p>
     </div>
 
-    <!-- ✨ Suchleiste -->
+    <!-- Suchleiste -->
     <form id="searchForm" class="nc-searchbar" th:action="@{/events/search}" method="get" role="search" aria-label="Event search">
         <input type="hidden" name="source" value="home" />
 
@@ -100,7 +99,7 @@
     </form>
 </section>
 
-<!-- 🌸 Popup Style -->
+<!-- Popup Style -->
 <style>
     .popup-message {
         position: fixed;
@@ -133,7 +132,7 @@
         40%, 80% { transform: translateX(8px); }
     }
 
-    /* 🌷 kleines Popup für JS-Fehler */
+    /*  kleines Popup für JS-Fehler */
     #date-popup {
         position: fixed;
         top: 80px;
@@ -149,7 +148,7 @@
     }
 </style>
 
-<!-- 🌺 Popup-Funktion & Date-Check -->
+<!--  Popup-Funktion & Date-Check -->
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const popup = document.getElementById("success-popup");
