@@ -2,7 +2,7 @@ body {
     font-family: 'Inter', sans-serif;
     background-color: #fff;
     margin: 0;
-    padding: 40px 0;
+    padding: 0;
 }
 
 /* Hauptcontainer für die gesamte Event-Übersicht */
@@ -314,27 +314,6 @@ html, body {
     background: #ffffff !important;
 }
 
-.nc-header {
-    margin: 0 !important;
-    padding: 0 !important;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    background-color: #0b2545 !important;
-    box-shadow: none !important;
-    border: none !important;
-}
-
-.nc-container {
-    margin: 0 auto;
-    padding: 0 40px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 80px;
-}
 
 .details svg {
     width: 15px;
@@ -718,5 +697,108 @@ html, body {
 .event-overview {
     margin-top: 50px;
 }
+
+/* --- FIX BODY SPACING --- */
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff;
+}
+
+/* --- HEADER STYLING --- */
+.nc-header {
+    background-color: #0b2545;
+    color: white;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    font-family: 'Inter', sans-serif;
+}
+
+/* --- OBERER TEIL: LOGO --- */
+.nc-top {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 14px 80px 6px 80px;
+}
+
+.nc-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: white;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.nc-logo img {
+    width: 42px;
+    height: 42px;
+}
+
+/* --- TRENNLINIE DIREKT UNTER LOGO --- */
+/* Homepage-style divider */
+.nc-divider {
+    height: 1px;
+    width: 100%;
+    background: #ffffff33; /* bright white with transparency */
+    margin: 0;
+    border: none;
+    position: relative;
+    z-index: 5;
+}
+
+
+
+/* --- NAVI TEIL UNTEN --- */
+.nc-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 80px;
+    font-size: 16px;
+}
+
+.nc-left, .nc-right {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nc-left a, .nc-right a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.2s ease;
+}
+
+.nc-left a:hover, .nc-right a:hover {
+    opacity: 0.7;
+}
+
+.divider {
+    opacity: 0.4;
+}
+
+/* --- LOGIN BUTTON --- */
+.nc-login {
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: background 0.3s ease;
+}
+
+.nc-login:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
 
 

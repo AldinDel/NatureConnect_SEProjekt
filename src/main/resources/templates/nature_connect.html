@@ -9,17 +9,24 @@
 
 <header class="nc-header">
     <div class="nc-container">
-        <a class="nc-logo" th:href="@{/}" href="/" aria-label="NATUREConnect Home">
-            <img src="/images/NatureConnectLogo.png" alt="Logo">
-            <span class="nc-brand"><strong>NATURE</strong>Connect</span>
-        </a>
+        <!-- Logo & Brand -->
+        <div class="nc-top">
+            <a class="nc-logo" th:href="@{/}" href="/" aria-label="NATUREConnect Home">
+                <img src="/images/NatureConnectLogo.png" alt="Logo">
+                <span class="nc-brand"><strong>NATURE</strong>Connect</span>
+            </a>
+        </div>
 
+        <!-- Trennlinie -->
+        <div class="nc-divider"></div>
+
+        <!-- Navigation unten -->
         <nav class="nc-nav" id="nc-nav" aria-label="Primary">
             <ul class="nc-left">
                 <li><a th:href="@{/}" href="/" class="is-active">Home</a></li>
                 <li class="dropdown has-dropdown">
-                    <a href="#" class="dropbtn with-caret" aria-haspopup="true" aria-expanded="false">Events ▾</a>
-                    <ul class="dropdown-content" role="menu" aria-label="Events">
+                    <a href="#" class="dropbtn with-caret">Events ▾</a>
+                    <ul class="dropdown-content">
                         <li><a th:href="@{/events}" href="/events">All Events</a></li>
                         <li><a th:href="@{/events/new}" href="/events/new">Create Event</a></li>
                     </ul>
@@ -35,6 +42,7 @@
         </nav>
     </div>
 </header>
+
 
 <body>
 <div th:if="${success != null}" id="success-popup" class="popup-message" th:text="${success}"></div>
