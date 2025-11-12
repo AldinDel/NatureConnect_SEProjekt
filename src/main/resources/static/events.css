@@ -2,7 +2,7 @@ body {
     font-family: 'Inter', sans-serif;
     background-color: #fff;
     margin: 0;
-    padding: 40px 0;
+    padding: 0;
 }
 
 /* Hauptcontainer für die gesamte Event-Übersicht */
@@ -199,22 +199,32 @@ body {
     color: #111827;
 }
 
-/* Schwierigkeitsanzeige */
+/* Difficulty Labels */
 .difficulty {
+    font-weight: 600;
     padding: 4px 10px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 500;
+    border-radius: 12px;
+    font-size: 0.9em;
+    display: inline-block;
+    text-transform: capitalize;
 }
 
-.difficulty.yellow {
-    background: #fef9c3;
-    color: #854d0e;
+/* Beginner */
+.beginner {
+    background-color: #C8F7C5;
+    color: #206B2F;
 }
 
-.difficulty.green {
-    background: #dcfce7;
-    color: #166534;
+/* Intermediate */
+.intermediate {
+    background-color: #FFF5C2;
+    color: #8B7400;
+}
+
+/*  Advanced */
+.advanced {
+    background-color: #FFD1D1;
+    color: #9E1A1A;
 }
 
 /* Beschreibungstext */
@@ -304,27 +314,6 @@ html, body {
     background: #ffffff !important;
 }
 
-.nc-header {
-    margin: 0 !important;
-    padding: 0 !important;
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1000;
-    background-color: #0b2545 !important;
-    box-shadow: none !important;
-    border: none !important;
-}
-
-.nc-container {
-    margin: 0 auto;
-    padding: 0 40px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 80px;
-}
 
 .details svg {
     width: 15px;
@@ -668,18 +657,26 @@ html, body {
 }
 
 .back-link {
-    display: inline-block;
-    margin-bottom: 5px;
-    color: #0f2740;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14.5px;
     font-weight: 500;
-    font-size: 13.5px;
     text-decoration: none;
+    color: #0b2545;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    padding: 8px 14px;
+    border-radius: 10px;
     transition: all 0.25s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
 .back-link:hover {
-    color: #1a3a5c;
-    transform: translateX(-4px);
+    background-color: #e9eef5;
+    color: #0b2545;
+    transform: translateX(-2px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
 }
 
 .category-bar button.active {
@@ -700,5 +697,108 @@ html, body {
 .event-overview {
     margin-top: 50px;
 }
+
+/* --- FIX BODY SPACING --- */
+html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff;
+}
+
+/* --- HEADER STYLING --- */
+.nc-header {
+    background-color: #0b2545;
+    color: white;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    font-family: 'Inter', sans-serif;
+}
+
+/* --- OBERER TEIL: LOGO --- */
+.nc-top {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 14px 80px 6px 80px;
+}
+
+.nc-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    color: white;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.nc-logo img {
+    width: 42px;
+    height: 42px;
+}
+
+/* --- TRENNLINIE DIREKT UNTER LOGO --- */
+/* Homepage-style divider */
+.nc-divider {
+    height: 1px;
+    width: 100%;
+    background: #ffffff33; /* bright white with transparency */
+    margin: 0;
+    border: none;
+    position: relative;
+    z-index: 5;
+}
+
+
+
+/* --- NAVI TEIL UNTEN --- */
+.nc-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 80px;
+    font-size: 16px;
+}
+
+.nc-left, .nc-right {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nc-left a, .nc-right a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.2s ease;
+}
+
+.nc-left a:hover, .nc-right a:hover {
+    opacity: 0.7;
+}
+
+.divider {
+    opacity: 0.4;
+}
+
+/* --- LOGIN BUTTON --- */
+.nc-login {
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: background 0.3s ease;
+}
+
+.nc-login:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
 
 

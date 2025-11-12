@@ -4,7 +4,7 @@ body {
     background: #fff;
     color: #000;
     margin: 0;
-    padding: 40px 0;
+    padding: 0;
 }
 
 /* --- Full-width HERO stays outside the .page --- */
@@ -258,4 +258,13 @@ body {
     .hero-map {
         height: auto;
     }
+}
+
+nav {
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Abstand zwischen Header und erstem Inhalt */
+body > .hero-box {
+    margin-top: 80px; /* 👈 kannst du anpassen (60–100px sieht gut aus) */
 }

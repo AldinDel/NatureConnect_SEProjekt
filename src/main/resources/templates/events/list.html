@@ -102,7 +102,7 @@
 
 <!-- Eventübersicht-->
 <section class="event-overview">
-    <a th:href="@{/}" href="/" class="back-link">← Back to Home</a>
+    <a th:href="@{/}" href="/" class="back-link">❮ Home</a>
     <h1>Event Overview</h1>
     <p>Discover exciting events and activities near you</p>
 
@@ -321,10 +321,12 @@
             <div class="card-content">
                 <div class="card-header">
                     <h3 th:text="${event.title}">Event Title</h3>
-                    <span class="difficulty yellow"
+                    <span class="difficulty"
+                          th:classappend="| ${#strings.toLowerCase(event.difficulty.name())}|"
                           th:text="${#strings.capitalize(#strings.toLowerCase(event.difficulty.name()))}">
                         Intermediate
                     </span>
+
                 </div>
 
                 <p th:text="${event.description}">Event description here...</p>

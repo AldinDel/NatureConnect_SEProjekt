@@ -3,53 +3,89 @@
 <head>
     <meta charset="UTF-8"/>
     <title>Events</title>
-    <link rel="icon" type="image/png" th:href="@{/images/NatureConnectLogo.png}" href="/images/NatureConnectLogo.png">
 
+    <link rel="stylesheet" th:href="@{/style.css}" href="/style.css">
+    <link rel="stylesheet" th:href="@{/events.css}" href="/events.css">
+    <link rel="icon" type="image/png" th:href="@{/images/NatureConnectLogo.png}" href="/images/NatureConnectLogo.png">
 </head>
+
 <body>
-<header style="display:flex;justify-content:space-between;align-items:center;">
-    <h1>Event Overview</h1>
-    <a th:href="@{/events/new}">Create Event</a>
+<header class="nc-header">
+    <div class="nc-top">
+        <a class="nc-logo" th:href="@{/}" href="/">
+            <img src="/images/NatureConnectLogo.png" alt="Logo" width="40" height="40">
+            <span class="nc-brand"><strong>NATURE</strong>Connect</span>
+        </a>
+    </div>
+
+    <div class="nc-divider"></div>
+
+    <nav class="nc-bottom">
+        <ul class="nc-left">
+            <li><a th:href="@{/}" href="/">Home</a></li>
+            <li class="dropdown has-dropdown">
+                <a href="#" class="dropbtn with-caret">Events ▾</a>
+                <ul class="dropdown-content">
+                    <li><a th:href="@{/events}" href="/events">All Events</a></li>
+                    <li><a th:href="@{/events/new}" href="/events/new">Create Event</a></li>
+                </ul>
+            </li>
+        </ul>
+
+        <ul class="nc-right">
+            <li><a href="/about">About Us</a></li>
+            <li><span class="divider">|</span></li>
+            <li><a href="/contact">Contact Us</a></li>
+            <li><a class="nc-login" href="/login">Log In</a></li>
+        </ul>
+    </nav>
 </header>
 
-<div th:if="${success}" style="color:green;margin:8px 0;" th:text="${success}"></div>
 
-<!-- Grid -->
-<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;">
-    <div th:each="ev : ${events}" style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
-        <div th:if="${ev.imageUrl}"
-             th:style="'height:160px;background-size:cover;background-position:center;background-image:url(' + ${ev.imageUrl} + ');'">
-        </div>
 
-        <div style="padding:14px;">
-            <div style="font-size:0.8rem;opacity:.7;" th:text="${ev.category}">Category</div>
-            <h3 style="margin:.25rem 0;" th:text="${ev.title}">Title</h3>
-            <p style="font-size:.9rem;opacity:.8;height:44px;overflow:hidden;text-overflow:ellipsis;"
-               th:text="${ev.description}">Desc</p>
+<!-- Erfolgsmeldung -->
+<div th:if="${success}" style="color:green;margin:8px 0;margin-top:100px;" th:text="${success}"></div>
 
-            <ul style="list-style:none;padding:0;margin:.5rem 0;font-size:.9rem;opacity:.9;">
-                <li>
-                    <span th:text="${#temporals.format(ev.date, 'dd.MM.yyyy')}">01.01.2026</span>
-                    <span th:if="${ev.startTime}"> · <span
-                            th:text="${#temporals.format(ev.startTime, 'HH:mm')}">08:00</span></span>
-                    <span th:if="${ev.endTime}"> – <span
-                            th:text="${#temporals.format(ev.endTime, 'HH:mm')}">17:00</span></span>
-                </li>
-                <li th:text="${ev.location}">Location</li>
-                <li>
-                    <span th:if="${ev.capacity != null}"
-                          th:text="${ev.capacity} + ' Participants'">12 Participants</span>
-                    <span th:if="${ev.audience}"> · </span>
-                    <span th:text="${ev.audience}">For Individuals</span>
-                </li>
-            </ul>
+<!-- Event Grid -->
+<div class="event-overview" style="margin-top:120px;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;">
+        <div th:each="ev : ${events}" style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
+            <div th:if="${ev.imageUrl}"
+                 th:style="'height:160px;background-size:cover;background-position:center;background-image:url(' + ${ev.imageUrl} + ');'">
+            </div>
 
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-                <strong th:text="'€ ' + ${#numbers.formatDecimal(ev.price, 1, 'COMMA', 2, 'POINT')}">€ 0,00</strong>
-                <!-- Optional: Details-Link kommt später -->
+            <div style="padding:14px;">
+                <div style="font-size:0.8rem;opacity:.7;" th:text="${ev.category}">Category</div>
+                <h3 style="margin:.25rem 0;" th:text="${ev.title}">Title</h3>
+                <p style="font-size:.9rem;opacity:.8;height:44px;overflow:hidden;text-overflow:ellipsis;"
+                   th:text="${ev.description}">Desc</p>
+
+                <ul style="list-style:none;padding:0;margin:.5rem 0;font-size:.9rem;opacity:.9;">
+                    <li>
+                        <span th:text="${#temporals.format(ev.date, 'dd.MM.yyyy')}">01.01.2026</span>
+                        <span th:if="${ev.startTime}"> ·
+                            <span th:text="${#temporals.format(ev.startTime, 'HH:mm')}">08:00</span>
+                        </span>
+                        <span th:if="${ev.endTime}"> –
+                            <span th:text="${#temporals.format(ev.endTime, 'HH:mm')}">17:00</span>
+                        </span>
+                    </li>
+                    <li th:text="${ev.location}">Location</li>
+                    <li>
+                        <span th:if="${ev.capacity != null}"
+                              th:text="${ev.capacity} + ' Participants'">12 Participants</span>
+                        <span th:if="${ev.audience}"> · </span>
+                        <span th:text="${ev.audience}">For Individuals</span>
+                    </li>
+                </ul>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <strong th:text="'€ ' + ${#numbers.formatDecimal(ev.price, 1, 'COMMA', 2, 'POINT')}">€ 0,00</strong>
+                </div>
             </div>
         </div>
     </div>
 </div>
+
 </body>
 </html>
