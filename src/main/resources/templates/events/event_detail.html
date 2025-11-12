@@ -5,14 +5,51 @@
     <title th:text="${event.title}">Event Details</title>
 
     <!-- Stylesheets -->
-    <link rel="stylesheet" th:href="@{/navbar.css}">
+    <link rel="stylesheet" th:href="@{/style.css}">
     <link rel="stylesheet" th:href="@{/event_detail.css}">
+
 </head>
 
 <body>
 
-<!-- 🧩 Navbar Fragment -->
-<div th:replace="~{events/fragments/navbar :: navbar}"></div>
+<header class="nc-header">
+    <div class="nc-container">
+        <!-- Logo & Brand -->
+        <div class="nc-top">
+            <a class="nc-logo" th:href="@{/}" href="/" aria-label="NATUREConnect Home">
+                <img src="/images/NatureConnectLogo.png" alt="Logo">
+                <span class="nc-brand"><strong>NATURE</strong>Connect</span>
+            </a>
+        </div>
+
+        <!-- Trennlinie -->
+        <div class="nc-divider"></div>
+
+        <!-- Navigation unten -->
+        <nav class="nc-nav" id="nc-nav" aria-label="Primary">
+            <ul class="nc-left">
+                <li><a th:href="@{/}" href="/" class="is-active">Home</a></li>
+                <li class="dropdown has-dropdown">
+                    <a href="#" class="dropbtn with-caret">Events ▾</a>
+                    <ul class="dropdown-content">
+                        <li><a th:href="@{/events}" href="/events">All Events</a></li>
+                        <li><a th:href="@{/events/new}" href="/events/new">Create Event</a></li>
+                    </ul>
+                </li>
+            </ul>
+
+            <ul class="nc-right">
+                <li><a href="/about">About Us</a></li>
+                <li><span class="divider">|</span></li>
+                <li><a href="/contact">Contact Us</a></li>
+                <li><a class="nc-login" href="/login">Log In</a></li>
+            </ul>
+        </nav>
+    </div>
+</header>
+
+
+
 
 <!-- 🌄 HERO FULL WIDTH -->
 <section class="hero-box">
