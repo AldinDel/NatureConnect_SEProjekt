@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${event.title}">Event Details</title>
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" th:href="@{/navbar.css}">
+    <link rel="stylesheet" th:href="@{/event_detail.css}">
+</head>
+
+<body>
+
+<!-- 🧩 Navbar Fragment -->
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
+
+<!-- 🌄 HERO FULL WIDTH -->
+<section class="hero-box">
+    <div class="category-tag" th:text="${event.category}">Camping</div>
+    <h1 class="event-title" th:text="${event.title}">Event Title</h1>
+
+    <div class="hero-grid">
+        <div class="hero-left">
+            <img th:if="${event.imageUrl != null}" th:src="${event.imageUrl}" alt="Main Event Image">
+        </div>
+
+        <div class="hero-right">
+            <div class="hero-small-img">
+                <img th:if="${event.imageUrl != null}" th:src="${event.imageUrl}" alt="Secondary Event Image">
+            </div>
+
+            <div class="hero-map">
+                <iframe
+                        th:src="'https://www.openstreetmap.org/export/embed.html?bbox=9.73,47.4,9.75,47.42&layer=mapnik&marker=47.41,9.74'"
+                        width="100%"
+                        height="100%"
+                        frameborder="0"
+                        title="Map Location">
+                </iframe>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 🧾 MAIN CONTENT BELOW HERO -->
+<main class="page">
+    <!-- LEFT COLUMN -->
+    <section class="left">
+        <div class="box organizer-box">
+            <h3>Organized by</h3>
+            <p th:text="${event.organizer}">Organizer Name</p>
+        </div>
+
+        <div class="box">
+            <h3>About this Event</h3>
+            <p th:text="${event.description}">Description text</p>
+        </div>
+
+        <div class="box">
+            <h3>Who can Join</h3>
+            <p th:text="${event.audience}">Audience text</p>
+        </div>
+
+        <div class="box">
+            <h3>Event Details</h3>
+            <div class="details-grid">
+                <div class="detail-item">
+                    <h4>Difficulty</h4>
+                    <p th:text="${#strings.capitalize(event.difficulty.toString().toLowerCase())}">Medium</p>
+                </div>
+
+                <div class="detail-item">
+                    <h4>Date</h4>
+                    <p th:text="${#temporals.format(event.date, 'dd MMMM yyyy')}">12 December 2026</p>
+                </div>
+
+                <div class="detail-item">
+                    <h4>Duration</h4>
+                    <p th:text="${event.duration()}">4 hours</p>
+                </div>
+
+                <div class="detail-item">
+                    <h4>Time</h4>
+                    <p>
+                        <span th:text="${#temporals.format(event.startTime, 'HH:mm')}">10:00</span> –
+                        <span th:text="${#temporals.format(event.endTime, 'HH:mm')}">14:00</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="box">
+            <h3>Optional Add-ons</h3>
+
+            <div class="sub-box">
+                <h4>Equipment</h4>
+                <div id="allEquipmentList" class="simple-list"></div>
+                <p id="noEquipMsg" style="display:none;">No equipment found 💼</p>
+            </div>
+
+            <div class="sub-box">
+                <h4>Available for Rent</h4>
+                <div id="rentableEquipmentList" class="simple-list"></div>
+                <p id="noRentableMsg" style="display:none;">No rentable equipment available 🪶</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- RIGHT COLUMN -->
+    <aside class="right">
+        <div class="box">
+            <h3>Participants</h3>
+            <table class="participant-table">
+                <tr>
+                    <td>Minimum</td>
+                    <td th:text="${event.minParticipants} + ' people'">5 people</td>
+                </tr>
+                <tr>
+                    <td>Maximum</td>
+                    <td th:text="${event.maxParticipants} + ' people'">20 people</td>
+                </tr>
+            </table>
+            <hr>
+            <p>
+                <span th:text="${event.maxParticipants - event.minParticipants}">15</span>
+                spots remaining
+            </p>
+        </div>
+
+        <div class="box">
+            <h3>Pricing</h3>
+            <p>Price per person</p>
+            <p><span th:text="${event.price}">20</span> €</p>
+
+            <div class="discount-box">
+                <p>Discount code:</p>
+                <strong>OUTDOOR</strong>
+            </div>
+
+            <button class="book-btn">Book now</button>
+        </div>
+    </aside>
+</main>
+
+<!-- 🧩 JS for Equipment -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const equipmentList = /*[[${event.equipment}]]*/ [];
+
+    const allList = document.getElementById("allEquipmentList");
+    const rentList = document.getElementById("rentableEquipmentList");
+    const noEquipMsg = document.getElementById("noEquipMsg");
+    const noRentableMsg = document.getElementById("noRentableMsg");
+
+    if (!equipmentList || equipmentList.length === 0) {
+        noEquipMsg.style.display = "block";
+    } else {
+        let hasRentable = false;
+
+        equipmentList.forEach(eq => {
+            const item = document.createElement("div");
+            item.classList.add("simple-item");
+            item.innerHTML = `
+                    <span>${eq.name}</span>
+                    <span>${eq.required ? "Mandatory" : "Optional"}</span>
+                `;
+            allList.appendChild(item);
+
+            if (eq.rentable) {
+                hasRentable = true;
+                const rentItem = document.createElement("div");
+                rentItem.classList.add("simple-item");
+                rentItem.innerHTML = `
+                        <span>${eq.name}</span>
+                        <span>€ ${eq.price ?? "—"}</span>
+                    `;
+                rentList.appendChild(rentItem);
+            }
+        });
+
+        if (!hasRentable) {
+            noRentableMsg.style.display = "block";
+        }
+    }
+    /*]]>*/
+</script>
+
+</body>
+</html>

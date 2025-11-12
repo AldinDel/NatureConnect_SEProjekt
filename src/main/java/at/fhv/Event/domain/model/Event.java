@@ -66,14 +66,18 @@ public class Event {
     @Column(name = "image_url", length = 500)
     private String imageUrl;
 
+    @Column(nullable = false, length = 255)
+    private String audience;
+
     public Event() {}
 
-    public Event(String title, String description, LocalDate date, String location, BigDecimal price) {
+    public Event(String title, String description, LocalDate date, String location, BigDecimal price, String audience) {
         this.title = title;
         this.description = description;
         this.date = date;
         this.location = location;
         this.price = price;
+        this.audience = audience;
     }
 
     // --- Getter & Setter (bleiben gleich) ---
@@ -122,4 +126,11 @@ public class Event {
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
+    public String getAudience() {
+        return audience;
+    }
+
+    public void setAudience(String audience) {
+        this.audience = audience;
+    }
 }
