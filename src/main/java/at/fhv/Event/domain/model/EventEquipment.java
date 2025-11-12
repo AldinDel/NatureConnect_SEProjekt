@@ -5,24 +5,20 @@ import jakarta.persistence.*;
 
 @Entity
 @Table(name = "event_equipment", schema = "nature_connect")
-@IdClass(EventEquipmentId.class)
 public class EventEquipment {
 
-    @Id
-    @Column(name = "event_id")
-    private Long eventId;
-
-    @Id
-    @Column(name = "equipment_id")
-    private Long equipmentId;
+    @EmbeddedId
+    private EventEquipmentId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "event_id", insertable = false, updatable = false)
+    @MapsId("eventId")
+    @JoinColumn(name = "event_id")
     @JsonBackReference
     private Event event;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "equipment_id", insertable = false, updatable = false)
+    @MapsId("equipmentId")
+    @JoinColumn(name = "equipment_id")
     private Equipment equipment;
 
     @Column(nullable = false)
@@ -31,20 +27,18 @@ public class EventEquipment {
     public EventEquipment() {}
 
     public EventEquipment(Long eventId, Long equipmentId, boolean required) {
-        this.eventId = eventId;
-        this.equipmentId = equipmentId;
+        this.id = new EventEquipmentId(eventId, equipmentId);
         this.required = required;
     }
 
-    public Long getEventId() { return eventId; }
-    public Long getEquipmentId() { return equipmentId; }
+    public EventEquipmentId getId() { return id; }
+
+    public Event getEvent() { return event; }
+    public void setEvent(Event event) { this.event = event; }
 
     public Equipment getEquipment() { return equipment; }
     public void setEquipment(Equipment equipment) { this.equipment = equipment; }
 
     public boolean isRequired() { return required; }
     public void setRequired(boolean required) { this.required = required; }
-
-    public Event getEvent() { return event; }
-    public void setEvent(Event event) { this.event = event; }
 }

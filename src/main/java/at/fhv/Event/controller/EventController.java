@@ -1,11 +1,18 @@
 package at.fhv.Event.controller;
 
-import at.fhv.Event.domain.model.*;
+import at.fhv.Event.application.GetEventDetailsService;
+import at.fhv.Event.domain.model.Equipment;
+import at.fhv.Event.domain.model.Event;
+import at.fhv.Event.domain.model.EventEquipment;
 import at.fhv.Event.dto.EquipmentDTO;
 import at.fhv.Event.dto.EventDTO;
-import at.fhv.Event.persistence.*;
+import at.fhv.Event.dto.EventDetailDTO;
+import at.fhv.Event.persistence.EquipmentRepository;
+import at.fhv.Event.persistence.EventEquipmentRepository;
+import at.fhv.Event.persistence.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,9 +22,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-
-import org.springframework.http.HttpStatus;
-
 import java.time.LocalDate;
 import java.util.*;
 
@@ -35,9 +39,13 @@ public class EventController {
     @Autowired
     private EquipmentRepository equipmentRepo;
 
-    public EventController(EventRepository repo) {
+    private final GetEventDetailsService getEventDetailsService;
+
+    public EventController(EventRepository repo, GetEventDetailsService getEventDetailsService) {
         this.repo = repo;
+        this.getEventDetailsService = getEventDetailsService;
     }
+
 
     // Neues Event erstellen (Formular anzeigen)
     @GetMapping("/events/new")
@@ -388,13 +396,14 @@ public class EventController {
     // Einzelnes Event anzeigen
     @GetMapping("/events/{id:[0-9]+}")
     public String showEventDetails(@PathVariable("id") Long id, Model model, RedirectAttributes ra) {
-        Event event = repo.findByIdWithEquipments(id)
-                .orElseThrow(() -> new RuntimeException("Event not found"));
-        if (event == null) {
+        try {
+            EventDetailDTO eventDetail = getEventDetailsService.getEventDetails(id);
+            model.addAttribute("event", eventDetail);
+            return "events/event_detail"; // <-- du brauchst neues Template für Details!
+        } catch (RuntimeException e) {
             ra.addFlashAttribute("error", "Event not found!");
             return "redirect:/events";
         }
-        model.addAttribute("event", event);
-        return "events/create_event";
+
     }
 }
