@@ -53,9 +53,16 @@
 
 <!-- 🌄 HERO FULL WIDTH -->
 <section class="hero-box">
-    <div class="category-tag" th:text="${event.category}">Camping</div>
+    <!-- Kategorie-Tag über dem Titel -->
+    <div class="category-tag"
+         th:attr="data-category=${event.category}"
+         th:text="${event.category}">
+    </div>
+
+    <!-- Titel -->
     <h1 class="event-title" th:text="${event.title}">Event Title</h1>
 
+    <!-- Hero Grid: Bild + Map -->
     <div class="hero-grid">
         <div class="hero-left">
             <img th:if="${event.imageUrl != null}" th:src="${event.imageUrl}" alt="Main Event Image">
@@ -78,6 +85,8 @@
         </div>
     </div>
 </section>
+
+
 
 <!-- 🧾 MAIN CONTENT BELOW HERO -->
 <main class="page">
