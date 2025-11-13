@@ -1,6 +1,6 @@
 package at.fhv.Event.application;
 
-import at.fhv.Event.domain.model.Event;
+import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.dto.EquipmentDTO;
 import at.fhv.Event.dto.EventDetailDTO;
 import at.fhv.Event.persistence.EventRepository;
