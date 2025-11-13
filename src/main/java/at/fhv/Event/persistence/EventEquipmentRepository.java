@@ -1,7 +1,7 @@
 package at.fhv.Event.persistence;
 
-import at.fhv.Event.domain.model.EventEquipment;
-import at.fhv.Event.domain.model.EventEquipmentId;
+import at.fhv.Event.domain.model.equipment.EventEquipment;
+import at.fhv.Event.domain.model.equipment.EventEquipmentId;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 

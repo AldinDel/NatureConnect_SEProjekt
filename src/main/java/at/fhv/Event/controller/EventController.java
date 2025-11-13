@@ -1,6 +1,8 @@
 package at.fhv.Event.controller;
 
-import at.fhv.Event.domain.model.*;
+import at.fhv.Event.domain.model.equipment.Equipment;
+import at.fhv.Event.domain.model.event.Event;
+import at.fhv.Event.domain.model.equipment.EventEquipment;
 import at.fhv.Event.dto.EquipmentDTO;
 import at.fhv.Event.dto.EventDTO;
 import at.fhv.Event.persistence.*;

@@ -1,4 +1,4 @@
-package at.fhv.Event.domain.model;
+package at.fhv.Event.domain.model.event;
 
 public enum Difficulty {
     BEGINNER,
