@@ -1,5 +1,6 @@
-package at.fhv.Event.domain.model;
+package at.fhv.Event.domain.model.equipment;
 
+import at.fhv.Event.domain.model.event.Event;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 

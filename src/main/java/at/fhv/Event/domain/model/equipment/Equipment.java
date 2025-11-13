@@ -1,4 +1,4 @@
-package at.fhv.Event.domain.model;
+package at.fhv.Event.domain.model.equipment;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
@@ -32,7 +32,7 @@ public class Equipment {
         this.name = name;
     }
 
-    // --- Getter & Setter ---
+    // Getter & Setter
     public Long getId() { return id; }
 
     public String getName() { return name; }
