@@ -1,4 +1,4 @@
-package at.fhv.Event.domain.model;
+package at.fhv.Event.domain.model.equipment;
 
 import java.io.Serializable;
 import java.util.Objects;

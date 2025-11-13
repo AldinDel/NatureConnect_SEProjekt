@@ -1,6 +1,7 @@
-package at.fhv.Event.domain.model;
+package at.fhv.Event.domain.model.event;
 
 import at.fhv.Event.config.PostgreSQLEnumType;
+import at.fhv.Event.domain.model.equipment.EventEquipment;
 import jakarta.persistence.*;
 import org.hibernate.annotations.Type;
 import org.springframework.format.annotation.DateTimeFormat;

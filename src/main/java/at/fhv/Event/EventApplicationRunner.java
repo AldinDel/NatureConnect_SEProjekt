@@ -1,6 +1,6 @@
 package at.fhv.Event;
 
-import at.fhv.Event.domain.model.Event;
+import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.persistence.EventRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;

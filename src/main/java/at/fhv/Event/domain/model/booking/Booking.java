@@ -1,4 +1,4 @@
-package at.fhv.Event.domain.model;
+package at.fhv.Event.domain.model.booking;
 
 import jakarta.persistence.*;
 

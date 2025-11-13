@@ -698,14 +698,14 @@ html, body {
     margin-top: 50px;
 }
 
-/* --- FIX BODY SPACING --- */
+/* fix body spacing  */
 html, body {
     margin: 0 !important;
     padding: 0 !important;
     background: #ffffff;
 }
 
-/* --- HEADER STYLING --- */
+/*  HEADER STYLING  */
 .nc-header {
     background-color: #0b2545;
     color: white;

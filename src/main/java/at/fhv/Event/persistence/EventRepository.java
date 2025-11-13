@@ -1,6 +1,6 @@
 package at.fhv.Event.persistence;
 
-import at.fhv.Event.domain.model.Event;
+import at.fhv.Event.domain.model.event.Event;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
