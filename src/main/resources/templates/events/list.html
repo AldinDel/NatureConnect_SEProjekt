@@ -277,7 +277,7 @@
     <div id="overlay" class="overlay"></div>
 
 
-    <!-- Event Meta Bar (Anzahl und Sortierung) -->
+    <!-- EventEntity Meta Bar (Anzahl und Sortierung) -->
     <div class="event-meta-bar">
         <div class="event-count">
             <span th:text="${#lists.size(events)} + ' Events found'">0 Events found</span>
@@ -306,7 +306,7 @@
     </div>
 
 
-    <!-- Event cards -->
+    <!-- EventEntity cards -->
     <div class="event-grid">
         <div class="event-card" th:each="event : ${events}">
             <div class="card-image">

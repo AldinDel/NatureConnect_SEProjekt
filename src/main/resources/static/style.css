@@ -408,7 +408,7 @@ body {
    CREATE NEW EVENT PAGE STYLES
    ========================================================== */
 
-/* Nur auf Seiten mit dem Create-Event-Formular */
+/* Nur auf Seiten mit dem Create-EventEntity-Formular */
 .create-event-page {
     font-family: 'Inter', sans-serif;
     color: #f5f7fa; /* Helle Schriftfarbe */
@@ -638,7 +638,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 
 /* =============================
-   Event Form Layout Optimized
+   EventEntity Form Layout Optimized
    ============================= */
 
 /* Grid für das ganze Formular */
@@ -693,7 +693,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 /* =============================
-   Equipment-Felder (Create Event)
+   at.fhv.Event.infrastructure.persistence.equipment.EventEquipmentEntity-Felder (Create EventEntity)
    ============================= */
 
 .equipment-item {

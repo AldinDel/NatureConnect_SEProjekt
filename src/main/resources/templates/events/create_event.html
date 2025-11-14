@@ -143,7 +143,7 @@
           method="post"
           enctype="multipart/form-data">
 
-        <!-- Wichtig: Event-ID mitsenden, damit das Update funktioniert -->
+        <!-- Wichtig: EventEntity-ID mitsenden, damit das Update funktioniert -->
         <input type="hidden" th:if="${isEdit}" th:field="*{id}">
 
         <!-- PHOTO -->
@@ -240,7 +240,7 @@
             <input id="maxParticipants" name="maxParticipants" type="number" min="1" th:field="*{maxParticipants}" class="form-input" placeholder="e.g., 20" required>
         </div>
 
-        <!-- Equipment -->
+        <!-- at.fhv.Event.infrastructure.persistence.equipment.EventEquipmentEntity -->
         <div class="form-group form-span-2">
             <label class="form-label">Equipment:</label>
             <div id="equipment-list" class="equipment-list"></div>
@@ -355,7 +355,7 @@
     /*<![CDATA[*/
     <!-- Variable, die sagt, ob wir im Edit-Modus sind -->
     const isEdit = [[${isEdit}]];
-    <!-- eventData enthält Basisdaten zum aktuellen Event -->
+    <!-- eventData enthält Basisdaten zum aktuellen EventEntity -->
     const eventData = {
         id: [[${event.id}]],
         title: /*[[${event.title}]]*/ '', <!-- wird als '' gesetzt falls leer -->
@@ -373,7 +373,7 @@
         const isEdit = [[${isEdit}]];
         const eventId = [[${event.id}]];
 
-        // Funktion zum Erstellen eines Equipment-Felds
+        // Funktion zum Erstellen eines at.fhv.Event.infrastructure.persistence.equipment.EventEquipmentEntity-Felds
         function createEquipmentRow(eq = {}) {
             const item = document.createElement("div");
             item.classList.add("equipment-item");
@@ -413,7 +413,7 @@
                 equipmentList.appendChild(createEquipmentRow());
             }
         } else {
-            // Neu: bei Create Event direkt ein leeres Equipment-Feld anzeigen
+            // Neu: bei Create EventEntity direkt ein leeres at.fhv.Event.infrastructure.persistence.equipment.EventEquipmentEntity-Feld anzeigen
             equipmentList.appendChild(createEquipmentRow());
         }
 

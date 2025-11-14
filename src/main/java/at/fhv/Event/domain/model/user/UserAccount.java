@@ -1,7 +1,7 @@
 package at.fhv.Event.domain.model.user;
 
 import jakarta.persistence.*;
-import javax.management.relation.Role;
+
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Set;

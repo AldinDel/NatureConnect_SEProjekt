@@ -154,7 +154,7 @@ body {
     margin-bottom: 5px;
 }
 
-/* --- Event Details Grid --- */
+/* --- EventEntity Details Grid --- */
 .details-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;

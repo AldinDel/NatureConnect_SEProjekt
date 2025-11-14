@@ -46,7 +46,7 @@
 <!-- Erfolgsmeldung -->
 <div th:if="${success}" style="color:green;margin:8px 0;margin-top:100px;" th:text="${success}"></div>
 
-<!-- Event Grid -->
+<!-- EventEntity Grid -->
 <div class="event-overview" style="margin-top:120px;">
     <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;">
         <div th:each="ev : ${events}" style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">

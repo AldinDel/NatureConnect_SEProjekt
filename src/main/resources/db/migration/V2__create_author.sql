@@ -1,4 +1,4 @@
--- Booking, können wir später löschen
+-- BookingEntity, können wir später löschen
 create table if not exists booking (
                                        id          bigserial primary key,
                                        first_name  varchar(100) not null,
