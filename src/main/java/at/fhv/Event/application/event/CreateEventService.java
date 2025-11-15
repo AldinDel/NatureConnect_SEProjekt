@@ -63,7 +63,6 @@ public class CreateEventService {
                 req.getMaxParticipants(),
                 req.getPrice(),
                 req.getImageUrl(),
-                req.getAudience(),
                 ees
         );
 

@@ -22,7 +22,6 @@ public class Event {
     private final Integer maxParticipants;
     private final BigDecimal price;
     private final String imageUrl;
-    private final String audience;
 
     private Boolean isCancelled = false;
     private List<EventEquipment> eventEquipments;
@@ -41,7 +40,6 @@ public class Event {
                  Integer maxParticipants,
                  BigDecimal price,
                  String imageUrl,
-                 String audience,
                  List<EventEquipment> eventEquipments) {
 
         this.id = id;
@@ -58,7 +56,6 @@ public class Event {
         this.maxParticipants = maxParticipants;
         this.price = price;
         this.imageUrl = imageUrl;
-        this.audience = audience;
         this.eventEquipments = eventEquipments;
     }
 
@@ -76,7 +73,6 @@ public class Event {
     public Integer getMaxParticipants() { return maxParticipants; }
     public BigDecimal getPrice() { return price; }
     public String getImageUrl() { return imageUrl; }
-    public String getAudience() { return audience; }
     public List<EventEquipment> getEventEquipments() { return eventEquipments; }
 
     public Boolean getCancelled() { return isCancelled; }

@@ -56,7 +56,6 @@ public class EventMapperDTO {
                 e.getMaxParticipants(),
                 e.getPrice(),
                 e.getImageUrl(),
-                e.getAudience(),
                 e.getCancelled(),
                 mapEquipments(e.getEventEquipments()),
                 requiredIds,

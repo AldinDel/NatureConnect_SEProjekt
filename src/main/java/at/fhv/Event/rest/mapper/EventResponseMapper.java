@@ -54,7 +54,6 @@ public class EventResponseMapper {
                 event.getMaxParticipants(),
                 event.getPrice(),
                 event.getImageUrl(),
-                event.getAudience(),
                 event.getCancelled(),
                 equipmentDTOs,
                 requiredIds,

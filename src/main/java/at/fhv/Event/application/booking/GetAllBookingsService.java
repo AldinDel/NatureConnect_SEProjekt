@@ -19,10 +19,21 @@ public class GetAllBookingsService {
         return bookingRepository.findAll().stream()
                 .map(b -> new BookingDTO(
                         b.getId(),
-                        b.getEvent().getId(),
-                        b.getCustomerName(),
-                        b.getNumberOfParticipants(),
-                        b.getDate()
+                        b.getEventId(),
+                        b.getCustomerId(),
+                        b.isGuest(),
+                        b.getFirstName(),
+                        b.getLastName(),
+                        b.getEmail(),
+                        b.getSeats(),
+                        b.getStatus(),
+                        b.getPaymentMethod(),
+                        b.getVoucherCode(),
+                        b.getVoucherValue(),
+                        b.getUnitPrice(),
+                        b.getTotalPrice(),
+                        b.getConfirmedAt(),
+                        b.getCancelledAt()
                 ))
                 .toList();
     }

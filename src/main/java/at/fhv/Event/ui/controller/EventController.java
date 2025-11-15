@@ -74,7 +74,6 @@ public class EventController {
             req.setMaxParticipants(detail.maxParticipants());
             req.setPrice(detail.price());
             req.setImageUrl(detail.imageUrl());
-            req.setAudience(detail.audience());
             req.setRequiredEquipmentIds(detail.requiredEquipmentIds());
             req.setOptionalEquipmentIds(detail.optionalEquipmentIds());
 

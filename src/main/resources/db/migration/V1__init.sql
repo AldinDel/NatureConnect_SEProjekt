@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS nature_connect.event (
                                             image_url        VARCHAR(500),
                                             created_at       TIMESTAMPTZ       NOT NULL DEFAULT NOW(),
                                             updated_at       TIMESTAMPTZ       NOT NULL DEFAULT NOW(),
+                                            is_cancelled BOOLEAN NOT NULL DEFAULT FALSE,
                                             CONSTRAINT chk_participants_range CHECK (max_participants >= min_participants AND min_participants >= 1),
                                             CONSTRAINT chk_price_nonneg       CHECK (price >= 0),
                                             CONSTRAINT chk_time_order         CHECK (end_time > start_time)

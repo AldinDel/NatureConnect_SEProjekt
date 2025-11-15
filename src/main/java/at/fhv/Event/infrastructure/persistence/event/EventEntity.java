@@ -23,7 +23,6 @@ public class EventEntity {
     private String category;
     private String location;
     private String imageUrl;
-    private String audience;
 
     private LocalDate date;
     private LocalTime startTime;
@@ -60,8 +59,6 @@ public class EventEntity {
     public void setLocation(String location) { this.location = location; }
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
-    public String getAudience() { return audience; }
-    public void setAudience(String audience) { this.audience = audience; }
     public LocalDate getDate() { return date; }
     public void setDate(LocalDate date) { this.date = date; }
     public LocalTime getStartTime() { return startTime; }

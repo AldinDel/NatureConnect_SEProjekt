@@ -41,7 +41,6 @@ public class EventMapper {
                 e.getMaxParticipants(),
                 e.getPrice(),
                 e.getImageUrl(),
-                e.getAudience(),
                 equipments
         );
     }
@@ -63,7 +62,6 @@ public class EventMapper {
         e.setMaxParticipants(domain.getMaxParticipants());
         e.setPrice(domain.getPrice());
         e.setImageUrl(domain.getImageUrl());
-        e.setAudience(domain.getAudience());
         e.setCancelled(domain.getCancelled());
 
 
