@@ -41,6 +41,7 @@ public class EventMapper {
                 e.getMaxParticipants(),
                 e.getPrice(),
                 e.getImageUrl(),
+                e.getAudience().toString(),
                 equipments
         );
     }

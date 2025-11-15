@@ -322,8 +322,8 @@
                 <div class="card-header">
                     <h3 th:text="${event.title}">Event Title</h3>
                     <span class="difficulty"
-                          th:classappend="| ${#strings.toLowerCase(event.difficulty.name())}|"
-                          th:text="${#strings.capitalize(#strings.toLowerCase(event.difficulty.name()))}">
+                          th:classappend="| ${#strings.toLowerCase(event.difficulty)}|"
+                          th:text="${#strings.capitalize(#strings.toLowerCase(event.difficulty))}">
                         Intermediate
                     </span>
 

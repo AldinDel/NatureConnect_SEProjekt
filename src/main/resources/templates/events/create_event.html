@@ -150,7 +150,7 @@
         <div class="form-group">
             <label class="form-label">Photo:</label>
             <div id="photoCard" class="photo-card">
-                <img th:if="${event.imageUrl}" th:src="@{${event.imageUrl}}" alt="Event Photo">
+                <img th:if="${event.imageUrl}" th:src="${event.imageUrl}" alt="Event Photo">
                 <span id="photoHint" th:unless="${event.imageUrl}">Image preview</span>
             </div>
             <input type="file" name="photo" id="photo" accept="image/*" style="display:none">
@@ -350,19 +350,7 @@
 </script>
 
 <!-- Note: Ab hier wurden viele Kommentare eingefügt, um den Ablauf besser zu verstehen.  -->
-<!-- Wird von Thymeleaf vor dem Rendern ersetzt -->
-<script th:inline="javascript">
-    /*<![CDATA[*/
-    <!-- Variable, die sagt, ob wir im Edit-Modus sind -->
-    const isEdit = [[${isEdit}]];
-    <!-- eventData enthält Basisdaten zum aktuellen EventEntity -->
-    const eventData = {
-        id: [[${event.id}]],
-        title: /*[[${event.title}]]*/ '', <!-- wird als '' gesetzt falls leer -->
-        equipments: [[${equipmentJson}]]
-    };
-    /*]]>*/
-</script>
+
 
 <!-- Ausgeführt, sobald die Seite fertig geladen ist -->
 <script th:inline="javascript">
@@ -370,31 +358,33 @@
     document.addEventListener("DOMContentLoaded", async () => {
         const equipmentList = document.getElementById("equipment-list");
         const addButton = document.getElementById("add-equipment");
-        const isEdit = [[${isEdit}]];
-        const eventId = [[${event.id}]];
 
-        // Funktion zum Erstellen eines at.fhv.Event.infrastructure.persistence.equipment.EventEquipmentEntity-Felds
+        // JS-Fallbacks, damit die Seite auch ohne Thymeleaf nicht stirbt
+        const isEdit  = /*[[${isEdit}]]*/ false;
+        const eventId = /*[[${isEdit} ? ${event.id} : 0]]*/ 0;
+
+        // Funktion zum Erstellen einer Equipment-Zeile
         function createEquipmentRow(eq = {}) {
             const item = document.createElement("div");
             item.classList.add("equipment-item");
             item.innerHTML = `
-            <input type="hidden" name="equipmentIds" value="${eq.id || ""}">
-            <input type="text" name="equipmentNames" class="form-input" placeholder="e.g. Tent" value="${eq.name || ""}" required>
-            <input type="number"
-               name="equipmentPrices"
-               class="form-input"
-               placeholder="Price"
-               value="${eq.price != null ? eq.price : '0.00'}"
-               step="0.01"
-               style="width:120px;">
-            <label><input type="checkbox" name="equipmentRentable" ${eq.rentable ? "checked" : ""}> Rentable</label>
-            <label><input type="checkbox" name="requiredFlags" ${eq.required ? "checked" : ""}> Required</label>
-            <button type="button" class="remove-equipment">✕</button>
-        `;
+                <input type="hidden" name="equipmentIds" value="${eq.id || ""}">
+                <input type="text" name="equipmentNames" class="form-input" placeholder="e.g. Tent" value="${eq.name || ""}" required>
+                <input type="number"
+                    name="equipmentPrices"
+                    class="form-input"
+                    placeholder="Price"
+                    value="${eq.price != null ? eq.price : '0.00'}"
+                    step="0.01"
+                    style="width:120px;">
+                <label><input type="checkbox" name="equipmentRentable" ${eq.rentable ? "checked" : ""}> Rentable</label>
+                <label><input type="checkbox" name="requiredFlags" ${eq.required ? "checked" : ""}> Required</label>
+                <button type="button" class="remove-equipment">✕</button>
+            `;
             return item;
         }
 
-        // Daten laden (nur im Edit-Modus)
+        // Edit-Modus → Daten vom Backend laden
         if (isEdit && eventId) {
             try {
                 const res = await fetch(`/api/events/${eventId}`);
@@ -413,7 +403,7 @@
                 equipmentList.appendChild(createEquipmentRow());
             }
         } else {
-            // Neu: bei Create EventEntity direkt ein leeres at.fhv.Event.infrastructure.persistence.equipment.EventEquipmentEntity-Feld anzeigen
+            // Create-Seite → direkt eine leere Zeile anzeigen
             equipmentList.appendChild(createEquipmentRow());
         }
 
@@ -431,6 +421,7 @@
     });
     /*]]>*/
 </script>
+
 
 
 

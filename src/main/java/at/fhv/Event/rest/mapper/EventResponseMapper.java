@@ -57,7 +57,8 @@ public class EventResponseMapper {
                 event.getCancelled(),
                 equipmentDTOs,
                 requiredIds,
-                optionalIds
+                optionalIds,
+                event.getAudience()
         );
     }
 }

@@ -25,5 +25,6 @@ public record EventDetailDTO(
         Boolean isCancelled,
         List<EquipmentDTO> equipments,
         List<Long> requiredEquipmentIds,
-        List<Long> optionalEquipmentIds
+        List<Long> optionalEquipmentIds,
+        String audience
 ) {}

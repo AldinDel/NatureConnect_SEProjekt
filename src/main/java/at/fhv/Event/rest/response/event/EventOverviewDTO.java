@@ -13,6 +13,10 @@ public record EventOverviewDTO(
         LocalTime startTime,
         LocalTime endTime,
         String location,
+        String difficulty,
+        Integer minParticipants,
+        Integer maxParticipants,
         BigDecimal price,
-        String imageUrl
+        String imageUrl,
+        String audience
 ) {}

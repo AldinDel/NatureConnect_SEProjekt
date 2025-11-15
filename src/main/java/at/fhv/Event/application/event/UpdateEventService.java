@@ -66,6 +66,7 @@ public class UpdateEventService {
                 req.getMaxParticipants(),
                 req.getPrice(),
                 req.getImageUrl(),
+                req.getAudience(),
                 ees
         );
 

@@ -59,7 +59,9 @@ public class EventMapperDTO {
                 e.getCancelled(),
                 mapEquipments(e.getEventEquipments()),
                 requiredIds,
-                optionalIds
+                optionalIds,
+                e.getAudience() != null ? e.getAudience().toString() : null
+
         );
     }
 
