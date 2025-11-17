@@ -163,11 +163,6 @@
             <p>Price per person</p>
             <p><span th:text="${event.price}">20</span> €</p>
 
-            <div class="discount-box">
-                <p>Discount code:</p>
-                <strong>OUTDOOR</strong>
-            </div>
-
             <button class="book-btn">Book now</button>
         </div>
     </aside>
@@ -203,7 +198,7 @@
                 rentItem.classList.add("simple-item");
                 rentItem.innerHTML = `
                         <span>${eq.name}</span>
-                        <span>€ ${eq.price ?? "—"}</span>
+                        <span>€ ${eq.unitPrice  ?? "—"}</span>
                     `;
                 rentList.appendChild(rentItem);
             }
