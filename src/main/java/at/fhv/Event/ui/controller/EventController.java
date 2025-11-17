@@ -54,7 +54,7 @@ public class EventController {
 
     // EDIT FORM
     @GetMapping("/{id}/edit")
-    public String showEditForm(@PathVariable Long id,
+    public String showEditForm(@PathVariable("id") Long id,
                                Model model,
                                RedirectAttributes redirect) {
         try {
@@ -74,6 +74,7 @@ public class EventController {
             req.setMaxParticipants(detail.maxParticipants());
             req.setPrice(detail.price());
             req.setImageUrl(detail.imageUrl());
+            req.setAudience(detail.audience());
             req.setRequiredEquipmentIds(detail.requiredEquipmentIds());
             req.setOptionalEquipmentIds(detail.optionalEquipmentIds());
 
@@ -91,7 +92,7 @@ public class EventController {
     }
 
     @PostMapping("/{id}")
-    public String update(@PathVariable Long id,
+    public String update(@PathVariable("id") Long id,
                          @ModelAttribute("event") UpdateEventRequest req,
                          RedirectAttributes redirect) {
         updateService.updateEvent(id, req);
@@ -108,10 +109,10 @@ public class EventController {
 
     // DETAILS
     @GetMapping("/{id}")
-    public String details(@PathVariable Long id, Model model, RedirectAttributes redirect) {
+    public String details(@PathVariable("id") Long id, Model model, RedirectAttributes redirect) {
         try {
             model.addAttribute("event", detailsService.getEventDetails(id));
-            return "events/details";
+            return "events/event_detail";
         } catch (Exception e) {
             redirect.addFlashAttribute("error", "Event not found.");
             return "redirect:/events";

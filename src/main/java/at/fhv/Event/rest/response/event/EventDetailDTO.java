@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+
 public record EventDetailDTO(
         Long id,
         String title,
@@ -27,4 +28,21 @@ public record EventDetailDTO(
         List<Long> requiredEquipmentIds,
         List<Long> optionalEquipmentIds,
         String audience
-) {}
+) {
+    public String duration() {
+        if (startTime == null || endTime == null) {
+            return "N/A";
+        }
+
+        long hours = java.time.Duration.between(startTime, endTime).toHours();
+        long minutes = java.time.Duration.between(startTime, endTime).toMinutes() % 60;
+
+        if (hours > 0 && minutes > 0) {
+            return hours + " hours " + minutes + " minutes";
+        } else if (hours > 0) {
+            return hours + " hour" + (hours > 1 ? "s" : "");
+        } else {
+            return minutes + " minutes";
+        }
+    }
+}

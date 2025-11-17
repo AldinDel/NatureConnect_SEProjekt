@@ -138,13 +138,10 @@
     <hr class="event-form-hr">
 
     <form class="event-form"
-          th:action="${isEdit} ? @{/events/{id}(id=${event.id})} : @{/events}"
+          th:action="${isEdit} ? @{|/events/${id}|} : @{/events}"
           th:object="${event}"
           method="post"
           enctype="multipart/form-data">
-
-        <!-- Wichtig: EventEntity-ID mitsenden, damit das Update funktioniert -->
-        <input type="hidden" th:if="${isEdit}" th:field="*{id}">
 
         <!-- PHOTO -->
         <div class="form-group">
@@ -201,13 +198,13 @@
             <label class="form-label">Time:</label>
             <div class="time-inputs">
                 <input id="startTime" name="startTime" type="time"
-                       th:value="${#strings.substring(event.startTime, 0, 5)}"
+                       th:value="${event.startTime != null ? #strings.substring(event.startTime.toString(), 0, 5) : ''}"
                        class="form-input" required>
 
                 <span class="time-separator">to</span>
 
                 <input id="endTime" name="endTime" type="time"
-                       th:value="${#strings.substring(event.endTime, 0, 5)}"
+                       th:value="${event.endTime != null ? #strings.substring(event.endTime.toString(), 0, 5) : ''}"
                        class="form-input" required>
             </div>
         </div>
@@ -240,7 +237,7 @@
             <input id="maxParticipants" name="maxParticipants" type="number" min="1" th:field="*{maxParticipants}" class="form-input" placeholder="e.g., 20" required>
         </div>
 
-        <!-- at.fhv.Event.infrastructure.persistence.equipment.EventEquipmentEntity -->
+        <!-- Equipment -->
         <div class="form-group form-span-2">
             <label class="form-label">Equipment:</label>
             <div id="equipment-list" class="equipment-list"></div>
@@ -349,19 +346,15 @@
     });
 </script>
 
-<!-- Note: Ab hier wurden viele Kommentare eingefügt, um den Ablauf besser zu verstehen.  -->
-
-
-<!-- Ausgeführt, sobald die Seite fertig geladen ist -->
 <script th:inline="javascript">
     /*<![CDATA[*/
     document.addEventListener("DOMContentLoaded", async () => {
         const equipmentList = document.getElementById("equipment-list");
         const addButton = document.getElementById("add-equipment");
 
-        // JS-Fallbacks, damit die Seite auch ohne Thymeleaf nicht stirbt
+        // JS-Fallbacks
         const isEdit  = /*[[${isEdit}]]*/ false;
-        const eventId = /*[[${isEdit} ? ${event.id} : 0]]*/ 0;
+        const eventId = /*[[${isEdit} ? ${id} : 0]]*/ 0;
 
         // Funktion zum Erstellen einer Equipment-Zeile
         function createEquipmentRow(eq = {}) {
@@ -421,10 +414,6 @@
     });
     /*]]>*/
 </script>
-
-
-
-
 
 </body>
 </html>

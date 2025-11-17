@@ -1,7 +1,7 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.5.6'
-	id 'io.spring.dependency-management' version '1.1.7'
+    id 'java'
+    id 'org.springframework.boot' version '3.5.6'
+    id 'io.spring.dependency-management' version '1.1.7'
 }
 
 group = 'at.fhv'
@@ -9,14 +9,19 @@ version = '0.0.1-SNAPSHOT'
 description = 'Demo project for Publication Organizer Application'
 
 java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(17)
-	}
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+// ⭐ NEU: Compiler-Parameter für Parameter-Namen
+tasks.withType(JavaCompile) {
+    options.compilerArgs += ['-parameters']
 }
 
 repositories {
-	mavenCentral()
-	maven { url = 'https://repo.spring.io/snapshot' }
+    mavenCentral()
+    maven { url = 'https://repo.spring.io/snapshot' }
 }
 
 dependencies {
@@ -36,11 +41,6 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-
-
-
-
-
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }

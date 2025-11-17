@@ -16,8 +16,20 @@ public class GetEventDetailsService {
     }
 
     public EventDetailDTO getEventDetails(Long eventId) {
-        var event = eventRepository.findByIdWithEquipments(eventId)
-                .orElseThrow(() -> new RuntimeException("Event not found: " + eventId));
+        System.out.println("=== DEBUG: GetEventDetailsService called with ID: " + eventId + " ===");
+
+        // Teste erst mit normalem findById
+        var eventOptional = eventRepository.findById(eventId);
+        System.out.println("DEBUG: findById result: " + (eventOptional.isPresent() ? "FOUND" : "NOT FOUND"));
+
+        if (eventOptional.isEmpty()) {
+            System.err.println("ERROR: Event with ID " + eventId + " does not exist!");
+            throw new RuntimeException("Event not found: " + eventId);
+        }
+
+        var event = eventOptional.get();
+        System.out.println("DEBUG: Event loaded: " + event.getTitle());
+
         return mapper.toDetailDTO(event);
     }
 }
