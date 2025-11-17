@@ -1,4 +1,5 @@
 package at.fhv.Event.infrastructure.persistence.event;
+import org.hibernate.annotations.JdbcTypeCode;
 
 import at.fhv.Event.domain.model.event.Difficulty;
 import at.fhv.Event.domain.model.event.EventAudience;
@@ -34,6 +35,7 @@ public class EventEntity {
     private Integer maxParticipants;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "difficulty", length = 20)
     private Difficulty difficulty;
 
     @Enumerated(EnumType.STRING)
