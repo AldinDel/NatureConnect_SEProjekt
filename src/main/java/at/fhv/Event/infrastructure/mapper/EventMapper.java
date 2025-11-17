@@ -19,6 +19,7 @@ public class EventMapper {
 
     public Event toDomain(EventEntity e) {
         if (e == null) return null;
+
         var equipments = e.getEventEquipments().stream()
                 .map(ee -> new EventEquipment(
                         equipmentMapper.toDomain(ee.getEquipment()),
@@ -41,13 +42,14 @@ public class EventMapper {
                 e.getMaxParticipants(),
                 e.getPrice(),
                 e.getImageUrl(),
-                e.getAudience().toString(),
+                e.getAudience() != null ? e.getAudience().toString() : null,  //NULL-CHECK
                 equipments
         );
     }
 
     public EventEntity toEntity(Event domain) {
         if (domain == null) return null;
+
         EventEntity e = new EventEntity();
         e.setId(domain.getId());
         e.setTitle(domain.getTitle());
@@ -65,19 +67,30 @@ public class EventMapper {
         e.setImageUrl(domain.getImageUrl());
         e.setCancelled(domain.getCancelled());
 
+        // 🔥 AUDIENCE MAPPING MIT NULL-CHECK
+        if (domain.getAudience() != null && !domain.getAudience().isBlank()) {
+            try {
+                e.setAudience(at.fhv.Event.domain.model.event.EventAudience.valueOf(
+                        domain.getAudience().toUpperCase().replace(" ", "_")
+                ));
+            } catch (IllegalArgumentException ex) {
+                // Fallback auf default Wert
+                e.setAudience(at.fhv.Event.domain.model.event.EventAudience.INDIVIDUALS_GROUPS_COMPANIES);
+            }
+        }
 
-        // build EventEquipmentEntity list; DO NOT set composite id with nulls; JPA will handle MapsId
+        // Equipment mapping
         var eeEntities = domain.getEventEquipments().stream()
                 .map(domEE -> {
                     var equipEntity = equipmentMapper.toEntity(domEE.getEquipment());
                     var ee = new EventEquipmentEntity();
                     ee.setEquipment(equipEntity);
                     ee.setRequired(domEE.isRequired());
-                    ee.setEvent(e); // associate parent -> necessary for MapsId to work later
+                    ee.setEvent(e);
                     return ee;
                 })
                 .collect(Collectors.toList());
-        // clear and add (or set)
+
         e.getEventEquipments().clear();
         e.getEventEquipments().addAll(eeEntities);
 

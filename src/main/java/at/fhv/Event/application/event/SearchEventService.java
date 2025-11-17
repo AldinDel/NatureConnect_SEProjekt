@@ -28,7 +28,7 @@ public class SearchEventService {
                         e.getStartTime(),
                         e.getEndTime(),
                         e.getLocation(),
-                        e.getDifficulty() != null ? e.getAudience().toString() : null,
+                        e.getDifficulty() != null ? e.getDifficulty().toString() : null,
                         e.getMinParticipants(),
                         e.getMaxParticipants(),
                         e.getPrice(),
