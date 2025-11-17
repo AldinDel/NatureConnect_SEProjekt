@@ -8,7 +8,7 @@ import jakarta.persistence.*;
 public class EventEquipmentEntity {
 
     @EmbeddedId
-    private EventEquipmentId id;
+    private EventEquipmentId id = new EventEquipmentId();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("eventId")
@@ -24,7 +24,6 @@ public class EventEquipmentEntity {
 
     public EventEquipmentEntity() {}
 
-    // Note: when creating new association, do not set id manually; rely on JPA and MapsId
     public EventEquipmentEntity(EventEntity event, EquipmentEntity equipment, boolean required) {
         this.event = event;
         this.equipment = equipment;
@@ -32,11 +31,11 @@ public class EventEquipmentEntity {
     }
 
     public EventEquipmentId getId() { return id; }
-    public void setId(EventEquipmentId id) { this.id = id; }
     public EventEntity getEvent() { return event; }
-    public void setEvent(EventEntity event) { this.event = event; }
     public EquipmentEntity getEquipment() { return equipment; }
-    public void setEquipment(EquipmentEntity equipment) { this.equipment = equipment; }
     public boolean isRequired() { return required; }
+
+    public void setEvent(EventEntity event) { this.event = event; }
+    public void setEquipment(EquipmentEntity equipment) { this.equipment = equipment; }
     public void setRequired(boolean required) { this.required = required; }
 }

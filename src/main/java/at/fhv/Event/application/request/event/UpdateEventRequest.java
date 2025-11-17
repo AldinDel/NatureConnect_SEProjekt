@@ -5,6 +5,7 @@ import at.fhv.Event.domain.model.event.Difficulty;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class UpdateEventRequest {
@@ -60,6 +61,15 @@ public class UpdateEventRequest {
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
     public String getAudience() { return audience; }
     public void setAudience(String audience) { this.audience = audience; }
+    private List<EventEquipmentUpdateRequest> equipments = new ArrayList<>();
+
+    public List<EventEquipmentUpdateRequest> getEquipments() {
+        return equipments;
+    }
+
+    public void setEquipments(List<EventEquipmentUpdateRequest> equipments) {
+        this.equipments = equipments;
+    }
     public List<Long> getRequiredEquipmentIds() { return requiredEquipmentIds; }
     public void setRequiredEquipmentIds(List<Long> requiredEquipmentIds) { this.requiredEquipmentIds = requiredEquipmentIds; }
     public List<Long> getOptionalEquipmentIds() { return optionalEquipmentIds; }

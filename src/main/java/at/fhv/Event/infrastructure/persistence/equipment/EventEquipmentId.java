@@ -10,6 +10,7 @@ public class EventEquipmentId implements Serializable {
     private Long equipmentId;
 
     public EventEquipmentId() {}
+
     public EventEquipmentId(Long eventId, Long equipmentId) {
         this.eventId = eventId;
         this.equipmentId = equipmentId;
@@ -21,9 +22,9 @@ public class EventEquipmentId implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof EventEquipmentId)) return false;
-        EventEquipmentId that = (EventEquipmentId) o;
-        return Objects.equals(eventId, that.eventId) && Objects.equals(equipmentId, that.equipmentId);
+        if (!(o instanceof EventEquipmentId that)) return false;
+        return Objects.equals(eventId, that.eventId) &&
+                Objects.equals(equipmentId, that.equipmentId);
     }
 
     @Override

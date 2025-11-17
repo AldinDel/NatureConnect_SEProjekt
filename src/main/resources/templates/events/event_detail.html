@@ -51,7 +51,7 @@
 
 
 
-<!-- 🌄 HERO FULL WIDTH -->
+<!-- HERO FULL WIDTH -->
 <section class="hero-box">
     <div class="category-tag" th:text="${event.category}">Camping</div>
     <h1 class="event-title" th:text="${event.title}">Event Title</h1>
@@ -179,10 +179,10 @@
     </aside>
 </main>
 
-<!-- 🧩 JS for at.fhv.Event.infrastructure.persistence.equipment.EventEquipmentEntity -->
+<!-- JS for at.fhv.Event.infrastructure.persistence.equipment.EventEquipmentEntity -->
 <script th:inline="javascript">
     /*<![CDATA[*/
-    const equipmentList = /*[[${event.equipment}]]*/ [];
+    const equipmentList = /*[[${event.equipments}]]*/ [];
 
     const allList = document.getElementById("allEquipmentList");
     const rentList = document.getElementById("rentableEquipmentList");

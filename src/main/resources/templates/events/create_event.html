@@ -52,66 +52,22 @@
         .time-inputs { display: flex; align-items: center; gap: 12px; }
         .time-separator { color: #6b7280; font-size: 14px; }
         .form-span-2 { grid-column: 1 / -1; }
+        .equipment-item { display:flex; gap:12px; align-items:center; margin-bottom:8px; }
+        .equipment-item input[type="text"] { width:160px; }
+        .remove-equipment { background:#e74c3c; color:white; border:none; padding:4px 8px; border-radius:5px; cursor:pointer; }
+        .remove-equipment:hover { background:#c0392b; }
     </style>
 </head>
 
 <body class="create-event-page">
 
-<!-- Erfolgsmeldung Popup -->
-<div th:if="${success}" id="success-popup" class="popup-message" th:text="${success}"></div>
-<div th:if="${error}" id="error-popup" class="popup-message error" th:text="${error}"></div>
-
-
-<style>
-    .popup-message {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #4caf50;
-        color: #fff;
-        padding: 14px 22px;
-        border-radius: 8px;
-        font-weight: 500;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        animation: fadeInOut 3s ease forwards;
-        z-index: 1000;
-        letter-spacing: 0.3px;
-    }
-    @keyframes fadeInOut {
-        0% { opacity: 0; transform: translateY(-10px); }
-        10%, 90% { opacity: 1; transform: translateY(0); }
-        100% { opacity: 0; transform: translateY(-10px); }
-    }
-</style>
-
-<script>
-    // Popup automatisch ausblenden nach 3,5 Sekunden
-    document.addEventListener("DOMContentLoaded", () => {
-        const popup = document.getElementById("success-popup");
-        if (popup) {
-            setTimeout(() => {
-                popup.style.display = "none";
-            }, 3500);
-        }
-    });
-</script>
-
-<style>
-    .popup-message.error {
-        background: #e53935;
-    }
-</style>
-
-<!--bestehender Header-->
 <header class="nc-header">
     <div class="nc-container">
         <a class="nc-logo" th:href="@{/}" href="/" aria-label="NATUREConnect Home">
             <img src="/images/NatureConnectLogo.png" alt="Logo">
             <span class="nc-brand"><strong>NATURE</strong>Connect</span>
         </a>
-        <!-- Trennlinie -->
         <div class="nc-divider"></div>
-
         <nav class="nc-nav" aria-label="Primary">
             <ul class="nc-left">
                 <li><a th:href="@{/}" href="/">Home</a></li>
@@ -126,7 +82,7 @@
             <ul class="nc-right">
                 <li><a th:href="@{/about}" href="/about">About Us</a></li>
                 <li><span class="divider">|</span></li>
-                <li><a th:href="@{/contact}" href="/contact">Contact Us</a></li>
+                <li><a th:href="@{/contact}" href="/contact">Contact</a></li>
                 <li><a class="nc-login" th:href="@{/login}" href="/login">Log In</a></li>
             </ul>
         </nav>
@@ -138,37 +94,38 @@
     <hr class="event-form-hr">
 
     <form class="event-form"
-          th:action="${isEdit} ? @{|/events/${id}|} : @{/events}"
+          th:action="${isEdit} ? @{/events/{id}(id=${id})} : @{/events}"
           th:object="${event}"
           method="post"
           enctype="multipart/form-data">
 
-        <!-- PHOTO -->
         <div class="form-group">
             <label class="form-label">Photo:</label>
             <div id="photoCard" class="photo-card">
-                <img th:if="${event.imageUrl}" th:src="${event.imageUrl}" alt="Event Photo">
-                <span id="photoHint" th:unless="${event.imageUrl}">Image preview</span>
+                <img th:if="${event.imageUrl != null and event.imageUrl != ''}"
+                     th:src="@{${event.imageUrl}}"
+                     alt="Event Photo">
+                <span id="photoHint"
+                      th:if="${event.imageUrl == null or event.imageUrl == ''}">Image preview</span>
             </div>
+
             <input type="file" name="photo" id="photo" accept="image/*" style="display:none">
             <input type="hidden" name="imageUrl" id="imageUrl" th:value="${event.imageUrl}">
             <span id="photoUploadStatus" style="font-size:12px;color:#555;"></span>
+
             <button type="button" class="upload-btn" onclick="document.getElementById('photo').click()">Upload Photo</button>
         </div>
 
-        <!-- Titel -->
         <div class="form-group">
             <label class="form-label" for="title">Title:</label>
             <input id="title" name="title" th:field="*{title}" class="form-input" required>
         </div>
 
-        <!-- Organizer -->
         <div class="form-group">
             <label class="form-label" for="organizer">Organizer:</label>
-            <input id="organizer" name="organizer" th:field="*{organizer}" class="form-input" placeholder="e.g., John Doe / Mountain Adventures">
+            <input id="organizer" name="organizer" th:field="*{organizer}" class="form-input">
         </div>
 
-        <!-- Category -->
         <div class="form-group">
             <label class="form-label" for="category">Category:</label>
             <select id="category" name="category" th:field="*{category}" class="form-select">
@@ -181,43 +138,42 @@
             </select>
         </div>
 
-        <!-- Description -->
         <div class="form-group form-span-2">
             <label class="form-label" for="description">Description:</label>
             <textarea id="description" name="description" th:field="*{description}" class="form-textarea"></textarea>
         </div>
 
-        <!-- Date -->
         <div class="form-group">
             <label class="form-label" for="date">Date:</label>
-            <input id="date" name="date" type="date" th:field="*{date}" class="form-input" required>
+            <input id="date" name="date" type="date"
+                   class="form-input"
+                   th:value="${event.date != null ? #temporals.format(event.date, 'yyyy-MM-dd') : ''}"
+                   required>
+
         </div>
 
-        <!-- Time range -->
-        <div class="form-group time-range">
+        <div class="form-group">
             <label class="form-label">Time:</label>
             <div class="time-inputs">
                 <input id="startTime" name="startTime" type="time"
-                       th:value="${event.startTime != null ? #strings.substring(event.startTime.toString(), 0, 5) : ''}"
+                       th:value="${event.startTime != null ? #temporals.format(event.startTime, 'HH:mm') : ''}"
                        class="form-input" required>
 
                 <span class="time-separator">to</span>
 
                 <input id="endTime" name="endTime" type="time"
-                       th:value="${event.endTime != null ? #strings.substring(event.endTime.toString(), 0, 5) : ''}"
+                       th:value="${event.endTime != null ? #temporals.format(event.endTime, 'HH:mm') : ''}"
                        class="form-input" required>
             </div>
         </div>
 
-        <!-- Location -->
         <div class="form-group">
             <label class="form-label" for="location">Location:</label>
-            <input id="location" name="location" th:field="*{location}" class="form-input" placeholder="e.g., Vienna" required>
+            <input id="location" name="location" th:field="*{location}" class="form-input" required>
         </div>
 
-        <!-- Difficulty -->
         <div class="form-group">
-            <label class="form-label" for="difficulty">Difficulty level:</label>
+            <label class="form-label" for="difficulty">Difficulty:</label>
             <select id="difficulty" name="difficulty" th:field="*{difficulty}" class="form-select" required>
                 <option value="">Select…</option>
                 <option value="BEGINNER">Beginner</option>
@@ -226,193 +182,184 @@
             </select>
         </div>
 
-        <!-- Min/Max Participants -->
         <div class="form-group">
             <label class="form-label" for="minParticipants">Min participants:</label>
-            <input id="minParticipants" name="minParticipants" type="number" min="1" th:field="*{minParticipants}" value="1" class="form-input" placeholder="e.g., 5" required>
+            <input id="minParticipants" name="minParticipants" type="number" min="1" th:field="*{minParticipants}" class="form-input" required>
         </div>
 
         <div class="form-group">
             <label class="form-label" for="maxParticipants">Max participants:</label>
-            <input id="maxParticipants" name="maxParticipants" type="number" min="1" th:field="*{maxParticipants}" class="form-input" placeholder="e.g., 20" required>
+            <input id="maxParticipants" name="maxParticipants" type="number" min="1" th:field="*{maxParticipants}" class="form-input" required>
         </div>
 
-        <!-- Equipment -->
         <div class="form-group form-span-2">
             <label class="form-label">Equipment:</label>
-            <div id="equipment-list" class="equipment-list"></div>
+            <div id="equipment-list"></div>
             <button type="button" id="add-equipment" class="btn-ghost" style="margin-top:10px;">+ Add Equipment</button>
         </div>
 
-
-        <!-- Price -->
         <div class="form-group">
             <label class="form-label" for="price">Price:</label>
-            <input id="price" name="price" type="number" min="0" step="0.01" th:field="*{price}" value="0" class="form-input" placeholder="e.g., 49.90" required>
+            <input id="price" name="price" type="number" min="0" step="0.01" th:field="*{price}" class="form-input" required>
         </div>
 
-        <!-- Buttons -->
         <div class="form-actions">
-            <button type="submit" class="btn-primary" th:text="${isEdit} ? 'Update' : 'Save'">Save</button>
-            <a th:href="@{/events}" href="/events" class="btn-ghost">Cancel</a>
+            <button type="submit" class="btn-primary" th:text="${isEdit} ? 'Update Event' : 'Create Event'">Create Event</button>
+            <a th:href="@{/events}" class="btn-ghost">Cancel</a>
         </div>
-
     </form>
-
 </main>
 
-<script>
-
-    // Form Validation
-    const form = document.querySelector('.event-form');
-    form.addEventListener('submit', function(event) {
-        const minParticipants = parseInt(document.getElementById('minParticipants').value) || 0;
-        const maxParticipants = parseInt(document.getElementById('maxParticipants').value) || 0;
-        const startTime = document.getElementById('startTime').value;
-        const endTime = document.getElementById('endTime').value;
-
-        // Validate participants
-        if (maxParticipants > 0 && minParticipants > maxParticipants) {
-            event.preventDefault();
-            alert('Min participants cannot be greater than max participants!');
-            return;
-        }
-
-        // Validate time order
-        if (startTime && endTime && endTime <= startTime) {
-            event.preventDefault();
-            alert('End time must be after start time!');
-            return;
-        }
-    });
-</script>
-
-<script>
-    // Cloudinary-Konfiguration
-    const CLOUD_NAME = 'dwsnx7jof';
-    const UPLOAD_PRESET = 'events_unsigned';
-    const UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
-
-    const photoInput = document.getElementById('photo');
-    const photoCard = document.getElementById('photoCard');
-    const photoHint = document.getElementById('photoHint');
-    const imageUrlInput = document.getElementById('imageUrl');
-    const uploadStatus = document.getElementById('photoUploadStatus');
-
-    photoInput.addEventListener('change', async function (event) {
-        const file = event.target.files[0];
-        if (!file) return;
-
-        // Status anzeigen
-        uploadStatus.textContent = 'Uploading image...';
-        uploadStatus.style.color = '#555';
-
-        try {
-            const fd = new FormData();
-            fd.append('file', file);
-            fd.append('upload_preset', UPLOAD_PRESET);
-
-            const res = await fetch(UPLOAD_URL, { method: 'POST', body: fd });
-            const data = await res.json();
-
-            if (!data.secure_url) {
-                console.error('Cloudinary upload error:', data);
-                uploadStatus.textContent = 'Upload failed.';
-                uploadStatus.style.color = '#e53935';
-                return;
-            }
-
-            // URL in hidden Feld schreiben
-            imageUrlInput.value = data.secure_url;
-
-            // Vorschau aktualisieren
-            if (photoHint) photoHint.style.display = 'none';
-            let img = photoCard.querySelector('img');
-            if (!img) {
-                img = document.createElement('img');
-                photoCard.appendChild(img);
-            }
-            img.src = data.secure_url;
-            img.alt = 'Event Photo';
-
-            // Erfolg
-            uploadStatus.textContent = 'Upload complete ✔';
-            uploadStatus.style.color = '#2e7d32';
-        } catch (err) {
-            console.error(err);
-            uploadStatus.textContent = 'Upload failed.';
-            uploadStatus.style.color = '#e53935';
-        }
-    });
-</script>
-
 <script th:inline="javascript">
-    /*<![CDATA[*/
-    document.addEventListener("DOMContentLoaded", async () => {
+    document.addEventListener("DOMContentLoaded", function () {
+
         const equipmentList = document.getElementById("equipment-list");
         const addButton = document.getElementById("add-equipment");
 
-        // JS-Fallbacks
-        const isEdit  = /*[[${isEdit}]]*/ false;
+        const isEdit = /*[[${isEdit}]]*/ false;
         const eventId = /*[[${isEdit} ? ${id} : 0]]*/ 0;
 
-        // Funktion zum Erstellen einer Equipment-Zeile
+        // CRITICAL: Get equipment data from server-side model
+        const serverEquipment = /*[[${eventEquipments}]]*/ [];
+
+        let eqIndex = 0;
+
+        console.log('=== EQUIPMENT LOAD DEBUG ===');
+        console.log('isEdit:', isEdit);
+        console.log('eventId:', eventId);
+        console.log('serverEquipment:', serverEquipment);
+        console.log('===========================');
+
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return String(unsafe)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
         function createEquipmentRow(eq = {}) {
             const item = document.createElement("div");
             item.classList.add("equipment-item");
+
+            const index = eqIndex++;
+
+            const equipmentId = eq.id || '';
+            const equipmentName = eq.name ? escapeHtml(eq.name) : '';
+            const equipmentPrice = eq.price || '';
+            const isRentable = eq.rentable === true;
+            const isRequired = eq.required === true;
+
+            console.log(`Creating equipment row ${index}:`, {id: equipmentId, name: equipmentName, price: equipmentPrice});
+
             item.innerHTML = `
-                <input type="hidden" name="equipmentIds" value="${eq.id || ""}">
-                <input type="text" name="equipmentNames" class="form-input" placeholder="e.g. Tent" value="${eq.name || ""}" required>
+                <input type="hidden" name="equipments[${index}].id" value="${equipmentId}">
+
+                <input type="text"
+                    name="equipments[${index}].name"
+                    class="form-input"
+                    placeholder="Equipment Name"
+                    value="${equipmentName}"
+                    ${isEdit && equipmentId ? 'readonly style="background-color: #f5f5f5;"' : ''}
+                    required>
+
                 <input type="number"
-                    name="equipmentPrices"
+                    name="equipments[${index}].price"
                     class="form-input"
                     placeholder="Price"
-                    value="${eq.price != null ? eq.price : '0.00'}"
                     step="0.01"
-                    style="width:120px;">
-                <label><input type="checkbox" name="equipmentRentable" ${eq.rentable ? "checked" : ""}> Rentable</label>
-                <label><input type="checkbox" name="requiredFlags" ${eq.required ? "checked" : ""}> Required</label>
-                <button type="button" class="remove-equipment">✕</button>
+                    min="0"
+                    value="${equipmentPrice}"
+                    ${isEdit && equipmentId ? 'readonly style="width: 120px; background-color: #f5f5f5;"' : 'style="width: 120px;"'}
+                    required>
+
+                <input type="hidden" name="equipments[${index}].rentable" value="false">
+                <label style="display: flex; align-items: center; gap: 4px;">
+                    <input type="checkbox"
+                           name="equipments[${index}].rentable"
+                           value="true"
+                           ${isRentable ? 'checked' : ''}
+                           ${isEdit && equipmentId ? 'disabled' : ''}>
+                    Rentable
+                </label>
+
+                <input type="hidden" name="equipments[${index}].required" value="false">
+                <label style="display: flex; align-items: center; gap: 4px;">
+                    <input type="checkbox"
+                           name="equipments[${index}].required"
+                           value="true"
+                           ${isRequired ? 'checked' : ''}>
+                    Required
+                </label>
+
+                <button type="button" class="remove-equipment" ${isEdit && equipmentId ? 'style="display:none;"' : ''}>✕</button>
             `;
+
             return item;
         }
 
-        // Edit-Modus → Daten vom Backend laden
-        if (isEdit && eventId) {
-            try {
-                const res = await fetch(`/api/events/${eventId}`);
-                const data = await res.json();
-                equipmentList.innerHTML = "";
+        // Load equipment
+        function loadEquipment() {
+            equipmentList.innerHTML = "";
+            eqIndex = 0;
 
-                if (data.equipments && data.equipments.length > 0) {
-                    data.equipments.forEach(eq => {
-                        equipmentList.appendChild(createEquipmentRow(eq));
-                    });
-                } else {
-                    equipmentList.appendChild(createEquipmentRow());
-                }
-            } catch (err) {
-                console.error("Error loading event data:", err);
+            if (isEdit && serverEquipment && serverEquipment.length > 0) {
+                // Edit mode - use server data
+                console.log('Loading equipment from server:', serverEquipment.length);
+                serverEquipment.forEach(eq => {
+                    equipmentList.appendChild(createEquipmentRow(eq));
+                });
+            } else {
+                // Create mode - add empty row
+                console.log('Create mode - adding empty row');
                 equipmentList.appendChild(createEquipmentRow());
             }
-        } else {
-            // Create-Seite → direkt eine leere Zeile anzeigen
-            equipmentList.appendChild(createEquipmentRow());
         }
 
-        // Hinzufügen-Button
+        // Initialize
+        loadEquipment();
+
         addButton.addEventListener("click", () => {
             equipmentList.appendChild(createEquipmentRow());
         });
 
-        // Entfernen-Button
-        equipmentList.addEventListener("click", e => {
+        equipmentList.addEventListener("click", (e) => {
             if (e.target.classList.contains("remove-equipment")) {
                 e.target.closest(".equipment-item").remove();
             }
         });
+
+        // Photo preview
+        const photoInput = document.getElementById('photo');
+        const photoCard = document.getElementById('photoCard');
+        const photoHint = document.getElementById('photoHint');
+
+        if (photoInput) {
+            photoInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        const existingImg = photoCard.querySelector('img');
+                        if (existingImg) {
+                            existingImg.remove();
+                        }
+                        if (photoHint) {
+                            photoHint.style.display = 'none';
+                        }
+
+                        const img = document.createElement('img');
+                        img.src = event.target.result;
+                        img.alt = 'Event Photo Preview';
+                        photoCard.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
     });
-    /*]]>*/
 </script>
 
 </body>

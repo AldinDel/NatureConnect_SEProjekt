@@ -1,5 +1,4 @@
 package at.fhv.Event.infrastructure.persistence.event;
-import org.hibernate.annotations.JdbcTypeCode;
 
 import at.fhv.Event.domain.model.event.Difficulty;
 import at.fhv.Event.domain.model.event.EventAudience;
@@ -47,11 +46,20 @@ public class EventEntity {
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EventEquipmentEntity> eventEquipments = new ArrayList<>();
 
+
+    public void removeEquipment(EventEquipmentEntity ee) {
+        eventEquipments.remove(ee);
+        ee.setEvent(null);
+    }
     @Column(name = "is_cancelled")
     private Boolean isCancelled = false;
 
     public Boolean getCancelled() {
         return isCancelled;
+    }
+    public void addEquipment(EventEquipmentEntity e) {
+        eventEquipments.add(e);
+        e.setEvent(this);
     }
 
     public void setCancelled(Boolean cancelled) {

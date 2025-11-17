@@ -71,7 +71,7 @@ public class EventMapperDTO {
                 .map(ee -> new EquipmentDTO(
                         ee.getEquipment().getId(),
                         ee.getEquipment().getName(),
-                        ee.getEquipment().getUnitPrice(),
+                        ee.getEquipment().getUnitPrice(),  // send unitPrice
                         ee.getEquipment().isRentable(),
                         ee.isRequired()
                 ))

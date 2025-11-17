@@ -19,8 +19,9 @@ public class GetEventDetailsService {
         System.out.println("=== DEBUG: GetEventDetailsService called with ID: " + eventId + " ===");
 
         // Teste erst mit normalem findById
-        var eventOptional = eventRepository.findById(eventId);
-        System.out.println("DEBUG: findById result: " + (eventOptional.isPresent() ? "FOUND" : "NOT FOUND"));
+        System.out.println("=== DEBUG: GetEventDetailsService called with ID: " + eventId + " ===");
+        var eventOptional = eventRepository.findByIdWithEquipments(eventId);
+        System.out.println("DEBUG: findByIdWithEquipments result: " + (eventOptional.isPresent() ? "FOUND" : "NOT FOUND"));
 
         if (eventOptional.isEmpty()) {
             System.err.println("ERROR: Event with ID " + eventId + " does not exist!");
@@ -28,7 +29,8 @@ public class GetEventDetailsService {
         }
 
         var event = eventOptional.get();
-        System.out.println("DEBUG: Event loaded: " + event.getTitle());
+        System.out.println("DEBUG: Domain event loaded: " + event.getTitle());
+        System.out.println("DEBUG: EventEquipments size(): " + event.getEventEquipments().size());
 
         return mapper.toDetailDTO(event);
     }

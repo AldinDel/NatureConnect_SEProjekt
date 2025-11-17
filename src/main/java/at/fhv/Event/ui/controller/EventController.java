@@ -3,12 +3,15 @@ package at.fhv.Event.ui.controller;
 import at.fhv.Event.application.equipment.GetAllEquipmentService;
 import at.fhv.Event.application.event.*;
 import at.fhv.Event.application.request.event.CreateEventRequest;
+import at.fhv.Event.application.request.event.EventEquipmentUpdateRequest;
 import at.fhv.Event.application.request.event.UpdateEventRequest;
 import at.fhv.Event.rest.response.event.EventDetailDTO;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/events")
@@ -75,18 +78,43 @@ public class EventController {
             req.setPrice(detail.price());
             req.setImageUrl(detail.imageUrl());
             req.setAudience(detail.audience());
-            req.setRequiredEquipmentIds(detail.requiredEquipmentIds());
-            req.setOptionalEquipmentIds(detail.optionalEquipmentIds());
+
+            // Map equipment
+            List<EventEquipmentUpdateRequest> eqReqs = detail.equipments().stream().map(eq -> {
+                EventEquipmentUpdateRequest r = new EventEquipmentUpdateRequest();
+                r.setId(eq.id());
+                r.setName(eq.name());
+                r.setPrice(eq.unitPrice());
+                r.setRentable(eq.rentable());
+                r.setRequired(eq.required());
+                return r;
+            }).toList();
+
+            req.setEquipments(eqReqs);
+            model.addAttribute("eventEquipments", eqReqs);
+            System.out.println("=== Setting eventEquipments in model ===");
+            System.out.println("eventEquipments size: " + eqReqs.size());
+            eqReqs.forEach(eq -> System.out.println("  - " + eq.getId() + ": " + eq.getName()));
+            System.out.println("====================================");
+
+            // DEBUG - IMPORTANT: Check if equipment list is set
+            System.out.println("=== CONTROLLER showEditForm DEBUG ===");
+            System.out.println("UpdateEventRequest.equipments size: " + req.getEquipments().size());
+            req.getEquipments().forEach(e ->
+                    System.out.println("  Equipment: id=" + e.getId() + ", name=" + e.getName())
+            );
+            System.out.println("=====================================");
 
             model.addAttribute("event", req);
-            model.addAttribute("equipments", equipmentService.getAll());
+            model.addAttribute("eventEquipments", eqReqs);  // ← ADD THIS LINE - pass equipment separately
             model.addAttribute("isEdit", true);
             model.addAttribute("id", id);
 
             return "events/create_event";
 
         } catch (Exception e) {
-            redirect.addFlashAttribute("error", "Event not found.");
+            e.printStackTrace();
+            redirect.addFlashAttribute("error", "Event not found: " + e.getMessage());
             return "redirect:/events";
         }
     }

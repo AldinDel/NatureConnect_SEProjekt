@@ -72,11 +72,13 @@
                     </li>
                     <li th:text="${ev.location}">Location</li>
                     <li>
-                        <span th:if="${ev.capacity != null}"
-                              th:text="${ev.capacity} + ' Participants'">12 Participants</span>
-                        <span th:if="${ev.audience}"> · </span>
+                        <span th:text="${ev.minParticipants} + '–' + ${ev.maxParticipants} + ' participants'">
+                            1–10 participants
+                        </span>
+                        <span th:if="${ev.audience != null}"> · </span>
                         <span th:text="${ev.audience}">For Individuals</span>
                     </li>
+
                 </ul>
 
                 <div style="display:flex;justify-content:space-between;align-items:center;">
