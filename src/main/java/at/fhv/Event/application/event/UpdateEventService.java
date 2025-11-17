@@ -70,18 +70,14 @@ public class UpdateEventService {
         }
         System.out.println("=============================================");
 
-        // CRITICAL FIX: Remove old equipment references manually
-        // Copy to avoid ConcurrentModificationException
         var oldEquipments = new java.util.ArrayList<>(entity.getEventEquipments());
         for (var old : oldEquipments) {
-            entity.removeEquipment(old);  // Use the remove method if you have one
+            entity.removeEquipment(old);
         }
         entity.getEventEquipments().clear();
 
-        // Flush to ensure deletions are processed
         eventJpaRepository.flush();
 
-        // Add new equipment
         if (req.getEquipments() != null && !req.getEquipments().isEmpty()) {
             for (var eqReq : req.getEquipments()) {
                 if (eqReq.getId() == null || eqReq.getId() <= 0) {
@@ -92,7 +88,6 @@ public class UpdateEventService {
                 var equipment = equipmentJpaRepository.findById(eqReq.getId())
                         .orElseThrow(() -> new RuntimeException("Equipment not found: " + eqReq.getId()));
 
-                // Create completely new EventEquipmentEntity
                 var eventEquipment = new EventEquipmentEntity(entity, equipment, eqReq.isRequired());
                 entity.addEquipment(eventEquipment);
                 System.out.println("Added equipment link: " + eqReq.getName() + " (required=" + eqReq.isRequired() + ")");

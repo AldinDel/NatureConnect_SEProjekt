@@ -6,11 +6,15 @@ import at.fhv.Event.application.request.event.CreateEventRequest;
 import at.fhv.Event.application.request.event.EventEquipmentUpdateRequest;
 import at.fhv.Event.application.request.event.UpdateEventRequest;
 import at.fhv.Event.rest.response.event.EventDetailDTO;
+import at.fhv.Event.rest.response.event.EventOverviewDTO;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Controller
@@ -38,7 +42,6 @@ public class EventController {
         this.equipmentService = equipmentService;
     }
 
-    // CREATE FORM
     @GetMapping("/new")
     public String showCreateForm(Model model) {
         model.addAttribute("event", new CreateEventRequest());
@@ -55,7 +58,6 @@ public class EventController {
         return "redirect:/events";
     }
 
-    // EDIT FORM
     @GetMapping("/{id}/edit")
     public String showEditForm(@PathVariable("id") Long id,
                                Model model,
@@ -133,6 +135,86 @@ public class EventController {
     public String list(Model model) {
         model.addAttribute("events", searchService.getAll());
         return "events/list";
+    }
+
+    @GetMapping("/search")
+    public String searchEvents(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String location,
+            @RequestParam(required = false) String difficulty,
+            @RequestParam(required = false) BigDecimal minPrice,
+            @RequestParam(required = false) BigDecimal maxPrice,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String source,
+            RedirectAttributes redirect,
+            Model model
+    ) {
+        // validation
+        if (q != null && q.length() > 75) {
+            redirect.addFlashAttribute("error", "Search keyword must not exceed 75 characters.");
+            return redirectBack(source);
+        }
+
+        if (location != null && location.length() > 75) {
+            redirect.addFlashAttribute("error", "Location cannot exceed 75 characters.");
+            return redirectBack(source);
+        }
+
+        if (startDate != null && startDate.isBefore(LocalDate.now())) {
+            redirect.addFlashAttribute("error", "Start date cannot be in the past.");
+            return redirectBack(source);
+        }
+
+        if (endDate != null && endDate.isBefore(LocalDate.now())) {
+            redirect.addFlashAttribute("error", "End date cannot be in the past.");
+            return redirectBack(source);
+        }
+
+        if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
+            redirect.addFlashAttribute("error", "End date cannot be before start date.");
+            return redirectBack(source);
+        }
+
+        if (minPrice != null && maxPrice != null && maxPrice.compareTo(minPrice) < 0) {
+            redirect.addFlashAttribute("error", "Maximum price cannot be lower than minimum price.");
+            return redirectBack(source);
+        }
+
+        List<EventOverviewDTO> events;
+        if ("home".equals(source) && startDate != null && endDate == null) {
+            events = filterService.filterExactDate(startDate, sort);
+        } else {
+            events = filterService.filter(
+                    q, category, location, difficulty,
+                    minPrice, maxPrice,
+                    startDate, endDate,
+                    sort
+            );
+        }
+
+        model.addAttribute("events", events);
+        model.addAttribute("param", new Object() {
+            public final String qv = q;
+            public final String categoryv = category;
+            public final String locationv = location;
+            public final String difficultyv = difficulty;
+            public final BigDecimal minPricev = minPrice;
+            public final BigDecimal maxPricev = maxPrice;
+            public final LocalDate startDatev = startDate;
+            public final LocalDate endDatev = endDate;
+        });
+        model.addAttribute("sort", sort);
+        return "events/list";
+    }
+
+    private String redirectBack(String source) {
+        if ("home".equals(source)) {
+            return "redirect:/";
+        }
+        return "redirect:/events";
     }
 
     // DETAILS

@@ -2,9 +2,10 @@ package at.fhv.Event.application.event;
 
 import at.fhv.Event.domain.model.equipment.EventEquipment;
 import at.fhv.Event.domain.model.event.Event;
+import at.fhv.Event.rest.response.equipment.EquipmentDTO;
 import at.fhv.Event.rest.response.event.EventDTO;
 import at.fhv.Event.rest.response.event.EventDetailDTO;
-import at.fhv.Event.rest.response.equipment.EquipmentDTO;
+import at.fhv.Event.rest.response.event.EventOverviewDTO;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -77,5 +78,28 @@ public class EventMapperDTO {
                 ))
                 .collect(Collectors.toList());
     }
+
+    public EventOverviewDTO toOverview(Event e) {
+        if (e == null) return null;
+
+        return new EventOverviewDTO(
+                e.getId(),
+                e.getTitle(),
+                e.getDescription(),
+                e.getCategory(),
+                e.getDate(),
+                e.getStartTime(),
+                e.getEndTime(),
+                e.getLocation(),
+                e.getDifficulty() != null ? e.getDifficulty().toString() : null,
+                e.getMinParticipants(),
+                e.getMaxParticipants(),
+                e.getPrice(),
+                e.getImageUrl(),
+                e.getAudience() != null ? e.getAudience().toString() : null
+        );
+    }
+
+
 }
 
