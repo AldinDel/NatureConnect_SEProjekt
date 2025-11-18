@@ -1,5 +1,6 @@
 package at.fhv.Event.infrastructure.persistence.booking;
 
+import at.fhv.Event.domain.model.booking.AudienceType;
 import at.fhv.Event.domain.model.booking.BookingStatus;
 import at.fhv.Event.domain.model.booking.PaymentMethod;
 import jakarta.persistence.*;
@@ -15,7 +16,6 @@ public class BookingEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Foreign keys as scalar values (simple MVP)
     @Column(name = "event_id", nullable = false)
     private Long eventId;
 
@@ -23,9 +23,8 @@ public class BookingEntity {
     private Long customerId;
 
     @Column(name = "is_guest", nullable = false)
-    private boolean guest = true;
+    private boolean guest;
 
-    // Contact data
     @Column(name = "first_name", nullable = false, length = 100)
     private String firstName;
 
@@ -35,49 +34,53 @@ public class BookingEntity {
     @Column(name = "email", nullable = false, length = 200)
     private String email;
 
-    // Booking details
     @Column(name = "seats", nullable = false)
-    private int seats = 1;
+    private int seats;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
-    private BookingStatus status = BookingStatus.CONFIRMED;
+    @Column(name = "audience", nullable = false, length = 20)
+    private AudienceType audience;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "payment_method", nullable = false, length = 50)
+    @Column(name = "status", nullable = false)
+    private BookingStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_method", nullable = false)
     private PaymentMethod paymentMethod;
 
-    @Column(name = "voucher_code", length = 50)
+    @Column(name = "voucher_code")
     private String voucherCode;
 
     @Column(name = "voucher_value")
     private Double voucherValue;
 
-    // Pricing
     @Column(name = "unit_price", nullable = false)
-    private Double unitPrice = 0.0;
+    private Double unitPrice;
 
     @Column(name = "total_price", nullable = false)
-    private Double totalPrice = 0.0;
+    private Double totalPrice;
 
-    // Timeline
     @Column(name = "confirmed_at")
     private OffsetDateTime confirmedAt;
 
     @Column(name = "cancelled_at")
     private OffsetDateTime cancelledAt;
 
-    // Audit – DB sets/updates these via defaults & trigger
-    @Column(name = "created_at", updatable = false, insertable = false)
+    @Column(name = "created_at")
     private Instant createdAt;
 
-    @Column(name = "updated_at", insertable = false, updatable = false)
+    @Column(name = "updated_at")
     private Instant updatedAt;
 
-    // getters / setters
+    // getters + setters
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Long getEventId() {
@@ -134,6 +137,14 @@ public class BookingEntity {
 
     public void setSeats(int seats) {
         this.seats = seats;
+    }
+
+    public AudienceType getAudience() {
+        return audience;
+    }
+
+    public void setAudience(AudienceType audience) {
+        this.audience = audience;
     }
 
     public BookingStatus getStatus() {
@@ -204,7 +215,15 @@ public class BookingEntity {
         return createdAt;
     }
 
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public Instant getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void setUpdatedAt(Instant updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

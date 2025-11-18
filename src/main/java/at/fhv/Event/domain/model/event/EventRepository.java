@@ -8,4 +8,5 @@ public interface EventRepository {
     Optional<Event> findByIdWithEquipments(Long id);
     List<Event> findAll();
     void save(Event event);
+
 }

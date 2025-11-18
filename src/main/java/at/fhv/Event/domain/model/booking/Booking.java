@@ -7,24 +7,25 @@ public class Booking {
 
     private Long id;
 
-    // Foreign keys (MVP: just IDs, no object relations)
+    // Relations (just IDs in MVP)
     private Long eventId;
-    private Long customerId;
+    private Long customerId; // null if guest
     private boolean guest;
 
-    // Contact data
+    // Contact
     private String firstName;
     private String lastName;
     private String email;
 
-    // Booking details
+    // Domain-specific
     private int seats;
+    private AudienceType audience;
     private BookingStatus status;
     private PaymentMethod paymentMethod;
-    private String voucherCode;
-    private double voucherValue;
 
     // Pricing
+    private String voucherCode;
+    private double voucherValue;
     private double unitPrice;
     private double totalPrice;
 
@@ -36,24 +37,28 @@ public class Booking {
     private Instant createdAt;
     private Instant updatedAt;
 
-    public Booking() {
-    }
+    // EMPTY CONSTRUCTOR (for mapper)
+    public Booking() {}
 
-    public Booking(Long eventId,
-                   Long customerId,
-                   boolean guest,
-                   String firstName,
-                   String lastName,
-                   String email,
-                   int seats,
-                   BookingStatus status,
-                   PaymentMethod paymentMethod,
-                   String voucherCode,
-                   double voucherValue,
-                   double unitPrice,
-                   double totalPrice,
-                   OffsetDateTime confirmedAt,
-                   OffsetDateTime cancelledAt) {
+    // MAIN DOMAIN CONSTRUCTOR
+    public Booking(
+            Long eventId,
+            Long customerId,
+            boolean guest,
+            String firstName,
+            String lastName,
+            String email,
+            int seats,
+            AudienceType audience,
+            BookingStatus status,
+            PaymentMethod paymentMethod,
+            String voucherCode,
+            double voucherValue,
+            double unitPrice,
+            double totalPrice,
+            OffsetDateTime confirmedAt,
+            OffsetDateTime cancelledAt
+    ) {
         this.eventId = eventId;
         this.customerId = customerId;
         this.guest = guest;
@@ -61,6 +66,7 @@ public class Booking {
         this.lastName = lastName;
         this.email = email;
         this.seats = seats;
+        this.audience = audience;
         this.status = status;
         this.paymentMethod = paymentMethod;
         this.voucherCode = voucherCode;
@@ -71,8 +77,31 @@ public class Booking {
         this.cancelledAt = cancelledAt;
     }
 
-    // getters + setters
+    // DOMAIN LOGIC
+    public void confirm() {
+        this.status = BookingStatus.CONFIRMED;
+        this.confirmedAt = OffsetDateTime.now();
+        this.updatedAt = Instant.now();
+    }
 
+    public void cancel() {
+        this.status = BookingStatus.CANCELLED;
+        this.cancelledAt = OffsetDateTime.now();
+        this.updatedAt = Instant.now();
+    }
+
+    public void applyVoucher(String code, double value) {
+        this.voucherCode = code;
+        this.voucherValue = value;
+        recalculateTotal();
+    }
+
+    public void recalculateTotal() {
+        this.totalPrice = (unitPrice * seats) - voucherValue;
+        if (this.totalPrice < 0) this.totalPrice = 0;
+    }
+
+    // GETTERS + SETTERS
     public Long getId() {
         return id;
     }
@@ -135,6 +164,14 @@ public class Booking {
 
     public void setSeats(int seats) {
         this.seats = seats;
+    }
+
+    public AudienceType getAudience() {
+        return audience;
+    }
+
+    public void setAudience(AudienceType audience) {
+        this.audience = audience;
     }
 
     public BookingStatus getStatus() {

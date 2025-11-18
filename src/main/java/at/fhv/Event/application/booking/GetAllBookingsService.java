@@ -20,8 +20,8 @@ public class GetAllBookingsService {
                 .map(b -> new BookingDTO(
                         b.getId(),
                         b.getEventId(),
-                        b.getCustomerId(),
-                        b.isGuest(),
+                        b.getCustomerId(),     // Constructor requires it
+                        b.isGuest(),           // Constructor requires it
                         b.getFirstName(),
                         b.getLastName(),
                         b.getEmail(),

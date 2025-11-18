@@ -1,0 +1,319 @@
+/* ------------------------------
+   RESET & BASE
+--------------------------------*/
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: #f9fafb;
+    color: #111827;
+    line-height: 1.6;
+}
+
+/* ------------------------------
+   HERO
+--------------------------------*/
+.hero {
+    position: relative;
+    height: 380px;
+    width: 100%;
+    overflow: hidden;
+    background: #0f172a;
+}
+
+.hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: .8;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, rgba(15,23,42,0.7), transparent);
+}
+
+/* ------------------------------
+   LAYOUT
+--------------------------------*/
+.container {
+    max-width: 1280px;
+    margin: -140px auto 0 auto;
+    padding: 0 1.5rem 4rem;
+    position: relative;
+    z-index: 10;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+.left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+}
+
+.right-column {
+    position: relative;
+}
+
+/* ------------------------------
+   CARD
+--------------------------------*/
+.card {
+    background: #fff;
+    border-radius: 24px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+}
+
+.title {
+    font-size: 2.2rem;
+    font-weight: 300;
+    margin-bottom: 1rem;
+}
+
+.card-title {
+    font-size: 1.3rem;
+    font-weight: 300;
+    margin-bottom: 1.2rem;
+}
+
+.bold {
+    font-weight: 600;
+}
+
+.text-gray {
+    color: #6b7280;
+}
+
+/* ------------------------------
+   BUTTONS
+--------------------------------*/
+.btn {
+    padding: .9rem 1.5rem;
+    border-radius: 999px;
+    border: 2px solid #e5e7eb;
+    background: #fff;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.btn:hover {
+    border-color: #cbd5e1;
+}
+
+.btn.active {
+    background: #111827;
+    color: #fff;
+    border-color: #111827;
+}
+
+.btn-secondary {
+    background: #111827;
+    color: white;
+    border: none;
+    padding: .8rem 1.5rem;
+    border-radius: 12px;
+}
+
+.btn-secondary:hover {
+    background: #1e293b;
+}
+
+.btn-primary {
+    background: #111827;
+    color: white;
+    border: none;
+    padding: 1rem;
+    width: 100%;
+    border-radius: 999px;
+    font-size: 1.1rem;
+    transition: .2s;
+}
+
+.btn-primary:hover {
+    background: #1e293b;
+}
+
+/* ------------------------------
+   FORM ELEMENTS
+--------------------------------*/
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-input {
+    width: 100%;
+    padding: .8rem 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: .2s;
+}
+
+.form-input:focus {
+    border-color: #111827;
+    box-shadow: 0 0 0 3px rgba(17,24,39,0.15);
+    outline: none;
+}
+
+/* ------------------------------
+   RADIO BUTTONS
+--------------------------------*/
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: .8rem;
+}
+
+.radio-label {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: .25s ease;
+}
+
+.radio-label:hover {
+    border-color: #94a3b8;
+}
+
+.radio-label.active {
+    border-color: #111827;
+    background: #f1f5f9;
+}
+
+.radio-label input {
+    margin-top: 4px;
+}
+
+.radio-title {
+    font-weight: 600;
+}
+
+.radio-desc {
+    font-size: .9rem;
+    color: #6b7280;
+}
+
+/* ------------------------------
+   CHECKBOXES
+--------------------------------*/
+.checkbox-label {
+    display: flex;
+    gap: 1.2rem;
+    padding: 1rem;
+    border-radius: 18px;
+    border: 2px solid #e5e7eb;
+    cursor: pointer;
+    transition: .25s ease;
+}
+
+.checkbox-label.active {
+    border-color: #111827;
+    background: #f1f5f9;
+}
+
+.checkbox-label input {
+    margin-top: 4px;
+}
+
+.addon-content {
+    flex: 1;
+}
+
+.addon-name {
+    font-weight: 600;
+}
+
+.addon-desc {
+    font-size: .9rem;
+    color: #6b7280;
+}
+
+.addon-price {
+    margin-top: .4rem;
+    font-weight: 600;
+}
+
+/* Badge */
+.badge {
+    background: #dbeafe;
+    color: #1e40af;
+    padding: .2rem .6rem;
+    font-size: .75rem;
+    border-radius: 999px;
+}
+
+/* ------------------------------
+   PRICE SIDEBAR
+--------------------------------*/
+.sidebar {
+    position: sticky;
+    top: 2rem;
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: .6rem;
+    font-size: .95rem;
+}
+
+.price-total {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1.2rem;
+    font-size: 1.7rem;
+    font-weight: 300;
+}
+
+.text-green {
+    color: #059669;
+}
+
+/* ------------------------------
+   PARTICIPANTS
+--------------------------------*/
+.participant-section {
+    border-top: 1px solid #e5e7eb;
+    padding-top: 1.2rem;
+    margin-top: 1.2rem;
+}
+
+.participant-title {
+    font-weight: 600;
+    margin-bottom: .5rem;
+}
+
+/* ------------------------------
+   HELPERS
+--------------------------------*/
+.hidden {
+    display: none;
+}
+
+.account-options {
+    display: flex;
+    gap: 1rem;
+}
+
+/* ------------------------------
+   RESPONSIVE
+--------------------------------*/
+@media (max-width: 900px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+}

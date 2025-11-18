@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Payment</title>
+    <link rel="stylesheet" th:href="@{/css/payment.css}">
+</head>
+
+<body>
+
+<div class="container">
+    <div class="card">
+        <h1 class="title-lg">Payment</h1>
+
+        <p>Please choose a payment method:</p>
+
+        <form th:action="@{'/booking/payment/' + ${booking.id}}" method="post">
+
+            <label class="radio-label">
+                <input type="radio" name="payment" value="INVOICE" checked>
+                Invoice
+            </label>
+
+            <label class="radio-label">
+                <input type="radio" name="payment" value="ON_SITE">
+                Pay on Site
+            </label>
+
+            <label class="radio-label">
+                <input type="radio" name="payment" value="CREDIT_CARD">
+                Credit Card
+            </label>
+
+            <button class="btn-primary" style="margin-top:1rem;">Confirm Payment</button>
+        </form>
+
+    </div>
+</div>
+
+</body>
+</html>

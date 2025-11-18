@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Booking Confirmed</title>
+    <link rel="stylesheet" th:href="@{/css/confirmation.css}">
+</head>
+
+<body>
+
+<div class="container">
+    <div class="card">
+        <h1 class="title-lg">Booking Confirmed 🎉</h1>
+
+        <p>Thank you for your booking!</p>
+
+        <div class="info">
+            <p><strong>Event:</strong> <span th:text="${booking.eventId}"></span></p>
+            <p><strong>Name:</strong> <span th:text="${booking.firstName}"></span> <span th:text="${booking.lastName}"></span></p>
+            <p><strong>Seats:</strong> <span th:text="${booking.seats}"></span></p>
+            <p><strong>Total Price:</strong> <span th:text="${booking.totalPrice}"></span>€</p>
+        </div>
+
+        <a class="btn-primary" th:href="@{'/booking/payment/' + ${booking.id}}">Proceed to Payment</a>
+    </div>
+</div>
+
+</body>
+</html>

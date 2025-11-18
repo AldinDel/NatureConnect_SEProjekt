@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title th:text="${event.title}">Booking</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" th:href="@{/css/booking-page.css}">
+</head>
+
+<body>
+
+<!-- Hero -->
+<div class="hero">
+    <img th:src="${event.imageUrl}" alt="Event image">
+    <div class="hero-overlay"></div>
+</div>
+
+<div class="container">
+
+    <form th:action="@{/booking}" th:object="${booking}" method="post">
+
+        <!-- Hidden eventId -->
+        <input type="hidden" th:field="*{eventId}"/>
+
+        <div class="grid">
+
+            <!-- LEFT COLUMN -->
+            <div class="left-column">
+
+                <!-- Event card -->
+                <div class="card">
+                    <h1 class="title" th:text="${event.title}">Event title</h1>
+
+                    <div class="text-gray">
+                        <p>Organized by <span class="bold" th:text="${event.organizer}"></span></p>
+                        <p th:text="${event.location}"></p>
+                        <p th:text="${event.date} + ' • ' + ${event.startTime} + ' - ' + ${event.endTime}"></p>
+                    </div>
+                </div>
+
+                <!-- Account -->
+                <div class="card">
+                    <h2 class="card-title">Do you already have an account?</h2>
+
+                    <div class="account-options">
+                        <button type="button" id="loginBtn" class="btn account-btn">
+                            Login / Register
+                        </button>
+
+                        <button type="button" id="guestBtn" class="btn account-btn active">
+                            Continue as Guest
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Audience -->
+                <div class="card">
+                    <h2 class="card-title">Select Audience Type</h2>
+
+                    <div class="radio-group">
+
+                        <label class="radio-label active" data-radio>
+                            <input type="radio" th:field="*{audience}" value="INDIVIDUAL" checked>
+                            <div>
+                                <div class="radio-title">Individual</div>
+                                <div class="radio-desc">Solo adventurer or small party</div>
+                            </div>
+                        </label>
+
+                        <label class="radio-label" data-radio>
+                            <input type="radio" th:field="*{audience}" value="GROUP">
+                            <div>
+                                <div class="radio-title">Group</div>
+                                <div class="radio-desc">Friends, family, or organized group</div>
+                            </div>
+                        </label>
+
+                        <label class="radio-label" data-radio>
+                            <input type="radio" th:field="*{audience}" value="COMPANY">
+                            <div>
+                                <div class="radio-title">Company</div>
+                                <div class="radio-desc">Corporate team building event</div>
+                            </div>
+                        </label>
+
+                    </div>
+                </div>
+
+                <!-- Participants -->
+                <div class="card">
+                    <h2 class="card-title">Participant Details</h2>
+
+                    <div class="form-group">
+                        <label>Number of Participants</label>
+                        <input type="number" id="numParticipants" class="form-input" min="1" th:field="*{seats}">
+                    </div>
+
+                    <div id="participantsContainer"></div>
+
+                    <div class="participant-section">
+                        <h3 class="participant-title">Booker Contact</h3>
+
+                        <label>Email Address</label>
+                        <input type="email" class="form-input" th:field="*{email}" required>
+                    </div>
+                </div>
+
+                <!-- Add-ons -->
+                <div class="card">
+                    <h2 class="card-title">Equipment & Add-ons</h2>
+
+                    <div class="addon-list">
+
+                        <label class="checkbox-label" data-checkbox>
+                            <input type="checkbox" name="addons" value="1"/>
+                            <div class="addon-content">
+                                <p class="addon-name">Professional Guide</p>
+                                <p class="addon-desc">Expert mountain guide for your group</p>
+                                <p class="addon-price">$50 total</p>
+                            </div>
+                        </label>
+
+                        <label class="checkbox-label" data-checkbox>
+                            <input type="checkbox" name="addons" value="2"/>
+                            <div class="addon-content">
+                                <p class="addon-name">Hiking Poles <span class="badge">Rental</span></p>
+                                <p class="addon-desc">Lightweight aluminum trekking poles</p>
+                                <p class="addon-price">$8 per person</p>
+                            </div>
+                        </label>
+
+                    </div>
+
+                </div>
+
+                <!-- Discount -->
+                <div class="card">
+                    <h2 class="card-title">Discount Code</h2>
+                    <div class="discount-group">
+                        <input type="text" id="discountCode" class="form-input">
+                        <button type="button" id="applyDiscountBtn" class="btn-secondary">Apply</button>
+                    </div>
+                    <div id="discountMessage" class="hidden"></div>
+                </div>
+
+                <!-- Notes -->
+                <div class="card">
+                    <h2 class="card-title">Special Notes</h2>
+                    <textarea class="form-input" rows="4" th:field="*{specialNotes}"></textarea>
+                </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN -->
+            <div class="right-column">
+                <div class="card sidebar">
+                    <h3 class="card-title">Price Summary</h3>
+
+                    <div class="price-row">
+                        <span class="text-gray">Base Price</span>
+                        <span>$75</span>
+                    </div>
+
+                    <div class="price-row">
+                        <span class="text-gray">Participants (<span id="summaryParticipants">1</span>x)</span>
+                        <span id="summaryParticipantsCost">$75.00</span>
+                    </div>
+
+                    <div class="price-row" id="summaryAddonsRow" style="display:none;">
+                        <span class="text-gray">Add-ons</span>
+                        <span id="summaryAddonsCost">$0.00</span>
+                    </div>
+
+                    <div class="price-row">
+                        <span class="text-gray">Subtotal</span>
+                        <span id="summarySubtotal">$75.00</span>
+                    </div>
+
+                    <div class="price-row text-green" id="summaryDiscountRow" style="display:none;">
+                        <span>Discount (<span id="summaryDiscountPercent"></span>%)</span>
+                        <span id="summaryDiscountAmount"></span>
+                    </div>
+
+                    <hr>
+
+                    <div class="price-total">
+                        <span>Total</span>
+                        <span id="summaryTotal">$75.00</span>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Proceed to Payment</button>
+                </div>
+            </div>
+
+        </div>
+    </form>
+
+</div>
+
+<!-- JS -->
+<script th:src="@{/js/booking-page.js}"></script>
+
+</body>
+</html>

@@ -1,0 +1,73 @@
+body {
+    font-family: Inter, sans-serif;
+    background: #f9fafb;
+    margin: 0;
+    padding: 0;
+    color: #111827;
+}
+
+.container {
+    max-width: 700px;
+    margin: 4rem auto;
+    padding: 1rem;
+}
+
+.card {
+    background: white;
+    padding: 3rem 2.5rem;
+    border-radius: 22px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+
+.title-lg {
+    font-size: 2rem;
+    font-weight: 500;
+    margin-bottom: 1.5rem;
+}
+
+p {
+    color: #374151;
+    margin-bottom: 1.5rem;
+    font-size: 1rem;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 14px;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.radio-label:hover {
+    border-color: #9ca3af;
+}
+
+.radio-label input {
+    margin-right: 1rem;
+}
+
+.radio-label.active {
+    border-color: #111827;
+    background: #f3f4f6;
+}
+
+.btn-primary {
+    width: 100%;
+    padding: 1rem;
+    margin-top: 2rem;
+    background: #111827;
+    border: none;
+    border-radius: 12px;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    background: #1f2937;
+}
