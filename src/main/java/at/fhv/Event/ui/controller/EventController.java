@@ -86,7 +86,7 @@ public class EventController {
                 EventEquipmentUpdateRequest r = new EventEquipmentUpdateRequest();
                 r.setId(eq.id());
                 r.setName(eq.name());
-                r.setPrice(eq.unitPrice());
+                r.setUnitPrice(eq.unitPrice());
                 r.setRentable(eq.rentable());
                 r.setRequired(eq.required());
                 return r;

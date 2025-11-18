@@ -6,6 +6,7 @@ import java.util.Objects;
 
 @Embeddable
 public class EventEquipmentId implements Serializable {
+
     private Long eventId;
     private Long equipmentId;
 
@@ -23,8 +24,8 @@ public class EventEquipmentId implements Serializable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof EventEquipmentId that)) return false;
-        return Objects.equals(eventId, that.eventId) &&
-                Objects.equals(equipmentId, that.equipmentId);
+        return Objects.equals(eventId, that.eventId)
+                && Objects.equals(equipmentId, that.equipmentId);
     }
 
     @Override

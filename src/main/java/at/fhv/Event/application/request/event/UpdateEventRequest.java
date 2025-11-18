@@ -70,8 +70,4 @@ public class UpdateEventRequest {
     public void setEquipments(List<EventEquipmentUpdateRequest> equipments) {
         this.equipments = equipments;
     }
-    public List<Long> getRequiredEquipmentIds() { return requiredEquipmentIds; }
-    public void setRequiredEquipmentIds(List<Long> requiredEquipmentIds) { this.requiredEquipmentIds = requiredEquipmentIds; }
-    public List<Long> getOptionalEquipmentIds() { return optionalEquipmentIds; }
-    public void setOptionalEquipmentIds(List<Long> optionalEquipmentIds) { this.optionalEquipmentIds = optionalEquipmentIds; }
 }

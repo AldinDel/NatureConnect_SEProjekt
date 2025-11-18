@@ -5,7 +5,7 @@ import java.math.BigDecimal;
 public class EventEquipmentUpdateRequest {
     private Long id;
     private String name;
-    private BigDecimal price;
+    private BigDecimal unitPrice;
     private boolean rentable;
     private boolean required;
 
@@ -15,8 +15,8 @@ public class EventEquipmentUpdateRequest {
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
-    public BigDecimal getPrice() { return price; }
-    public void setPrice(BigDecimal price) { this.price = price; }
+    public BigDecimal getUnitPrice() { return unitPrice; }
+    public void setUnitPrice(BigDecimal unitPrice) { this.unitPrice = unitPrice; }
 
     public boolean isRentable() { return rentable; }
     public void setRentable(boolean rentable) { this.rentable = rentable; }

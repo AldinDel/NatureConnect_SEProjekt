@@ -149,7 +149,6 @@
                    class="form-input"
                    th:value="${event.date != null ? #temporals.format(event.date, 'yyyy-MM-dd') : ''}"
                    required>
-
         </div>
 
         <div class="form-group">
@@ -158,9 +157,7 @@
                 <input id="startTime" name="startTime" type="time"
                        th:value="${event.startTime != null ? #temporals.format(event.startTime, 'HH:mm') : ''}"
                        class="form-input" required>
-
                 <span class="time-separator">to</span>
-
                 <input id="endTime" name="endTime" type="time"
                        th:value="${event.endTime != null ? #temporals.format(event.endTime, 'HH:mm') : ''}"
                        class="form-input" required>
@@ -192,6 +189,32 @@
             <input id="maxParticipants" name="maxParticipants" type="number" min="1" th:field="*{maxParticipants}" class="form-input" required>
         </div>
 
+        <label class="form-label" for="audience">Audience:</label>
+        <select id="audience" name="audience" class="form-select" required>
+            <option value="">Select…</option>
+
+            <option value="INDIVIDUALS_GROUPS_COMPANIES"
+                    th:selected="${event.audience == 'INDIVIDUALS_GROUPS_COMPANIES'}">
+                Individuals, Groups, Companies
+            </option>
+
+            <option value="GROUPS_COMPANIES"
+                    th:selected="${event.audience == 'GROUPS_COMPANIES'}">
+                Groups, Companies
+            </option>
+
+            <option value="INDIVIDUALS_ONLY"
+                    th:selected="${event.audience == 'INDIVIDUALS_ONLY'}">
+                Individuals only
+            </option>
+
+            <option value="COMPANIES_ONLY"
+                    th:selected="${event.audience == 'COMPANIES_ONLY'}">
+                Companies only
+            </option>
+        </select>
+
+
         <div class="form-group form-span-2">
             <label class="form-label">Equipment:</label>
             <div id="equipment-list"></div>
@@ -212,16 +235,11 @@
 
 <script th:inline="javascript">
     document.addEventListener("DOMContentLoaded", function () {
-
         const equipmentList = document.getElementById("equipment-list");
         const addButton = document.getElementById("add-equipment");
-
         const isEdit = /*[[${isEdit}]]*/ false;
         const eventId = /*[[${isEdit} ? ${id} : 0]]*/ 0;
-
-        // CRITICAL: Get equipment data from server-side model
-        const serverEquipment = /*[[${eventEquipments}]]*/ [];
-
+        const serverEquipment = /*[[${event.equipments}]]*/ [];
         let eqIndex = 0;
 
         console.log('=== EQUIPMENT LOAD DEBUG ===');
@@ -243,16 +261,13 @@
         function createEquipmentRow(eq = {}) {
             const item = document.createElement("div");
             item.classList.add("equipment-item");
-
             const index = eqIndex++;
 
             const equipmentId = eq.id || '';
             const equipmentName = eq.name ? escapeHtml(eq.name) : '';
-            const equipmentPrice = eq.price || '';
+            const equipmentPrice = eq.unitPrice ?? eq.price ?? '';
             const isRentable = eq.rentable === true;
             const isRequired = eq.required === true;
-
-            console.log(`Creating equipment row ${index}:`, {id: equipmentId, name: equipmentName, price: equipmentPrice});
 
             item.innerHTML = `
                 <input type="hidden" name="equipments[${index}].id" value="${equipmentId}">
@@ -266,7 +281,7 @@
                     required>
 
                 <input type="number"
-                    name="equipments[${index}].price"
+                    name="equipments[${index}].unitPrice"
                     class="form-input"
                     placeholder="Price"
                     step="0.01"
@@ -275,44 +290,46 @@
                     ${isEdit && equipmentId ? 'readonly style="width: 120px; background-color: #f5f5f5;"' : 'style="width: 120px;"'}
                     required>
 
-                <input type="hidden" name="equipments[${index}].rentable" value="false">
                 <label style="display: flex; align-items: center; gap: 4px;">
                     <input type="checkbox"
-                           name="equipments[${index}].rentable"
-                           value="true"
-                           ${isRentable ? 'checked' : ''}
-                           ${isEdit && equipmentId ? 'disabled' : ''}>
+                           data-index="${index}"
+                           data-field="rentable"
+                           ${isRentable ? 'checked' : ''}>
                     Rentable
                 </label>
+                <input type="hidden"
+                       name="equipments[${index}].rentable"
+                       value="${isRentable}"
+                       data-hidden-rentable="${index}">
 
-                <input type="hidden" name="equipments[${index}].required" value="false">
                 <label style="display: flex; align-items: center; gap: 4px;">
                     <input type="checkbox"
-                           name="equipments[${index}].required"
-                           value="true"
+                           data-index="${index}"
+                           data-field="required"
                            ${isRequired ? 'checked' : ''}>
                     Required
                 </label>
+                <input type="hidden"
+                       name="equipments[${index}].required"
+                       value="${isRequired}"
+                       data-hidden-required="${index}">
 
-                <button type="button" class="remove-equipment" ${isEdit && equipmentId ? 'style="display:none;"' : ''}>✕</button>
+                       <button type="button" class="remove-equipment">✕</button>
             `;
 
             return item;
         }
 
-        // Load equipment
         function loadEquipment() {
             equipmentList.innerHTML = "";
             eqIndex = 0;
 
             if (isEdit && serverEquipment && serverEquipment.length > 0) {
-                // Edit mode - use server data
                 console.log('Loading equipment from server:', serverEquipment.length);
                 serverEquipment.forEach(eq => {
                     equipmentList.appendChild(createEquipmentRow(eq));
                 });
             } else {
-                // Create mode - add empty row
                 console.log('Create mode - adding empty row');
                 equipmentList.appendChild(createEquipmentRow());
             }
@@ -321,14 +338,28 @@
         // Initialize
         loadEquipment();
 
-        addButton.addEventListener("click", () => {
-            equipmentList.appendChild(createEquipmentRow());
+        // Event Delegation für alle Equipment-Interaktionen
+        equipmentList.addEventListener("change", (e) => {
+            if (e.target.type === "checkbox") {
+                const index = e.target.dataset.index;
+                const field = e.target.dataset.field;
+                const hiddenInput = document.querySelector(`[data-hidden-${field}="${index}"]`);
+
+                if (hiddenInput) {
+                    hiddenInput.value = e.target.checked;
+                    console.log(`✅ Updated ${field}[${index}] = ${e.target.checked}`);
+                }
+            }
         });
 
         equipmentList.addEventListener("click", (e) => {
             if (e.target.classList.contains("remove-equipment")) {
                 e.target.closest(".equipment-item").remove();
             }
+        });
+
+        addButton.addEventListener("click", () => {
+            equipmentList.appendChild(createEquipmentRow());
         });
 
         // Photo preview

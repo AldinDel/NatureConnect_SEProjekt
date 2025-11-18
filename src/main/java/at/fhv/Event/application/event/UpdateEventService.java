@@ -3,6 +3,7 @@ package at.fhv.Event.application.event;
 import at.fhv.Event.application.request.event.UpdateEventRequest;
 import at.fhv.Event.domain.model.event.EventAudience;
 import at.fhv.Event.infrastructure.mapper.EventMapper;
+import at.fhv.Event.infrastructure.persistence.equipment.EquipmentEntity;
 import at.fhv.Event.infrastructure.persistence.equipment.EquipmentJpaRepository;
 import at.fhv.Event.infrastructure.persistence.equipment.EventEquipmentEntity;
 import at.fhv.Event.infrastructure.persistence.event.EventEntity;
@@ -16,13 +17,15 @@ public class UpdateEventService {
 
     private final EventJpaRepository eventJpaRepository;
     private final EquipmentJpaRepository equipmentJpaRepository;
-    private final EventMapper domainMapper;       // Entity <-> Domain
-    private final EventMapperDTO dtoMapper;       // Domain <-> DTO
+    private final EventMapper domainMapper;
+    private final EventMapperDTO dtoMapper;
 
-    public UpdateEventService(EventJpaRepository eventJpaRepository,
-                              EquipmentJpaRepository equipmentJpaRepository,
-                              EventMapper domainMapper,
-                              EventMapperDTO dtoMapper) {
+    public UpdateEventService(
+            EventJpaRepository eventJpaRepository,
+            EquipmentJpaRepository equipmentJpaRepository,
+            EventMapper domainMapper,
+            EventMapperDTO dtoMapper
+    ) {
         this.eventJpaRepository = eventJpaRepository;
         this.equipmentJpaRepository = equipmentJpaRepository;
         this.domainMapper = domainMapper;
@@ -31,11 +34,17 @@ public class UpdateEventService {
 
     @Transactional
     public EventDetailDTO updateEvent(Long id, UpdateEventRequest req) {
+        System.out.println("=== UPDATE EVENT SERVICE ===");
+        req.getEquipments().forEach(e -> {
+            System.out.println("Equipment: id=" + e.getId() + " name=" + e.getName() +
+                    " required=" + e.isRequired() + " rentable=" + e.isRentable());
+        });
+        System.out.println("===========================");
 
         EventEntity entity = eventJpaRepository.findByIdWithEquipments(id)
                 .orElseThrow(() -> new RuntimeException("Event not found: " + id));
 
-        // Update basic fields
+        // BASIC FIELDS
         entity.setTitle(req.getTitle());
         entity.setDescription(req.getDescription());
         entity.setOrganizer(req.getOrganizer());
@@ -52,48 +61,73 @@ public class UpdateEventService {
 
         if (req.getAudience() != null && !req.getAudience().isBlank()) {
             entity.setAudience(EventAudience.valueOf(req.getAudience()));
-        }
-
-        System.out.println("=== DEBUG: Incoming Equipment from Request ===");
-        if (req.getEquipments() == null) {
-            System.out.println("req.getEquipments() = NULL");
         } else {
-            System.out.println("req.getEquipments().size() = " + req.getEquipments().size());
-            for (var e : req.getEquipments()) {
-                System.out.println(" - Equipment:");
-                System.out.println("     id       = " + e.getId());
-                System.out.println("     name     = " + e.getName());
-                System.out.println("     price    = " + e.getPrice());
-                System.out.println("     rentable = " + e.isRentable());
-                System.out.println("     required = " + e.isRequired());
-            }
+            entity.setAudience(null);
         }
-        System.out.println("=============================================");
 
-        var oldEquipments = new java.util.ArrayList<>(entity.getEventEquipments());
-        for (var old : oldEquipments) {
-            entity.removeEquipment(old);
+        // REMOVE ALL OLD LINKS
+        var oldLinks = new java.util.ArrayList<>(entity.getEventEquipments());
+        for (var link : oldLinks) {
+            entity.removeEquipment(link);
         }
-        entity.getEventEquipments().clear();
-
         eventJpaRepository.flush();
 
+        // ADD NEW/UPDATED EQUIPMENTS
         if (req.getEquipments() != null && !req.getEquipments().isEmpty()) {
+
             for (var eqReq : req.getEquipments()) {
-                if (eqReq.getId() == null || eqReq.getId() <= 0) {
-                    System.out.println("Skipping equipment with null/invalid ID: " + eqReq.getName());
-                    continue;
+                EquipmentEntity equipmentEntity;
+
+                // CASE 1: NEW EQUIPMENT (id is null)
+                if (eqReq.getId() == null) {
+                    System.out.println("→ Creating NEW equipment: " + eqReq.getName());
+
+                    // Check if equipment with this name already exists
+                    var existingEquipment = equipmentJpaRepository.findByNameIgnoreCase(eqReq.getName());
+
+                    if (existingEquipment.isPresent()) {
+                        // Equipment already exists, just use it
+                        System.out.println("  ✓ Equipment '" + eqReq.getName() + "' already exists, reusing it");
+                        equipmentEntity = existingEquipment.get();
+
+                        // Update rentable flag if needed
+                        equipmentEntity.setRentable(eqReq.isRentable());
+                        equipmentEntity.setUnitPrice(eqReq.getUnitPrice());
+                    } else {
+                        // Create new equipment
+                        equipmentEntity = new EquipmentEntity();
+                        equipmentEntity.setName(eqReq.getName());
+                        equipmentEntity.setUnitPrice(eqReq.getUnitPrice());
+                        equipmentEntity.setRentable(eqReq.isRentable());
+                        equipmentJpaRepository.save(equipmentEntity);
+                        System.out.println("  ✓ Created new equipment with id: " + equipmentEntity.getId());
+                    }
+                }
+                // CASE 2: EXISTING EQUIPMENT (id is provided)
+                else {
+                    System.out.println("→ Updating existing equipment id=" + eqReq.getId());
+
+                    equipmentEntity = equipmentJpaRepository.findById(eqReq.getId())
+                            .orElseThrow(() -> new RuntimeException("Equipment not found: " + eqReq.getId()));
+
+                    // Update editable fields (NOT the name, as it's unique)
+                    equipmentEntity.setUnitPrice(eqReq.getUnitPrice());
+                    equipmentEntity.setRentable(eqReq.isRentable());
+
+                    System.out.println("  ✓ Updated: rentable=" + equipmentEntity.isRentable() +
+                            " price=" + equipmentEntity.getUnitPrice());
                 }
 
-                var equipment = equipmentJpaRepository.findById(eqReq.getId())
-                        .orElseThrow(() -> new RuntimeException("Equipment not found: " + eqReq.getId()));
+                // LINK EVENT <-> EQUIPMENT with the 'required' flag
+                var link = new EventEquipmentEntity(entity, equipmentEntity, eqReq.isRequired());
+                entity.addEquipment(link);
 
-                var eventEquipment = new EventEquipmentEntity(entity, equipment, eqReq.isRequired());
-                entity.addEquipment(eventEquipment);
-                System.out.println("Added equipment link: " + eqReq.getName() + " (required=" + eqReq.isRequired() + ")");
+                System.out.println("  ✓ Linked to event with required=" + eqReq.isRequired());
             }
         }
 
         EventEntity saved = eventJpaRepository.save(entity);
+        System.out.println("=== EVENT SAVED ===");
         return dtoMapper.toDetailDTO(domainMapper.toDomain(saved));
-    }}
+    }
+}

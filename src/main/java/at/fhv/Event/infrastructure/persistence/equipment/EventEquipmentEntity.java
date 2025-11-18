@@ -8,7 +8,7 @@ import jakarta.persistence.*;
 public class EventEquipmentEntity {
 
     @EmbeddedId
-    private EventEquipmentId id = new EventEquipmentId();
+    private EventEquipmentId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("eventId")
@@ -28,6 +28,7 @@ public class EventEquipmentEntity {
         this.event = event;
         this.equipment = equipment;
         this.required = required;
+        this.id = new EventEquipmentId(event.getId(), equipment.getId());
     }
 
     public EventEquipmentId getId() { return id; }
