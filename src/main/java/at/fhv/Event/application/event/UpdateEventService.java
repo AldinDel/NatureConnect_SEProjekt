@@ -35,10 +35,8 @@ public class UpdateEventService {
     @Transactional
     public EventDetailDTO updateEvent(Long id, UpdateEventRequest req) {
         System.out.println("=== UPDATE EVENT SERVICE ===");
-        req.getEquipments().forEach(e -> {
-            System.out.println("Equipment: id=" + e.getId() + " name=" + e.getName() +
-                    " required=" + e.isRequired() + " rentable=" + e.isRentable());
-        });
+        req.getEquipments().forEach(e -> System.out.println("Equipment: id=" + e.getId() + " name=" + e.getName() +
+                " required=" + e.isRequired() + " rentable=" + e.isRentable()));
         System.out.println("===========================");
 
         EventEntity entity = eventJpaRepository.findByIdWithEquipments(id)
