@@ -46,6 +46,7 @@ public class EventController {
     public String showCreateForm(Model model) {
         model.addAttribute("event", new CreateEventRequest());
         model.addAttribute("equipments", equipmentService.getAll());
+        model.addAttribute("eventEquipments", List.of());
         model.addAttribute("isEdit", false);
         return "events/create_event";
     }
@@ -56,6 +57,17 @@ public class EventController {
         createService.createEvent(req);
         redirect.addFlashAttribute("success", "Event created successfully!");
         return "redirect:/events";
+    }
+
+    private String mapAudienceLabelToEnumName(String label) {
+        if (label == null) return null;
+        return switch (label) {
+            case "Individuals, Groups, Companies" -> "INDIVIDUALS_GROUPS_COMPANIES";
+            case "Groups, Companies"            -> "GROUPS_COMPANIES";
+            case "Individuals only"             -> "INDIVIDUALS_ONLY";
+            case "Companies only"               -> "COMPANIES_ONLY";
+            default -> label; // Fallback
+        };
     }
 
     @GetMapping("/{id}/edit")
@@ -79,7 +91,7 @@ public class EventController {
             req.setMaxParticipants(detail.maxParticipants());
             req.setPrice(detail.price());
             req.setImageUrl(detail.imageUrl());
-            req.setAudience(detail.audience());
+            req.setAudience(mapAudienceLabelToEnumName(detail.audience()));
 
             // Map equipment
             List<EventEquipmentUpdateRequest> eqReqs = detail.equipments().stream().map(eq -> {
