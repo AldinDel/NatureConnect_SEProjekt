@@ -18,100 +18,123 @@ body {
     box-sizing: border-box;
 }
 
-/* --- Hero Header --- */
-.category-tag {
-    display: inline-block;
-    border: 1px solid #000;
-    padding: 3px 8px;
-    font-size: 0.85rem;
-    margin-bottom: 10px;
+/* --- HERO NEW -- clean, rounded, modern --- */
+
+/* Abstand zum Header */
+body > .hero-box {
+    margin-top: 60px;
 }
 
-.event-title {
-    margin: 0 0 15px 0;
-    font-size: 1.6rem;
-    font-weight: 600;
-    line-height: 1.3;
-}
-
-
-/* --- Hero Section --- */
+/* Wrapper */
 .hero-box {
     background: #fff;
     padding: 0 0 25px 0;
-    margin: 0 auto 40px auto;
-    max-width: 1200px; /* same width as .page */
-    width: 90%;
+    margin: 70px auto 40px auto;
+    max-width: 1100px;
+    width: 85%;
     box-sizing: border-box;
     border: none;
 }
 
-/* --- Category + Title --- */
+/* Title */
+.event-title {
+    margin: 10px 0 20px 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* Category tag (above title) */
 .category-tag {
     display: inline-block;
-    border: 1px solid #000;
-    padding: 3px 8px;
-    font-size: 0.85rem;
-    margin-bottom: 10px;
-}
-
-.event-title {
-    margin: 0 0 15px 0;
-    font-size: 1.6rem;
+    padding: 6px 14px;
+    border-radius: 999px;
     font-weight: 600;
-    line-height: 1.3;
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+    text-transform: capitalize;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
-/* --- Hero Grid --- */
+/* Default */
+.category-tag {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+/* Category Colors */
+.category-tag[data-category="Kayaking"] {
+    background: #cffafe; color: #164e63;
+}
+.category-tag[data-category="Hiking"] {
+    background: #e0f2fe; color: #075985;
+}
+.category-tag[data-category="Camping"] {
+    background: #dcfce7; color: #166534;
+}
+.category-tag[data-category="Climbing"] {
+    background: #fee2e2; color: #7f1d1d;
+}
+.category-tag[data-category="Wildlife Tour"] {
+    background: #fef9c3; color: #854d0e;
+}
+
+/* Hero Grid */
 .hero-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 15px;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 20px;
 }
 
+/* Main image */
 .hero-left img {
     width: 100%;
-    height: 280px;
-    border: 1px solid #000;
+    height: 300px;
+    border-radius: 18px;
     object-fit: cover;
+    border: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
+/* Right column */
 .hero-right {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 15px;
 }
 
+/* Small image */
 .hero-small-img img {
     width: 100%;
-    height: 130px;
-    border: 1px solid #000;
+    height: 140px;
+    border-radius: 18px;
     object-fit: cover;
+    border: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
+/* Map */
 .hero-map {
-    border: 1px solid #000;
-    height: 130px;
+    border-radius: 18px;
+    overflow: hidden;
+    height: 140px;
+    border: none;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-.no-image {
-    font-style: italic;
-    color: #666;
-    border: 1px dashed #aaa;
-    padding: 15px;
-    text-align: center;
-}
 
 
 /* --- Main Page Layout --- */
 .page {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1.6fr 1fr;  /* etwas schlanker wie Hero-Right */
     gap: 40px;
-    max-width: 1200px; /* 👈 same as hero-box */
-    width: 90%;
+
+    max-width: 1100px;   /* MATCH HERO */
+    width: 85%;          /* MATCH HERO */
     margin: 0 auto;
 }
+
 
 /* --- Left and Right Columns --- */
 .left {
@@ -131,18 +154,6 @@ body {
     height: fit-content; /* prevents stretching */
 }
 
-/* --- Box Styles --- */
-.box {
-    border: 1px solid #000;
-    padding: 25px;
-    background: #fff;
-    line-height: 1.5;
-}
-
-.box h3 {
-    margin: 0 0 10px 0;
-    font-size: 1.2rem;
-}
 
 /* --- Organizer Box --- */
 .organizer-box {
@@ -162,23 +173,14 @@ body {
     margin-top: 15px;
 }
 
-.detail-item {
-    border: 1px solid #000;
-    padding: 15px;
-}
+
 
 .detail-item h4 {
     margin: 0 0 8px 0;
     font-weight: normal;
 }
 
-/* --- Add-ons --- */
-.sub-box {
-    border: 1px solid #000;
-    padding: 15px;
-    margin-top: 15px;
-    background: #fff;
-}
+
 
 .simple-list {
     display: flex;
@@ -268,3 +270,87 @@ nav {
 body > .hero-box {
     margin-top: 80px; /* 👈 kannst du anpassen (60–100px sieht gut aus) */
 }
+
+/* --- Modern Card Style --- */
+.box {
+    background: #ffffff;
+    border: none;                    /* no more ugly borders */
+    border-radius: 14px;             /* soft rounded corners */
+    padding: 20px 25px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);  /* soft floating shadow */
+    line-height: 1.6;
+}
+
+/* headings in cards */
+.box h3 {
+    font-size: 1.25rem;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+/* smaller sub boxes like equipment */
+.sub-box {
+    background: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+    margin-top: 20px; /* Abstand zwischen den beiden Boxen */
+}
+
+/* tiny grid boxes inside "Event Details" */
+.detail-item {
+    background: #f2f6fa;
+    color: #000;
+    border-radius: 10px;
+    padding: 18px;
+    border: none;
+    box-shadow: inset 0 0 0 1px #e5e7eb; /* subtle border */
+}
+
+.detail-item h4 {
+    margin: 0 0 6px 0;
+    font-weight: 700;
+    color: #000;
+    font-size: 1rem;
+
+}
+
+/* Pricing box button */
+.book-btn {
+    width: 100%;
+    background: #111827;
+    border-radius: 10px;
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: .2s;
+}
+
+.book-btn:hover {
+    background: #000;
+}
+
+/* Right sidebar cards */
+.right .box {
+    position: sticky;
+    top: 100px;
+}
+
+/* --- Sticky Fix: beide Right-Side-Boxen scroll-fixiert ohne Überlappen --- */
+
+/* Participants sticky */
+.right .box:first-child {
+    position: sticky;
+    top: 100px;
+    z-index: 10;
+}
+
+/* Pricing sticky – knapp darunter */
+.right .box:last-child {
+    position: sticky;
+    top: 260px; /* viel kleiner! */
+    z-index: 5;
+    margin-top: 60px; /* schiebt sie nach oben */
+}
+

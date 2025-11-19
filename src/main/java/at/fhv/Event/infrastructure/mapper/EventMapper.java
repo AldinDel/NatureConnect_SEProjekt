@@ -67,14 +67,12 @@ public class EventMapper {
         e.setImageUrl(domain.getImageUrl());
         e.setCancelled(domain.getCancelled());
 
-        // 🔥 AUDIENCE MAPPING MIT NULL-CHECK
         if (domain.getAudience() != null && !domain.getAudience().isBlank()) {
             try {
                 e.setAudience(at.fhv.Event.domain.model.event.EventAudience.valueOf(
                         domain.getAudience().toUpperCase().replace(" ", "_")
                 ));
             } catch (IllegalArgumentException ex) {
-                // Fallback auf default Wert
                 e.setAudience(at.fhv.Event.domain.model.event.EventAudience.INDIVIDUALS_GROUPS_COMPANIES);
             }
         }
@@ -89,7 +87,7 @@ public class EventMapper {
                     ee.setEvent(e);
                     return ee;
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         e.getEventEquipments().clear();
         e.getEventEquipments().addAll(eeEntities);
