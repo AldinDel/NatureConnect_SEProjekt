@@ -1,17 +1,15 @@
 package at.fhv.Event.infrastructure.persistence.booking;
 
 import jakarta.persistence.*;
-import java.time.LocalDate;
 
 @Entity
-@Table(name = "booking_attendee", schema = "nature_connect")
-public class BookingAttendeeEntity {
+@Table(name = "booking_participant", schema = "nature_connect")
+public class BookingParticipantEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Owning side of the relation to booking
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "booking_id", nullable = false)
     private BookingEntity booking;
@@ -22,10 +20,8 @@ public class BookingAttendeeEntity {
     @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
 
-    @Column(name = "birthday", nullable = false)
-    private LocalDate birthday;
-
-    // --- getters / setters ---
+    @Column(name = "age", nullable = false)
+    private int age;
 
     public Long getId() {
         return id;
@@ -55,11 +51,15 @@ public class BookingAttendeeEntity {
         this.lastName = lastName;
     }
 
-    public LocalDate getBirthday() {
-        return birthday;
+    public int getAge() {
+        return age;
     }
 
-    public void setBirthday(LocalDate birthday) {
-        this.birthday = birthday;
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

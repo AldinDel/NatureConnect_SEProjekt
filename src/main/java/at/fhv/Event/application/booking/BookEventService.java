@@ -1,9 +1,10 @@
 package at.fhv.Event.application.booking;
 
-import at.fhv.Event.application.request.booking.CreateBookingRequest;
 import at.fhv.Event.application.request.booking.BookingRequestMapper;
+import at.fhv.Event.application.request.booking.CreateBookingRequest;
 import at.fhv.Event.domain.model.booking.Booking;
 import at.fhv.Event.domain.model.booking.BookingRepository;
+import at.fhv.Event.domain.model.booking.PaymentMethod;
 import at.fhv.Event.rest.response.booking.BookingDTO;
 import org.springframework.stereotype.Service;
 
@@ -24,33 +25,44 @@ public class BookEventService {
         this.bookingMapperDTO = bookingMapperDTO;
     }
 
+    public BookingDTO bookEvent(CreateBookingRequest request) {
+
+        if (request.getSeats() <= 0) {
+            throw new IllegalArgumentException("Seats must be > 0.");
+        }
+
+        if (request.getBookerEmail() == null || !request.getBookerEmail().contains("@")) {
+            throw new IllegalArgumentException("A valid email is required.");
+        }
+
+        double basePrice = request.getSeats() * 10.0;
+
+        Booking booking = bookingRequestMapper.toDomain(request, basePrice);
+
+        Booking saved = bookingRepository.save(booking);
+
+        return bookingMapperDTO.toDTO(saved);
+    }
+
+    public BookingDTO getDTOById(Long id) {
+        Booking booking = bookingRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+
+        return bookingMapperDTO.toDTO(booking);
+    }
+
     public Booking getById(Long id) {
         return bookingRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
     }
 
-    public BookingDTO bookEvent(CreateBookingRequest request) {
 
-        // --- Basic validation ---
-        if (request.getSeats() <= 0) {
-            throw new IllegalArgumentException("Seats must be > 0.");
-        }
-
-        if (request.isGuest() && (request.getEmail() == null || !request.getEmail().contains("@"))) {
-            throw new IllegalArgumentException("Guest must provide a valid email.");
-        }
-
-        // --- Price Calculation (MVP placeholder) ---
-        double unitPrice = 10.0;
-        double totalPrice = unitPrice * request.getSeats();
-
-        // --- Request → Domain ---
-        Booking booking = bookingRequestMapper.toDomain(request, unitPrice, totalPrice);
-
-        // --- Save ---
+    public BookingDTO updatePaymentMethod(Long bookingId, String paymentMethod) {
+        Booking booking = getById(bookingId);
+        booking.setPaymentMethod(PaymentMethod.valueOf(paymentMethod));
         Booking saved = bookingRepository.save(booking);
-
-        // --- Domain → DTO ---
         return bookingMapperDTO.toDTO(saved);
     }
+
+
 }

@@ -7,25 +7,16 @@ import org.springframework.stereotype.Component;
 @Component
 public class BookingMapperDTO {
 
-    public BookingDTO toDTO(Booking booking) {
+    public BookingDTO toDTO(Booking b) {
         return new BookingDTO(
-                booking.getId(),
-                booking.getEventId(),
-                booking.getCustomerId(),
-                booking.isGuest(),
-                booking.getFirstName(),
-                booking.getLastName(),
-                booking.getEmail(),
-                booking.getSeats(),
-                booking.getStatus(),
-                booking.getPaymentMethod(),
-                booking.getVoucherCode(),
-                booking.getVoucherValue(),
-                booking.getUnitPrice(),
-                booking.getTotalPrice(),
-                booking.getConfirmedAt(),
-                booking.getCancelledAt()
+                b.getId(),
+                b.getEventId(),
+                b.getBookerFirstName(),
+                b.getBookerLastName(),
+                b.getBookerEmail(),
+                b.getSeats(),
+                b.getTotalPrice(),
+                b.getStatus()
         );
-
     }
 }

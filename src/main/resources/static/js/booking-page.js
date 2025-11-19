@@ -1,50 +1,26 @@
 /* -------------------------------------------
-   ACCOUNT BUTTONS
---------------------------------------------*/
-const loginBtn = document.getElementById("loginBtn");
-const guestBtn = document.getElementById("guestBtn");
-
-if (loginBtn && guestBtn) {
-    loginBtn.addEventListener("click", () => {
-        loginBtn.classList.add("active");
-        guestBtn.classList.remove("active");
-    });
-
-    guestBtn.addEventListener("click", () => {
-        guestBtn.classList.add("active");
-        loginBtn.classList.remove("active");
-    });
-}
-
-/* -------------------------------------------
-   RADIO BUTTON HANDLING
---------------------------------------------*/
-document.querySelectorAll("[data-radio]").forEach(label => {
-    const radio = label.querySelector("input");
-    radio.addEventListener("change", () => {
-        document.querySelectorAll("[data-radio]").forEach(l => l.classList.remove("active"));
-        label.classList.add("active");
-    });
-});
-
-/* -------------------------------------------
-   CHECKBOX HANDLING
---------------------------------------------*/
-document.querySelectorAll("[data-checkbox]").forEach(label => {
-    const checkbox = label.querySelector("input");
-    checkbox.addEventListener("change", () => {
-        if (checkbox.checked) label.classList.add("active");
-        else label.classList.remove("active");
-        updatePriceSummary();
-    });
-});
-
-/* -------------------------------------------
-   PARTICIPANT GENERATION
+   ELEMENT REFERENCES
 --------------------------------------------*/
 const numParticipantsInput = document.getElementById("numParticipants");
 const participantsContainer = document.getElementById("participantsContainer");
 
+const discountInput = document.getElementById("discountCode");
+const discountBtn = document.getElementById("applyDiscountBtn");
+const discountMessage = document.getElementById("discountMessage");
+
+const BASE_PRICE = 75;
+let currentDiscount = 0;
+
+/* -------------------------------------------
+   UTILS
+--------------------------------------------*/
+function clamp(n, min, max) {
+    return Math.max(min, Math.min(max, n));
+}
+
+/* -------------------------------------------
+   PARTICIPANTS GENERATION
+--------------------------------------------*/
 function generateParticipants(num) {
     participantsContainer.innerHTML = "";
 
@@ -57,17 +33,17 @@ function generateParticipants(num) {
 
             <div class="form-group">
                 <label>First Name</label>
-                <input class="form-input" type="text" name="participants[${i}].firstName">
+                <input class="form-input" type="text" name="participants[${i}].firstName" />
             </div>
 
             <div class="form-group">
                 <label>Last Name</label>
-                <input class="form-input" type="text" name="participants[${i}].lastName">
+                <input class="form-input" type="text" name="participants[${i}].lastName" />
             </div>
 
             <div class="form-group">
                 <label>Age</label>
-                <input class="form-input" type="number" name="participants[${i}].age" min="1">
+                <input class="form-input" type="number" name="participants[${i}].age" min="1" />
             </div>
         `;
 
@@ -75,95 +51,147 @@ function generateParticipants(num) {
     }
 }
 
-numParticipantsInput.addEventListener("input", () => {
-    let value = parseInt(numParticipantsInput.value) || 1;
-    if (value < 1) value = 1;
-    if (value > 20) value = 20;
-    numParticipantsInput.value = value;
-
-    generateParticipants(value);
-    updatePriceSummary();
-});
-
-// Init
-generateParticipants(1);
+function syncSeatsFormField(value) {
+    const seatsField = document.querySelector('[name="seats"]');
+    if (seatsField) seatsField.value = value;
+}
 
 /* -------------------------------------------
-   DISCOUNT
+   LOAD EQUIPMENT FOR EVENT (AJAX)
 --------------------------------------------*/
-let currentDiscount = 0;
+async function loadEquipmentForEvent(eventId) {
+    try {
+        const res = await fetch(`/api/events/${eventId}/equipment`);
+        if (!res.ok) throw new Error("Failed to load equipment");
 
-const discountInput = document.getElementById("discountCode");
-const discountBtn = document.getElementById("applyDiscountBtn");
-const discountMessage = document.getElementById("discountMessage");
+        const items = await res.json();
+        const container = document.getElementById("equipmentContainer");
+        container.innerHTML = "";
 
-discountBtn.addEventListener("click", () => {
-    const code = discountInput.value.trim().toUpperCase();
+        items.forEach(item => {
+            const label = document.createElement("label");
+            label.className = "checkbox-label";
+            label.dataset.checkbox = "";
 
-    if (code === "SUMMER20") {
-        currentDiscount = 20;
-        discountMessage.className = "text-green";
-        discountMessage.innerHTML = "✓ Discount applied!";
-    } else {
-        currentDiscount = 0;
-        discountMessage.className = "text-red";
-        discountMessage.innerHTML = "✕ Invalid code";
+            const cb = document.createElement("input");
+            cb.type = "checkbox";
+            cb.name = `equipment[${item.id}]`;
+            cb.value = item.id;
+            cb.dataset.price = item.unitPrice;
+
+            if (item.required) {
+                cb.checked = true;
+                cb.disabled = true;
+            }
+
+            const content = document.createElement("div");
+            content.className = "addon-content";
+
+            const title = document.createElement("p");
+            title.className = "addon-name";
+            title.textContent = item.name;
+
+            const price = document.createElement("p");
+            price.className = "addon-price";
+            price.textContent = `${parseFloat(item.unitPrice).toFixed(2)} €`;
+
+            content.appendChild(title);
+            content.appendChild(price);
+
+            label.appendChild(cb);
+            label.appendChild(content);
+
+            container.appendChild(label);
+
+            cb.addEventListener("change", () => {
+                updatePriceSummary();
+            });
+        });
+
+        updatePriceSummary();
+    } catch (err) {
+        console.error(err);
     }
-
-    discountMessage.classList.remove("hidden");
-    updatePriceSummary();
-});
+}
 
 /* -------------------------------------------
-   PRICE CALCULATION
+   PRICE SUMMARY
 --------------------------------------------*/
-const BASE_PRICE = 75;
-
-const ADDONS = [
-    { id: 1, price: 50, perPerson: false },
-    { id: 2, price: 8, perPerson: true }
-];
-
 function updatePriceSummary() {
-
-    const participants = parseInt(numParticipantsInput.value) || 1;
+    const participants = parseInt(numParticipantsInput.value, 10) || 1;
     const participantsCost = BASE_PRICE * participants;
 
     let addonsCost = 0;
-    document.querySelectorAll('input[name="addons"]:checked').forEach(cb => {
-        const addon = ADDONS.find(a => a.id === parseInt(cb.value));
-        if (addon) {
-            addonsCost += addon.perPerson ? addon.price * participants : addon.price;
-        }
+
+    // read dynamically loaded equipment
+    document.querySelectorAll('input[name^="equipment["]').forEach(cb => {
+        if (!cb.checked && !cb.disabled) return;
+
+        const price = parseFloat(cb.dataset.price) || 0;
+        addonsCost += price;
     });
 
     const subtotal = participantsCost + addonsCost;
     const discountAmount = subtotal * (currentDiscount / 100);
     const total = subtotal - discountAmount;
 
-    // Update DOM
-    document.getElementById("summaryParticipants").textContent = participants;
-    document.getElementById("summaryParticipantsCost").textContent = `$${participantsCost.toFixed(2)}`;
-    document.getElementById("summarySubtotal").textContent = `$${subtotal.toFixed(2)}`;
-    document.getElementById("summaryTotal").textContent = `$${total.toFixed(2)}`;
-
-    // Addons
-    if (addonsCost > 0) {
-        document.getElementById("summaryAddonsRow").style.display = "flex";
-        document.getElementById("summaryAddonsCost").textContent = `$${addonsCost.toFixed(2)}`;
-    } else {
-        document.getElementById("summaryAddonsRow").style.display = "none";
-    }
-
-    // Discount
-    if (currentDiscount > 0) {
-        document.getElementById("summaryDiscountRow").style.display = "flex";
-        document.getElementById("summaryDiscountPercent").textContent = currentDiscount;
-        document.getElementById("summaryDiscountAmount").textContent = `-$${discountAmount.toFixed(2)}`;
-    } else {
-        document.getElementById("summaryDiscountRow").style.display = "none";
-    }
+    document.getElementById("summarySeats").textContent = participants;
+    document.getElementById("summaryTotal").textContent = `${total.toFixed(2)} €`;
 }
 
-// Initial
-updatePriceSummary();
+/* -------------------------------------------
+   DISCOUNT LOGIC
+--------------------------------------------*/
+if (discountBtn) {
+    discountBtn.addEventListener("click", () => {
+        const code = discountInput.value.trim().toUpperCase();
+
+        if (code === "SUMMER20") {
+            currentDiscount = 20;
+            discountMessage.className = "text-green";
+            discountMessage.innerHTML = "✓ Discount applied!";
+        } else {
+            currentDiscount = 0;
+            discountMessage.className = "text-red";
+            discountMessage.innerHTML = "✕ Invalid code";
+        }
+
+        discountMessage.classList.remove("hidden");
+        updatePriceSummary();
+    });
+}
+
+/* -------------------------------------------
+   HANDLE PARTICIPANT INPUT CHANGE
+--------------------------------------------*/
+if (numParticipantsInput) {
+    numParticipantsInput.addEventListener("input", () => {
+        let value = parseInt(numParticipantsInput.value, 10) || 1;
+        value = clamp(value, 1, 20);
+
+        numParticipantsInput.value = value;
+        syncSeatsFormField(value);
+        generateParticipants(value);
+        updatePriceSummary();
+    });
+}
+
+/* -------------------------------------------
+   INITIAL LOAD
+--------------------------------------------*/
+document.addEventListener("DOMContentLoaded", () => {
+    // load participants
+    const seatsField = document.querySelector('[name="seats"]');
+    let initialSeats = seatsField && seatsField.value ? parseInt(seatsField.value, 10) : 1;
+
+    numParticipantsInput.value = initialSeats;
+    generateParticipants(initialSeats);
+
+    syncSeatsFormField(initialSeats);
+
+    // load event equipment
+    const eventId = document.getElementById("pageEventId").value;
+    loadEquipmentForEvent(eventId);
+
+    updatePriceSummary();
+});

@@ -1,42 +1,41 @@
 package at.fhv.Event.application.request.booking;
 
 import at.fhv.Event.domain.model.booking.Booking;
+import at.fhv.Event.domain.model.booking.BookingParticipant;
 import at.fhv.Event.domain.model.booking.BookingStatus;
-import at.fhv.Event.domain.model.booking.PaymentMethod;
+import at.fhv.Event.domain.model.booking.PaymentStatus;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
-import java.time.OffsetDateTime;
+import java.util.List;
 
 @Component
 public class BookingRequestMapper {
 
-    public Booking toDomain(CreateBookingRequest req, double unitPrice, double totalPrice) {
+    public Booking toDomain(CreateBookingRequest req, double basePrice) {
 
-        // Create booking using your existing constructor
-        Booking booking = new Booking(
+        return new Booking(
                 req.getEventId(),
-                req.getCustomerId(), // null if guest
-                req.isGuest(),
-                req.getFirstName(),
-                req.getLastName(),
-                req.getEmail(),
+                req.getBookerFirstName(),
+                req.getBookerLastName(),
+                req.getBookerEmail(),
                 req.getSeats(),
                 req.getAudience(),
-                BookingStatus.CONFIRMED,  // MVP: confirmed immediately
-                PaymentMethod.INVOICE,    // placeholder until payment module is done
+                BookingStatus.PENDING,
+                PaymentStatus.UNPAID,
+                null,
                 req.getVoucherCode(),
-                0.0,                      // voucherValue (calculated later)
-                unitPrice,
-                totalPrice,
-                OffsetDateTime.now(),     // confirmedAt
-                null                      // cancelledAt
+                0.0,
+                basePrice,
+                req.getSpecialNotes(),
+                req.getParticipants() != null
+                        ? req.getParticipants().stream()
+                        .map(p -> new BookingParticipant(
+                                p.getFirstName(),
+                                p.getLastName(),
+                                p.getAge()
+                        )).toList()
+                        : List.of(),
+                List.of()
         );
-
-        // Set audit timestamps (DB will override if triggers exist)
-        booking.setCreatedAt(Instant.now());
-        booking.setUpdatedAt(Instant.now());
-
-        return booking;
     }
 }

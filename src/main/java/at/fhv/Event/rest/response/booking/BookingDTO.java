@@ -1,42 +1,35 @@
 package at.fhv.Event.rest.response.booking;
 
 import at.fhv.Event.domain.model.booking.BookingStatus;
-import at.fhv.Event.domain.model.booking.PaymentMethod;
-
-import java.time.OffsetDateTime;
 
 public class BookingDTO {
 
     private Long id;
     private Long eventId;
-    private String firstName;
-    private String lastName;
-    private String email;
+
+    private String bookerFirstName;
+    private String bookerLastName;
+    private String bookerEmail;
+
     private int seats;
     private double totalPrice;
     private BookingStatus status;
 
-    public BookingDTO() {
-    }
-    public BookingDTO(Long id, Long eventId, Long customerId, boolean guest,
-                      String firstName, String lastName, String email,
-                      int seats, BookingStatus status, PaymentMethod paymentMethod,
-                      String voucherCode, double voucherValue, double unitPrice,
-                      double totalPrice, OffsetDateTime confirmedAt,
-                      OffsetDateTime cancelledAt) {
+    public BookingDTO() {}
+
+    public BookingDTO(Long id, Long eventId,
+                      String bookerFirstName, String bookerLastName, String bookerEmail,
+                      int seats, double totalPrice, BookingStatus status) {
 
         this.id = id;
         this.eventId = eventId;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
+        this.bookerFirstName = bookerFirstName;
+        this.bookerLastName = bookerLastName;
+        this.bookerEmail = bookerEmail;
         this.seats = seats;
         this.totalPrice = totalPrice;
         this.status = status;
     }
-
-
-    // getters + setters...
 
     public Long getId() {
         return id;
@@ -54,28 +47,28 @@ public class BookingDTO {
         this.eventId = eventId;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getBookerFirstName() {
+        return bookerFirstName;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setBookerFirstName(String bookerFirstName) {
+        this.bookerFirstName = bookerFirstName;
     }
 
-    public String getLastName() {
-        return lastName;
+    public String getBookerLastName() {
+        return bookerLastName;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setBookerLastName(String bookerLastName) {
+        this.bookerLastName = bookerLastName;
     }
 
-    public String getEmail() {
-        return email;
+    public String getBookerEmail() {
+        return bookerEmail;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setBookerEmail(String bookerEmail) {
+        this.bookerEmail = bookerEmail;
     }
 
     public int getSeats() {

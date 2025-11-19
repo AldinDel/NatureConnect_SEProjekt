@@ -1,28 +1,52 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Booking Confirmed</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Successful - Nature Connect</title>
     <link rel="stylesheet" th:href="@{/css/confirmation.css}">
 </head>
-
 <body>
+<div class="success-container">
+    <div class="success-icon"></div>
 
-<div class="container">
-    <div class="card">
-        <h1 class="title-lg">Booking Confirmed 🎉</h1>
+    <h1>Payment Successful</h1>
+    <p class="subtitle">Your booking has been confirmed</p>
 
-        <p>Thank you for your booking!</p>
-
-        <div class="info">
-            <p><strong>Event:</strong> <span th:text="${booking.eventId}"></span></p>
-            <p><strong>Name:</strong> <span th:text="${booking.firstName}"></span> <span th:text="${booking.lastName}"></span></p>
-            <p><strong>Seats:</strong> <span th:text="${booking.seats}"></span></p>
-            <p><strong>Total Price:</strong> <span th:text="${booking.totalPrice}"></span>€</p>
+    <div class="details">
+        <div class="detail-row">
+            <span class="detail-label">Booking Number</span>
+            <span class="detail-value" th:text="'#' + ${bookingId}">#12345</span>
         </div>
 
-        <a class="btn-primary" th:href="@{'/booking/payment/' + ${booking.id}}">Proceed to Payment</a>
+        <div class="detail-row">
+            <span class="detail-label">Transaction ID</span>
+            <span class="detail-value" th:text="'#' + ${transactionId}">#67890</span>
+        </div>
+
+        <div class="detail-row">
+            <span class="detail-label">Payment Method</span>
+            <span class="detail-value" th:text="${paymentMethod}">Credit Card</span>
+        </div>
+
+        <div class="detail-row">
+            <span class="detail-label">Amount</span>
+            <span class="detail-value amount" th:text="'€' + ${amount}">€125.00</span>
+        </div>
+
+        <div class="detail-row" th:if="${reference}">
+            <span class="detail-label">Reference</span>
+            <span class="detail-value" th:text="${reference}">REF-123456</span>
+        </div>
+    </div>
+
+    <a href="/" class="btn">Return to Home</a>
+
+    <div class="confirmation-note">
+        A confirmation email has been sent to your email address
     </div>
 </div>
 
+<script th:src="@{/js/confirmation.js}"></script>
 </body>
 </html>

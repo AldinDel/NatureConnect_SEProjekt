@@ -7,37 +7,19 @@ import java.util.List;
 public class CreateBookingRequest {
 
     private Long eventId;
-    private Long customerId;
-    private boolean guest;
-    private String firstName;
-    private String lastName;
-    private String email;
+
+    private String bookerFirstName;
+    private String bookerLastName;
+    private String bookerEmail;
+
     private int seats;
     private AudienceType audience;
+
     private String voucherCode;
     private String specialNotes;
 
-    public String getSpecialNotes() {
-        return specialNotes;
-    }
-
-    public void setSpecialNotes(String specialNotes) {
-        this.specialNotes = specialNotes;
-    }
-
     private List<ParticipantDTO> participants;
 
-    public List<ParticipantDTO> getParticipants() {
-        return participants;
-    }
-
-    public void setParticipants(List<ParticipantDTO> participants) {
-        this.participants = participants;
-    }
-
-
-
-    // --- GETTERS & SETTERS ---
     public Long getEventId() {
         return eventId;
     }
@@ -46,44 +28,28 @@ public class CreateBookingRequest {
         this.eventId = eventId;
     }
 
-    public Long getCustomerId() {
-        return customerId;
+    public String getBookerFirstName() {
+        return bookerFirstName;
     }
 
-    public void setCustomerId(Long customerId) {
-        this.customerId = customerId;
+    public void setBookerFirstName(String bookerFirstName) {
+        this.bookerFirstName = bookerFirstName;
     }
 
-    public boolean isGuest() {
-        return guest;
+    public String getBookerLastName() {
+        return bookerLastName;
     }
 
-    public void setGuest(boolean guest) {
-        this.guest = guest;
+    public void setBookerLastName(String bookerLastName) {
+        this.bookerLastName = bookerLastName;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getBookerEmail() {
+        return bookerEmail;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+    public void setBookerEmail(String bookerEmail) {
+        this.bookerEmail = bookerEmail;
     }
 
     public int getSeats() {
@@ -108,5 +74,21 @@ public class CreateBookingRequest {
 
     public void setVoucherCode(String voucherCode) {
         this.voucherCode = voucherCode;
+    }
+
+    public String getSpecialNotes() {
+        return specialNotes;
+    }
+
+    public void setSpecialNotes(String specialNotes) {
+        this.specialNotes = specialNotes;
+    }
+
+    public List<ParticipantDTO> getParticipants() {
+        return participants;
+    }
+
+    public void setParticipants(List<ParticipantDTO> participants) {
+        this.participants = participants;
     }
 }
