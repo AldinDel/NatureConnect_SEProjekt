@@ -65,6 +65,17 @@ public class UpdateEventService {
             entity.setAudience(null);
         }
 
+        // VALIDATE EQUIPMENT (rentable → price required)
+        if (req.getEquipments() != null) {
+            req.getEquipments().forEach(eq -> {
+                if (eq.isRentable() && (eq.getUnitPrice() == null)) {
+                    throw new IllegalArgumentException(
+                            "Unit price is required when equipment is rentable: " + eq.getName()
+                    );
+                }
+            });
+        }
+
         // REMOVE ALL OLD LINKS
         var oldLinks = new java.util.ArrayList<>(entity.getEventEquipments());
         for (var link : oldLinks) {
@@ -78,31 +89,19 @@ public class UpdateEventService {
             for (var eqReq : req.getEquipments()) {
                 EquipmentEntity equipmentEntity;
 
-                // CASE 1: NEW EQUIPMENT (id is null)
+                // CASE 1: NEW EQUIPMENT (id is null) -> immer NEU anlegen
                 if (eqReq.getId() == null) {
-                    System.out.println("→ Creating NEW equipment: " + eqReq.getName());
+                    System.out.println("→ Creating NEW equipment (no id): " + eqReq.getName());
 
-                    // Check if equipment with this name already exists
-                    var existingEquipment = equipmentJpaRepository.findByNameIgnoreCase(eqReq.getName());
+                    equipmentEntity = new EquipmentEntity();
+                    equipmentEntity.setName(eqReq.getName());
+                    equipmentEntity.setUnitPrice(eqReq.getUnitPrice());
+                    equipmentEntity.setRentable(eqReq.isRentable());
 
-                    if (existingEquipment.isPresent()) {
-                        // Equipment already exists, just use it
-                        System.out.println("  ✓ Equipment '" + eqReq.getName() + "' already exists, reusing it");
-                        equipmentEntity = existingEquipment.get();
-
-                        // Update rentable flag if needed
-                        equipmentEntity.setRentable(eqReq.isRentable());
-                        equipmentEntity.setUnitPrice(eqReq.getUnitPrice());
-                    } else {
-                        // Create new equipment
-                        equipmentEntity = new EquipmentEntity();
-                        equipmentEntity.setName(eqReq.getName());
-                        equipmentEntity.setUnitPrice(eqReq.getUnitPrice());
-                        equipmentEntity.setRentable(eqReq.isRentable());
-                        equipmentJpaRepository.save(equipmentEntity);
-                        System.out.println("  ✓ Created new equipment with id: " + equipmentEntity.getId());
-                    }
+                    equipmentJpaRepository.save(equipmentEntity);
+                    System.out.println("  ✓ Created new equipment with id: " + equipmentEntity.getId());
                 }
+
                 // CASE 2: EXISTING EQUIPMENT (id is provided)
                 else {
                     System.out.println("→ Updating existing equipment id=" + eqReq.getId());

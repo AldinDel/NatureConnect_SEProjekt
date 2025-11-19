@@ -48,7 +48,11 @@
 
 
 <section class="hero-box">
-    <div class="category-tag" th:text="${event.category}">Camping</div>
+    <div class="category-tag"
+         th:attr="data-category=${event.category}"
+         th:text="${event.category}">
+    </div>
+
     <h1 class="event-title" th:text="${event.title}">Event Title</h1>
 
     <div class="hero-grid">
@@ -73,6 +77,7 @@
         </div>
     </div>
 </section>
+
 
 <main class="page">
     <!-- left column -->
