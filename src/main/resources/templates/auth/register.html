@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - NatureConnect</title>
+    <link rel="stylesheet" th:href="@{/style.css}" href="/style.css">
+    <link rel="icon" type="image/png" th:href="@{/images/NatureConnectLogo.png}" href="/images/NatureConnectLogo.png">
     <style>
         * {
             margin: 0;
@@ -12,13 +14,20 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: "Inter", "Segoe UI", Roboto, sans-serif;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            flex: 1;
+            display: flex;
             align-items: center;
             justify-content: center;
-            padding: 20px;
+            padding: 40px 20px;
         }
 
         .register-container {
@@ -242,108 +251,177 @@
             color: #3c3;
             border: 1px solid #cfc;
         }
+
+        .footer-text {
+            text-align: center;
+            padding: 20px;
+            font-size: 12px;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .footer-text a {
+            color: rgba(255,255,255,0.9);
+            text-decoration: underline;
+        }
+
+        /* Fix für die Navbar-Trennlinie */
+        .nc-nav .divider {
+            color: white;
+            font-weight: 300;
+            margin: 0 8px;
+            text-align: left !important;
+            position: static !important;
+        }
+
+        .nc-nav .divider::before {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
-<div class="register-container">
-    <div class="register-header">
-        <h1>Create Account</h1>
-        <p>Sign up and discover exciting events</p>
+
+<!-- HEADER mit dem neuen Design -->
+<header class="nc-header">
+    <div class="nc-container">
+        <!-- Logo & Brand -->
+        <div class="nc-top">
+            <a class="nc-logo" th:href="@{/}" href="/" aria-label="NATUREConnect Home">
+                <img src="/images/NatureConnectLogo.png" alt="Logo">
+                <span class="nc-brand"><strong>NATURE</strong>Connect</span>
+            </a>
+        </div>
+
+        <!-- Trennlinie -->
+        <div class="nc-divider"></div>
+
+        <!-- Navigation unten -->
+        <nav class="nc-nav" id="nc-nav" aria-label="Primary">
+            <ul class="nc-left">
+                <li><a th:href="@{/}" href="/">Home</a></li>
+                <li class="dropdown has-dropdown">
+                    <a href="#" class="dropbtn with-caret">Events ▾</a>
+                    <ul class="dropdown-content">
+                        <li><a th:href="@{/events}" href="/events">All Events</a></li>
+                        <li><a th:href="@{/events/new}" href="/events/new">Create Event</a></li>
+                    </ul>
+                </li>
+            </ul>
+
+            <ul class="nc-right">
+                <li><a href="/about">About Us</a></li>
+                <li><span class="divider">|</span></li>
+                <li><a href="/contact">Contact Us</a></li>
+                <li><a class="nc-login" href="/login">Log In</a></li>
+            </ul>
+        </nav>
     </div>
+</header>
 
-    <!-- Error/Success Messages (only shown when messages exist) -->
-    <div th:if="${error != null and !#strings.isEmpty(error)}" class="alert alert-error" th:text="${error}"></div>
-    <div th:if="${success != null and !#strings.isEmpty(success)}" class="alert alert-success" th:text="${success}"></div>
+<div class="main-content">
+    <div class="register-container">
+        <div class="register-header">
+            <h1>Create Account</h1>
+            <p>Sign up and discover exciting events</p>
+        </div>
 
-    <!-- Register Form -->
-    <form th:action="@{/register}" method="post">
-        <div class="form-row">
-            <div class="form-group">
-                <label for="firstName">First Name</label>
-                <div class="input-wrapper">
-                    <span class="input-icon">👤</span>
-                    <input
-                            type="text"
-                            id="firstName"
-                            name="firstName"
-                            placeholder="Max"
-                            required
-                            autocomplete="given-name">
+        <!-- Error/Success Messages (only shown when messages exist) -->
+        <div th:if="${error != null and !#strings.isEmpty(error)}" class="alert alert-error" th:text="${error}"></div>
+        <div th:if="${success != null and !#strings.isEmpty(success)}" class="alert alert-success" th:text="${success}"></div>
+
+        <!-- Register Form -->
+        <form th:action="@{/register}" method="post">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">👤</span>
+                        <input
+                                type="text"
+                                id="firstName"
+                                name="firstName"
+                                placeholder="Max"
+                                required
+                                autocomplete="given-name">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">👤</span>
+                        <input
+                                type="text"
+                                id="lastName"
+                                name="lastName"
+                                placeholder="Mustermann"
+                                required
+                                autocomplete="family-name">
+                    </div>
                 </div>
             </div>
 
             <div class="form-group">
-                <label for="lastName">Last Name</label>
+                <label for="email">Email Address</label>
                 <div class="input-wrapper">
-                    <span class="input-icon">👤</span>
+                    <span class="input-icon">📧</span>
                     <input
-                            type="text"
-                            id="lastName"
-                            name="lastName"
-                            placeholder="Mustermann"
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="example@email.com"
                             required
-                            autocomplete="family-name">
+                            autocomplete="email">
                 </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label for="email">Email Address</label>
-            <div class="input-wrapper">
-                <span class="input-icon">📧</span>
-                <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        placeholder="example@email.com"
-                        required
-                        autocomplete="email">
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">🔒</span>
+                    <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            placeholder="••••••••"
+                            required
+                            autocomplete="new-password">
+                    <button type="button" class="password-toggle" onclick="togglePassword('password')">👁️</button>
+                </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label for="password">Password</label>
-            <div class="input-wrapper">
-                <span class="input-icon">🔒</span>
-                <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        placeholder="••••••••"
-                        required
-                        autocomplete="new-password">
-                <button type="button" class="password-toggle" onclick="togglePassword('password')">👁️</button>
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <div class="input-wrapper">
+                    <span class="input-icon">🔒</span>
+                    <input
+                            type="password"
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            placeholder="••••••••"
+                            required
+                            autocomplete="new-password">
+                    <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">👁️</button>
+                </div>
             </div>
-        </div>
 
-        <div class="form-group">
-            <label for="confirmPassword">Confirm Password</label>
-            <div class="input-wrapper">
-                <span class="input-icon">🔒</span>
-                <input
-                        type="password"
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        placeholder="••••••••"
-                        required
-                        autocomplete="new-password">
-                <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">👁️</button>
+            <div class="checkbox-wrapper">
+                <input type="checkbox" id="terms" name="terms" required>
+                <label for="terms">
+                    I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+                </label>
             </div>
+
+            <button type="submit" class="btn-primary">Create Account</button>
+        </form>
+
+        <div class="login-link">
+            Already have an account? <a href="/login">Sign in now</a>
         </div>
-
-        <div class="checkbox-wrapper">
-            <input type="checkbox" id="terms" name="terms" required>
-            <label for="terms">
-                I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
-            </label>
-        </div>
-
-        <button type="submit" class="btn-primary">Create Account</button>
-    </form>
-
-    <div class="login-link">
-        Already have an account? <a href="/login">Sign in now</a>
     </div>
+</div>
+
+<div class="footer-text">
+    By creating an account, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
 </div>
 
 <script>
