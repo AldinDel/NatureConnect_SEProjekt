@@ -74,7 +74,8 @@ public class EventMapperDTO {
                         ee.getEquipment().getName(),
                         ee.getEquipment().getUnitPrice(),  // send unitPrice
                         ee.getEquipment().isRentable(),
-                        ee.isRequired()
+                        ee.isRequired(),
+                        ee.getEquipment().getStock()
                 ))
                 .collect(Collectors.toList());
     }

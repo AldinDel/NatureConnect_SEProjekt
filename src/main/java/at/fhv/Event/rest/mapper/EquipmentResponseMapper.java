@@ -13,7 +13,9 @@ public class EquipmentResponseMapper {
                 eq.getName(),
                 eq.getUnitPrice(),
                 eq.isRentable(),
-                required
+                required,
+                eq.getStock()
+
         );
     }
 }

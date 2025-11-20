@@ -63,16 +63,24 @@ public class UpdateEventService {
             entity.setAudience(null);
         }
 
-        // VALIDATE EQUIPMENT (rentable → price required)
+        // VALIDATE EQUIPMENT (rentable → price & stock required)
         if (req.getEquipments() != null) {
             req.getEquipments().forEach(eq -> {
-                if (eq.isRentable() && (eq.getUnitPrice() == null)) {
-                    throw new IllegalArgumentException(
-                            "Unit price is required when equipment is rentable: " + eq.getName()
-                    );
+                if (eq.isRentable()) {
+                    if (eq.getUnitPrice() == null) {
+                        throw new IllegalArgumentException(
+                                "Unit price is required when equipment is rentable: " + eq.getName()
+                        );
+                    }
+                    if (eq.getStock() == null) {
+                        throw new IllegalArgumentException(
+                                "Stock is required when equipment is rentable: " + eq.getName()
+                        );
+                    }
                 }
             });
         }
+
 
         // REMOVE ALL OLD LINKS
         var oldLinks = new java.util.ArrayList<>(entity.getEventEquipments());
@@ -93,26 +101,42 @@ public class UpdateEventService {
 
                     equipmentEntity = new EquipmentEntity();
                     equipmentEntity.setName(eqReq.getName());
-                    equipmentEntity.setUnitPrice(eqReq.getUnitPrice());
                     equipmentEntity.setRentable(eqReq.isRentable());
 
+                    if (eqReq.isRentable()) {
+                        equipmentEntity.setUnitPrice(eqReq.getUnitPrice());
+                        equipmentEntity.setStock(eqReq.getStock());
+                    } else {
+                        // nicht rentable → Preis & Stock sind bei uns irrelevant
+                        equipmentEntity.setUnitPrice(null);
+                        equipmentEntity.setStock(null);
+                    }
+
                     equipmentJpaRepository.save(equipmentEntity);
-                    System.out.println("  ✓ Created new equipment with id: " + equipmentEntity.getId());
+                    System.out.println("Created new equipment with id: " + equipmentEntity.getId());
                 }
 
                 // CASE 2: EXISTING EQUIPMENT (id is provided)
                 else {
-                    System.out.println("→ Updating existing equipment id=" + eqReq.getId());
+                    System.out.println("Updating existing equipment id=" + eqReq.getId());
 
                     equipmentEntity = equipmentJpaRepository.findById(eqReq.getId())
                             .orElseThrow(() -> new RuntimeException("Equipment not found: " + eqReq.getId()));
 
-                    // Update editable fields (NOT the name, as it's unique)
-                    equipmentEntity.setUnitPrice(eqReq.getUnitPrice());
+
                     equipmentEntity.setRentable(eqReq.isRentable());
 
+                    if (eqReq.isRentable()) {
+                        equipmentEntity.setUnitPrice(eqReq.getUnitPrice());
+                        equipmentEntity.setStock(eqReq.getStock());
+                    } else {
+                        equipmentEntity.setUnitPrice(null);
+                        equipmentEntity.setStock(null);
+                    }
+
                     System.out.println("  ✓ Updated: rentable=" + equipmentEntity.isRentable() +
-                            " price=" + equipmentEntity.getUnitPrice());
+                            " price=" + equipmentEntity.getUnitPrice() +
+                            " stock=" + equipmentEntity.getStock());
                 }
 
                 // LINK EVENT <-> EQUIPMENT with the 'required' flag
