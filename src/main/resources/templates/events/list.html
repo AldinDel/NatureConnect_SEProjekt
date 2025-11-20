@@ -11,9 +11,6 @@
 
 <body>
 
-<!-- Erfolg und Fehlermeldungen für Popups oben rechts-->
-<p th:text="'Success: ' + ${success} + ' | Error: ' + ${error}"></p>
-
 <!-- Erfolgsmeldung Popup -->
 <div th:if="${success != null}" id="success-popup" class="popup-message" th:text="${success}"></div>
 <!-- Fehlerpopup-->
@@ -53,6 +50,64 @@
             transform: translateY(-10px);
         }
     }
+
+    /* Cancel Button Styling */
+    .cancel-btn {
+        background: #e53935;
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: 0.2s;
+    }
+
+    .cancel-btn:hover {
+        background: #c62828;
+        transform: translateY(-1px);
+    }
+
+    /* Cancelled Event Card Styling */
+    .event-card.cancelled-event {
+        opacity: 0.65;
+        position: relative;
+    }
+
+    .event-card.cancelled-event .card-image::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    .cancelled-badge {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #e53935;
+        color: white;
+        padding: 8px 20px;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        z-index: 10;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Disabled buttons for cancelled events */
+    .event-card.cancelled-event .edit-btn,
+    .event-card.cancelled-event .cancel-btn {
+        pointer-events: none;
+        opacity: 0.5;
+    }
 </style>
 
 <!-- Popup-Timeout script -->
@@ -84,8 +139,8 @@
                 <li class="dropdown has-dropdown">
                     <a href="#" class="dropbtn with-caret" aria-haspopup="true" aria-expanded="false">Events ▾</a>
                     <ul class="dropdown-content" role="menu" aria-label="Events">
-                        <li role="none"><a role="menuitem" th:href="@{/events/new}" href="/events/new">Create Event</a>
-                        </li>
+                        <li role="none"><a role="menuitem" th:href="@{/events/new}" href="/events/new">Create Event</a></li>
+                        <li role="none"><a role="menuitem" th:href="@{/events/backoffice}" href="/events/backoffice">Backoffice View</a></li>
                     </ul>
                 </li>
             </ul>
@@ -103,8 +158,17 @@
 <!-- Eventübersicht-->
 <section class="event-overview">
     <a th:href="@{/}" href="/" class="back-link">❮ Home</a>
-    <h1>Event Overview</h1>
-    <p>Discover exciting events and activities near you</p>
+
+    <!-- Titel unterscheiden zwischen normaler und Backoffice-Ansicht -->
+    <h1 th:if="${showCancelled}" style="color: #0f2740;">
+        📋 Backoffice - All Events
+        <span style="font-size: 14px; font-weight: normal; color: #666; display: block; margin-top: 4px;">
+            Including cancelled events
+        </span>
+    </h1>
+    <h1 th:unless="${showCancelled}">Event Overview</h1>
+
+    <p th:unless="${showCancelled}">Discover exciting events and activities near you</p>
 
     <!-- Suchleiste -->
     <form th:action="@{/events/search}" method="get" class="search-form">
@@ -308,7 +372,10 @@
 
     <!-- EventEntity cards -->
     <div class="event-grid">
-        <div class="event-card" th:each="event : ${events}">
+        <div class="event-card"
+             th:each="event : ${events}"
+             th:classappend="${event.isCancelled} ? 'cancelled-event' : ''">
+
             <div class="card-image">
                 <img th:src="${event.imageUrl != null} ? ${event.imageUrl} : @{/images/default_event.jpg}"
                      th:alt="${event.title}">
@@ -316,6 +383,9 @@
                       th:text="${event.category != null ? event.category : 'General'}"
                       th:classappend="|tag-${#strings.replace(#strings.toLowerCase(event.category != null ? event.category : 'general'), ' ', '-')}|">
                 </span>
+
+                <!-- CANCELLED Badge -->
+                <span th:if="${event.isCancelled}" class="cancelled-badge">CANCELLED</span>
             </div>
 
             <div class="card-content">
@@ -350,6 +420,21 @@
                     <div class="buttons">
                         <a th:href="@{/events/{id}(id=${event.id})}" class="view-btn">View Details</a>
                         <a th:href="@{/events/{id}/edit(id=${event.id})}" class="edit-btn">Edit</a>
+
+                        <!-- Cancel Button - nur anzeigen wenn Event NICHT cancelled ist -->
+                        <form th:unless="${event.isCancelled}"
+                              th:action="@{/events/{id}/cancel(id=${event.id})}"
+                              method="post"
+                              style="display:inline; margin:0;"
+                              onsubmit="return confirm('Are you sure you want to cancel this event? This action cannot be undone.');">
+                            <button type="submit" class="cancel-btn">Cancel</button>
+                        </form>
+
+                        <!-- Status-Anzeige wenn bereits cancelled -->
+                        <span th:if="${event.isCancelled}"
+                              style="color: #e53935; font-weight: 600; font-size: 12px; padding: 8px 12px;">
+                            ✕ Cancelled
+                        </span>
                     </div>
                 </div>
             </div>
@@ -361,11 +446,8 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>
     lucide.createIcons();
-</script>
-<script src="https://unpkg.com/lucide@latest"></script>
-<script>
-    lucide.createIcons();
-    <!-- Filter panel öffnen und schließen -->
+
+    // Filter panel öffnen und schließen
     const openBtn = document.getElementById("open-filters");
     const closeBtn = document.getElementById("close-filters");
     const panel = document.getElementById("filter-panel");

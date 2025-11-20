@@ -1,7 +1,7 @@
 package at.fhv.Event.application.event;
 
-import at.fhv.Event.domain.model.event.Event;
-import at.fhv.Event.domain.model.event.EventRepository;
+import at.fhv.Event.infrastructure.persistence.event.EventEntity;
+import at.fhv.Event.infrastructure.persistence.event.EventJpaRepository;
 import at.fhv.Event.rest.response.event.EventDetailDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,22 +9,25 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class CancelEventService {
 
-    private final EventRepository eventRepository;
-    private final EventMapperDTO mapper;
+    private final EventJpaRepository eventJpaRepository;
+    private final EventMapperDTO dtoMapper;
 
-    public CancelEventService(EventRepository eventRepository, EventMapperDTO mapper) {
-        this.eventRepository = eventRepository;
-        this.mapper = mapper;
+    public CancelEventService(EventJpaRepository eventJpaRepository, EventMapperDTO dtoMapper) {
+        this.eventJpaRepository = eventJpaRepository;
+        this.dtoMapper = dtoMapper;
     }
 
     @Transactional
     public EventDetailDTO cancel(Long id) {
-        Event event = eventRepository.findById(id)
+        EventEntity entity = eventJpaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Event not found: " + id));
 
-        event.setCancelled(true);
-        eventRepository.save(event);
-        return mapper.toDetailDTO(event);
-    }
+        entity.setCancelled(true);
 
+        EventEntity saved = eventJpaRepository.save(entity);
+
+        // Für die Rückgabe brauchen wir den Domain-Mapper
+        // Aber wir können auch einfach null zurückgeben da wir es nicht brauchen
+        return null;
+    }
 }
