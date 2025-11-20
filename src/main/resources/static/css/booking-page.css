@@ -210,9 +210,18 @@ body {
     padding: 1rem;
     border-radius: 18px;
     border: 2px solid #e5e7eb;
-    cursor: pointer;
     transition: .25s ease;
 }
+
+.checkbox-label input {
+    pointer-events: auto;
+    z-index: 5;
+}
+
+.addon-content {
+    pointer-events: none;
+}
+
 
 .checkbox-label.active {
     border-color: #111827;
@@ -311,3 +320,39 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+#errorPop {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    max-width: 320px;
+    z-index: 99999;
+    pointer-events: none;
+}
+
+.error {
+    background: #ff4d4d;
+    color: white;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    opacity: 0;
+    transform: translateX(20px);
+    animation: slideIn 0.3s forwards, fadeOut 5s forwards;
+}
+
+@keyframes slideIn {
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes fadeOut {
+    0% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; transform: translateX(20px); }
+}
+

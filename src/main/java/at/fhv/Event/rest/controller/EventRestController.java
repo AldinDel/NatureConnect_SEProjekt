@@ -7,6 +7,7 @@ import at.fhv.Event.rest.response.event.EventDetailDTO;
 import at.fhv.Event.rest.response.event.EventOverviewDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import at.fhv.Event.rest.response.equipment.EquipmentDTO;
 
 import java.util.List;
 
@@ -57,4 +58,12 @@ public class EventRestController {
     public ResponseEntity<EventDetailDTO> cancel(@PathVariable Long id) {
         return ResponseEntity.ok(cancelService.cancel(id));
     }
+
+    @GetMapping("/{id}/equipment")
+    public ResponseEntity<List<EquipmentDTO>> getEquipment(@PathVariable Long id) {
+        EventDetailDTO event = detailsService.getEventDetails(id);
+        return ResponseEntity.ok(event.equipments());
+    }
+
+
 }

@@ -3,10 +3,17 @@ package at.fhv.Event.application.booking;
 import at.fhv.Event.application.request.booking.BookingRequestMapper;
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
 import at.fhv.Event.domain.model.booking.Booking;
+import at.fhv.Event.domain.model.event.Event;
+
 import at.fhv.Event.domain.model.booking.BookingRepository;
 import at.fhv.Event.domain.model.booking.PaymentMethod;
+import at.fhv.Event.infrastructure.persistence.equipment.EquipmentEntity;
 import at.fhv.Event.rest.response.booking.BookingDTO;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class BookEventService {
@@ -27,6 +34,15 @@ public class BookEventService {
 
     public BookingDTO bookEvent(CreateBookingRequest request) {
 
+        Event event = bookingRepository.loadEventForBooking(request.getEventId());
+
+        Map<Long, EquipmentEntity> equipmentMap = bookingRepository.loadEquipmentMap(request);
+
+        List<String> errors = validateBooking(request, event, equipmentMap);
+        if (!errors.isEmpty()) {
+            throw new IllegalArgumentException(String.join(" | ", errors));
+        }
+
         if (request.getSeats() <= 0) {
             throw new IllegalArgumentException("Seats must be > 0.");
         }
@@ -35,14 +51,89 @@ public class BookEventService {
             throw new IllegalArgumentException("A valid email is required.");
         }
 
+        if (request.getVoucherCode() != null && request.getVoucherCode().isBlank()) {
+            request.setVoucherCode(null);
+        }
+
         double basePrice = request.getSeats() * 10.0;
 
         Booking booking = bookingRequestMapper.toDomain(request, basePrice);
-
         Booking saved = bookingRepository.save(booking);
 
         return bookingMapperDTO.toDTO(saved);
     }
+
+
+    public List<String> validateBooking(CreateBookingRequest req, Event event, Map<Long, EquipmentEntity> equipmentMap) {
+        List<String> errors = new ArrayList<>();
+
+        // --- Booker ---
+        if (req.getBookerFirstName() == null || req.getBookerFirstName().isBlank()) {
+            errors.add("First name is required.");
+        } else if (req.getBookerFirstName().length() > 50) {
+            errors.add("First name cannot exceed 50 characters.");
+        }
+
+        if (req.getBookerLastName() == null || req.getBookerLastName().isBlank()) {
+            errors.add("Last name is required.");
+        } else if (req.getBookerLastName().length() > 50) {
+            errors.add("Last name cannot exceed 50 characters.");
+        }
+
+        if (req.getBookerEmail() == null || req.getBookerEmail().isBlank()) {
+            errors.add("Email is required.");
+        } else if (!req.getBookerEmail().matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
+            errors.add("Email format is invalid.");
+        } else if (req.getBookerEmail().length() > 100) {
+            errors.add("Email cannot exceed 100 characters.");
+        }
+
+        // --- Seats ---
+        if (req.getSeats() < 1) {
+            errors.add("At least 1 participant is required.");
+        }
+        if (req.getSeats() > event.getMaxParticipants()) {
+            errors.add("Participants exceed maximum allowed for this event.");
+        }
+
+        // --- Participants ---
+        if (req.getParticipants() != null) {
+            for (int i = 0; i < req.getParticipants().size(); i++) {
+                var p = req.getParticipants().get(i);
+
+                if (p.getFirstName() == null || p.getFirstName().isBlank()) {
+                    errors.add("Participant " + (i+1) + ": First name is required.");
+                } else if (p.getFirstName().length() > 50) {
+                    errors.add("Participant " + (i+1) + ": First name too long.");
+                }
+
+                if (p.getLastName() == null || p.getLastName().isBlank()) {
+                    errors.add("Participant " + (i+1) + ": Last name is required.");
+                } else if (p.getLastName().length() > 50) {
+                    errors.add("Participant " + (i+1) + ": Last name too long.");
+                }
+
+                if (p.getAge() < 1 || p.getAge() > 120) {
+                    errors.add("Participant " + (i+1) + ": Age must be between 1 and 120.");
+                }
+            }
+        }
+
+        // --- Special Notes ---
+        if (req.getSpecialNotes() != null && req.getSpecialNotes().length() > 250) {
+            errors.add("Special notes cannot exceed 250 characters.");
+        }
+
+        // --- Voucher ---
+        if (req.getVoucherCode() != null && req.getVoucherCode().length() > 50) {
+            errors.add("Voucher code cannot exceed 50 characters.");
+        }
+
+        return errors;
+    }
+
+
+
 
     public BookingDTO getDTOById(Long id) {
         Booking booking = bookingRepository.findById(id)

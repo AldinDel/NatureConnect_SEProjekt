@@ -1,6 +1,7 @@
 package at.fhv.Event.application.request.booking;
 
 import at.fhv.Event.domain.model.booking.AudienceType;
+import at.fhv.Event.domain.model.booking.PaymentMethod;
 
 import java.util.List;
 
@@ -17,6 +18,8 @@ public class CreateBookingRequest {
 
     private String voucherCode;
     private String specialNotes;
+    private PaymentMethod paymentMethod;
+
 
     private List<ParticipantDTO> participants;
 
@@ -90,5 +93,13 @@ public class CreateBookingRequest {
 
     public void setParticipants(List<ParticipantDTO> participants) {
         this.participants = participants;
+    }
+
+    public PaymentMethod getPaymentMethod() {
+        return paymentMethod;
+    }
+
+    public void setPaymentMethod(PaymentMethod paymentMethod) {
+        this.paymentMethod = paymentMethod;
     }
 }

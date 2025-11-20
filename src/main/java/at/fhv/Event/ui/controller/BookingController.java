@@ -56,7 +56,7 @@ public class BookingController {
 
         Long bookingId = bookingDTO.getId();
 
-        // Redirect to payment page
-        return "redirect:/booking/payment/" + bookingId;
+        // Redirect to confirmation page
+        return "redirect:/booking/confirmation/" + bookingId;
     }
 }

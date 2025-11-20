@@ -18,7 +18,7 @@
 </div>
 
 <div class="container">
-
+    <div id="errorPop" class="errorPop"></div>
     <form th:action="@{/booking}" th:object="${booking}" method="post">
 
         <!-- Event Id (for form) -->
@@ -26,6 +26,9 @@
 
         <!-- Event Id (for JS AJAX load) -->
         <input type="hidden" id="pageEventId" th:value="${event.id}">
+        <input type="hidden" id="eventBasePrice" th:value="${event.price}">
+        <input type="hidden" id="eventMinParticipants" th:value="${event.minParticipants}">
+        <input type="hidden" id="eventMaxParticipants" th:value="${event.maxParticipants}">
 
         <div class="grid">
 
@@ -104,6 +107,16 @@
                     </div>
                 </div>
 
+                <div class="card">
+                    <h2 class="card-title">Payment Method</h2>
+
+                    <label for="paymentMethod">Choose Payment Method</label>
+                    <select id="paymentMethod" class="form-input" th:field="*{paymentMethod}" required>
+                        <option value="" disabled selected>Loading...</option>
+                    </select>
+
+                </div>
+
                 <!-- Notes -->
                 <div class="card">
                     <h2 class="card-title">Special Notes</h2>
@@ -117,6 +130,20 @@
                 <div class="card sidebar">
                     <h3 class="card-title">Summary</h3>
 
+                    <div class="card">
+                        <label for="discountCode">Voucher Code</label>
+                        <input type="text" id="discountCode" class="form-input">
+
+                        <button id="applyDiscountBtn" type="button" class="btn-secondary" style="margin-top: 10px;">
+                            Apply
+                        </button>
+
+                        <p id="discountMessage" class="hidden" style="margin-top: 5px; font-size: 14px;"></p>
+                        <input type="hidden" th:field="*{voucherCode}" id="voucherCodeField">
+                    </div>
+
+
+
                     <div class="price-row">
                         <span>Participants:</span>
                         <span id="summarySeats">1</span>
@@ -129,9 +156,10 @@
 
                     <hr>
 
-                    <button type="submit" class="btn-primary">
+                    <button id="confirmBtn" type="submit" class="btn-primary">
                         Confirm Booking
                     </button>
+                    <p id="errorBox" class="hidden text-red"></p>
                 </div>
             </div>
 
