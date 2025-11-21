@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - NatureConnect</title>
+    <link rel="stylesheet" th:href="@{/style.css}" href="/style.css">
+    <link rel="icon" type="image/png" th:href="@{/images/NatureConnectLogo.png}" href="/images/NatureConnectLogo.png">
     <style>
         * {
             margin: 0;
@@ -17,113 +19,6 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-        }
-
-        /* NAVBAR */
-        .nc-header {
-            position: sticky;
-            top: 0;
-            z-index: 50;
-            background: #0f2740;
-            color: #e7edf4;
-            box-shadow: 0 2px 10px rgba(0,0,0,.25);
-        }
-
-        .nc-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 12px 20px;
-        }
-
-        .nc-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            color: #e7edf4;
-        }
-
-        .nc-logo img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-        }
-
-        .nc-brand {
-            font-size: 1.1rem;
-            letter-spacing: 0.2px;
-        }
-
-        .nc-nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex: 1;
-            gap: 16px;
-        }
-
-        .nc-nav > ul {
-            display: flex;
-            align-items: center;
-            gap: 22px;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .nc-nav a {
-            color: #e7edf4;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .nc-nav a:hover {
-            opacity: 0.85;
-        }
-
-        .nc-login {
-            display: inline-block;
-            padding: 8px 14px;
-            border-radius: 999px;
-            background: #1d3a5d;
-            border: 1px solid rgba(255,255,255,.12);
-        }
-
-        .nc-login:hover {
-            background: #122d4a;
-        }
-
-        .dropdown {
-            position: relative;
-        }
-
-        .dropdown-content {
-            display: none; !important;
-            position: absolute;
-            top: 100%;
-            left: 0;
-            background: #0f2740;
-            min-width: 180px;
-            box-shadow: 0 8px 16px rgba(0,0,0,.2);
-            border-radius: 8px;
-            padding: 4px 0;
-            z-index: 1000;
-            list-style: none;
-        }
-
-        .dropdown:hover .dropdown-content {
-            display: block; !important;
-        }
-
-        .dropdown-content li {
-            padding: 8px 20px;
-        }
-
-        .dropdown-content a {
-            color: #e7edf4;
         }
 
         /* LOGIN CONTAINER */
@@ -298,30 +193,64 @@
             color: #3c3;
             border: 1px solid #cfc;
         }
+
+        /* Fix für die Navbar-Trennlinie */
+        .nc-nav .divider {
+            color: white;
+            font-weight: 300;
+            margin: 0 8px;
+            text-align: left !important;
+            position: static !important;
+        }
+
+        .nc-nav .divider::before {
+            display: none !important;
+        }
+
+        /* Navbar Abstände anpassen */
+        .nc-nav .nc-right {
+            gap: 19px !important;
+        }
+
+        .nc-nav .nc-right .divider {
+            margin: 0 2px;
+        }
     </style>
 </head>
 <body>
+
+<!-- HEADER mit dem neuen Design -->
 <header class="nc-header">
     <div class="nc-container">
-        <a class="nc-logo" th:href="@{/}" href="/">
-            <img src="/images/NatureConnectLogo.png" alt="Logo">
-            <span class="nc-brand"><strong>NATURE</strong>Connect</span>
-        </a>
-        <nav class="nc-nav">
+        <!-- Logo & Brand -->
+        <div class="nc-top">
+            <a class="nc-logo" th:href="@{/}" href="/" aria-label="NATUREConnect Home">
+                <img src="/images/NatureConnectLogo.png" alt="Logo">
+                <span class="nc-brand"><strong>NATURE</strong>Connect</span>
+            </a>
+        </div>
+
+        <!-- Trennlinie -->
+        <div class="nc-divider"></div>
+
+        <!-- Navigation unten -->
+        <nav class="nc-nav" id="nc-nav" aria-label="Primary">
             <ul class="nc-left">
                 <li><a th:href="@{/}" href="/">Home</a></li>
-                <li class="dropdown">
-                    <a href="#" class="dropbtn">Events ▾</a>
+                <li class="dropdown has-dropdown">
+                    <a href="#" class="dropbtn with-caret">Events ▾</a>
                     <ul class="dropdown-content">
-                        <li><a th:href="@{/events}" href="/events">Events</a></li>
+                        <li><a th:href="@{/events}" href="/events">All Events</a></li>
                         <li><a th:href="@{/events/new}" href="/events/new">Create Event</a></li>
                     </ul>
                 </li>
             </ul>
+
             <ul class="nc-right">
-                <li><a th:href="@{/about}" href="/about">About Us</a></li>
-                <li><a th:href="@{/contact}" href="/contact">Contact Us</a></li>
-                <li><a class="nc-login" th:href="@{/login}" href="/login">Log In</a></li>
+                <li><a href="/about">About Us</a></li>
+                <li><span class="divider">|</span></li>
+                <li><a href="/contact">Contact Us</a></li>
+                <li><a class="nc-login" href="/login">Log In</a></li>
             </ul>
         </nav>
     </div>

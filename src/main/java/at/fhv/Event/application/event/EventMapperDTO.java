@@ -96,7 +96,8 @@ public class EventMapperDTO {
                 e.getMaxParticipants(),
                 e.getPrice(),
                 e.getImageUrl(),
-                e.getAudience() != null ? e.getAudience().toString() : null
+                e.getAudience() != null ? e.getAudience().toString() : null,
+                e.getCancelled()
         );
     }
 

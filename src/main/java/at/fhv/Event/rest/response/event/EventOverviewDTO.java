@@ -18,5 +18,6 @@ public record EventOverviewDTO(
         Integer maxParticipants,
         BigDecimal price,
         String imageUrl,
-        String audience
+        String audience,
+        Boolean isCancelled
 ) {}
