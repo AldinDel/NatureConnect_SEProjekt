@@ -25,9 +25,6 @@ public class CancelEventService {
         entity.setCancelled(true);
 
         EventEntity saved = eventJpaRepository.save(entity);
-
-        // Für die Rückgabe brauchen wir den Domain-Mapper
-        // Aber wir können auch einfach null zurückgeben da wir es nicht brauchen
         return null;
     }
 }

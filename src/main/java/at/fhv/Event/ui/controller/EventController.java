@@ -69,7 +69,7 @@ public class EventController {
             case "Groups, Companies"            -> "GROUPS_COMPANIES";
             case "Individuals only"             -> "INDIVIDUALS_ONLY";
             case "Companies only"               -> "COMPANIES_ONLY";
-            default -> label; // Fallback
+            default -> label;
         };
     }
 
@@ -96,7 +96,6 @@ public class EventController {
             req.setImageUrl(detail.imageUrl());
             req.setAudience(mapAudienceLabelToEnumName(detail.audience()));
 
-            // Map equipment
             List<EventEquipmentUpdateRequest> eqReqs = detail.equipments().stream().map(eq -> {
                 EventEquipmentUpdateRequest r = new EventEquipmentUpdateRequest();
                 r.setId(eq.id());
@@ -110,21 +109,12 @@ public class EventController {
 
             req.setEquipments(eqReqs);
             model.addAttribute("eventEquipments", eqReqs);
-            System.out.println("=== Setting eventEquipments in model ===");
             System.out.println("eventEquipments size: " + eqReqs.size());
             eqReqs.forEach(eq -> System.out.println("  - " + eq.getId() + ": " + eq.getName()));
-            System.out.println("====================================");
 
-            // DEBUG - IMPORTANT: Check if equipment list is set
-            System.out.println("=== CONTROLLER showEditForm DEBUG ===");
-            System.out.println("UpdateEventRequest.equipments size: " + req.getEquipments().size());
-            req.getEquipments().forEach(e ->
-                    System.out.println("  Equipment: id=" + e.getId() + ", name=" + e.getName())
-            );
-            System.out.println("=====================================");
 
             model.addAttribute("event", req);
-            model.addAttribute("eventEquipments", eqReqs);  // ← ADD THIS LINE - pass equipment separately
+            model.addAttribute("eventEquipments", eqReqs);
             model.addAttribute("isEdit", true);
             model.addAttribute("id", id);
 
@@ -146,7 +136,6 @@ public class EventController {
         return "redirect:/events";
     }
 
-    // LIST EVENTS
     @GetMapping
     public String list(Model model) {
         model.addAttribute("events", searchService.getAll());
@@ -168,7 +157,6 @@ public class EventController {
             RedirectAttributes redirect,
             Model model
     ) {
-        // validation
         if (q != null && q.length() > 75) {
             redirect.addFlashAttribute("error", "Search keyword must not exceed 75 characters.");
             return redirectBack(source);
@@ -233,7 +221,6 @@ public class EventController {
         return "redirect:/events";
     }
 
-    // DETAILS
     @GetMapping("/{id}")
     public String details(@PathVariable("id") Long id, Model model, RedirectAttributes redirect) {
         try {
@@ -245,7 +232,6 @@ public class EventController {
         }
     }
 
-    // Cancel Event Endpoint
     @PostMapping("/{id}/cancel")
     public String cancelEvent(@PathVariable("id") Long id, RedirectAttributes redirect) {
         try {
@@ -257,7 +243,6 @@ public class EventController {
         return "redirect:/events";
     }
 
-    // Backoffice View - alle Events inkl. cancelled
     @GetMapping("/backoffice")
     public String backofficeList(Model model) {
         model.addAttribute("events", searchService.getAllIncludingCancelled());

@@ -10,31 +10,15 @@ import java.util.List;
 public class GetAllBookingsService {
 
     private final BookingRepository bookingRepository;
-
-    public GetAllBookingsService(BookingRepository bookingRepository) {
+    private final BookingMapperDTO mapper;
+    public GetAllBookingsService(BookingRepository bookingRepository, BookingMapperDTO mapper) {
         this.bookingRepository = bookingRepository;
+        this.mapper = mapper;
     }
 
     public List<BookingDTO> getAllBookings() {
         return bookingRepository.findAll().stream()
-                .map(b -> new BookingDTO(
-                        b.getId(),
-                        b.getEventId(),
-                        b.getCustomerId(),
-                        b.isGuest(),
-                        b.getFirstName(),
-                        b.getLastName(),
-                        b.getEmail(),
-                        b.getSeats(),
-                        b.getStatus(),
-                        b.getPaymentMethod(),
-                        b.getVoucherCode(),
-                        b.getVoucherValue(),
-                        b.getUnitPrice(),
-                        b.getTotalPrice(),
-                        b.getConfirmedAt(),
-                        b.getCancelledAt()
-                ))
+                .map(mapper::toDTO)
                 .toList();
     }
 }

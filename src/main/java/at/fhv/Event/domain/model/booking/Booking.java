@@ -1,77 +1,85 @@
 package at.fhv.Event.domain.model.booking;
 
+import at.fhv.Event.domain.model.payment.PaymentMethod;
+import at.fhv.Event.domain.model.payment.PaymentStatus;
+
 import java.time.Instant;
-import java.time.OffsetDateTime;
+import java.util.List;
 
 public class Booking {
-
     private Long id;
-
-    // Foreign keys (MVP: just IDs, no object relations)
     private Long eventId;
-    private Long customerId;
-    private boolean guest;
-
-    // Contact data
-    private String firstName;
-    private String lastName;
-    private String email;
-
-    // Booking details
+    private String bookerFirstName;
+    private String bookerLastName;
+    private String bookerEmail;
     private int seats;
+    private AudienceType audience;
     private BookingStatus status;
+    private PaymentStatus paymentStatus;
     private PaymentMethod paymentMethod;
     private String voucherCode;
-    private double voucherValue;
-
-    // Pricing
-    private double unitPrice;
+    private double discountAmount;
     private double totalPrice;
-
-    // Timeline
-    private OffsetDateTime confirmedAt;
-    private OffsetDateTime cancelledAt;
-
-    // Audit
+    private String specialNotes;
     private Instant createdAt;
-    private Instant updatedAt;
+    private List<BookingParticipant> participants;
+    private List<BookingEquipment> equipment;
 
-    public Booking() {
-    }
-
-    public Booking(Long eventId,
-                   Long customerId,
-                   boolean guest,
-                   String firstName,
-                   String lastName,
-                   String email,
-                   int seats,
-                   BookingStatus status,
-                   PaymentMethod paymentMethod,
-                   String voucherCode,
-                   double voucherValue,
-                   double unitPrice,
-                   double totalPrice,
-                   OffsetDateTime confirmedAt,
-                   OffsetDateTime cancelledAt) {
+    public Booking() {}
+    public Booking(
+            Long eventId,
+            String bookerFirstName,
+            String bookerLastName,
+            String bookerEmail,
+            int seats,
+            AudienceType audience,
+            BookingStatus status,
+            PaymentStatus paymentStatus,
+            PaymentMethod paymentMethod,
+            String voucherCode,
+            double discountAmount,
+            double totalPrice,
+            String specialNotes,
+            List<BookingParticipant> participants,
+            List<BookingEquipment> equipment
+    ) {
         this.eventId = eventId;
-        this.customerId = customerId;
-        this.guest = guest;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
+        this.bookerFirstName = bookerFirstName;
+        this.bookerLastName = bookerLastName;
+        this.bookerEmail = bookerEmail;
         this.seats = seats;
+        this.audience = audience;
         this.status = status;
+        this.paymentStatus = paymentStatus;
         this.paymentMethod = paymentMethod;
         this.voucherCode = voucherCode;
-        this.voucherValue = voucherValue;
-        this.unitPrice = unitPrice;
+        this.discountAmount = discountAmount;
         this.totalPrice = totalPrice;
-        this.confirmedAt = confirmedAt;
-        this.cancelledAt = cancelledAt;
+        this.specialNotes = specialNotes;
+        this.createdAt = Instant.now();
+        this.participants = participants;
+        this.equipment = equipment;
     }
 
-    // getters + setters
+    public void applyVoucher(String code, double discountAmount) {
+        this.voucherCode = code;
+        this.discountAmount = discountAmount;
+        if (this.discountAmount < 0) this.discountAmount = 0;
+        recalculateTotal();
+    }
+
+    public void recalculateTotal() {
+        double basePrice = 0;
+
+        if (equipment != null) {
+            basePrice += equipment.stream()
+                    .mapToDouble(BookingEquipment::getTotalPrice)
+                    .sum();
+        }
+
+        this.totalPrice = Math.max(0, basePrice - discountAmount);
+    }
+
 
     public Long getId() {
         return id;
@@ -89,44 +97,37 @@ public class Booking {
         this.eventId = eventId;
     }
 
-    public Long getCustomerId() {
-        return customerId;
+    public String getBookerFirstName() {
+        return bookerFirstName;
     }
 
-    public void setCustomerId(Long customerId) {
-        this.customerId = customerId;
+    public void setBookerFirstName(String bookerFirstName) {
+        this.bookerFirstName = bookerFirstName;
     }
 
-    public boolean isGuest() {
-        return guest;
+    public String getBookerLastName() {
+        return bookerLastName;
     }
 
-    public void setGuest(boolean guest) {
-        this.guest = guest;
+    public void setBookerLastName(String bookerLastName) {
+        this.bookerLastName = bookerLastName;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getBookerFullName() {
+        return bookerFirstName + " " + bookerLastName;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public boolean isPaid() {
+        return paymentStatus == PaymentStatus.PAID;
     }
 
-    public String getLastName() {
-        return lastName;
+
+    public String getBookerEmail() {
+        return bookerEmail;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+    public void setBookerEmail(String bookerEmail) {
+        this.bookerEmail = bookerEmail;
     }
 
     public int getSeats() {
@@ -137,12 +138,28 @@ public class Booking {
         this.seats = seats;
     }
 
+    public AudienceType getAudience() {
+        return audience;
+    }
+
+    public void setAudience(AudienceType audience) {
+        this.audience = audience;
+    }
+
     public BookingStatus getStatus() {
         return status;
     }
 
     public void setStatus(BookingStatus status) {
         this.status = status;
+    }
+
+    public PaymentStatus getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus;
     }
 
     public PaymentMethod getPaymentMethod() {
@@ -161,20 +178,12 @@ public class Booking {
         this.voucherCode = voucherCode;
     }
 
-    public double getVoucherValue() {
-        return voucherValue;
+    public double getDiscountAmount() {
+        return discountAmount;
     }
 
-    public void setVoucherValue(double voucherValue) {
-        this.voucherValue = voucherValue;
-    }
-
-    public double getUnitPrice() {
-        return unitPrice;
-    }
-
-    public void setUnitPrice(double unitPrice) {
-        this.unitPrice = unitPrice;
+    public void setDiscountAmount(double discountAmount) {
+        this.discountAmount = discountAmount;
     }
 
     public double getTotalPrice() {
@@ -185,20 +194,12 @@ public class Booking {
         this.totalPrice = totalPrice;
     }
 
-    public OffsetDateTime getConfirmedAt() {
-        return confirmedAt;
+    public String getSpecialNotes() {
+        return specialNotes;
     }
 
-    public void setConfirmedAt(OffsetDateTime confirmedAt) {
-        this.confirmedAt = confirmedAt;
-    }
-
-    public OffsetDateTime getCancelledAt() {
-        return cancelledAt;
-    }
-
-    public void setCancelledAt(OffsetDateTime cancelledAt) {
-        this.cancelledAt = cancelledAt;
+    public void setSpecialNotes(String specialNotes) {
+        this.specialNotes = specialNotes;
     }
 
     public Instant getCreatedAt() {
@@ -208,12 +209,20 @@ public class Booking {
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
-
-    public Instant getUpdatedAt() {
-        return updatedAt;
+    public List<BookingParticipant> getParticipants() {
+        return participants;
     }
 
-    public void setUpdatedAt(Instant updatedAt) {
-        this.updatedAt = updatedAt;
+    public void setParticipants(List<BookingParticipant> participants) {
+        this.participants = participants;
     }
+
+    public List<BookingEquipment> getEquipment() {
+        return equipment;
+    }
+
+    public void setEquipment(List<BookingEquipment> equipment) {
+        this.equipment = equipment;
+    }
+
 }

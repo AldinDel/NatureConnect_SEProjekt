@@ -77,7 +77,6 @@ public class EventMapper {
             }
         }
 
-        // Equipment mapping
         var eeEntities = domain.getEventEquipments().stream()
                 .map(domEE -> {
                     var equipEntity = equipmentMapper.toEntity(domEE.getEquipment());

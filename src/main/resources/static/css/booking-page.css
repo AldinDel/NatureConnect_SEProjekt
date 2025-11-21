@@ -1,0 +1,370 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: #f9fafb;
+    color: #111827;
+    line-height: 1.55;
+}
+
+.hero {
+    position: relative;
+    height: 300px;
+    width: 100%;
+    overflow: hidden;
+    background: #0f172a;
+}
+
+.hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: .8;
+}
+
+.hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(0deg, rgba(15,23,42,0.6), transparent);
+}
+
+.container {
+    max-width: 1100px;
+    margin: -110px auto 0 auto;
+    padding: 0 1.25rem 3rem;
+    position: relative;
+    z-index: 10;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1.5rem;
+}
+
+.left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.card {
+    background: #fff;
+    border-radius: 13px;
+    padding: 1.5rem;
+    box-shadow: 0 1px 6px rgba(0,0,0,.05);
+}
+
+.title {
+    font-size: 1.8rem;
+    font-weight: 400;
+    margin-bottom: .75rem;
+}
+
+.card-title {
+    font-size: 1.15rem;
+    font-weight: 400;
+    margin-bottom: .9rem;
+}
+
+.bold { font-weight: 600; }
+.text-gray { color: #6b7280; }
+
+.btn {
+    padding: .65rem 1.2rem;
+    border-radius: 13px;
+    border: 1.5px solid #e5e7eb;
+    background: #fff;
+    cursor: pointer;
+    transition: .2s;
+    font-size: .95rem;
+}
+
+.btn:hover { border-color: #d1d5db; }
+
+.btn.active {
+    background: #111827;
+    color: #fff;
+    border-color: #111827;
+}
+
+.btn-secondary {
+    background: #111827;
+    color: white;
+    border: none;
+    padding: .65rem 1.2rem;
+    border-radius: 13px;
+    font-size: .95rem;
+}
+
+.btn-secondary:hover {
+    background: #1e293b;
+}
+
+.btn-primary {
+    background: #111827;
+    color: white;
+    border: none;
+    padding: .75rem;
+    width: 100%;
+    margin-top: 1.4rem;
+    border-radius: 13px;
+    font-size: 1rem;
+}
+
+.btn-primary:hover { background: #1e293b; }
+
+.form-group { margin-bottom: 1.2rem; }
+
+.form-input {
+    width: 100%;
+    padding: .65rem .9rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 13px;
+    font-size: .95rem;
+    transition: .2s;
+}
+
+.form-input:focus {
+    border-color: #111827;
+    box-shadow: 0 0 0 3px rgba(17,24,39,0.12);
+    outline: none;
+}
+
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: .65rem;
+}
+
+.radio-label {
+    display: flex;
+    gap: .9rem;
+    padding: .8rem;
+    border: 1.5px solid #e5e7eb;
+    border-radius: 13px;
+    cursor: pointer;
+    transition: .25s ease;
+}
+
+.radio-label:hover { border-color: #94a3b8; }
+
+.radio-label.active {
+    border-color: #111827;
+    background: #f1f5f9;
+}
+
+.radio-label input { margin-top: 2px; }
+
+.radio-title { font-weight: 600; font-size: .95rem; }
+
+.radio-desc {
+    font-size: .85rem;
+    color: #6b7280;
+}
+
+/* CHECKBOXES */
+.checkbox-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 1rem;
+    border-radius: 13px;
+    border: 1.5px solid #e5e7eb;
+    transition: .25s;
+    background: #fff;
+    margin-bottom: 0.9rem;
+}
+
+.checkbox-label.active {
+    border-color: #111827;
+    background: #f1f5f9;
+}
+
+.checkbox-label input {
+    margin-top: 0px;
+    transform: scale(1.1);
+}
+
+.addon-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+}
+
+.addon-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.addon-desc {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.addon-price {
+    font-size: 1rem;
+    font-weight: 600;
+    white-space: nowrap;
+    margin: 0;
+}
+
+.badge {
+    background: #dbeafe;
+    color: #1e40af;
+    padding: .15rem .5rem;
+    font-size: .7rem;
+    border-radius: 13px;
+}
+
+.sidebar {
+    position: sticky;
+    top: 1.5rem;
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: .5rem;
+    font-size: .9rem;
+}
+
+.price-total {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 1rem;
+    font-size: 1.4rem;
+    font-weight: 300;
+}
+
+.text-green { color: #059669; }
+
+.participant-section {
+    border-top: 1px solid #e5e7eb;
+    padding-top: 1rem;
+    margin-top: 1rem;
+}
+
+.participant-title {
+    font-weight: 600;
+    margin-bottom: .4rem;
+    font-size: .95rem;
+}
+
+.hidden { display: none; }
+
+.account-options {
+    display: flex;
+    gap: .8rem;
+}
+
+@media (max-width: 900px) {
+    .grid {
+        grid-template-columns: 1fr 2fr;
+    }
+}
+
+#errorPop,
+.errorPop {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    max-width: 300px;
+    z-index: 99999;
+    pointer-events: none;
+}
+
+.error {
+    background: #ff4d4d;
+    color: white;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    border-radius: 13px;
+    font-size: 13px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+    opacity: 0;
+    transform: translateX(20px);
+    animation: slideIn .25s forwards, fadeOut 5s forwards;
+}
+
+@keyframes slideIn {
+    to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeOut {
+    0%, 80% { opacity: 1; }
+    100% { opacity: 0; transform: translateX(20px); }
+}
+.voucher-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.voucher-input {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    padding-right: 2.2rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 13px;
+    font-size: 1rem;
+}
+
+.voucher-input-wrapper {
+    position: relative;
+    flex: 1;
+}
+
+.voucher-apply {
+    background: #111827;
+    color: white;
+    border: none;
+    padding: 0.7rem 1.3rem;
+    font-size: 1rem;
+    border-radius: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.voucher-remove {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    font-size: 1.1rem;
+    color: #ef4444;
+    cursor: pointer;
+}
+
+.voucher-remove.hidden {
+    display: none;
+}
+
+
+
+.sidebar {
+    max-width: 340px;
+    width: 100%;
+    margin-left: auto;
+}
+#summaryEquipmentSection {
+    margin-top: 1rem;
+}
+
+#summaryEquipmentSection strong {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+#summaryEquipment .price-row {
+    margin-bottom: 4px;
+}

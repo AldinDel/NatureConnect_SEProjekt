@@ -39,8 +39,6 @@ public class EquipmentRepositoryJPAImpl implements EquipmentRepository {
     public void save(Equipment equipment) {
         var entity = mapper.toEntity(equipment);
         var saved = jpa.save(entity);
-        // Note: domain is immutable id-wise; caller expects persistence happened,
-        // repository could return id or set it if domain allowed; we skip here.
     }
 
     @Override

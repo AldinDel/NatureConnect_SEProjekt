@@ -28,7 +28,6 @@ public class CreateEquipmentService {
         });
         Equipment domain = mapper.toDomainCreate(req.getName(), req.getUnitPrice(), req.isRentable(), req.getStock());
         equipmentRepository.save(domain);
-        // map back to DTO, required=false for stand-alone equipment
         return mapper.toDto(domain, false);
     }
 }

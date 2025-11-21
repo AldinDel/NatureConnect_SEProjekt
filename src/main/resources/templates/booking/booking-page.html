@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title th:text="${event.title}">Booking</title>
+
+    <link rel="stylesheet" th:href="@{/css/booking-page.css}">
+</head>
+
+<body>
+<div class="hero">
+    <img th:src="${event.imageUrl}" alt="Event image" />
+    <div class="hero-overlay"></div>
+</div>
+
+<div class="container">
+    <div id="errorPop"></div>
+    <form th:action="@{/booking}" th:object="${booking}" method="post">
+
+        <input type="hidden" th:field="*{eventId}" th:value="${event.id}">
+        <input type="hidden" id="pageEventId" th:value="${event.id}">
+        <input type="hidden" id="eventBasePrice" th:value="${event.price}">
+        <input type="hidden" id="eventMinParticipants" th:value="${event.minParticipants}">
+        <input type="hidden" id="eventMaxParticipants" th:value="${event.maxParticipants}">
+
+        <div class="grid">
+            <div class="left-column">
+                <div class="card">
+                    <h1 class="title" th:text="${event.title}"></h1>
+
+                    <p class="text-gray">
+                        Organized by <strong th:text="${event.organizer}"></strong>
+                    </p>
+                    <p class="text-gray" th:text="${event.location}"></p>
+                    <p class="text-gray">
+                        <span th:text="${event.date}"></span>
+                        •
+                        <span th:text="${event.startTime}"></span> -
+                        <span th:text="${event.endTime}"></span>
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">Your Information</h2>
+
+                    <label>First Name</label>
+                    <input type="text" class="form-input" th:field="*{bookerFirstName}" maxlength="50" required>
+
+                    <label>Last Name</label>
+                    <input type="text" class="form-input" th:field="*{bookerLastName}" maxlength="50" required>
+
+                    <label>Email</label>
+                    <input type="email" class="form-input" th:field="*{bookerEmail}" maxlength="100" required>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">Audience Type</h2>
+
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" th:field="*{audience}" value="INDIVIDUAL" checked>
+                            Individual
+                        </label>
+
+                        <label class="radio-label">
+                            <input type="radio" th:field="*{audience}" value="GROUP">
+                            Group
+                        </label>
+
+                        <label class="radio-label">
+                            <input type="radio" th:field="*{audience}" value="COMPANY">
+                            Company
+                        </label>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">Participants</h2>
+
+                    <label>Number of Participants</label>
+                    <input type="number" class="form-input" min="1" th:field="*{seats}" id="numParticipants">
+
+                    <div id="participantsContainer"></div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">Equipment & Add-ons</h2>
+
+                    <div id="equipmentContainer">
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">Special Notes</h2>
+                    <textarea class="form-input" rows="4" th:field="*{specialNotes}" maxlength="250" style="resize:none;"></textarea>
+                </div>
+
+            </div>
+
+            <div class="right-column">
+                <div class="card sidebar">
+                    <h3 class="card-title">Summary</h3>
+                    <div class="voucher-wrapper">
+                        <div class="voucher-input-wrapper">
+                            <input type="text" id="discountCode" class="voucher-input" placeholder="Voucher code">
+                            <button id="removeDiscountBtn" type="button" class="hidden voucher-remove">✕</button>
+                        </div>
+
+                        <button id="applyDiscountBtn" type="button" class="voucher-apply">Apply</button>
+                    </div>
+
+                    <p id="discountMessage" class="hidden"></p>
+                    <input type="hidden" th:field="*{voucherCode}" id="voucherCodeField">
+
+                    <div id="summaryEquipmentSection">
+                        <div id="summaryEquipment"></div>
+                    </div>
+
+                    <div class="price-row">
+                        <span>Participants:</span>
+                        <span id="summarySeats">1</span>
+                    </div>
+
+                    <div class="price-row">
+                        <span>Total Price:</span>
+                        <span id="summaryTotal">0.00€</span>
+                    </div>
+
+                    <hr>
+
+                    <button id="confirmBtn" type="submit" class="btn-primary">
+                        Confirm Booking
+                    </button>
+                    <p id="errorBox" class="hidden text-red"></p>
+                </div>
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+<script th:src="@{/js/booking-page.js}"></script>
+
+</body>
+</html>

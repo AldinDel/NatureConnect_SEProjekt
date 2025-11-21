@@ -9,7 +9,7 @@ public class Organizer {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id") // nullable, genau 1 Login pro Organizer
+    @JoinColumn(name = "user_id")
     private UserAccount user;
 
     @Column(nullable=false, length=200) private String name;

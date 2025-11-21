@@ -19,7 +19,7 @@ public class SearchEventService {
     @Transactional(readOnly = true)
     public List<EventOverviewDTO> getAll() {
         return eventRepository.findAll().stream()
-                .filter(e -> !Boolean.TRUE.equals(e.getCancelled()))  // 👈 NUR aktive Events
+                .filter(e -> !Boolean.TRUE.equals(e.getCancelled()))
                 .map(e -> new EventOverviewDTO(
                         e.getId(),
                         e.getTitle(),
@@ -40,7 +40,6 @@ public class SearchEventService {
                 .toList();
     }
 
-    // 👇 NEU: Für Backoffice - ALLE Events inkl. cancelled
     @Transactional(readOnly = true)
     public List<EventOverviewDTO> getAllIncludingCancelled() {
         return eventRepository.findAll().stream()

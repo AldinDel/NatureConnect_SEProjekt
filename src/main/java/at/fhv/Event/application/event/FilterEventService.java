@@ -88,7 +88,6 @@ public class FilterEventService {
             }
         }
 
-        // map → DTO
         return events.stream()
                 .map(mapper::toOverview)
                 .toList();

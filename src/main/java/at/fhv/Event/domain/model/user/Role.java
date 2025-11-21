@@ -7,5 +7,5 @@ import jakarta.persistence.*;
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
-    @Column(nullable = false, unique = true, length = 50) private String code; // 'ADMIN','FO_STAFF','FO_USER','ORGANIZER'
+    @Column(nullable = false, unique = true, length = 50) private String code;
 }

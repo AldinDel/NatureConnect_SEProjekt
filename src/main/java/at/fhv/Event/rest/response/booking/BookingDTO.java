@@ -1,128 +1,97 @@
 package at.fhv.Event.rest.response.booking;
 
 import at.fhv.Event.domain.model.booking.BookingStatus;
-import at.fhv.Event.domain.model.booking.PaymentMethod;
-import java.time.OffsetDateTime;
 
 public class BookingDTO {
 
     private Long id;
     private Long eventId;
-    private Long customerId;
-    private boolean guest;
 
-    private String firstName;
-    private String lastName;
-    private String email;
+    private String bookerFirstName;
+    private String bookerLastName;
+    private String bookerEmail;
 
     private int seats;
-    private BookingStatus status;
-    private PaymentMethod paymentMethod;
-
-    private String voucherCode;
-    private double voucherValue;
-
-    private double unitPrice;
     private double totalPrice;
+    private BookingStatus status;
 
-    private OffsetDateTime confirmedAt;
-    private OffsetDateTime cancelledAt;
+    public BookingDTO() {}
 
-    public BookingDTO(Long id,
-                      Long eventId,
-                      Long customerId,
-                      boolean guest,
-                      String firstName,
-                      String lastName,
-                      String email,
-                      int seats,
-                      BookingStatus status,
-                      PaymentMethod paymentMethod,
-                      String voucherCode,
-                      double voucherValue,
-                      double unitPrice,
-                      double totalPrice,
-                      OffsetDateTime confirmedAt,
-                      OffsetDateTime cancelledAt) {
+    public BookingDTO(Long id, Long eventId,
+                      String bookerFirstName, String bookerLastName, String bookerEmail,
+                      int seats, double totalPrice, BookingStatus status) {
+
         this.id = id;
         this.eventId = eventId;
-        this.customerId = customerId;
-        this.guest = guest;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
+        this.bookerFirstName = bookerFirstName;
+        this.bookerLastName = bookerLastName;
+        this.bookerEmail = bookerEmail;
         this.seats = seats;
-        this.status = status;
-        this.paymentMethod = paymentMethod;
-        this.voucherCode = voucherCode;
-        this.voucherValue = voucherValue;
-        this.unitPrice = unitPrice;
         this.totalPrice = totalPrice;
-        this.confirmedAt = confirmedAt;
-        this.cancelledAt = cancelledAt;
+        this.status = status;
     }
 
     public Long getId() {
         return id;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Long getEventId() {
         return eventId;
     }
 
-    public Long getCustomerId() {
-        return customerId;
+    public void setEventId(Long eventId) {
+        this.eventId = eventId;
     }
 
-    public boolean isGuest() {
-        return guest;
+    public String getBookerFirstName() {
+        return bookerFirstName;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public void setBookerFirstName(String bookerFirstName) {
+        this.bookerFirstName = bookerFirstName;
     }
 
-    public String getLastName() {
-        return lastName;
+    public String getBookerLastName() {
+        return bookerLastName;
     }
 
-    public String getEmail() {
-        return email;
+    public void setBookerLastName(String bookerLastName) {
+        this.bookerLastName = bookerLastName;
+    }
+
+    public String getBookerEmail() {
+        return bookerEmail;
+    }
+
+    public void setBookerEmail(String bookerEmail) {
+        this.bookerEmail = bookerEmail;
     }
 
     public int getSeats() {
         return seats;
     }
 
-    public BookingStatus getStatus() {
-        return status;
-    }
-
-    public PaymentMethod getPaymentMethod() {
-        return paymentMethod;
-    }
-
-    public String getVoucherCode() {
-        return voucherCode;
-    }
-
-    public double getVoucherValue() {
-        return voucherValue;
-    }
-
-    public double getUnitPrice() {
-        return unitPrice;
+    public void setSeats(int seats) {
+        this.seats = seats;
     }
 
     public double getTotalPrice() {
         return totalPrice;
     }
 
-    public OffsetDateTime getConfirmedAt() {
-        return confirmedAt;
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice;
     }
 
-    public OffsetDateTime getCancelledAt() {
-        return cancelledAt;
+    public BookingStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(BookingStatus status) {
+        this.status = status;
     }
 }

@@ -11,7 +11,7 @@ public class CustomerProfile {
     @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id") // nullable, 1:1 optional
+    @JoinColumn(name = "user_id")
     private UserAccount user;
 
     @Column(nullable=false, length=100) private String firstName;

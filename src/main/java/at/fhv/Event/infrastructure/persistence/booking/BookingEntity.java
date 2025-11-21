@@ -1,11 +1,14 @@
 package at.fhv.Event.infrastructure.persistence.booking;
 
+import at.fhv.Event.domain.model.booking.AudienceType;
 import at.fhv.Event.domain.model.booking.BookingStatus;
-import at.fhv.Event.domain.model.booking.PaymentMethod;
+import at.fhv.Event.domain.model.payment.PaymentMethod;
+import at.fhv.Event.domain.model.payment.PaymentStatus;
 import jakarta.persistence.*;
 
 import java.time.Instant;
-import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "booking", schema = "nature_connect")
@@ -15,69 +18,65 @@ public class BookingEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Foreign keys as scalar values (simple MVP)
-    @Column(name = "event_id", nullable = false)
+    @Column(name = "event_id")
     private Long eventId;
 
-    @Column(name = "customer_id")
-    private Long customerId;
+    @Column(name = "booker_first_name", length = 100)
+    private String bookerFirstName;
 
-    @Column(name = "is_guest", nullable = false)
-    private boolean guest = true;
+    @Column(name = "booker_last_name", length = 100)
+    private String bookerLastName;
 
-    // Contact data
-    @Column(name = "first_name", nullable = false, length = 100)
-    private String firstName;
+    @Column(name = "booker_email", length = 200)
+    private String bookerEmail;
 
-    @Column(name = "last_name", nullable = false, length = 100)
-    private String lastName;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "audience", length = 30)
+    private AudienceType audience;
 
-    @Column(name = "email", nullable = false, length = 200)
-    private String email;
-
-    // Booking details
     @Column(name = "seats", nullable = false)
-    private int seats = 1;
+    private int seats;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
-    private BookingStatus status = BookingStatus.CONFIRMED;
+    @Column(name = "status", nullable = false)
+    private BookingStatus status;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "payment_method", nullable = false, length = 50)
+    @Column(name = "payment_status", nullable = false)
+    private PaymentStatus paymentStatus;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "payment_method")
     private PaymentMethod paymentMethod;
 
     @Column(name = "voucher_code", length = 50)
     private String voucherCode;
 
-    @Column(name = "voucher_value")
-    private Double voucherValue;
-
-    // Pricing
-    @Column(name = "unit_price", nullable = false)
-    private Double unitPrice = 0.0;
+    @Column(name = "discount_amount")
+    private Double discountAmount;
 
     @Column(name = "total_price", nullable = false)
-    private Double totalPrice = 0.0;
+    private Double totalPrice;
 
-    // Timeline
-    @Column(name = "confirmed_at")
-    private OffsetDateTime confirmedAt;
+    @Column(name = "special_notes")
+    private String specialNotes;
 
-    @Column(name = "cancelled_at")
-    private OffsetDateTime cancelledAt;
-
-    // Audit – DB sets/updates these via defaults & trigger
-    @Column(name = "created_at", updatable = false, insertable = false)
+    @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
-    @Column(name = "updated_at", insertable = false, updatable = false)
-    private Instant updatedAt;
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BookingParticipantEntity> participants = new ArrayList<>();
 
-    // getters / setters
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BookingEquipmentEntity> equipment = new ArrayList<>();
+
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Long getEventId() {
@@ -88,44 +87,36 @@ public class BookingEntity {
         this.eventId = eventId;
     }
 
-    public Long getCustomerId() {
-        return customerId;
+    public String getBookerFirstName() {
+        return bookerFirstName;
     }
 
-    public void setCustomerId(Long customerId) {
-        this.customerId = customerId;
+    public void setBookerFirstName(String bookerFirstName) {
+        this.bookerFirstName = bookerFirstName;
     }
 
-    public boolean isGuest() {
-        return guest;
+    public String getBookerLastName() {
+        return bookerLastName;
     }
 
-    public void setGuest(boolean guest) {
-        this.guest = guest;
+    public void setBookerLastName(String bookerLastName) {
+        this.bookerLastName = bookerLastName;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getBookerEmail() {
+        return bookerEmail;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
+    public void setBookerEmail(String bookerEmail) {
+        this.bookerEmail = bookerEmail;
     }
 
-    public String getLastName() {
-        return lastName;
+    public AudienceType getAudience() {
+        return audience;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
+    public void setAudience(AudienceType audience) {
+        this.audience = audience;
     }
 
     public int getSeats() {
@@ -144,6 +135,14 @@ public class BookingEntity {
         this.status = status;
     }
 
+    public PaymentStatus getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(PaymentStatus paymentStatus) {
+        this.paymentStatus = paymentStatus;
+    }
+
     public PaymentMethod getPaymentMethod() {
         return paymentMethod;
     }
@@ -160,20 +159,12 @@ public class BookingEntity {
         this.voucherCode = voucherCode;
     }
 
-    public Double getVoucherValue() {
-        return voucherValue;
+    public Double getDiscountAmount() {
+        return discountAmount;
     }
 
-    public void setVoucherValue(Double voucherValue) {
-        this.voucherValue = voucherValue;
-    }
-
-    public Double getUnitPrice() {
-        return unitPrice;
-    }
-
-    public void setUnitPrice(Double unitPrice) {
-        this.unitPrice = unitPrice;
+    public void setDiscountAmount(Double discountAmount) {
+        this.discountAmount = discountAmount;
     }
 
     public Double getTotalPrice() {
@@ -184,27 +175,36 @@ public class BookingEntity {
         this.totalPrice = totalPrice;
     }
 
-    public OffsetDateTime getConfirmedAt() {
-        return confirmedAt;
+    public String getSpecialNotes() {
+        return specialNotes;
     }
 
-    public void setConfirmedAt(OffsetDateTime confirmedAt) {
-        this.confirmedAt = confirmedAt;
-    }
-
-    public OffsetDateTime getCancelledAt() {
-        return cancelledAt;
-    }
-
-    public void setCancelledAt(OffsetDateTime cancelledAt) {
-        this.cancelledAt = cancelledAt;
+    public void setSpecialNotes(String specialNotes) {
+        this.specialNotes = specialNotes;
     }
 
     public Instant getCreatedAt() {
         return createdAt;
     }
 
-    public Instant getUpdatedAt() {
-        return updatedAt;
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
     }
+
+    public List<BookingParticipantEntity> getParticipants() {
+        return participants;
+    }
+
+    public void setParticipants(List<BookingParticipantEntity> participants) {
+        this.participants = participants;
+    }
+
+    public List<BookingEquipmentEntity> getEquipment() {
+        return equipment;
+    }
+
+    public void setEquipment(List<BookingEquipmentEntity> equipment) {
+        this.equipment = equipment;
+    }
+
 }

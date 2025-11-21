@@ -18,7 +18,6 @@ public class EquipmentMapperDTO {
                 e.getStock());
     }
 
-    // Domain helpers
     public Equipment toDomainCreate(String name,
                                     java.math.BigDecimal price,
                                     boolean rentable,
