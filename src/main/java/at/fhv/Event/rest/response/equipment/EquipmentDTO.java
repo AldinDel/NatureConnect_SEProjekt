@@ -7,5 +7,6 @@ public record EquipmentDTO(
         String name,
         BigDecimal unitPrice,
         boolean rentable,
-        boolean required
+        boolean required,
+        Integer stock
 ) {}

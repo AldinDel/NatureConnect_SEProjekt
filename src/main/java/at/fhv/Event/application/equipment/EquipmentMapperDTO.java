@@ -9,15 +9,28 @@ public class EquipmentMapperDTO {
 
     public EquipmentDTO toDto(Equipment e, boolean required) {
         if (e == null) return null;
-        return new EquipmentDTO(e.getId(), e.getName(), e.getUnitPrice(), e.isRentable(), required);
+        return new EquipmentDTO(
+                e.getId(),
+                e.getName(),
+                e.getUnitPrice(),
+                e.isRentable(),
+                required,
+                e.getStock());
     }
 
     // Domain helpers
-    public Equipment toDomainCreate(String name, java.math.BigDecimal price, boolean rentable) {
-        return new Equipment(null, name, price, rentable);
+    public Equipment toDomainCreate(String name,
+                                    java.math.BigDecimal price,
+                                    boolean rentable,
+                                    Integer stock) {
+        return new Equipment(null, name, price, rentable, stock);
     }
 
-    public Equipment toDomainUpdate(Long id, String name, java.math.BigDecimal price, boolean rentable) {
-        return new Equipment(id, name, price, rentable);
+    public Equipment toDomainUpdate(Long id,
+                                    String name,
+                                    java.math.BigDecimal price,
+                                    boolean rentable,
+                                    Integer stock) {
+        return new Equipment(id, name, price, rentable, stock);
     }
 }

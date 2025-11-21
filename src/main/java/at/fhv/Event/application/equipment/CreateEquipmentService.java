@@ -26,7 +26,7 @@ public class CreateEquipmentService {
         equipmentRepository.findByNameIgnoreCase(req.getName()).ifPresent(e -> {
             throw new RuntimeException("Equipment already exists: " + req.getName());
         });
-        Equipment domain = mapper.toDomainCreate(req.getName(), req.getUnitPrice(), req.isRentable());
+        Equipment domain = mapper.toDomainCreate(req.getName(), req.getUnitPrice(), req.isRentable(), req.getStock());
         equipmentRepository.save(domain);
         // map back to DTO, required=false for stand-alone equipment
         return mapper.toDto(domain, false);

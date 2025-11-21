@@ -104,6 +104,7 @@ public class EventController {
                 r.setUnitPrice(eq.unitPrice());
                 r.setRentable(eq.rentable());
                 r.setRequired(eq.required());
+                r.setStock(eq.stock());
                 return r;
             }).toList();
 
