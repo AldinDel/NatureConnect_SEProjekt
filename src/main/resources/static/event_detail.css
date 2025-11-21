@@ -354,3 +354,51 @@ body > .hero-box {
     margin-top: 60px; /* schiebt sie nach oben */
 }
 
+.simple-item {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    gap: 8px;
+}
+
+.equipment-table {
+    margin-top: 10px;
+    width: 100%;
+}
+
+.equipment-header,
+.equipment-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    padding: 8px 0;
+}
+
+.equipment-header {
+    font-weight: 700;
+    border-bottom: 2px solid #e5e7eb;
+    margin-bottom: 8px;
+}
+
+.equipment-row {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.equipment-row span {
+    display: flex;
+    align-items: center;
+}
+
+/* Make all equipment cells flex and center by default */
+.equipment-header span,
+.equipment-row span {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* First two columns left aligned */
+.equipment-header span:nth-child(1),
+.equipment-row span:nth-child(1),
+.equipment-header span:nth-child(2),
+.equipment-row span:nth-child(2) {
+    justify-content: flex-start;
+}
