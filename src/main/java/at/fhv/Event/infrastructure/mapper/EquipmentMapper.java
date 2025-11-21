@@ -9,7 +9,13 @@ public class EquipmentMapper {
 
     public Equipment toDomain(EquipmentEntity e) {
         if (e == null) return null;
-        return new Equipment(e.getId(), e.getName(), e.getUnitPrice(), e.isRentable());
+        return new Equipment(
+                e.getId(),
+                e.getName(),
+                e.getUnitPrice(),
+                e.isRentable(),
+                e.getStock()
+        );
     }
 
     public EquipmentEntity toEntity(Equipment d) {
@@ -19,6 +25,7 @@ public class EquipmentMapper {
         e.setName(d.getName());
         e.setUnitPrice(d.getUnitPrice());
         e.setRentable(d.isRentable());
+        e.setStock(d.getStock());
         return e;
     }
 }

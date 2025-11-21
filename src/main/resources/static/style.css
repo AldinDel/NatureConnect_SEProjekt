@@ -803,3 +803,39 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     width: calc(100% - 120px) !important; /* gleiche Breite wie Abstand links/rechts */
     margin: 8px auto 0 auto;
 }
+
+
+.equipment-item {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 2fr) auto auto auto;
+    column-gap: 12px;
+    align-items: start;
+    margin-bottom: 8px;
+}
+
+/* Name + Price/Stock gruppiert in Spalte */
+.equipment-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+/* Price + Stock nebeneinander */
+.equipment-price-stock-inputs {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+/* kleines Hinweis-Feld */
+.rentable-warning {
+    display: none;
+    background: #fee2e2;
+    color: #b91c1c;
+    font-size: 12px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+

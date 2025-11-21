@@ -1,39 +1,84 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8" />
+    <meta charset="UTF-8"/>
     <title th:text="${isEdit} ? 'Edit Event' : 'Create Event'">Create Event</title>
-    <link rel="stylesheet" th:href="@{/style.css}" href="/style.css" />
+    <link rel="stylesheet" th:href="@{/style.css}" href="/style.css"/>
     <link rel="icon" type="image/png" th:href="@{/images/NatureConnectLogo.png}" href="/images/NatureConnectLogo.png">
 
     <style>
-        .event-form-wrap { max-width: 980px; margin: 48px auto; padding: 0 16px; }
-        .event-form-title { font-size: 28px; font-weight: 700; color: #0f2740; margin: 0 0 18px; }
-        .event-form-hr { height: 1px; background: #e6e8ec; border: 0; margin: 0 0 28px; }
-        .event-form { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 40px; }
-        .form-group { display: flex; flex-direction: column; gap: 8px; }
-        .form-label { font-size: 14px; color: #1c2a3a; }
+        .event-form-wrap {
+            max-width: 980px;
+            margin: 48px auto;
+            padding: 0 16px;
+        }
+
+        .event-form-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #0f2740;
+            margin: 0 0 18px;
+        }
+
+        .event-form-hr {
+            height: 1px;
+            background: #e6e8ec;
+            border: 0;
+            margin: 0 0 28px;
+        }
+
+        .event-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px 40px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            color: #1c2a3a;
+        }
+
         .form-input, .form-select, .form-textarea {
-            width: 100%; background: #fff; border: 1px solid #d7dbe2; border-radius: 8px;
-            padding: 10px 12px; font-size: 14px; color: #1b1b1b; outline: none;
+            width: 100%;
+            background: #fff;
+            border: 1px solid #d7dbe2;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            color: #1b1b1b;
+            outline: none;
         }
+
         .form-input:focus, .form-select:focus, .form-textarea:focus {
-            border-color: #89a7ff; box-shadow: 0 0 0 3px rgba(137,167,255,.25);
+            border-color: #89a7ff;
+            box-shadow: 0 0 0 3px rgba(137, 167, 255, .25);
         }
-        .form-textarea { min-height: 110px; resize: vertical; }
+
+        .form-textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
         .photo-card {
-            background: linear-gradient(#f4f5f7,#e9ecf0);
-            border:1px solid #d7dbe2;
-            border-radius:10px;
-            min-height:180px;
-            display:flex;
+            background: linear-gradient(#f4f5f7, #e9ecf0);
+            border: 1px solid #d7dbe2;
+            border-radius: 10px;
+            min-height: 180px;
+            display: flex;
             align-items: center;
             justify-content: center;
-            color:#9aa4b2;
+            color: #9aa4b2;
             overflow: hidden;
             position: relative;
             padding: 12px;
         }
+
         .photo-card img {
             max-width: 100%;
             max-height: 400px;
@@ -42,20 +87,94 @@
             object-fit: contain;
             border-radius: 6px;
         }
-        .upload-btn { margin-top:12px; padding:8px 14px; border-radius:999px; background:#0f2740; color:#fff; border:none; cursor:pointer; }
-        .upload-btn:hover { background:#1a3a5c; }
-        .form-actions { grid-column:1/-1; display:flex; gap:10px; margin-top:8px; }
-        .btn-primary{ background:#0f2740; color:#fff; border:0; border-radius:999px; padding:10px 24px; cursor:pointer; }
-        .btn-primary:hover { background:#1a3a5c; }
-        .btn-ghost{ background:transparent; color:#0f2740; border:1px solid #c9d1db; border-radius:999px; padding:10px 24px; cursor:pointer; text-decoration: none; display: inline-block; }
-        .btn-ghost:hover { background:#f4f5f7; }
-        .time-inputs { display: flex; align-items: center; gap: 12px; }
-        .time-separator { color: #6b7280; font-size: 14px; }
-        .form-span-2 { grid-column: 1 / -1; }
-        .equipment-item { display:flex; gap:12px; align-items:center; margin-bottom:8px; }
-        .equipment-item input[type="text"] { width:160px; }
-        .remove-equipment { background:#e74c3c; color:white; border:none; padding:4px 8px; border-radius:5px; cursor:pointer; }
-        .remove-equipment:hover { background:#c0392b; }
+
+        .upload-btn {
+            margin-top: 12px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: #0f2740;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        .upload-btn:hover {
+            background: #1a3a5c;
+        }
+
+        .form-actions {
+            grid-column: 1/-1;
+            display: flex;
+            gap: 10px;
+            margin-top: 8px;
+        }
+
+        .btn-primary {
+            background: #0f2740;
+            color: #fff;
+            border: 0;
+            border-radius: 999px;
+            padding: 10px 24px;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background: #1a3a5c;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: #0f2740;
+            border: 1px solid #c9d1db;
+            border-radius: 999px;
+            padding: 10px 24px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-ghost:hover {
+            background: #f4f5f7;
+        }
+
+        .time-inputs {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .time-separator {
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .form-span-2 {
+            grid-column: 1 / -1;
+        }
+
+        .equipment-item {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .equipment-item input[type="text"] {
+            width: 160px;
+        }
+
+        .remove-equipment {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .remove-equipment:hover {
+            background: #c0392b;
+        }
     </style>
 </head>
 
@@ -113,7 +232,8 @@
             <input type="hidden" name="imageUrl" id="imageUrl" th:value="${event.imageUrl}">
             <span id="photoUploadStatus" style="font-size:12px;color:#555;"></span>
 
-            <button type="button" class="upload-btn" onclick="document.getElementById('photo').click()">Upload Photo</button>
+            <button type="button" class="upload-btn" onclick="document.getElementById('photo').click()">Upload Photo
+            </button>
         </div>
 
         <div class="form-group">
@@ -181,12 +301,14 @@
 
         <div class="form-group">
             <label class="form-label" for="minParticipants">Min participants:</label>
-            <input id="minParticipants" name="minParticipants" type="number" min="1" th:field="*{minParticipants}" class="form-input" required>
+            <input id="minParticipants" name="minParticipants" type="number" min="1" th:field="*{minParticipants}"
+                   class="form-input" required>
         </div>
 
         <div class="form-group">
             <label class="form-label" for="maxParticipants">Max participants:</label>
-            <input id="maxParticipants" name="maxParticipants" type="number" min="1" th:field="*{maxParticipants}" class="form-input" required>
+            <input id="maxParticipants" name="maxParticipants" type="number" min="1" th:field="*{maxParticipants}"
+                   class="form-input" required>
         </div>
 
 
@@ -225,11 +347,14 @@
 
         <div class="form-group">
             <label class="form-label" for="price">Price:</label>
-            <input id="price" name="price" type="number" min="0" step="0.01" th:field="*{price}" class="form-input" required>
+            <input id="price" name="price" type="number" min="0" step="0.01" th:field="*{price}" class="form-input"
+                   required>
         </div>
 
         <div class="form-actions">
-            <button type="submit" class="btn-primary" th:text="${isEdit} ? 'Update Event' : 'Create Event'">Create Event</button>
+            <button type="submit" class="btn-primary" th:text="${isEdit} ? 'Update Event' : 'Create Event'">Create
+                Event
+            </button>
             <a th:href="@{/events}" class="btn-ghost">Cancel</a>
         </div>
     </form>
@@ -266,8 +391,11 @@
             const equipmentId = eq.id || '';
             const equipmentName = eq.name ? escapeHtml(eq.name) : '';
             const equipmentPrice = eq.unitPrice ?? eq.price ?? '';
+            const equipmentStock = eq.stock ?? '';
             const isRentable = eq.rentable === true;
             const isRequired = eq.required === true;
+            const rentableReadOnlyAttr = isRentable ? "" : "readonly";
+            const rentableRequiredAttr = isRentable ? "required" : "";
 
             item.innerHTML = `
         <input type="hidden"
@@ -282,15 +410,39 @@
             value="${equipmentName}"
             required>
 
-        <input type="number"
-            name="equipments[${index}].unitPrice"
-            class="form-input equipment-price"
-            data-index="${index}"
-            placeholder="Price"
-            step="0.01"
-            min="0"
-            value="${equipmentPrice}"
-            ${isRentable ? 'required' : ''}>
+        <!-- PRICE -->
+                <div class="equipment-price-stock">
+            <div class="equipment-price-stock-inputs">
+                <!-- PRICE -->
+                <input type="number"
+                    name="equipments[${index}].unitPrice"
+                    class="form-input equipment-price"
+                    data-index="${index}"
+                    placeholder="Price"
+                    step="0.01"
+                    min="0"
+                    value="${equipmentPrice}"
+                    ${rentableReadOnlyAttr}
+                    ${rentableRequiredAttr}>
+
+                <!-- STOCK -->
+                <input type="number"
+                    name="equipments[${index}].stock"
+                    class="form-input equipment-stock"
+                    data-index="${index}"
+                    placeholder="Stock"
+                    min="0"
+                    value="${equipmentStock}"
+                    ${rentableReadOnlyAttr}
+                    ${rentableRequiredAttr}>
+            </div>
+
+            <div class="rentable-warning">
+                Please enable "Rentable" first.
+            </div>
+        </div>
+
+
 
         <label style="display: flex; align-items: center; gap: 4px;">
             <input type="checkbox"
@@ -352,20 +504,44 @@
                         console.log(` Updated ${field}[${index}] = ${e.target.checked}`);
                     }
 
-                    //  Rentable steuert, ob Price required ist
+                    //  Rentable steuert, ob Price & Stock (sichtbar/editierbar + required)
                     if (field === "rentable") {
+                        const checked = e.target.checked;
+
+                        const warning = e.target
+                            .closest(".equipment-item")
+                            .querySelector(".rentable-warning");
+
+                        if (warning) warning.style.display = "none";
+
                         const priceInput = document.querySelector(
                             `input[name="equipments[${index}].unitPrice"]`
                         );
+                        const stockInput = document.querySelector(
+                            `input[name="equipments[${index}].stock"]`
+                        );
+
                         if (priceInput) {
-                            priceInput.required = e.target.checked; // true = Pflicht, false = optional
+                            priceInput.required = checked;
+                            priceInput.readOnly = !checked;
+                            if (!checked) {
+                                priceInput.value = "";
+                            }
+                        }
+
+                        if (stockInput) {
+                            stockInput.required = checked;
+                            stockInput.readOnly = !checked;
+                            if (!checked) {
+                                stockInput.value = "";
+                            }
                         }
                     }
                 }
             });
 
             equipmentList.addEventListener("input", (e) => {
-                if (e.target.matches(".equipment-name, .equipment-price")) {
+                if (e.target.matches(".equipment-name, .equipment-price, .equipment-stock")) {
                     const index = e.target.dataset.index;
                     const hiddenId = document.querySelector(
                         `input[name="equipments[${index}].id"]`
@@ -394,17 +570,47 @@
             console.warn('equipment-list or add-equipment not found in DOM');
         }
 
+        // Show warning if user clicks price/stock while not rentable
+        equipmentList.addEventListener("mousedown", (e) => {
+            if (e.target.matches(".equipment-price, .equipment-stock")) {
+
+                const index = e.target.dataset.index;
+                const rentableCheckbox = document.querySelector(
+                    `input[data-index="${index}"][data-field="rentable"]`
+                );
+
+                if (!rentableCheckbox.checked) {
+                    const warning = e.target
+                        .closest(".equipment-item")
+                        .querySelector(".rentable-warning");
+
+                    if (warning) {
+                        warning.style.display = "block";
+
+                        // Hide automatically after 2 seconds
+                        setTimeout(() => {
+                            warning.style.display = "none";
+                        }, 3000);
+                    }
+
+                    // Prevent the input from getting focus
+                    e.preventDefault();
+                }
+            }
+        });
+
+
         // Photo preview
         const photoInput = document.getElementById('photo');
         const photoCard = document.getElementById('photoCard');
         const photoHint = document.getElementById('photoHint');
 
         if (photoInput) {
-            photoInput.addEventListener('change', function(e) {
+            photoInput.addEventListener('change', function (e) {
                 const file = e.target.files[0];
                 if (file) {
                     const reader = new FileReader();
-                    reader.onload = function(event) {
+                    reader.onload = function (event) {
                         const existingImg = photoCard.querySelector('img');
                         if (existingImg) {
                             existingImg.remove();
@@ -423,8 +629,8 @@
             });
         }
     });
-</script>
 
+</script>
 
 
 </body>

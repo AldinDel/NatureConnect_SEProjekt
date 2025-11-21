@@ -22,7 +22,7 @@ public class EditEquipmentService {
     public EquipmentDTO edit(Long id, UpdateEquipmentRequest req) {
         Equipment existing = equipmentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Equipment not found: " + id));
-        Equipment updated = mapper.toDomainUpdate(existing.getId(), req.getName(), req.getUnitPrice(), req.isRentable());
+        Equipment updated = mapper.toDomainUpdate(existing.getId(), req.getName(), req.getUnitPrice(), req.isRentable(), req.getStock());
         equipmentRepository.save(updated);
         return mapper.toDto(updated, false);
     }

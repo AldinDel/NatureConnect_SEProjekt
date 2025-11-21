@@ -27,19 +27,22 @@ public class EventController {
     private final SearchEventService searchService;
     private final FilterEventService filterService;
     private final GetAllEquipmentService equipmentService;
+    private final CancelEventService cancelService  ;
 
     public EventController(CreateEventService createService,
                            UpdateEventService updateService,
                            GetEventDetailsService detailsService,
                            SearchEventService searchService,
                            FilterEventService filterService,
-                           GetAllEquipmentService equipmentService) {
+                           GetAllEquipmentService equipmentService,
+                           CancelEventService cancelService) {
         this.createService = createService;
         this.updateService = updateService;
         this.detailsService = detailsService;
         this.searchService = searchService;
         this.filterService = filterService;
         this.equipmentService = equipmentService;
+        this.cancelService = cancelService;
     }
 
     @GetMapping("/new")
@@ -101,6 +104,7 @@ public class EventController {
                 r.setUnitPrice(eq.unitPrice());
                 r.setRentable(eq.rentable());
                 r.setRequired(eq.required());
+                r.setStock(eq.stock());
                 return r;
             }).toList();
 
@@ -239,5 +243,25 @@ public class EventController {
             redirect.addFlashAttribute("error", "Event not found.");
             return "redirect:/events";
         }
+    }
+
+    // Cancel Event Endpoint
+    @PostMapping("/{id}/cancel")
+    public String cancelEvent(@PathVariable("id") Long id, RedirectAttributes redirect) {
+        try {
+            cancelService.cancel(id);
+            redirect.addFlashAttribute("success", "Event cancelled successfully!");
+        } catch (Exception e) {
+            redirect.addFlashAttribute("error", "Could not cancel event: " + e.getMessage());
+        }
+        return "redirect:/events";
+    }
+
+    // Backoffice View - alle Events inkl. cancelled
+    @GetMapping("/backoffice")
+    public String backofficeList(Model model) {
+        model.addAttribute("events", searchService.getAllIncludingCancelled());
+        model.addAttribute("showCancelled", true);
+        return "events/list";
     }
 }

@@ -74,7 +74,8 @@ public class EventMapperDTO {
                         ee.getEquipment().getName(),
                         ee.getEquipment().getUnitPrice(),  // send unitPrice
                         ee.getEquipment().isRentable(),
-                        ee.isRequired()
+                        ee.isRequired(),
+                        ee.getEquipment().getStock()
                 ))
                 .collect(Collectors.toList());
     }
@@ -96,7 +97,8 @@ public class EventMapperDTO {
                 e.getMaxParticipants(),
                 e.getPrice(),
                 e.getImageUrl(),
-                e.getAudience() != null ? e.getAudience().toString() : null
+                e.getAudience() != null ? e.getAudience().toString() : null,
+                e.getCancelled()
         );
     }
 
