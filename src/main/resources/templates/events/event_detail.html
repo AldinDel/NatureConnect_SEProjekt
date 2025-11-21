@@ -165,19 +165,26 @@
         </div>
 
         <div class="box">
-            <h3>Optional Add-ons</h3>
+            <h3>Equipment Add-ons</h3>
 
             <div class="sub-box">
-                <h4>Equipment</h4>
-                <div id="allEquipmentList" class="simple-list"></div>
-                <p id="noEquipMsg" style="display:none;">No equipment found 💼</p>
+
+                <div class="equipment-table">
+                    <div class="equipment-header">
+                        <span>Name</span>
+                        <span>Required</span>
+                        <span>Rentable</span>
+                        <span>Price</span>
+                        <span>Stock</span>
+                    </div>
+
+                    <div id="allEquipmentList" class="equipment-rows"></div>
+
+                    <p id="noEquipMsg" style="display:none;">No equipment found 💼</p>
+                </div>
             </div>
 
-            <div class="sub-box">
-                <h4>Available for Rent</h4>
-                <div id="rentableEquipmentList" class="simple-list"></div>
-                <p id="noRentableMsg" style="display:none;">No rentable equipment available 🪶</p>
-            </div>
+
         </div>
     </section>
 
@@ -228,41 +235,41 @@
     const equipmentList = /*[[${event.equipments}]]*/ [];
 
     const allList = document.getElementById("allEquipmentList");
-    const rentList = document.getElementById("rentableEquipmentList");
     const noEquipMsg = document.getElementById("noEquipMsg");
-    const noRentableMsg = document.getElementById("noRentableMsg");
 
     if (!equipmentList || equipmentList.length === 0) {
         noEquipMsg.style.display = "block";
     } else {
-        let hasRentable = false;
 
         equipmentList.forEach(eq => {
-            const item = document.createElement("div");
-            item.classList.add("simple-item");
-            item.innerHTML = `
-                    <span>${eq.name}</span>
-                    <span>${eq.required ? "Mandatory" : "Optional"}</span>
-                `;
-            allList.appendChild(item);
 
-            if (eq.rentable) {
-                hasRentable = true;
-                const rentItem = document.createElement("div");
-                rentItem.classList.add("simple-item");
-                rentItem.innerHTML = `
-                        <span>${eq.name}</span>
-                        <span>€ ${eq.unitPrice  ?? "—"}</span>
-                    `;
-                rentList.appendChild(rentItem);
-            }
+            const rentableIcon = eq.rentable
+                ? `<span style="color:green; font-weight:600;">✔</span>`
+                : `<span style="color:#999;">—</span>`;
+
+            const requiredLabel = eq.required
+                ? `<span style="color:#b91c1c; font-weight:600;">Mandatory</span>`
+                : "Optional";
+
+            const priceText = eq.rentable ? `€ ${eq.unitPrice ?? 0}` : "—";
+            const stockText = eq.stock != null ? eq.stock : "—";
+
+            const row = document.createElement("div");
+            row.classList.add("equipment-row");
+
+            row.innerHTML = `
+            <span>${eq.name}</span>
+            <span>${requiredLabel}</span>
+            <span>${rentableIcon}</span>
+            <span>${priceText}</span>
+            <span>${stockText}</span>
+        `;
+
+            allList.appendChild(row);
         });
-
-        if (!hasRentable) {
-            noRentableMsg.style.display = "block";
-        }
     }
     /*]]>*/
+
 </script>
 
 </body>
