@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment - Nature Connect</title>
+    <link rel="stylesheet" th:href="@{/css/payment.css}">
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Complete Your Payment</h1>
+        <p th:text="'Booking ID: ' + ${bookingId}">Booking ID: 12345</p>
+    </div>
+
+    <div class="content">
+        <form th:action="@{/booking/payment/{id}(id=${bookingId})}" method="post" id="paymentForm">
+            <div class="form-group">
+                <label>Payment Method</label>
+                <div class="payment-methods">
+
+                    <div class="payment-option" onclick="selectPayment('CREDIT_CARD')">
+                        <input type="radio" name="paymentMethod" value="CREDIT_CARD" id="creditCard">
+                        <label for="creditCard">
+                            <span class="payment-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="2" y="5" width="20" height="14" rx="2"/>
+                                    <line x1="2" y1="10" x2="22" y2="10"/>
+                                </svg>
+                            </span>
+                            <div>
+                                <strong>Credit Card</strong>
+                                <div class="info-text">Pay securely with your card</div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="payment-option" onclick="selectPayment('PAYPAL')">
+                        <input type="radio" name="paymentMethod" value="PAYPAL" id="paypal">
+                        <label for="paypal">
+                            <span class="payment-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <circle cx="12" cy="12" r="10"/>
+                                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                                </svg>
+                            </span>
+                            <div>
+                                <strong>PayPal</strong>
+                                <div class="info-text">Fast and secure payment</div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="payment-option" onclick="selectPayment('INVOICE')">
+                        <input type="radio" name="paymentMethod" value="INVOICE" id="invoice">
+                        <label for="invoice">
+                            <span class="payment-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                    <polyline points="14 2 14 8 20 8"/>
+                                    <line x1="16" y1="13" x2="8" y2="13"/>
+                                    <line x1="16" y1="17" x2="8" y2="17"/>
+                                    <line x1="10" y1="9" x2="8" y2="9"/>
+                                </svg>
+                            </span>
+                            <div>
+                                <strong>Invoice</strong>
+                                <div class="info-text">Receive invoice via email</div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="payment-option" onclick="selectPayment('ON_SITE')">
+                        <input type="radio" name="paymentMethod" value="ON_SITE" id="onSite">
+                        <label for="onSite">
+                            <span class="payment-icon">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                                    <polyline points="9 22 9 12 15 12 15 22"/>
+                                </svg>
+                            </span>
+                            <div>
+                                <strong>Pay On-Site</strong>
+                                <div class="info-text">Pay at the venue</div>
+                            </div>
+                        </label>
+                    </div>
+
+                </div>
+            </div>
+
+            <div id="cardDetails" class="payment-details">
+                <h3>Card Information</h3>
+
+                <div class="form-group">
+                    <label for="cardHolder">Cardholder Name</label>
+                    <input type="text" id="cardHolder" placeholder="Max Mustermann" maxlength="75" >
+                </div>
+
+                <div class="form-group">
+                    <label for="cardNumber">Card Number</label>
+                    <input type="text" id="cardNumber" placeholder="1234 5678 9012 3456" maxlength="19">
+                </div>
+
+                <div class="card-row">
+                    <div class="form-group">
+                        <label for="cardExpiry">Expiry Date</label>
+                        <input type="text" id="cardExpiry" placeholder="MM/YY" maxlength="5">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="cardCvc">CVC</label>
+                        <input type="text" id="cardCvc" placeholder="123" maxlength="4">
+                    </div>
+                </div>
+            </div>
+
+            <div id="paypalDetails" class="payment-details">
+                <h3>PayPal Payment</h3>
+                <p>You will be redirected to PayPal to complete your payment securely.</p>
+            </div>
+
+            <div id="invoiceDetails" class="payment-details">
+                <h3>Invoice Payment</h3>
+                <p>An invoice will be sent to your email address. Please complete the payment within 14 days.</p>
+            </div>
+
+            <div id="onSiteDetails" class="payment-details">
+                <h3>Pay On-Site</h3>
+                <p>You can pay with cash or card when you arrive at our venue. Your booking will be reserved.</p>
+            </div>
+
+            <button type="submit" class="submit-btn">Complete Payment</button>
+        </form>
+    </div>
+</div>
+
+<script th:src="@{/js/payment.js}"></script>
+</body>
+</html>

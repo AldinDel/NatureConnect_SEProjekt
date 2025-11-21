@@ -1,29 +1,38 @@
-/* -------------------------------------------
-   ELEMENT REFERENCES
---------------------------------------------*/
 const numParticipantsInput = document.getElementById("numParticipants");
 const participantsContainer = document.getElementById("participantsContainer");
 
 const discountInput = document.getElementById("discountCode");
 const discountBtn = document.getElementById("applyDiscountBtn");
 const discountMessage = document.getElementById("discountMessage");
+const removeDiscountBtn = document.getElementById("removeDiscountBtn");
+const voucherCodeField = document.getElementById("voucherCodeField");
+
+removeDiscountBtn.addEventListener("click", () => {
+    currentDiscount = 0;
+
+    discountInput.readOnly = false;
+    discountInput.value = "";
+    voucherCodeField.value = null;
+
+    discountBtn.disabled = false;
+    discountBtn.classList.remove("btn-disabled");
+
+    discountMessage.classList.add("hidden");
+    removeDiscountBtn.classList.add("hidden");
+
+    updatePriceSummary();
+});
+
 
 const BASE_PRICE = parseFloat(document.getElementById("eventBasePrice").value) || 0;
 const MIN_PARTICIPANTS = parseInt(document.getElementById("eventMinParticipants").value) || 1;
 const MAX_PARTICIPANTS = parseInt(document.getElementById("eventMaxParticipants").value) || 20;
 let currentDiscount = 0;
 
-
-/* -------------------------------------------
-   UTILS
---------------------------------------------*/
 function clamp(n, min, max) {
     return Math.max(min, Math.min(max, n));
 }
 
-/* -------------------------------------------
-   PARTICIPANTS
---------------------------------------------*/
 function generateParticipants(num) {
     participantsContainer.innerHTML = "";
 
@@ -35,18 +44,32 @@ function generateParticipants(num) {
             <h3 class="participant-title">Participant ${i + 1}</h3>
             <div class="form-group">
                 <label>First Name</label>
-                <input class="form-input" type="text" name="participants[${i}].firstName" />
+                <input class="form-input" type="text" name="participants[${i}].firstName" maxlength="50"/>
             </div>
             <div class="form-group">
                 <label>Last Name</label>
-                <input class="form-input" type="text" name="participants[${i}].lastName" />
+                <input class="form-input" type="text" name="participants[${i}].lastName" maxlength="50"/>
             </div>
             <div class="form-group">
                 <label>Age</label>
-                <input class="form-input" type="number" name="participants[${i}].age" min="1" />
+                <input class="form-input" type="number" name="participants[${i}].age" min="1" max="120"/>
             </div>
         `;
 
+        const ageInput = section.querySelector(`input[name="participants[${i}].age"]`);
+
+        ageInput.addEventListener("input", () => {
+            let value = parseInt(ageInput.value, 10);
+
+            if (value > 120) {
+                ageInput.value = 120;
+            }
+            if (value < 1) {
+                ageInput.value = 1;
+            }
+        });
+
+        participantsContainer.appendChild(section);
         participantsContainer.appendChild(section);
     }
 }
@@ -56,9 +79,6 @@ function syncSeatsFormField(value) {
     if (seatsField) seatsField.value = value;
 }
 
-/* -------------------------------------------
-   LOAD EQUIPMENT (AJAX)
---------------------------------------------*/
 async function loadEquipmentForEvent(eventId) {
     try {
         const res = await fetch(`/api/events/${eventId}/equipment`);
@@ -69,53 +89,65 @@ async function loadEquipmentForEvent(eventId) {
         container.innerHTML = "";
 
         items.forEach(item => {
-            const wrapper = document.createElement("div");
+
+            const wrapper = document.createElement("label");
             wrapper.className = "checkbox-label";
 
-            // Checkbox
             const cb = document.createElement("input");
             cb.type = "checkbox";
             cb.name = `equipment[${item.id}].selected`;
             cb.dataset.price = item.unitPrice;
             cb.value = "true";
 
-            // Content
             const content = document.createElement("div");
             content.className = "addon-content";
 
-            const title = document.createElement("p");
-            title.className = "addon-name";
-            title.textContent = item.name;
+            const name = document.createElement("p");
+            name.className = "addon-name";
+            name.textContent = item.name;
+
+            const stockInfo = document.createElement("p");
+            stockInfo.className = "addon-desc";
+            stockInfo.textContent = `Available: ${item.stock}`;
+
+            content.appendChild(name);
+            content.appendChild(stockInfo);
 
             const price = document.createElement("p");
             price.className = "addon-price";
             price.textContent = `${item.unitPrice.toFixed(2)} €`;
 
-            content.appendChild(title);
-            content.appendChild(price);
-
-            // Quantity input
             const qty = document.createElement("input");
             qty.type = "number";
             qty.min = 1;
+            qty.max = item.stock;
             qty.value = 1;
             qty.name = `equipment[${item.id}].quantity`;
             qty.className = "form-input";
-            qty.style = "width: 80px; display:none;"; // HIDDEN until checkbox ticked
+            qty.style = "width: 70px; display: none;";
 
-            wrapper.appendChild(cb);
-            wrapper.appendChild(content);
-            wrapper.appendChild(qty);
-
-            container.appendChild(wrapper);
-
-            // Show quantity only when checked
             cb.addEventListener("change", () => {
                 qty.style.display = cb.checked ? "block" : "none";
                 updatePriceSummary();
             });
 
-            qty.addEventListener("input", updatePriceSummary);
+            qty.addEventListener("input", () => {
+                const participants = parseInt(numParticipantsInput.value, 10) || 1;
+
+                if (qty.value < 1) qty.value = 1;
+                if (qty.value > item.stock) qty.value = item.stock;
+                if (qty.value > participants) qty.value = participants;
+
+                updatePriceSummary();
+            });
+
+
+            wrapper.appendChild(cb);
+            wrapper.appendChild(content);
+            wrapper.appendChild(price);
+            wrapper.appendChild(qty);
+
+            container.appendChild(wrapper);
         });
 
         updatePriceSummary();
@@ -124,15 +156,13 @@ async function loadEquipmentForEvent(eventId) {
     }
 }
 
-
-/* -------------------------------------------
-   PRICE SUMMARY
---------------------------------------------*/
 function updatePriceSummary() {
     const participants = parseInt(numParticipantsInput.value, 10) || 1;
     const participantsCost = BASE_PRICE * participants;
 
     let addonsCost = 0;
+    const equipmentSummary = document.getElementById("summaryEquipment");
+    equipmentSummary.innerHTML = "";
 
     document.querySelectorAll('input[type="checkbox"][name^="equipment"]').forEach(cb => {
         if (!cb.checked) return;
@@ -142,8 +172,16 @@ function updatePriceSummary() {
 
         const qty = qtyInput ? parseInt(qtyInput.value, 10) || 1 : 1;
         const price = parseFloat(cb.dataset.price) || 0;
-
+        const totalForItem = qty * price;
         addonsCost += qty * price;
+        const name = wrapper.querySelector(".addon-name").textContent;
+        const line = document.createElement("div");
+        line.className = "price-row";
+        line.innerHTML = `
+            <span>${name} × ${qty}</span>
+            <span>${totalForItem.toFixed(2)} €</span>
+        `;
+        equipmentSummary.appendChild(line);
     });
 
 
@@ -155,9 +193,6 @@ function updatePriceSummary() {
     document.getElementById("summaryTotal").textContent = `${total.toFixed(2)} €`;
 }
 
-/* -------------------------------------------
-   DISCOUNT
---------------------------------------------*/
 if (discountBtn) {
     discountBtn.addEventListener("click", async () => {
         const code = discountInput.value.trim();
@@ -166,21 +201,26 @@ if (discountBtn) {
 
         const res = await fetch(`/api/vouchers/validate?code=` + code);
         const data = await res.json();
-
         if (data.valid) {
             currentDiscount = data.discountPercent;
             discountMessage.classList.remove("text-red");
             discountMessage.classList.add("text-green");
+            discountMessage.textContent = "✓ Voucher valid";
 
-            discountMessage.textContent = "✓ " + data.message;
             voucherCodeField.value = code;
+
+            discountInput.readOnly = true;
+            discountBtn.disabled = true;
+            discountBtn.classList.add("btn-disabled");
+
+            removeDiscountBtn.classList.remove("hidden");
 
         } else {
             currentDiscount = 0;
             discountMessage.classList.remove("text-green");
             discountMessage.classList.add("text-red");
+            discountMessage.textContent = "✕ Invalid code";
 
-            discountMessage.textContent = "✕ " + data.message;
             voucherCodeField.value = null;
         }
 
@@ -190,10 +230,6 @@ if (discountBtn) {
     });
 }
 
-
-/* -------------------------------------------
-   PARTICIPANT HANDLING
---------------------------------------------*/
 if (numParticipantsInput) {
     numParticipantsInput.addEventListener("input", () => {
         let value = parseInt(numParticipantsInput.value, 10) || 1;
@@ -202,33 +238,18 @@ if (numParticipantsInput) {
         numParticipantsInput.value = value;
         syncSeatsFormField(value);
         generateParticipants(value);
+        document.querySelectorAll('input[type="number"][name^="equipment"]').forEach(qty => {
+            const maxStock = parseInt(qty.max, 10);
+
+            if (qty.value > value) qty.value = value;
+            if (qty.value > maxStock) qty.value = maxStock;
+        });
+
         updatePriceSummary();
     });
 }
 
-async function loadPaymentMethods() {
-    const select = document.getElementById("paymentMethod");
-
-    const res = await fetch("/api/bookings/payment-methods");
-    const methods = await res.json();
-
-    select.innerHTML = `<option value="" disabled selected>Select a payment method</option>`;
-
-    methods.forEach(m => {
-        const opt = document.createElement("option");
-        opt.value = m;
-        opt.textContent = m.replace("_", " ").toUpperCase();
-        select.appendChild(opt);
-    });
-}
-
-
-/* -------------------------------------------
-   INITIAL LOAD
---------------------------------------------*/
 document.addEventListener("DOMContentLoaded", () => {
-
-    // --- Error Popup ---
     function showError(message) {
         console.log("showError called with:", message); // DEBUG
 
@@ -242,7 +263,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         setTimeout(() => {
             error.remove();
-        }, 5000);
+        }, 2000);
     }
 
     const eventIdEl = document.getElementById("pageEventId");
@@ -273,11 +294,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const formData = new FormData(form);
         const json = {};
+        const equipmentData = {};
 
         formData.forEach((value, key) => {
             json[key] = value;
         });
 
+        Object.keys(json).forEach(key => {
+            const match = key.match(/^equipment\[(\d+)]\.(\w+)$/);
+            if (match) {
+                const id = parseInt(match[1]);
+                const field = match[2];
+
+                if (!equipmentData[id]) {
+                    equipmentData[id] = {};
+                }
+
+                equipmentData[id][field] = json[key];
+                delete json[key];
+            }
+        });
+
+        json.equipment = equipmentData;
+        json.discountPercent = currentDiscount;
+
+        const participants = [];
+
+        Object.keys(json).forEach(key => {
+            const match = key.match(/^participants\[(\d+)]\.(\w+)$/);
+            if (match) {
+                const index = parseInt(match[1]);
+                const field = match[2];
+
+                if (!participants[index]) {
+                    participants[index] = {};
+                }
+
+                participants[index][field] = json[key];
+
+                delete json[key];
+            }
+        });
+
+        json.participants = participants;
         const res = await fetch("/api/bookings", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -285,22 +344,24 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         if (!res.ok) {
-            const errors = await res.json();
-            errors.forEach(msg => showError(msg));
+            const body = await res.json();
+
+            if (Array.isArray(body)) {
+                body.forEach(msg => showError(msg));
+            } else if (body.message) {
+                body.message.split("|").forEach(msg => showError(msg.trim()));
+            }
             confirmBtn.disabled = false;
             confirmBtn.textContent = "Confirm Booking";
             return;
         }
-
         const booking = await res.json();
-        window.location.href = "/booking/confirmation/" + booking.id;
+        window.location.href = "/booking/payment/" + booking.id;
     });
 
-    // Initial load
     generateParticipants(1);
     numParticipantsInput.value = 1;
     syncSeatsFormField(1);
     loadEquipmentForEvent(eventId);
-    loadPaymentMethods();
     updatePriceSummary();
 });

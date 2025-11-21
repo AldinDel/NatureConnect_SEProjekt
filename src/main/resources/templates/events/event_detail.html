@@ -5,8 +5,8 @@
     <title th:text="${event.title}">Event Details</title>
 
     <!-- Stylesheets -->
-    <link rel="stylesheet" th:href="@{/style.css}">
-    <link rel="stylesheet" th:href="@{/event_detail.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/event_detail.css}">
 
 </head>
 
@@ -167,8 +167,10 @@
             <h3>Pricing</h3>
             <p>Price per person</p>
             <p><span th:text="${event.price}">20</span> €</p>
-
-            <button class="book-btn">Book now</button>
+            <a class="book-btn"
+               th:href="@{'/booking/' + ${event.id}}">
+                Book now
+            </a>
         </div>
     </aside>
 </main>

@@ -1,5 +1,8 @@
 package at.fhv.Event.domain.model.booking;
 
+import at.fhv.Event.domain.model.payment.PaymentMethod;
+import at.fhv.Event.domain.model.payment.PaymentStatus;
+
 import java.time.Instant;
 import java.util.List;
 
@@ -13,7 +16,7 @@ public class Booking {
     private AudienceType audience;
     private BookingStatus status;
     private PaymentStatus paymentStatus;
-    private PaymentMethod paymentMethod; // optional
+    private PaymentMethod paymentMethod;
     private String voucherCode;
     private double discountAmount;
     private double totalPrice;

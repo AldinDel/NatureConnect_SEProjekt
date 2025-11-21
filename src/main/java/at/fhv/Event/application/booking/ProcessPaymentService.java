@@ -1,6 +1,10 @@
 package at.fhv.Event.application.booking;
 
 import at.fhv.Event.domain.model.booking.*;
+import at.fhv.Event.domain.model.payment.PaymentMethod;
+import at.fhv.Event.domain.model.payment.PaymentStatus;
+import at.fhv.Event.domain.model.payment.PaymentTransaction;
+import at.fhv.Event.domain.model.payment.PaymentTransactionRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,7 +13,6 @@ public class ProcessPaymentService {
 
     private final BookingRepository bookingRepository;
     private final PaymentTransactionRepository transactionRepo;
-
     public ProcessPaymentService(
             BookingRepository bookingRepository,
             PaymentTransactionRepository transactionRepo
@@ -23,13 +26,9 @@ public class ProcessPaymentService {
 
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
-
         double amount = booking.getTotalPrice();
-
-        // Create transaction
         PaymentTransaction tx = new PaymentTransaction(bookingId, method, amount);
 
-        // Process based on method (simplified - always success for uni project)
         switch (method) {
             case INVOICE -> {
                 tx.markSuccess();
@@ -55,7 +54,6 @@ public class ProcessPaymentService {
 
         booking.setStatus(BookingStatus.CONFIRMED);
 
-        // Save everything
         PaymentTransaction savedTx = transactionRepo.save(tx);
         bookingRepository.save(booking);
 

@@ -3,7 +3,7 @@ package at.fhv.Event.application.request.booking;
 import at.fhv.Event.domain.model.booking.Booking;
 import at.fhv.Event.domain.model.booking.BookingParticipant;
 import at.fhv.Event.domain.model.booking.BookingStatus;
-import at.fhv.Event.domain.model.booking.PaymentStatus;
+import at.fhv.Event.domain.model.payment.PaymentStatus;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

@@ -1,6 +1,11 @@
 package at.fhv.Event.domain.model.booking;
 
+import at.fhv.Event.application.request.booking.CreateBookingRequest;
+import at.fhv.Event.domain.model.event.Event;
+import at.fhv.Event.infrastructure.persistence.equipment.EquipmentEntity;
+
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface BookingRepository {
@@ -10,4 +15,6 @@ public interface BookingRepository {
     List<Booking> findAll();
     List<Booking> findByEventId(Long eventId);
     int countSeatsForEvent(Long eventId);
+    Event loadEventForBooking(Long eventId);
+    Map<Long, EquipmentEntity> loadEquipmentMap(CreateBookingRequest request);
 }

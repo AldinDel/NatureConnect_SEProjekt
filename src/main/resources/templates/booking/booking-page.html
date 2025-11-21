@@ -10,32 +10,23 @@
 </head>
 
 <body>
-
-<!-- Hero -->
 <div class="hero">
     <img th:src="${event.imageUrl}" alt="Event image" />
     <div class="hero-overlay"></div>
 </div>
 
 <div class="container">
-    <div id="errorPop" class="errorPop"></div>
+    <div id="errorPop"></div>
     <form th:action="@{/booking}" th:object="${booking}" method="post">
 
-        <!-- Event Id (for form) -->
-        <input type="hidden" th:field="*{eventId}">
-
-        <!-- Event Id (for JS AJAX load) -->
+        <input type="hidden" th:field="*{eventId}" th:value="${event.id}">
         <input type="hidden" id="pageEventId" th:value="${event.id}">
         <input type="hidden" id="eventBasePrice" th:value="${event.price}">
         <input type="hidden" id="eventMinParticipants" th:value="${event.minParticipants}">
         <input type="hidden" id="eventMaxParticipants" th:value="${event.maxParticipants}">
 
         <div class="grid">
-
-            <!-- Left Side -->
             <div class="left-column">
-
-                <!-- Event Info -->
                 <div class="card">
                     <h1 class="title" th:text="${event.title}"></h1>
 
@@ -51,21 +42,19 @@
                     </p>
                 </div>
 
-                <!-- Booker Info -->
                 <div class="card">
                     <h2 class="card-title">Your Information</h2>
 
                     <label>First Name</label>
-                    <input type="text" class="form-input" th:field="*{bookerFirstName}" required>
+                    <input type="text" class="form-input" th:field="*{bookerFirstName}" maxlength="50" required>
 
                     <label>Last Name</label>
-                    <input type="text" class="form-input" th:field="*{bookerLastName}" required>
+                    <input type="text" class="form-input" th:field="*{bookerLastName}" maxlength="50" required>
 
                     <label>Email</label>
-                    <input type="email" class="form-input" th:field="*{bookerEmail}" required>
+                    <input type="email" class="form-input" th:field="*{bookerEmail}" maxlength="100" required>
                 </div>
 
-                <!-- Audience -->
                 <div class="card">
                     <h2 class="card-title">Audience Type</h2>
 
@@ -87,7 +76,6 @@
                     </div>
                 </div>
 
-                <!-- Participants -->
                 <div class="card">
                     <h2 class="card-title">Participants</h2>
 
@@ -97,52 +85,38 @@
                     <div id="participantsContainer"></div>
                 </div>
 
-                <!-- Equipment -->
                 <div class="card">
                     <h2 class="card-title">Equipment & Add-ons</h2>
 
-                    <!-- JS FILLS THIS -->
                     <div id="equipmentContainer">
-                        <!-- Left empty on purpose -->
                     </div>
                 </div>
 
                 <div class="card">
-                    <h2 class="card-title">Payment Method</h2>
-
-                    <label for="paymentMethod">Choose Payment Method</label>
-                    <select id="paymentMethod" class="form-input" th:field="*{paymentMethod}" required>
-                        <option value="" disabled selected>Loading...</option>
-                    </select>
-
-                </div>
-
-                <!-- Notes -->
-                <div class="card">
                     <h2 class="card-title">Special Notes</h2>
-                    <textarea class="form-input" rows="4" th:field="*{specialNotes}"></textarea>
+                    <textarea class="form-input" rows="4" th:field="*{specialNotes}" maxlength="250" style="resize:none;"></textarea>
                 </div>
 
             </div>
 
-            <!-- Right Sidebar -->
             <div class="right-column">
                 <div class="card sidebar">
                     <h3 class="card-title">Summary</h3>
+                    <div class="voucher-wrapper">
+                        <div class="voucher-input-wrapper">
+                            <input type="text" id="discountCode" class="voucher-input" placeholder="Voucher code">
+                            <button id="removeDiscountBtn" type="button" class="hidden voucher-remove">✕</button>
+                        </div>
 
-                    <div class="card">
-                        <label for="discountCode">Voucher Code</label>
-                        <input type="text" id="discountCode" class="form-input">
-
-                        <button id="applyDiscountBtn" type="button" class="btn-secondary" style="margin-top: 10px;">
-                            Apply
-                        </button>
-
-                        <p id="discountMessage" class="hidden" style="margin-top: 5px; font-size: 14px;"></p>
-                        <input type="hidden" th:field="*{voucherCode}" id="voucherCodeField">
+                        <button id="applyDiscountBtn" type="button" class="voucher-apply">Apply</button>
                     </div>
 
+                    <p id="discountMessage" class="hidden"></p>
+                    <input type="hidden" th:field="*{voucherCode}" id="voucherCodeField">
 
+                    <div id="summaryEquipmentSection">
+                        <div id="summaryEquipment"></div>
+                    </div>
 
                     <div class="price-row">
                         <span>Participants:</span>

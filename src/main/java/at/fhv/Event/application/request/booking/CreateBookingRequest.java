@@ -1,9 +1,11 @@
 package at.fhv.Event.application.request.booking;
 
 import at.fhv.Event.domain.model.booking.AudienceType;
-import at.fhv.Event.domain.model.booking.PaymentMethod;
+import at.fhv.Event.domain.model.payment.PaymentMethod;
+import at.fhv.Event.domain.model.equipment.EquipmentSelection;
 
 import java.util.List;
+import java.util.Map;
 
 public class CreateBookingRequest {
 
@@ -19,9 +21,14 @@ public class CreateBookingRequest {
     private String voucherCode;
     private String specialNotes;
     private PaymentMethod paymentMethod;
-
+    private Integer discountPercent;
 
     private List<ParticipantDTO> participants;
+    private Map<Long, EquipmentSelection> equipment;
+
+    public Map<Long, EquipmentSelection> getEquipment() { return equipment; }
+    public void setEquipment(Map<Long, EquipmentSelection> equipment) { this.equipment = equipment; }
+
 
     public Long getEventId() {
         return eventId;
@@ -101,5 +108,13 @@ public class CreateBookingRequest {
 
     public void setPaymentMethod(PaymentMethod paymentMethod) {
         this.paymentMethod = paymentMethod;
+    }
+
+    public Integer getDiscountPercent() {
+        return discountPercent;
+    }
+
+    public void setDiscountPercent(Integer discountPercent) {
+        this.discountPercent = discountPercent;
     }
 }

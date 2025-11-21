@@ -2,8 +2,8 @@ package at.fhv.Event.infrastructure.persistence.booking;
 
 import at.fhv.Event.domain.model.booking.AudienceType;
 import at.fhv.Event.domain.model.booking.BookingStatus;
-import at.fhv.Event.domain.model.booking.PaymentMethod;
-import at.fhv.Event.domain.model.booking.PaymentStatus;
+import at.fhv.Event.domain.model.payment.PaymentMethod;
+import at.fhv.Event.domain.model.payment.PaymentStatus;
 import jakarta.persistence.*;
 
 import java.time.Instant;

@@ -1,7 +1,7 @@
 package at.fhv.Event.infrastructure.mapper;
 
-import at.fhv.Event.domain.model.booking.PaymentTransaction;
-import at.fhv.Event.infrastructure.persistence.booking.PaymentTransactionEntity;
+import at.fhv.Event.domain.model.payment.PaymentTransaction;
+import at.fhv.Event.infrastructure.persistence.payment.PaymentTransactionEntity;
 import org.springframework.stereotype.Component;
 @Component
 public class PaymentTransactionMapper {

@@ -34,15 +34,12 @@ public class UpdateEventService {
 
     @Transactional
     public EventDetailDTO updateEvent(Long id, UpdateEventRequest req) {
-        System.out.println("=== UPDATE EVENT SERVICE ===");
         req.getEquipments().forEach(e -> System.out.println("Equipment: id=" + e.getId() + " name=" + e.getName() +
                 " required=" + e.isRequired() + " rentable=" + e.isRentable()));
-        System.out.println("===========================");
 
         EventEntity entity = eventJpaRepository.findByIdWithEquipments(id)
                 .orElseThrow(() -> new RuntimeException("Event not found: " + id));
 
-        // BASIC FIELDS
         entity.setTitle(req.getTitle());
         entity.setDescription(req.getDescription());
         entity.setOrganizer(req.getOrganizer());
@@ -63,7 +60,6 @@ public class UpdateEventService {
             entity.setAudience(null);
         }
 
-        // VALIDATE EQUIPMENT (rentable → price & stock required)
         if (req.getEquipments() != null) {
             req.getEquipments().forEach(eq -> {
                 if (eq.isRentable()) {
@@ -81,21 +77,16 @@ public class UpdateEventService {
             });
         }
 
-
-        // REMOVE ALL OLD LINKS
         var oldLinks = new java.util.ArrayList<>(entity.getEventEquipments());
         for (var link : oldLinks) {
             entity.removeEquipment(link);
         }
         eventJpaRepository.flush();
-
-        // ADD NEW/UPDATED EQUIPMENTS
         if (req.getEquipments() != null && !req.getEquipments().isEmpty()) {
 
             for (var eqReq : req.getEquipments()) {
                 EquipmentEntity equipmentEntity;
 
-                // CASE 1: NEW EQUIPMENT (id is null) -> immer NEU anlegen
                 if (eqReq.getId() == null) {
                     System.out.println("→ Creating NEW equipment (no id): " + eqReq.getName());
 
@@ -107,7 +98,6 @@ public class UpdateEventService {
                         equipmentEntity.setUnitPrice(eqReq.getUnitPrice());
                         equipmentEntity.setStock(eqReq.getStock());
                     } else {
-                        // nicht rentable → Preis & Stock sind bei uns irrelevant
                         equipmentEntity.setUnitPrice(null);
                         equipmentEntity.setStock(null);
                     }
@@ -116,7 +106,6 @@ public class UpdateEventService {
                     System.out.println("Created new equipment with id: " + equipmentEntity.getId());
                 }
 
-                // CASE 2: EXISTING EQUIPMENT (id is provided)
                 else {
                     System.out.println("Updating existing equipment id=" + eqReq.getId());
 
@@ -139,7 +128,6 @@ public class UpdateEventService {
                             " stock=" + equipmentEntity.getStock());
                 }
 
-                // LINK EVENT <-> EQUIPMENT with the 'required' flag
                 var link = new EventEquipmentEntity(entity, equipmentEntity, eqReq.isRequired());
                 entity.addEquipment(link);
 
@@ -148,7 +136,6 @@ public class UpdateEventService {
         }
 
         EventEntity saved = eventJpaRepository.save(entity);
-        System.out.println("=== EVENT SAVED ===");
         return dtoMapper.toDetailDTO(domainMapper.toDomain(saved));
     }
 }

@@ -30,13 +30,11 @@ public class EventMapperDTO {
     public EventDetailDTO toDetailDTO(Event e) {
         if (e == null) return null;
 
-        // required IDs
         List<Long> requiredIds = e.getEventEquipments().stream()
                 .filter(EventEquipment::isRequired)
                 .map(ee -> ee.getEquipment().getId())
                 .collect(Collectors.toList());
 
-        // optional IDs
         List<Long> optionalIds = e.getEventEquipments().stream()
                 .filter(ee -> !ee.isRequired())
                 .map(ee -> ee.getEquipment().getId())
@@ -72,7 +70,7 @@ public class EventMapperDTO {
                 .map(ee -> new EquipmentDTO(
                         ee.getEquipment().getId(),
                         ee.getEquipment().getName(),
-                        ee.getEquipment().getUnitPrice(),  // send unitPrice
+                        ee.getEquipment().getUnitPrice(),
                         ee.getEquipment().isRentable(),
                         ee.isRequired(),
                         ee.getEquipment().getStock()
@@ -101,7 +99,5 @@ public class EventMapperDTO {
                 e.getCancelled()
         );
     }
-
-
 }
 

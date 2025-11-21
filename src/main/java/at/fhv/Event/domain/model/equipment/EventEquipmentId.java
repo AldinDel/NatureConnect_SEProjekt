@@ -15,5 +15,4 @@ public class EventEquipmentId implements Serializable {
         this.equipmentId = equipmentId;
     }
 
-    // equals & hashCode Pflicht!
 }

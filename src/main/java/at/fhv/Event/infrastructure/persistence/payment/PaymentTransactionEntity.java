@@ -1,7 +1,7 @@
-package at.fhv.Event.infrastructure.persistence.booking;
+package at.fhv.Event.infrastructure.persistence.payment;
 
-import at.fhv.Event.domain.model.booking.PaymentMethod;
-import at.fhv.Event.domain.model.booking.TransactionStatus;
+import at.fhv.Event.domain.model.payment.PaymentMethod;
+import at.fhv.Event.domain.model.payment.TransactionStatus;
 import jakarta.persistence.*;
 import java.time.Instant;
 @Entity
@@ -36,8 +36,6 @@ public class PaymentTransactionEntity {
             createdAt = Instant.now();
         }
     }
-
-    // Getters and Setters
 
     public Long getId() {
         return id;

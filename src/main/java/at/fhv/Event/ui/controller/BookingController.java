@@ -3,6 +3,8 @@ package at.fhv.Event.ui.controller;
 import at.fhv.Event.application.booking.BookEventService;
 import at.fhv.Event.application.event.GetEventDetailsService;
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
+import at.fhv.Event.domain.model.booking.AudienceType;
+import at.fhv.Event.domain.model.booking.Booking;
 import at.fhv.Event.infrastructure.persistence.equipment.EquipmentEntity;
 import at.fhv.Event.infrastructure.persistence.equipment.EquipmentJpaRepository;
 import at.fhv.Event.rest.response.booking.BookingDTO;
@@ -38,6 +40,7 @@ public class BookingController {
 
         CreateBookingRequest req = new CreateBookingRequest();
         req.setEventId(eventId);
+        req.setAudience(AudienceType.INDIVIDUAL);
 
         List<EquipmentEntity> addons = equipmentRepository.findByRentableTrue();
 
@@ -55,8 +58,27 @@ public class BookingController {
         BookingDTO bookingDTO = bookEventService.bookEvent(request);
 
         Long bookingId = bookingDTO.getId();
+        return "redirect:/booking/payment/" + bookingId;
+    }
 
-        // Redirect to confirmation page
-        return "redirect:/booking/confirmation/" + bookingId;
+    @GetMapping("/payment/{id}")
+    public String paymentPage(@PathVariable Long id, Model model) {
+        Booking booking = bookEventService.getById(id);
+
+        model.addAttribute("bookingId", booking.getId());
+        model.addAttribute("amount", booking.getTotalPrice());
+        model.addAttribute("paymentMethod", booking.getPaymentMethod());
+
+        return "booking/payment";
+    }
+
+    @PostMapping("/payment/{id}")
+    public String completePayment(
+            @PathVariable Long id,
+            @RequestParam("paymentMethod") String paymentMethod
+    ) {
+        bookEventService.updatePaymentMethod(id, paymentMethod);
+
+        return "redirect:/booking/confirmation/" + id;
     }
 }

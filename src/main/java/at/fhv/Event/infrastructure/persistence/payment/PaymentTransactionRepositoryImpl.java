@@ -1,7 +1,7 @@
-package at.fhv.Event.infrastructure.persistence.booking;
+package at.fhv.Event.infrastructure.persistence.payment;
 
-import at.fhv.Event.domain.model.booking.PaymentTransaction;
-import at.fhv.Event.domain.model.booking.PaymentTransactionRepository;
+import at.fhv.Event.domain.model.payment.PaymentTransaction;
+import at.fhv.Event.domain.model.payment.PaymentTransactionRepository;
 import at.fhv.Event.infrastructure.mapper.PaymentTransactionMapper;
 import org.springframework.stereotype.Repository;
 

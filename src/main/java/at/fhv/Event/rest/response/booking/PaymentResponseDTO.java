@@ -1,7 +1,7 @@
 package at.fhv.Event.rest.response.booking;
 
-import at.fhv.Event.domain.model.booking.PaymentMethod;
-import at.fhv.Event.domain.model.booking.TransactionStatus;
+import at.fhv.Event.domain.model.payment.PaymentMethod;
+import at.fhv.Event.domain.model.payment.TransactionStatus;
 public class PaymentResponseDTO {
 
     private Long transactionId;

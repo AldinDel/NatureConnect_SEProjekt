@@ -38,6 +38,5 @@ public class EventRepositoryJPAImpl implements EventRepository {
     public void save(Event event) {
         var entity = mapper.toEntity(event);
         var saved = jpa.save(entity);
-        // If needed, mapping back to domain could be done to update ids.
     }
 }

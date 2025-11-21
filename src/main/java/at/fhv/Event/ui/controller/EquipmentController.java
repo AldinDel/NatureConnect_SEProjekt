@@ -54,7 +54,6 @@ public class EquipmentController {
     public String editForm(@PathVariable Long id, Model model, RedirectAttributes redirect) {
         try {
             EquipmentDTO dto = getOneService.getById(id);
-            // convert dto -> UpdateEquipmentRequest for the form
             UpdateEquipmentRequest req = new UpdateEquipmentRequest();
             req.setName(dto.name());
             req.setUnitPrice(dto.unitPrice());

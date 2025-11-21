@@ -1,4 +1,4 @@
-package at.fhv.Event.domain.model.booking;
+package at.fhv.Event.domain.model.payment;
 
 public enum PaymentMethod {
     INVOICE,

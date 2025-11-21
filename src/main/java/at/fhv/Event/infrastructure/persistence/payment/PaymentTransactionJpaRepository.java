@@ -1,4 +1,4 @@
-package at.fhv.Event.infrastructure.persistence.booking;
+package at.fhv.Event.infrastructure.persistence.payment;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

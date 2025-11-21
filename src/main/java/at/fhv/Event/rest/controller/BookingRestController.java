@@ -2,7 +2,7 @@ package at.fhv.Event.rest.controller;
 
 import at.fhv.Event.application.booking.BookEventService;
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
-import at.fhv.Event.domain.model.booking.PaymentMethod;
+import at.fhv.Event.domain.model.payment.PaymentMethod;
 import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.domain.model.event.EventRepository;
 import at.fhv.Event.infrastructure.persistence.equipment.EquipmentEntity;
