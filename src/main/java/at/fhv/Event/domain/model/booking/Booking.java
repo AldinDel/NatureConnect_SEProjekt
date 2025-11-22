@@ -59,6 +59,8 @@ public class Booking {
         this.createdAt = Instant.now();
         this.participants = participants;
         this.equipment = equipment;
+
+
     }
 
     public void applyVoucher(String code, double discountAmount) {

@@ -8,6 +8,7 @@ import at.fhv.Event.infrastructure.mapper.BookingMapper;
 import at.fhv.Event.infrastructure.mapper.EventMapper;
 import at.fhv.Event.infrastructure.persistence.equipment.EquipmentEntity;
 import at.fhv.Event.infrastructure.persistence.equipment.EquipmentJpaRepository;
+import at.fhv.Event.infrastructure.persistence.event.EventEntity;
 import at.fhv.Event.infrastructure.persistence.event.EventJpaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -71,17 +72,25 @@ public class BookingRepositoryImpl implements BookingRepository {
     @Override
     public Event loadEventForBooking(Long eventId) {
         return eventJpa.findById(eventId)
-                .map(eventMapper::toDomain)   // falls du Mapper hast
+                .map(eventMapper::toDomain)
                 .orElse(null);
     }
 
     @Override
     public Map<Long, EquipmentEntity> loadEquipmentMap(CreateBookingRequest request) {
-        List<Long> ids = request.getEquipment().keySet().stream().toList();
+        EventEntity eventEntity = eventJpa.findById(request.getEventId())
+                .orElseThrow(() -> new IllegalArgumentException("Event not found"));
 
-        List<EquipmentEntity> list = equipmentJpa.findAllById(ids);
+        List<Long> allowedIds = eventEntity.getEventEquipments().stream()
+                .map(ee -> ee.getEquipment().getId())
+                .toList();
 
-        return list.stream()
+        List<EquipmentEntity> rentableEquipment = equipmentJpa.findAllById(allowedIds)
+                .stream()
+                .filter(eq -> eq.getStock() > 0)
+                .toList();
+
+        return rentableEquipment.stream()
                 .collect(Collectors.toMap(
                         EquipmentEntity::getId,
                         e -> e

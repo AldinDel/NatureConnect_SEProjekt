@@ -331,6 +331,12 @@ body > .hero-box {
     background: #000;
 }
 
+.disabled-link {
+    pointer-events: none;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
 /* Right sidebar cards */
 .right .box {
     position: sticky;

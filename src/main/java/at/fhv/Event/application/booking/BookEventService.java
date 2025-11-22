@@ -3,11 +3,14 @@ package at.fhv.Event.application.booking;
 import at.fhv.Event.application.request.booking.BookingRequestMapper;
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
 import at.fhv.Event.domain.model.booking.Booking;
+import at.fhv.Event.domain.model.booking.BookingEquipment;
 import at.fhv.Event.domain.model.booking.BookingRepository;
-import at.fhv.Event.domain.model.payment.PaymentMethod;
+import at.fhv.Event.domain.model.booking.BookingStatus;
 import at.fhv.Event.domain.model.equipment.EquipmentSelection;
 import at.fhv.Event.domain.model.equipment.EventEquipment;
 import at.fhv.Event.domain.model.event.Event;
+import at.fhv.Event.domain.model.payment.PaymentMethod;
+import at.fhv.Event.domain.model.payment.PaymentStatus;
 import at.fhv.Event.infrastructure.persistence.equipment.EquipmentEntity;
 import at.fhv.Event.rest.response.booking.BookingDTO;
 import org.springframework.stereotype.Service;
@@ -37,6 +40,17 @@ public class BookEventService {
 
     public BookingDTO bookEvent(CreateBookingRequest request) {
         Event event = bookingRepository.loadEventForBooking(request.getEventId());
+        int confirmed = bookingRepository.countSeatsForEvent(event.getId());
+        int baseSlots = event.getMaxParticipants() - event.getMinParticipants();
+        int remaining = baseSlots - confirmed;
+
+        if (remaining <= 0) {
+            throw new IllegalArgumentException("This event is fully booked.");
+        }
+
+        if (request.getSeats() > remaining) {
+            throw new IllegalArgumentException("Only " + remaining + " spots are remaining for this event.");
+        }
         Map<Long, EquipmentEntity> equipmentMap = bookingRepository.loadEquipmentMap(request);
 
         List<String> errors = validateBooking(request, event, equipmentMap);
@@ -64,6 +78,27 @@ public class BookEventService {
         BigDecimal discount = calculateDiscount(subtotal, request);
         BigDecimal total = subtotal.subtract(discount);
         Booking booking = bookingRequestMapper.toDomain(request, total.doubleValue());
+
+        List<BookingEquipment> equipmentList = new ArrayList<>();
+
+        for (Map.Entry<Long, EquipmentSelection> entry : request.getEquipment().entrySet()) {
+            Long eqId = entry.getKey();
+            EquipmentSelection chosen = entry.getValue();
+
+            if (!chosen.isSelected() || chosen.getQuantity() <= 0) {
+                continue;
+            }
+            EquipmentEntity eq = equipmentMap.get(eqId);
+            if (eq == null) continue;
+
+            BookingEquipment be = new BookingEquipment(
+                    eq.getId(),
+                    chosen.getQuantity(),
+                    eq.getUnitPrice().doubleValue()
+            );
+            equipmentList.add(be);
+        }
+        booking.setEquipment(equipmentList);
 
         booking.setDiscountAmount(discount.doubleValue());
         booking.setTotalPrice(total.doubleValue());
@@ -98,6 +133,13 @@ public class BookEventService {
         if (req.getSeats() < 1) {
             errors.add("At least 1 participant is required.");
         }
+        int alreadyBooked = bookingRepository.countSeatsForEvent(event.getId());
+        int remaining = event.getMaxParticipants() - alreadyBooked;
+
+        if (req.getSeats() > remaining) {
+            errors.add("Only " + remaining + " spots are remaining for this event.");
+        }
+
         if (req.getSeats() > event.getMaxParticipants()) {
             errors.add("Participants exceed maximum allowed for this event.");
         }
@@ -173,7 +215,6 @@ public class BookEventService {
             }
 
             if (required) {
-
                 if (participants > stock) {
                     errors.add(ee.getEquipment().getName()
                             + ": requires " + participants + " but only "
@@ -236,11 +277,15 @@ public class BookEventService {
         return subtotal.multiply(percent);
     }
 
-
     public BookingDTO updatePaymentMethod(Long bookingId, String paymentMethod) {
         Booking booking = getById(bookingId);
+
         booking.setPaymentMethod(PaymentMethod.valueOf(paymentMethod));
+        booking.setPaymentStatus(PaymentStatus.PAID);
+        booking.setStatus(BookingStatus.CONFIRMED);
+
         Booking saved = bookingRepository.save(booking);
         return bookingMapperDTO.toDTO(saved);
     }
+
 }

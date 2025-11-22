@@ -5,6 +5,7 @@ import at.fhv.Event.application.event.*;
 import at.fhv.Event.application.request.event.CreateEventRequest;
 import at.fhv.Event.application.request.event.EventEquipmentUpdateRequest;
 import at.fhv.Event.application.request.event.UpdateEventRequest;
+import at.fhv.Event.domain.model.booking.BookingRepository;
 import at.fhv.Event.rest.response.event.EventDetailDTO;
 import at.fhv.Event.rest.response.event.EventOverviewDTO;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -27,7 +28,8 @@ public class EventController {
     private final SearchEventService searchService;
     private final FilterEventService filterService;
     private final GetAllEquipmentService equipmentService;
-    private final CancelEventService cancelService  ;
+    private final CancelEventService cancelService;
+    private final BookingRepository bookingRepository;
 
     public EventController(CreateEventService createService,
                            UpdateEventService updateService,
@@ -35,7 +37,8 @@ public class EventController {
                            SearchEventService searchService,
                            FilterEventService filterService,
                            GetAllEquipmentService equipmentService,
-                           CancelEventService cancelService) {
+                           CancelEventService cancelService, BookingRepository bookingRepository) {
+
         this.createService = createService;
         this.updateService = updateService;
         this.detailsService = detailsService;
@@ -43,6 +46,7 @@ public class EventController {
         this.filterService = filterService;
         this.equipmentService = equipmentService;
         this.cancelService = cancelService;
+        this.bookingRepository = bookingRepository;
     }
 
     @GetMapping("/new")
@@ -224,13 +228,23 @@ public class EventController {
     @GetMapping("/{id}")
     public String details(@PathVariable("id") Long id, Model model, RedirectAttributes redirect) {
         try {
-            model.addAttribute("event", detailsService.getEventDetails(id));
+            var event = detailsService.getEventDetails(id);
+            model.addAttribute("event", event);
+
+            int confirmed = bookingRepository.countSeatsForEvent(event.id());
+            int baseSlots = event.maxParticipants() - event.minParticipants();
+            int remaining = baseSlots - confirmed;
+            if (remaining < 0) remaining = 0;
+
+            model.addAttribute("remainingSpots", remaining);
             return "events/event_detail";
+
         } catch (Exception e) {
             redirect.addFlashAttribute("error", "Event not found.");
             return "redirect:/events";
         }
     }
+
 
     @PostMapping("/{id}/cancel")
     public String cancelEvent(@PathVariable("id") Long id, RedirectAttributes redirect) {

@@ -157,9 +157,12 @@
                 </tr>
             </table>
             <hr>
-            <p>
-                <span th:text="${event.maxParticipants - event.minParticipants}">15</span>
-                spots remaining
+            <p th:if="${remainingSpots > 0}">
+                <span th:text="${remainingSpots}">0</span> spots remaining
+            </p>
+
+            <p th:if="${remainingSpots == 0}" style="color:red; font-weight: bold;">
+                Fully booked
             </p>
         </div>
 
@@ -168,9 +171,14 @@
             <p>Price per person</p>
             <p><span th:text="${event.price}">20</span> €</p>
             <a class="book-btn"
-               th:href="@{'/booking/' + ${event.id}}">
+               th:href="@{'/booking/' + ${event.id}}"
+               th:classappend="${remainingSpots == 0} ? ' disabled-link'">
                 Book now
             </a>
+
+            <p th:if="${remainingSpots == 0}" style="color:red;">
+                This event is fully booked
+            </p>
         </div>
     </aside>
 </main>
