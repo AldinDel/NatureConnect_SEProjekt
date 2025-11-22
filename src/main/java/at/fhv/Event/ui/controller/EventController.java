@@ -17,6 +17,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
+
 @Controller
 @RequestMapping("/events")
 public class EventController {
@@ -57,6 +58,12 @@ public class EventController {
     @PostMapping
     public String create(@ModelAttribute("event") CreateEventRequest req,
                          RedirectAttributes redirect) {
+
+        //checked ob das datum in der vergangenheit ist
+        if (req.getDate() != null && req.getDate().isBefore(LocalDate.now())) {
+            redirect.addFlashAttribute("error", "Event date cannot be in the past.");
+            return "redirect:/events/new";
+        }
         createService.createEvent(req);
         redirect.addFlashAttribute("success", "Event created successfully!");
         return "redirect:/events";
@@ -78,7 +85,17 @@ public class EventController {
                                Model model,
                                RedirectAttributes redirect) {
         try {
+            // Detail erst holen
             EventDetailDTO detail = detailsService.getEventDetails(id);
+
+            // Dann prüfen, ob cancelled
+            if (Boolean.TRUE.equals(detail.cancelled())) {
+                redirect.addFlashAttribute(
+                        "error",
+                        "Event is already cancelled, you can't edit it anymore."
+                );
+                return "redirect:/events/" + id;
+            }
 
             UpdateEventRequest req = new UpdateEventRequest();
             req.setTitle(detail.title());
@@ -131,6 +148,13 @@ public class EventController {
     public String update(@PathVariable("id") Long id,
                          @ModelAttribute("event") UpdateEventRequest req,
                          RedirectAttributes redirect) {
+
+        //checked ob das datum in der vergangenheit liegt
+        if (req.getDate() != null && req.getDate().isBefore(LocalDate.now())) {
+            redirect.addFlashAttribute("error", "Event date cannot be in the past.");
+            return "redirect:/events/" + id + "/edit";
+        }
+
         updateService.updateEvent(id, req);
         redirect.addFlashAttribute("success", "Event updated successfully!");
         return "redirect:/events";
@@ -138,9 +162,23 @@ public class EventController {
 
     @GetMapping
     public String list(Model model) {
-        model.addAttribute("events", searchService.getAll());
+        // alle Filter = null -> "All Events", inkl. cancelled
+        List<EventOverviewDTO> events = filterService.filter(
+                null, // q
+                null, // category
+                null, // location
+                null, // difficulty
+                null, // minPrice
+                null, // maxPrice
+                null, // startDate
+                null, // endDate
+                null  // sort
+        );
+
+        model.addAttribute("events", events);
         return "events/list";
     }
+
 
     @GetMapping("/search")
     public String searchEvents(
@@ -235,18 +273,25 @@ public class EventController {
     @PostMapping("/{id}/cancel")
     public String cancelEvent(@PathVariable("id") Long id, RedirectAttributes redirect) {
         try {
+            EventDetailDTO detail = detailsService.getEventDetails(id);
+
+            // falls schon gecancelled: nur Meldung, nichts mehr machen
+            if (Boolean.TRUE.equals(detail.cancelled())) {
+                redirect.addFlashAttribute("error", "Event is already cancelled.");
+                return "redirect:/events/" + id;
+            }
+
+            // Erstes Mal canceln -> Service ausführen
             cancelService.cancel(id);
             redirect.addFlashAttribute("success", "Event cancelled successfully!");
+            return "redirect:/events/" + id;
+
         } catch (Exception e) {
             redirect.addFlashAttribute("error", "Could not cancel event: " + e.getMessage());
+            return "redirect:/events";
         }
-        return "redirect:/events";
     }
 
-    @GetMapping("/backoffice")
-    public String backofficeList(Model model) {
-        model.addAttribute("events", searchService.getAllIncludingCancelled());
-        model.addAttribute("showCancelled", true);
-        return "events/list";
-    }
+
+
 }

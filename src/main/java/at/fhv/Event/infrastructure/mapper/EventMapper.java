@@ -27,7 +27,7 @@ public class EventMapper {
                 ))
                 .collect(Collectors.toList());
 
-        return new Event(
+        Event event = new Event(
                 e.getId(),
                 e.getTitle(),
                 e.getDescription(),
@@ -42,10 +42,16 @@ public class EventMapper {
                 e.getMaxParticipants(),
                 e.getPrice(),
                 e.getImageUrl(),
-                e.getAudience() != null ? e.getAudience().toString() : null,  //NULL-CHECK
+                e.getAudience() != null ? e.getAudience().toString() : null,
                 equipments
         );
+
+        // db is_cancelled wert wird korrekt übernommen und bleibt nicht nur auf default false
+        event.setCancelled(e.getCancelled());
+
+        return event;
     }
+
 
     public EventEntity toEntity(Event domain) {
         if (domain == null) return null;

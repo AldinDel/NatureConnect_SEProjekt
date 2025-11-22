@@ -24,7 +24,7 @@ public class Event {
     private final String imageUrl;
     private final String audience;
 
-    private Boolean isCancelled = false;
+    private Boolean cancelled = false;
     private List<EventEquipment> eventEquipments;
 
     public Event(Long id,
@@ -59,7 +59,7 @@ public class Event {
         this.price = price;
         this.imageUrl = imageUrl;
         this.eventEquipments = eventEquipments;
-        this.isCancelled = false;
+        this.cancelled = false;
         this.audience = audience;
     }
 
@@ -79,14 +79,14 @@ public class Event {
     public String getImageUrl() { return imageUrl; }
     public List<EventEquipment> getEventEquipments() { return eventEquipments; }
 
-    public Boolean getCancelled() { return isCancelled; }
+    public Boolean getCancelled() { return cancelled; }
 
     public void setCancelled(Boolean cancelled) {
-        this.isCancelled = cancelled;
+        this.cancelled = cancelled;
     }
 
-    public Boolean isCancelled() {
-        return isCancelled;
+    public Boolean cancelled() {
+        return cancelled;
     }
 
     public String getAudience() {

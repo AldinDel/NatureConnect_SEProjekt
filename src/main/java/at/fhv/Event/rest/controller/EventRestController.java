@@ -55,9 +55,11 @@ public class EventRestController {
     }
 
     @PostMapping("/{id}/cancel")
-    public ResponseEntity<EventDetailDTO> cancel(@PathVariable Long id) {
-        return ResponseEntity.ok(cancelService.cancel(id));
+    public ResponseEntity<Void> cancel(@PathVariable Long id) {
+        cancelService.cancel(id);
+        return ResponseEntity.noContent().build();
     }
+
 
     @GetMapping("/{id}/equipment")
     public ResponseEntity<List<EquipmentDTO>> getEquipment(@PathVariable Long id) {

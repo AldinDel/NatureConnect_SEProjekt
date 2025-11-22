@@ -632,6 +632,29 @@
 
 </script>
 
+//meldung wenn ein past datum ausgewählt wird
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const dateInput = document.getElementById("date");
+
+        if (dateInput) {
+            dateInput.addEventListener("change", function () {
+
+                const selected = new Date(this.value);
+                const today = new Date();
+                today.setHours(0,0,0,0);
+
+                if (selected < today) {
+                    alert("You cannot select a date in the past.");
+                    this.value = ""; // reset
+                }
+            });
+        }
+
+    });
+</script>
+
 
 </body>
 </html>

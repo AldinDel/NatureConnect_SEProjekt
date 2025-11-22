@@ -374,7 +374,7 @@
     <div class="event-grid">
         <div class="event-card"
              th:each="event : ${events}"
-             th:classappend="${event.isCancelled} ? 'cancelled-event' : ''">
+             th:classappend="${event.cancelled} ? ' cancelled-event' : ''">
 
             <div class="card-image">
                 <img th:src="${event.imageUrl != null} ? ${event.imageUrl} : @{/images/default_event.jpg}"
@@ -385,7 +385,7 @@
                 </span>
 
                 <!-- CANCELLED Badge -->
-                <span th:if="${event.isCancelled}" class="cancelled-badge">CANCELLED</span>
+                <span th:if="${event.cancelled}" class="cancelled-badge">CANCELLED</span>
             </div>
 
             <div class="card-content">
@@ -422,7 +422,7 @@
                         <a th:href="@{/events/{id}/edit(id=${event.id})}" class="edit-btn">Edit</a>
 
                         <!-- Cancel Button - nur anzeigen wenn Event NICHT cancelled ist -->
-                        <form th:unless="${event.isCancelled}"
+                        <form th:unless="${event.cancelled}"
                               th:action="@{/events/{id}/cancel(id=${event.id})}"
                               method="post"
                               style="display:inline; margin:0;"
@@ -431,10 +431,8 @@
                         </form>
 
                         <!-- Status-Anzeige wenn bereits cancelled -->
-                        <span th:if="${event.isCancelled}"
-                              style="color: #e53935; font-weight: 600; font-size: 12px; padding: 8px 12px;">
-                            ✕ Cancelled
-                        </span>
+                        <span th:if="${event.cancelled}">✕ Cancelled</span>
+
                     </div>
                 </div>
             </div>

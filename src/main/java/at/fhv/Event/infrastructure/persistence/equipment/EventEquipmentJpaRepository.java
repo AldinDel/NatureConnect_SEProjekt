@@ -7,4 +7,7 @@ public interface EventEquipmentJpaRepository extends JpaRepository<EventEquipmen
 
     List<EventEquipmentEntity> findByEventId(Long eventId);
     void deleteByEventId(Long eventId);
+
+    //check if any equipment is still used by any event
+    boolean existsByEquipment_Id(Long equipmentId);
 }

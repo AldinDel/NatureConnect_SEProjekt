@@ -52,10 +52,10 @@ public class EventEntity {
         ee.setEvent(null);
     }
     @Column(name = "is_cancelled")
-    private Boolean isCancelled = false;
+    private Boolean cancelled = false;
 
     public Boolean getCancelled() {
-        return isCancelled;
+        return cancelled;
     }
     public void addEquipment(EventEquipmentEntity e) {
         eventEquipments.add(e);
@@ -63,7 +63,7 @@ public class EventEntity {
     }
 
     public void setCancelled(Boolean cancelled) {
-        this.isCancelled = cancelled;
+        this.cancelled = cancelled;
     }
 
     public Long getId() {

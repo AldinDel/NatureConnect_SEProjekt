@@ -23,7 +23,7 @@ public record EventDetailDTO(
         Integer maxParticipants,
         BigDecimal price,
         String imageUrl,
-        Boolean isCancelled,
+        Boolean cancelled,
         List<EquipmentDTO> equipments,
         List<Long> requiredEquipmentIds,
         List<Long> optionalEquipmentIds,

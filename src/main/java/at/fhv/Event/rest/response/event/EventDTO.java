@@ -9,6 +9,6 @@ public record EventDTO(
         String description,
         String location,
         BigDecimal price,
-        boolean isCancelled,
+        boolean cancelled,
         List<at.fhv.Event.rest.response.equipment.EquipmentDTO> equipments
 ) {}

@@ -19,5 +19,5 @@ public record EventOverviewDTO(
         BigDecimal price,
         String imageUrl,
         String audience,
-        Boolean isCancelled
+        Boolean cancelled
 ) {}

@@ -18,13 +18,17 @@ public class CancelEventService {
     }
 
     @Transactional
-    public EventDetailDTO cancel(Long id) {
+    public void cancel(Long id) {
         EventEntity entity = eventJpaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Event not found: " + id));
 
-        entity.setCancelled(true);
+        if (Boolean.TRUE.equals(entity.getCancelled())) {
+            // schon cancelled → nix mehr machen
+            return;
+        }
 
-        EventEntity saved = eventJpaRepository.save(entity);
-        return null;
+        entity.setCancelled(true);
+        eventJpaRepository.save(entity);
     }
+
 }
