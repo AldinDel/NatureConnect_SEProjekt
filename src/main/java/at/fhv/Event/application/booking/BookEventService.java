@@ -12,6 +12,7 @@ import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.domain.model.payment.PaymentMethod;
 import at.fhv.Event.domain.model.payment.PaymentStatus;
 import at.fhv.Event.infrastructure.persistence.equipment.EquipmentEntity;
+import at.fhv.Event.infrastructure.persistence.equipment.EquipmentJpaRepository;
 import at.fhv.Event.rest.response.booking.BookingDTO;
 import org.springframework.stereotype.Service;
 
@@ -27,15 +28,18 @@ public class BookEventService {
     private final BookingRepository bookingRepository;
     private final BookingRequestMapper bookingRequestMapper;
     private final BookingMapperDTO bookingMapperDTO;
+    private final EquipmentJpaRepository equipmentJpa;
+
 
     public BookEventService(
             BookingRepository bookingRepository,
             BookingRequestMapper bookingRequestMapper,
-            BookingMapperDTO bookingMapperDTO
+            BookingMapperDTO bookingMapperDTO, EquipmentJpaRepository equipmentJpa
     ) {
         this.bookingRepository = bookingRepository;
         this.bookingRequestMapper = bookingRequestMapper;
         this.bookingMapperDTO = bookingMapperDTO;
+        this.equipmentJpa = equipmentJpa;
     }
 
     public BookingDTO bookEvent(CreateBookingRequest request) {
@@ -83,21 +87,29 @@ public class BookEventService {
 
         for (Map.Entry<Long, EquipmentSelection> entry : request.getEquipment().entrySet()) {
             Long eqId = entry.getKey();
-            EquipmentSelection chosen = entry.getValue();
+            EquipmentSelection selected = entry.getValue();
 
-            if (!chosen.isSelected() || chosen.getQuantity() <= 0) {
-                continue;
+            if (!selected.isSelected() || selected.getQuantity() <= 0) continue;
+
+            EquipmentEntity eqEntity = equipmentMap.get(eqId);
+            if (eqEntity == null) continue;
+
+            int newStock = eqEntity.getStock() - selected.getQuantity();
+            if (newStock < 0) {
+                throw new IllegalArgumentException("Not enough stock for equipment: " + eqEntity.getName());
             }
-            EquipmentEntity eq = equipmentMap.get(eqId);
-            if (eq == null) continue;
 
+            eqEntity.setStock(newStock);
+            equipmentJpa.save(eqEntity);
             BookingEquipment be = new BookingEquipment(
-                    eq.getId(),
-                    chosen.getQuantity(),
-                    eq.getUnitPrice().doubleValue()
+                    eqEntity.getId(),
+                    selected.getQuantity(),
+                    eqEntity.getUnitPrice().doubleValue()
             );
+
             equipmentList.add(be);
         }
+
         booking.setEquipment(equipmentList);
 
         booking.setDiscountAmount(discount.doubleValue());

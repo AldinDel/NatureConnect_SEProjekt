@@ -3,11 +3,11 @@ package at.fhv.Event.domain.model.equipment;
 import java.math.BigDecimal;
 
 public class Equipment {
-    private final Long id;
-    private final String name;
-    private final BigDecimal unitPrice;
-    private final boolean rentable;
-    private final Integer stock;
+    private Long id;
+    private String name;
+    private BigDecimal unitPrice;
+    private boolean rentable;
+    private Integer stock;
 
     public Equipment(Long id, String name, BigDecimal unitPrice, boolean rentable, Integer stock) {
         this.id = id;
@@ -37,5 +37,23 @@ public class Equipment {
         return stock;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setUnitPrice(BigDecimal unitPrice) {
+        this.unitPrice = unitPrice;
+    }
+
+    public void setRentable(boolean rentable) {
+        this.rentable = rentable;
+    }
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
+    }
 }
