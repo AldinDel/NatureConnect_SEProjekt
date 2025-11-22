@@ -128,6 +128,15 @@ public class BookEventService {
             errors.add("Special notes cannot exceed 250 characters.");
         }
 
+        if (!req.getBookerFirstName().matches("^[A-Za-zÄÖÜäöüß\\- ]+$")) {
+            errors.add("First name can only contain letters and '-'.");
+        }
+
+        if (!req.getBookerLastName().matches("^[A-Za-zÄÖÜäöüß\\- ]+$")) {
+            errors.add("Last name can only contain letters and '-'.");
+        }
+
+
         if (req.getVoucherCode() != null && req.getVoucherCode().length() > 50) {
             errors.add("Voucher code cannot exceed 50 characters.");
         }
