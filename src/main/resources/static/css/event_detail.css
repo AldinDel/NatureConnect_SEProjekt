@@ -7,25 +7,11 @@ body {
     padding: 0;
 }
 
-/* --- Full-width HERO stays outside the .page --- */
-.hero-box {
-    border: 1px solid #000;
-    background: #fff;
-    padding: 25px 40px;
-    margin: 0 auto 40px auto;
-    max-width: 1200px;
-    width: 90%;
-    box-sizing: border-box;
-}
-
-/* --- HERO NEW -- clean, rounded, modern --- */
-
-/* Abstand zum Header */
+/* --- HERO AREA --- */
 body > .hero-box {
-    margin-top: 60px;
+    margin-top: 80px;
 }
 
-/* Wrapper */
 .hero-box {
     background: #fff;
     padding: 0 0 25px 0;
@@ -36,7 +22,6 @@ body > .hero-box {
     border: none;
 }
 
-/* Title */
 .event-title {
     margin: 10px 0 20px 0;
     font-size: 2rem;
@@ -44,7 +29,7 @@ body > .hero-box {
     color: #111827;
 }
 
-/* Category tag (above title) */
+/* Category tag */
 .category-tag {
     display: inline-block;
     padding: 6px 14px;
@@ -56,37 +41,24 @@ body > .hero-box {
     box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
-/* Default */
 .category-tag {
     background: #f3f4f6;
     color: #374151;
 }
 
-/* Category Colors */
-.category-tag[data-category="Kayaking"] {
-    background: #cffafe; color: #164e63;
-}
-.category-tag[data-category="Hiking"] {
-    background: #e0f2fe; color: #075985;
-}
-.category-tag[data-category="Camping"] {
-    background: #dcfce7; color: #166534;
-}
-.category-tag[data-category="Climbing"] {
-    background: #fee2e2; color: #7f1d1d;
-}
-.category-tag[data-category="Wildlife Tour"] {
-    background: #fef9c3; color: #854d0e;
-}
+.category-tag[data-category="Kayaking"] { background: #cffafe; color: #164e63; }
+.category-tag[data-category="Hiking"] { background: #e0f2fe; color: #075985; }
+.category-tag[data-category="Camping"] { background: #dcfce7; color: #166534; }
+.category-tag[data-category="Climbing"] { background: #fee2e2; color: #7f1d1d; }
+.category-tag[data-category="Wildlife Tour"] { background: #fef9c3; color: #854d0e; }
 
-/* Hero Grid */
+/* HERO GRID */
 .hero-grid {
     display: grid;
     grid-template-columns: 1.6fr 1fr;
     gap: 20px;
 }
 
-/* Main image */
 .hero-left img {
     width: 100%;
     height: 300px;
@@ -96,15 +68,14 @@ body > .hero-box {
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-/* Right column */
 .hero-right {
     display: flex;
     flex-direction: column;
     gap: 15px;
 }
 
-/* Small image */
-.hero-small-img img {
+.hero-small-img img,
+.hero-map {
     width: 100%;
     height: 140px;
     border-radius: 18px;
@@ -113,59 +84,43 @@ body > .hero-box {
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-/* Map */
 .hero-map {
-    border-radius: 18px;
     overflow: hidden;
-    height: 140px;
-    border: none;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-
-
-/* --- Main Page Layout --- */
+/* --- MAIN PAGE GRID --- */
 .page {
     display: grid;
-    grid-template-columns: 1.6fr 1fr;  /* etwas schlanker wie Hero-Right */
+    grid-template-columns: 1.6fr 1fr;
     gap: 40px;
-
-    max-width: 1100px;   /* MATCH HERO */
-    width: 85%;          /* MATCH HERO */
+    max-width: 1100px;
+    width: 85%;
     margin: 0 auto;
 }
 
+/* --- CARD BOXES --- */
+.box {
+    background: #ffffff;
+    border: none;
+    border-radius: 14px;
+    padding: 20px 25px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    line-height: 1.6;
+}
 
-/* --- Left and Right Columns --- */
+.box h3 {
+    font-size: 1.25rem;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+/* --- LEFT COLUMN --- */
 .left {
     display: flex;
     flex-direction: column;
     gap: 25px;
 }
 
-.right {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-    position: sticky;
-    top: 20px; /* distance from top when scrolling */
-    align-self: start; /* important for grid layouts */
-    height: fit-content; /* prevents stretching */
-}
-
-
-/* --- Organizer Box --- */
-.organizer-box {
-    font-size: 1rem;
-}
-
-.organizer-box strong {
-    display: block;
-    margin-bottom: 5px;
-}
-
-/* --- EventEntity Details Grid --- */
 .details-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -173,15 +128,22 @@ body > .hero-box {
     margin-top: 15px;
 }
 
-
-
-.detail-item h4 {
-    margin: 0 0 8px 0;
-    font-weight: normal;
+/* detail cards */
+.detail-item {
+    background: #f2f6fa;
+    border-radius: 10px;
+    padding: 18px;
+    box-shadow: inset 0 0 0 1px #e5e7eb;
 }
 
+.detail-item h4 {
+    margin: 0 0 6px 0;
+    font-weight: 700;
+    color: #000;
+    font-size: 1rem;
+}
 
-
+/* equipment */
 .simple-list {
     display: flex;
     flex-direction: column;
@@ -194,57 +156,99 @@ body > .hero-box {
     justify-content: space-between;
 }
 
-/* --- Right Sidebar --- */
+/* sub-box */
+.sub-box {
+    background: #fff;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+    margin-top: 20px;
+}
+
+/* --- RIGHT SIDEBAR --- */
+.right {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    position: sticky;
+    top: 20px;
+    height: fit-content;
+}
+
 .right table {
-    border-collapse: collapse;
     width: 100%;
+    border-collapse: collapse;
 }
 
 .right td {
     padding: 4px 0;
 }
 
-.discount-box {
-    border: 1px solid #000;
-    padding: 10px 15px;
+/* PARTICIPANTS BOX STICKY FIX */
+.right .box:first-child {
+    position: sticky;
+    top: 100px;
+    z-index: 10;
+}
+
+/* PRICING BOX BEAUTIFIED */
+.right .box:last-child {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 28px 32px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
     text-align: center;
-    width: 100%;            /* takes full width of its parent box */
-    background: #fff;
-    box-sizing: border-box;
-    margin: 15px 0;
+    position: sticky;
+    top: 260px;
+    z-index: 5;
+    margin-top: 60px;
 }
 
-.discount-box p {
-    margin: 0 0 5px 0;
-    font-size: 0.95rem;
-    color: #222;
+.right .box:last-child h3 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: #111827;
 }
 
-.discount-box strong {
-    display: block;
-    font-weight: bold;
+.right .box:last-child p {
+    margin: 6px 0;
     font-size: 1rem;
+    color: #4b5563;
 }
 
-/* --- Book Button --- */
+/* Preis große Zahl */
+.right .box:last-child p:nth-of-type(2) {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+    margin-top: 10px;
+    margin-bottom: 22px;
+}
+
+/* BOOK NOW BUTTON */
 .book-btn {
-    background: #555;
+    display: block;
+    width: 70%;
+    margin: 0 auto;
+    padding: 14px 0;
+    background: #0b2545;
     color: #fff;
     border: none;
-    width: 100%;             /* same width as discount box now */
-    padding: 10px;
-    text-align: center;
+    border-radius: 12px;
+    font-size: 1.05rem;
+    font-weight: 600;
     cursor: pointer;
-    font-size: 0.95rem;
-    transition: background 0.3s ease;
-    margin-top: 5px;
+    text-decoration: none !important;
+    transition: 0.2s ease;
 }
 
 .book-btn:hover {
-    background: #333;
+    background: #3b3767;
+    transform: translateY(-1px);
 }
 
-/* --- Responsive --- */
+/* --- RESPONSIVE --- */
 @media (max-width: 1000px) {
     .page {
         grid-template-columns: 1fr;
@@ -255,111 +259,65 @@ body > .hero-box {
         grid-template-columns: 1fr;
     }
 
-    .hero-left img,
-    .hero-small-img img,
-    .hero-map {
-        height: auto;
+    .right .box:first-child,
+    .right .box:last-child {
+        position: static;
+        top: unset;
+        margin-top: 0;
     }
 }
 
-nav {
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
+/* ----------------------------------------- */
+/* IMPROVED PARTICIPANTS BOX – COPY/PASTE    */
+/* ----------------------------------------- */
 
-/* Abstand zwischen Header und erstem Inhalt */
-body > .hero-box {
-    margin-top: 80px; /* 👈 kannst du anpassen (60–100px sieht gut aus) */
-}
-
-/* --- Modern Card Style --- */
-.box {
+.right .box.participants-box {
     background: #ffffff;
-    border: none;                    /* no more ugly borders */
-    border-radius: 14px;             /* soft rounded corners */
-    padding: 20px 25px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.08);  /* soft floating shadow */
-    line-height: 1.6;
+    border-radius: 16px;
+    padding: 28px 32px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
 }
 
-/* headings in cards */
-.box h3 {
-    font-size: 1.25rem;
-    margin-bottom: 12px;
-    font-weight: 600;
-}
-
-/* smaller sub boxes like equipment */
-.sub-box {
-    background: #fff;
-    border: none;
-    border-radius: 12px;
-    padding: 18px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
-    margin-top: 20px; /* Abstand zwischen den beiden Boxen */
-}
-
-/* tiny grid boxes inside "Event Details" */
-.detail-item {
-    background: #f2f6fa;
-    color: #000;
-    border-radius: 10px;
-    padding: 18px;
-    border: none;
-    box-shadow: inset 0 0 0 1px #e5e7eb; /* subtle border */
-}
-
-.detail-item h4 {
-    margin: 0 0 6px 0;
+.participants-box h3 {
+    font-size: 1.35rem;
     font-weight: 700;
-    color: #000;
-    font-size: 1rem;
-
+    margin-bottom: 18px;
+    color: #111827;
 }
 
-/* Pricing box button */
-.book-btn {
+/* Table styling */
+.participants-box table {
     width: 100%;
-    background: #111827;
-    border-radius: 10px;
-    padding: 12px;
+    border-collapse: collapse;
+    margin-bottom: 14px;
+}
+
+.participants-box td {
+    padding: 6px 0;
     font-size: 1rem;
-    font-weight: 600;
-    transition: .2s;
+    color: #374151;
 }
 
-.book-btn:hover {
-    background: #000;
+/* Divider line */
+.participants-box .divider-line {
+    width: 100%;
+    height: 1px;
+    background: #e5e7eb;
+    margin: 16px 0;
 }
 
-/* Right sidebar cards */
-.right .box {
-    position: sticky;
-    top: 100px;
+/* Spots remaining */
+.participants-box .spots {
+    font-size: 1rem;
+    color: #111827;
+    font-weight: 500;
 }
-
-/* --- Sticky Fix: beide Right-Side-Boxen scroll-fixiert ohne Überlappen --- */
-
-/* Participants sticky */
-.right .box:first-child {
-    position: sticky;
-    top: 100px;
-    z-index: 10;
-}
-
-/* Pricing sticky – knapp darunter */
-.right .box:last-child {
-    position: sticky;
-    top: 260px; /* viel kleiner! */
-    z-index: 5;
-    margin-top: 60px; /* schiebt sie nach oben */
-}
-
 .simple-item {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-    gap: 8px;
+    gap: 10px;
+    padding: 4px 0;
 }
-
 .equipment-table {
     margin-top: 10px;
     width: 100%;
@@ -372,22 +330,6 @@ body > .hero-box {
     padding: 8px 0;
 }
 
-.equipment-header {
-    font-weight: 700;
-    border-bottom: 2px solid #e5e7eb;
-    margin-bottom: 8px;
-}
-
-.equipment-row {
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.equipment-row span {
-    display: flex;
-    align-items: center;
-}
-
-/* Make all equipment cells flex and center by default */
 .equipment-header span,
 .equipment-row span {
     display: flex;
@@ -395,10 +337,40 @@ body > .hero-box {
     align-items: center;
 }
 
-/* First two columns left aligned */
+/* First 2 columns left-aligned */
 .equipment-header span:nth-child(1),
 .equipment-row span:nth-child(1),
 .equipment-header span:nth-child(2),
 .equipment-row span:nth-child(2) {
     justify-content: flex-start;
 }
+
+/* Equipment table header bold */
+.equipment-header span {
+    font-weight: 700;
+    color: #111827;  /* optional, macht’s etwas dunkler */
+}
+/* EXACT SAME BACK BUTTON AS EVENTS PAGE */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    color: #0b2545;
+
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    padding: 8px 14px;
+    border-radius: 10px;
+
+}
+
+.back-link:hover {
+    background-color: #e9eef5;
+    transform: translateX(-2px);
+}
+
+
+

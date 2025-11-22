@@ -48,6 +48,7 @@
 
 
 <section class="hero-box">
+
     <div class="category-tag"
          th:attr="data-category=${event.category}"
          th:text="${event.category}">
@@ -130,6 +131,7 @@
 
             <div class="sub-box">
 
+
                 <div class="equipment-table">
                     <div class="equipment-header">
                         <span>Name</span>
@@ -145,40 +147,47 @@
                 </div>
             </div>
 
-
-        </div>
     </section>
 
     <!-- right column -->
     <aside class="right">
-        <div class="box">
+        <div class="box participants-box">
             <h3>Participants</h3>
+
             <table class="participant-table">
                 <tr>
                     <td>Minimum</td>
-                    <td th:text="${event.minParticipants} + ' people'">5 people</td>
+                    <td th:text="${event.minParticipants} + ' people'"></td>
                 </tr>
+
                 <tr>
                     <td>Maximum</td>
-                    <td th:text="${event.maxParticipants} + ' people'">20 people</td>
+                    <td th:text="${event.maxParticipants} + ' people'"></td>
                 </tr>
             </table>
-            <hr>
-            <p>
-                <span th:text="${event.maxParticipants - event.minParticipants}">15</span>
+
+            <div class="divider-line"></div>
+
+            <p class="spots">
+                <span th:text="${event.maxParticipants - event.minParticipants}"></span>
                 spots remaining
             </p>
         </div>
 
-        <div class="box">
+
+        <div class="box pricing-box">
             <h3>Pricing</h3>
             <p>Price per person</p>
-            <p><span th:text="${event.price}">20</span> €</p>
+            <p class="price-amount">
+                <span th:text="${event.price}">20</span> €
+            </p>
             <a class="book-btn"
-               th:href="@{'/booking/' + ${event.id}}">
+               th:href="@{/booking/{id}(id=${event.id})}">
                 Book now
             </a>
+
         </div>
+
     </aside>
 </main>
 
@@ -222,6 +231,8 @@
         });
     }
     /*]]>*/
+
+
 
 </script>
 

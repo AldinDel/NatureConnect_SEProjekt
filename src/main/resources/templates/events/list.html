@@ -417,24 +417,28 @@
 
                 <div class="footer">
                     <span class="price" th:text="'€ ' + ${#numbers.formatDecimal(event.price, 1, 2)}"></span>
-                    <div class="buttons">
-                        <a th:href="@{/events/{id}(id=${event.id})}" class="view-btn">View Details</a>
-                        <a th:href="@{/events/{id}/edit(id=${event.id})}" class="edit-btn">Edit</a>
 
-                        <!-- Cancel Button - nur anzeigen wenn Event NICHT cancelled ist -->
-                        <form th:unless="${event.isCancelled}"
-                              th:action="@{/events/{id}/cancel(id=${event.id})}"
-                              method="post"
-                              style="display:inline; margin:0;"
-                              onsubmit="return confirm('Are you sure you want to cancel this event? This action cannot be undone.');">
-                            <button type="submit" class="cancel-btn">Cancel</button>
-                        </form>
+                    <div class="button-area">
 
-                        <!-- Status-Anzeige wenn bereits cancelled -->
-                        <span th:if="${event.isCancelled}"
-                              style="color: #e53935; font-weight: 600; font-size: 12px; padding: 8px 12px;">
-                            ✕ Cancelled
-                        </span>
+                        <!-- FULL WIDTH VIEW -->
+                        <a th:href="@{/events/{id}(id=${event.id})}" class="view-full">
+                            View Details
+                        </a>
+
+                        <!-- EDIT + CANCEL nebeneinander -->
+                        <div class="edit-cancel-row">
+                            <a th:href="@{/events/{id}/edit(id=${event.id})}" class="edit-small">Edit</a>
+
+                            <form th:unless="${event.isCancelled}"
+                                  th:action="@{/events/{id}/cancel(id=${event.id})}"
+                                  method="post"
+                                  style="margin:0;">
+                                <button class="cancel-small" type="submit">Cancel</button>
+                            </form>
+
+                            <span th:if="${event.isCancelled}" class="cancel-status">✕ Cancelled</span>
+                        </div>
+
                     </div>
                 </div>
             </div>
