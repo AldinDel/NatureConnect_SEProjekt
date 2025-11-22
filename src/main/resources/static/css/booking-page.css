@@ -167,7 +167,75 @@ body {
     color: #6b7280;
 }
 
-/* CHECKBOXES */
+.account-options {
+    display: flex;
+    gap: .8rem;
+}
+
+.account-card {
+    padding: 1.2rem 1.5rem;
+}
+
+.account-prompt {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+}
+
+.account-prompt-text {
+    font-size: 0.95rem;
+    color: #374151;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.account-buttons {
+    display: flex;
+    gap: 0.6rem;
+    flex: 1;
+    max-width: 340px;
+}
+
+.btn-account {
+    flex: 1;
+    padding: 0.65rem 1rem;
+    border-radius: 13px;
+    font-size: 0.9rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    display: inline-block;
+    font-weight: 500;
+}
+
+.btn-login {
+    background: white;
+    color: #111827;
+    border: 1.5px solid #e5e7eb;
+}
+
+.btn-login:hover {
+    border-color: #111827;
+    background: #f9fafb;
+}
+
+.btn-guest {
+    background: #111827;
+    color: white;
+    border: 1.5px solid #111827;
+}
+
+.btn-guest:hover {
+    background: #1e293b;
+}
+
+.btn-guest.active {
+    background: #111827;
+    box-shadow: 0 2px 8px rgba(17, 24, 39, 0.15);
+}
+
 .checkbox-label {
     display: flex;
     justify-content: space-between;

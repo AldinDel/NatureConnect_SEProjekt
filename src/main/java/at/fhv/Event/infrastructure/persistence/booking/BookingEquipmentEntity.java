@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 @Table(name = "booking_equipment", schema = "nature_connect")
 public class BookingEquipmentEntity {
 
+    public BookingEquipmentEntity() {}
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

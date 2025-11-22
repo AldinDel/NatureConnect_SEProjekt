@@ -3,12 +3,16 @@ package at.fhv.Event.application.booking;
 import at.fhv.Event.application.request.booking.BookingRequestMapper;
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
 import at.fhv.Event.domain.model.booking.Booking;
+import at.fhv.Event.domain.model.booking.BookingEquipment;
 import at.fhv.Event.domain.model.booking.BookingRepository;
-import at.fhv.Event.domain.model.payment.PaymentMethod;
+import at.fhv.Event.domain.model.booking.BookingStatus;
 import at.fhv.Event.domain.model.equipment.EquipmentSelection;
 import at.fhv.Event.domain.model.equipment.EventEquipment;
 import at.fhv.Event.domain.model.event.Event;
+import at.fhv.Event.domain.model.payment.PaymentMethod;
+import at.fhv.Event.domain.model.payment.PaymentStatus;
 import at.fhv.Event.infrastructure.persistence.equipment.EquipmentEntity;
+import at.fhv.Event.infrastructure.persistence.equipment.EquipmentJpaRepository;
 import at.fhv.Event.rest.response.booking.BookingDTO;
 import org.springframework.stereotype.Service;
 
@@ -24,19 +28,33 @@ public class BookEventService {
     private final BookingRepository bookingRepository;
     private final BookingRequestMapper bookingRequestMapper;
     private final BookingMapperDTO bookingMapperDTO;
+    private final EquipmentJpaRepository equipmentJpa;
+
 
     public BookEventService(
             BookingRepository bookingRepository,
             BookingRequestMapper bookingRequestMapper,
-            BookingMapperDTO bookingMapperDTO
+            BookingMapperDTO bookingMapperDTO, EquipmentJpaRepository equipmentJpa
     ) {
         this.bookingRepository = bookingRepository;
         this.bookingRequestMapper = bookingRequestMapper;
         this.bookingMapperDTO = bookingMapperDTO;
+        this.equipmentJpa = equipmentJpa;
     }
 
     public BookingDTO bookEvent(CreateBookingRequest request) {
         Event event = bookingRepository.loadEventForBooking(request.getEventId());
+        int confirmed = bookingRepository.countSeatsForEvent(event.getId());
+        int baseSlots = event.getMaxParticipants() - event.getMinParticipants();
+        int remaining = baseSlots - confirmed;
+
+        if (remaining <= 0) {
+            throw new IllegalArgumentException("This event is fully booked.");
+        }
+
+        if (request.getSeats() > remaining) {
+            throw new IllegalArgumentException("Only " + remaining + " spots are remaining for this event.");
+        }
         Map<Long, EquipmentEntity> equipmentMap = bookingRepository.loadEquipmentMap(request);
 
         List<String> errors = validateBooking(request, event, equipmentMap);
@@ -64,6 +82,35 @@ public class BookEventService {
         BigDecimal discount = calculateDiscount(subtotal, request);
         BigDecimal total = subtotal.subtract(discount);
         Booking booking = bookingRequestMapper.toDomain(request, total.doubleValue());
+
+        List<BookingEquipment> equipmentList = new ArrayList<>();
+
+        for (Map.Entry<Long, EquipmentSelection> entry : request.getEquipment().entrySet()) {
+            Long eqId = entry.getKey();
+            EquipmentSelection selected = entry.getValue();
+
+            if (!selected.isSelected() || selected.getQuantity() <= 0) continue;
+
+            EquipmentEntity eqEntity = equipmentMap.get(eqId);
+            if (eqEntity == null) continue;
+
+            int newStock = eqEntity.getStock() - selected.getQuantity();
+            if (newStock < 0) {
+                throw new IllegalArgumentException("Not enough stock for equipment: " + eqEntity.getName());
+            }
+
+            eqEntity.setStock(newStock);
+            equipmentJpa.save(eqEntity);
+            BookingEquipment be = new BookingEquipment(
+                    eqEntity.getId(),
+                    selected.getQuantity(),
+                    eqEntity.getUnitPrice().doubleValue()
+            );
+
+            equipmentList.add(be);
+        }
+
+        booking.setEquipment(equipmentList);
 
         booking.setDiscountAmount(discount.doubleValue());
         booking.setTotalPrice(total.doubleValue());
@@ -98,6 +145,13 @@ public class BookEventService {
         if (req.getSeats() < 1) {
             errors.add("At least 1 participant is required.");
         }
+        int alreadyBooked = bookingRepository.countSeatsForEvent(event.getId());
+        int remaining = event.getMaxParticipants() - alreadyBooked;
+
+        if (req.getSeats() > remaining) {
+            errors.add("Only " + remaining + " spots are remaining for this event.");
+        }
+
         if (req.getSeats() > event.getMaxParticipants()) {
             errors.add("Participants exceed maximum allowed for this event.");
         }
@@ -127,6 +181,15 @@ public class BookEventService {
         if (req.getSpecialNotes() != null && req.getSpecialNotes().length() > 250) {
             errors.add("Special notes cannot exceed 250 characters.");
         }
+
+        if (!req.getBookerFirstName().matches("^[A-Za-zÄÖÜäöüß\\- ]+$")) {
+            errors.add("First name can only contain letters and '-'.");
+        }
+
+        if (!req.getBookerLastName().matches("^[A-Za-zÄÖÜäöüß\\- ]+$")) {
+            errors.add("Last name can only contain letters and '-'.");
+        }
+
 
         if (req.getVoucherCode() != null && req.getVoucherCode().length() > 50) {
             errors.add("Voucher code cannot exceed 50 characters.");
@@ -164,7 +227,6 @@ public class BookEventService {
             }
 
             if (required) {
-
                 if (participants > stock) {
                     errors.add(ee.getEquipment().getName()
                             + ": requires " + participants + " but only "
@@ -227,11 +289,15 @@ public class BookEventService {
         return subtotal.multiply(percent);
     }
 
-
     public BookingDTO updatePaymentMethod(Long bookingId, String paymentMethod) {
         Booking booking = getById(bookingId);
+
         booking.setPaymentMethod(PaymentMethod.valueOf(paymentMethod));
+        booking.setPaymentStatus(PaymentStatus.PAID);
+        booking.setStatus(BookingStatus.CONFIRMED);
+
         Booking saved = bookingRepository.save(booking);
         return bookingMapperDTO.toDTO(saved);
     }
+
 }

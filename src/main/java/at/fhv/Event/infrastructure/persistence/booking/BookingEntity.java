@@ -70,7 +70,6 @@ public class BookingEntity {
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BookingEquipmentEntity> equipment = new ArrayList<>();
 
-
     public Long getId() {
         return id;
     }

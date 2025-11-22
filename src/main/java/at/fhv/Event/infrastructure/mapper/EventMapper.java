@@ -2,6 +2,7 @@ package at.fhv.Event.infrastructure.mapper;
 
 import at.fhv.Event.domain.model.equipment.EventEquipment;
 import at.fhv.Event.domain.model.event.Event;
+import at.fhv.Event.infrastructure.persistence.equipment.EquipmentJpaRepository;
 import at.fhv.Event.infrastructure.persistence.equipment.EventEquipmentEntity;
 import at.fhv.Event.infrastructure.persistence.event.EventEntity;
 import org.springframework.stereotype.Component;
@@ -12,19 +13,25 @@ import java.util.stream.Collectors;
 public class EventMapper {
 
     private final EquipmentMapper equipmentMapper;
+    private final EquipmentJpaRepository equipmentJpa;
 
-    public EventMapper(EquipmentMapper equipmentMapper) {
+    public EventMapper(EquipmentMapper equipmentMapper,
+                       EquipmentJpaRepository equipmentJpa) {
         this.equipmentMapper = equipmentMapper;
+        this.equipmentJpa = equipmentJpa;
     }
 
     public Event toDomain(EventEntity e) {
         if (e == null) return null;
 
         var equipments = e.getEventEquipments().stream()
-                .map(ee -> new EventEquipment(
-                        equipmentMapper.toDomain(ee.getEquipment()),
-                        ee.isRequired()
-                ))
+                .map(ee -> {
+                    var newEq = equipmentJpa.findById(ee.getEquipment().getId()).orElseThrow();
+                    return new EventEquipment(
+                            equipmentMapper.toDomain(newEq),
+                            ee.isRequired()
+                    );
+                })
                 .collect(Collectors.toList());
 
         Event event = new Event(

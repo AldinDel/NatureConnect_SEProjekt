@@ -60,7 +60,7 @@ public class BookingEquipment {
     }
 
     public double getTotalPrice() {
-        return totalPrice;
+        return unitPrice * quantity;
     }
 
     public void setTotalPrice(double totalPrice) {
