@@ -10,6 +10,7 @@
 </head>
 
 <body>
+
 <div class="hero">
     <img th:src="${event.imageUrl}" alt="Event image" />
     <div class="hero-overlay"></div>
@@ -89,7 +90,13 @@
                     <h2 class="card-title">Participants</h2>
 
                     <label>Number of Participants</label>
-                    <input type="number" class="form-input" min="1" th:field="*{seats}" id="numParticipants">
+                    <select class="form-input" th:field="*{seats}" id="numParticipants">
+                        <option th:each="i : ${#numbers.sequence(event.minParticipants, event.maxParticipants)}"
+                                th:value="${i}"
+                                th:text="${i}">
+                        </option>
+                    </select>
+
 
                     <div id="participantsContainer"></div>
                 </div>
@@ -111,39 +118,47 @@
             <div class="right-column">
                 <div class="card sidebar">
                     <h3 class="card-title">Summary</h3>
-                    <div class="voucher-wrapper">
+
+                    <!-- Participants -->
+                    <div class="price-row">
+                        <span>Participants:</span>
+                        <span id="summarySeats">1</span>
+                    </div>
+
+                    <!-- Equipment items (falls vorhanden) -->
+                    <div id="summaryEquipmentSection">
+                        <div id="summaryEquipment"></div>
+                    </div>
+
+                    <!-- Divider ABOVE Total Price -->
+                    <hr class="divider-top">
+
+                    <!-- Total Price -->
+                    <div class="total-row">
+                        <span>Total Price:</span>
+                        <span id="summaryTotal" class="total-amount">0.00€</span>
+                    </div>
+
+                    <!-- Voucher at the bottom -->
+                    <div class="voucher-wrapper-bottom">
                         <div class="voucher-input-wrapper">
                             <input type="text" id="discountCode" class="voucher-input" placeholder="Voucher code">
                             <button id="removeDiscountBtn" type="button" class="hidden voucher-remove">✕</button>
                         </div>
-
                         <button id="applyDiscountBtn" type="button" class="voucher-apply">Apply</button>
                     </div>
 
                     <p id="discountMessage" class="hidden"></p>
                     <input type="hidden" th:field="*{voucherCode}" id="voucherCodeField">
 
-                    <div id="summaryEquipmentSection">
-                        <div id="summaryEquipment"></div>
-                    </div>
-
-                    <div class="price-row">
-                        <span>Participants:</span>
-                        <span id="summarySeats">1</span>
-                    </div>
-
-                    <div class="price-row">
-                        <span>Total Price:</span>
-                        <span id="summaryTotal">0.00€</span>
-                    </div>
-
-                    <hr>
-
+                    <!-- Confirm -->
                     <button id="confirmBtn" type="submit" class="btn-primary">
                         Confirm Booking
                     </button>
+
                     <p id="errorBox" class="hidden text-red"></p>
                 </div>
+
             </div>
 
         </div>

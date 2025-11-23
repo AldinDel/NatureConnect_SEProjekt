@@ -60,8 +60,8 @@ body {
 }
 
 .title {
-    font-size: 1.8rem;
-    font-weight: 400;
+    font-size: 2.4rem;   /* größer */
+    font-weight: 700;    /* fett */
     margin-bottom: .75rem;
 }
 
@@ -78,41 +78,32 @@ body {
     padding: .65rem 1.2rem;
     border-radius: 13px;
     border: 1.5px solid #e5e7eb;
-    background: #fff;
+    background: #0b2545;
     cursor: pointer;
     transition: .2s;
     font-size: .95rem;
 }
 
-.btn:hover { border-color: #d1d5db; }
+.btn:hover { border-color: #3b3767; }
 
-.btn.active {
-    background: #111827;
-    color: #fff;
-    border-color: #111827;
-}
-
-.btn-secondary {
-    background: #111827;
+.btn-secondary,
+.btn-primary {
+    background: #0b2545;
     color: white;
     border: none;
-    padding: .65rem 1.2rem;
     border-radius: 13px;
-    font-size: .95rem;
 }
 
-.btn-secondary:hover {
-    background: #1e293b;
+.btn-secondary:hover,
+.btn-primary:hover {
+    background: #3b3767;
 }
 
 .btn-primary {
-    background: #111827;
-    color: white;
-    border: none;
+    margin: 1.4rem auto 0;
+    display: block;
     padding: .75rem;
-    width: 100%;
-    margin-top: 1.4rem;
-    border-radius: 13px;
+    width: 70%;
     font-size: 1rem;
 }
 
@@ -238,9 +229,8 @@ body {
 
 .checkbox-label {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
+    align-items: flex-start;
+    gap: 1rem; /* macht Abstand zwischen Checkbox & Text */
     padding: 0.9rem 1rem;
     border-radius: 13px;
     border: 1.5px solid #e5e7eb;
@@ -248,6 +238,18 @@ body {
     background: #fff;
     margin-bottom: 0.9rem;
 }
+
+.addon-content {
+    flex: 1;
+}
+
+.addon-price {
+    margin-left: auto; /* Preis bleibt rechts */
+    font-size: 1rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
 
 .checkbox-label.active {
     border-color: #111827;
@@ -293,10 +295,14 @@ body {
 
 .sidebar {
     position: sticky;
-    top: 1.5rem;
+    top: 150px;
+    max-width: 340px;
+    margin-left: auto;
 }
 
-.price-row {
+/* PRICE ROWS */
+.price-row,
+.total-row {
     display: flex;
     justify-content: space-between;
     margin-bottom: .5rem;
@@ -311,69 +317,32 @@ body {
     font-weight: 300;
 }
 
-.text-green { color: #059669; }
-
-.participant-section {
-    border-top: 1px solid #e5e7eb;
-    padding-top: 1rem;
-    margin-top: 1rem;
+.total-amount {
+    font-size: 1.5rem;
+    font-weight: 700;
 }
 
-.participant-title {
-    font-weight: 600;
-    margin-bottom: .4rem;
-    font-size: .95rem;
+.divider,
+.divider-top {
+    margin: 1rem 0 1.2rem;
+    border: none;
+    height: 1px;
+    background: #e5e7eb;
 }
 
 .hidden { display: none; }
 
-.account-options {
-    display: flex;
-    gap: .8rem;
-}
-
-@media (max-width: 900px) {
-    .grid {
-        grid-template-columns: 1fr 2fr;
-    }
-}
-
-#errorPop,
-.errorPop {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    max-width: 300px;
-    z-index: 99999;
-    pointer-events: none;
-}
-
-.error {
-    background: #ff4d4d;
-    color: white;
-    padding: 12px 16px;
-    margin-bottom: 10px;
-    border-radius: 13px;
-    font-size: 13px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
-    opacity: 0;
-    transform: translateX(20px);
-    animation: slideIn .25s forwards, fadeOut 5s forwards;
-}
-
-@keyframes slideIn {
-    to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes fadeOut {
-    0%, 80% { opacity: 1; }
-    100% { opacity: 0; transform: translateX(20px); }
-}
-.voucher-wrapper {
+/* VOUCHER */
+.voucher-wrapper-bottom {
     display: flex;
     align-items: center;
     gap: 10px;
-    width: 100%;
+    margin-bottom: 1.3rem;
+}
+
+.voucher-input-wrapper {
+    position: relative;
+    flex: 1;
 }
 
 .voucher-input {
@@ -391,7 +360,7 @@ body {
 }
 
 .voucher-apply {
-    background: #111827;
+    background: #0b2545;
     color: white;
     border: none;
     padding: 0.7rem 1.3rem;
@@ -413,26 +382,28 @@ body {
     cursor: pointer;
 }
 
-.voucher-remove.hidden {
-    display: none;
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
 }
 
-
-
-.sidebar {
-    max-width: 340px;
-    width: 100%;
-    margin-left: auto;
-}
-#summaryEquipmentSection {
-    margin-top: 1rem;
+/* Hauptüberschrift: Participants */
+.card-title {
+    font-size: 1.4rem !important;   /* größer */
+    font-weight: 700 !important;    /* fetter */
+    margin-bottom: 1.2rem !important;  /* mehr Abstand nach unten */
 }
 
-#summaryEquipmentSection strong {
-    display: block;
-    margin-bottom: 0.5rem;
+/* extra spacing nach dem Teilnehmer-Dropdown */
+#numParticipants {
+    margin-bottom: 1.2rem;
 }
 
-#summaryEquipment .price-row {
-    margin-bottom: 4px;
+/* --- Equipment Checkbox Fix --- */
+.equipment-checkbox,
+.checkbox-label input[type="checkbox"] {
+    position: relative;
+    top: 8px;
 }

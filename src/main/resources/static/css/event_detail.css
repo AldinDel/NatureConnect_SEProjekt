@@ -22,7 +22,7 @@ body {
 
 /* Abstand zum Header */
 body > .hero-box {
-    margin-top: 60px;
+    margin-top: 80px;
 }
 
 /* Wrapper */
@@ -135,37 +135,29 @@ body > .hero-box {
     margin: 0 auto;
 }
 
+/* --- CARD BOXES --- */
+.box {
+    background: #ffffff;
+    border: none;
+    border-radius: 14px;
+    padding: 20px 25px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+    line-height: 1.6;
+}
 
-/* --- Left and Right Columns --- */
+.box h3 {
+    font-size: 1.25rem;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+
+/* --- LEFT COLUMN --- */
 .left {
     display: flex;
     flex-direction: column;
     gap: 25px;
 }
 
-.right {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-    position: sticky;
-    top: 20px; /* distance from top when scrolling */
-    align-self: start; /* important for grid layouts */
-    height: fit-content; /* prevents stretching */
-}
-
-
-/* --- Organizer Box --- */
-.organizer-box {
-    font-size: 1rem;
-}
-
-.organizer-box strong {
-    display: block;
-    margin-bottom: 5px;
-}
-
-/* --- EventEntity Details Grid --- */
 .details-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -173,11 +165,19 @@ body > .hero-box {
     margin-top: 15px;
 }
 
-
+/* detail cards */
+.detail-item {
+    background: #f2f6fa;
+    border-radius: 10px;
+    padding: 18px;
+    box-shadow: inset 0 0 0 1px #e5e7eb;
+}
 
 .detail-item h4 {
-    margin: 0 0 8px 0;
-    font-weight: normal;
+    margin: 0 0 6px 0;
+    font-weight: 700;
+    color: #000;
+    font-size: 1rem;
 }
 
 
@@ -194,7 +194,25 @@ body > .hero-box {
     justify-content: space-between;
 }
 
-/* --- Right Sidebar --- */
+/* sub-box */
+.sub-box {
+    background: #fff;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+    margin-top: 20px;
+}
+
+/* --- RIGHT SIDEBAR --- */
+.right {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    position: sticky;
+    top: 20px;
+    height: fit-content;
+}
+
 .right table {
     border-collapse: collapse;
     width: 100%;
@@ -204,47 +222,71 @@ body > .hero-box {
     padding: 4px 0;
 }
 
-.discount-box {
-    border: 1px solid #000;
-    padding: 10px 15px;
+/* PARTICIPANTS BOX STICKY FIX */
+.right .box:first-child {
+    position: sticky;
+    top: 100px;
+    z-index: 10;
+}
+
+/* PRICING BOX BEAUTIFIED */
+.right .box:last-child {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 28px 32px;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
     text-align: center;
-    width: 100%;            /* takes full width of its parent box */
-    background: #fff;
-    box-sizing: border-box;
-    margin: 15px 0;
+    position: sticky;
+    top: 260px;
+    z-index: 5;
+    margin-top: 60px;
 }
 
-.discount-box p {
-    margin: 0 0 5px 0;
-    font-size: 0.95rem;
-    color: #222;
+.right .box:last-child h3 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: #111827;
 }
 
-.discount-box strong {
-    display: block;
-    font-weight: bold;
+.right .box:last-child p {
+    margin: 6px 0;
     font-size: 1rem;
+    color: #4b5563;
+}
+
+/* Preis große Zahl */
+.right .box:last-child p:nth-of-type(2) {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+    margin-top: 10px;
+    margin-bottom: 22px;
 }
 
 /* --- Book Button --- */
 .book-btn {
-    background: #555;
+    display: block;
+    width: 70%;
+    margin: 0 auto;
+    padding: 14px 0;
+    background: #0b2545;
     color: #fff;
     border: none;
-    width: 100%;             /* same width as discount box now */
-    padding: 10px;
-    text-align: center;
+    border-radius: 12px;
+    font-size: 1.05rem;
+    font-weight: 600;
     cursor: pointer;
-    font-size: 0.95rem;
-    transition: background 0.3s ease;
-    margin-top: 5px;
+    text-decoration: none !important;
+    transition: 0.2s ease;
 }
 
 .book-btn:hover {
-    background: #333;
+    background: #3b3767;
+    transform: translateY(-1px);
 }
 
-/* --- Responsive --- */
+/* --- RESPONSIVE --- */
 @media (max-width: 1000px) {
     .page {
         grid-template-columns: 1fr;
@@ -255,10 +297,11 @@ body > .hero-box {
         grid-template-columns: 1fr;
     }
 
-    .hero-left img,
-    .hero-small-img img,
-    .hero-map {
-        height: auto;
+    .right .box:first-child,
+    .right .box:last-child {
+        position: static;
+        top: unset;
+        margin-top: 0;
     }
 }
 
@@ -313,7 +356,15 @@ body > .hero-box {
     font-weight: 700;
     color: #000;
     font-size: 1rem;
+    color: #374151;
+}
 
+/* Divider line */
+.participants-box .divider-line {
+    width: 100%;
+    height: 1px;
+    background: #e5e7eb;
+    margin: 16px 0;
 }
 
 /* Pricing box button */
@@ -341,6 +392,9 @@ body > .hero-box {
 .right .box {
     position: sticky;
     top: 100px;
+.back-link:hover {
+    background-color: #e9eef5;
+    transform: translateX(-2px);
 }
 
 /* --- Sticky Fix: beide Right-Side-Boxen scroll-fixiert ohne Überlappen --- */
