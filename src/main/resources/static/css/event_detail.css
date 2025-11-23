@@ -7,25 +7,45 @@ body {
     padding: 0;
 }
 
-/* --- Full-width HERO stays outside the .page --- */
-.hero-box {
-    border: 1px solid #000;
-    background: #fff;
-    padding: 25px 40px;
-    margin: 0 auto 40px auto;
-    max-width: 1200px;
-    width: 90%;
-    box-sizing: border-box;
-}
-
-/* --- HERO NEW -- clean, rounded, modern --- */
-
-/* Abstand zum Header */
+/* --- HERO --- */
 body > .hero-box {
-    margin-top: 80px;
+    margin-top: 30px;
+}
+.hero-top {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+
+    margin-top: 40px;
+    gap: 30px;
+    margin-bottom: 25px;
 }
 
-/* Wrapper */
+/* Back-Button im Detailbereich */
+.back-link.back-detail {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14.5px;
+    font-weight: 500;
+    text-decoration: none;
+    color: #0b2545;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    padding: 8px 14px;
+    border-radius: 10px;
+    transition: all 0.25s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.back-link.back-detail:hover {
+    background-color: #e9eef5;
+    color: #0b2545;
+    transform: translateX(-2px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+
 .hero-box {
     background: #fff;
     padding: 0 0 25px 0;
@@ -36,7 +56,6 @@ body > .hero-box {
     border: none;
 }
 
-/* Title */
 .event-title {
     margin: 10px 0 20px 0;
     font-size: 2rem;
@@ -44,7 +63,7 @@ body > .hero-box {
     color: #111827;
 }
 
-/* Category tag (above title) */
+/* Category Tag */
 .category-tag {
     display: inline-block;
     padding: 6px 14px;
@@ -56,89 +75,64 @@ body > .hero-box {
     box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
-/* Default */
 .category-tag {
     background: #f3f4f6;
     color: #374151;
 }
 
-/* Category Colors */
-.category-tag[data-category="Kayaking"] {
-    background: #cffafe; color: #164e63;
-}
-.category-tag[data-category="Hiking"] {
-    background: #e0f2fe; color: #075985;
-}
-.category-tag[data-category="Camping"] {
-    background: #dcfce7; color: #166534;
-}
-.category-tag[data-category="Climbing"] {
-    background: #fee2e2; color: #7f1d1d;
-}
-.category-tag[data-category="Wildlife Tour"] {
-    background: #fef9c3; color: #854d0e;
-}
+.category-tag[data-category="Kayaking"] { background: #cffafe; color: #164e63; }
+.category-tag[data-category="Hiking"] { background: #e0f2fe; color: #075985; }
+.category-tag[data-category="Camping"] { background: #dcfce7; color: #166534; }
+.category-tag[data-category="Climbing"] { background: #fee2e2; color: #7f1d1d; }
+.category-tag[data-category="Wildlife Tour"] { background: #fef9c3; color: #854d0e; }
 
-/* Hero Grid */
+/* HERO GRID */
 .hero-grid {
     display: grid;
     grid-template-columns: 1.6fr 1fr;
     gap: 20px;
 }
 
-/* Main image */
 .hero-left img {
     width: 100%;
     height: 300px;
     border-radius: 18px;
     object-fit: cover;
-    border: none;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-/* Right column */
 .hero-right {
     display: flex;
     flex-direction: column;
     gap: 15px;
 }
 
-/* Small image */
-.hero-small-img img {
+.hero-small-img img,
+.hero-map {
     width: 100%;
     height: 140px;
     border-radius: 18px;
     object-fit: cover;
-    border: none;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-/* Map */
 .hero-map {
-    border-radius: 18px;
     overflow: hidden;
-    height: 140px;
-    border: none;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
 }
 
-
-
-/* --- Main Page Layout --- */
+/* --- MAIN PAGE GRID --- */
 .page {
     display: grid;
-    grid-template-columns: 1.6fr 1fr;  /* etwas schlanker wie Hero-Right */
+    grid-template-columns: 1.6fr 1fr;
     gap: 40px;
-
-    max-width: 1100px;   /* MATCH HERO */
-    width: 85%;          /* MATCH HERO */
+    max-width: 1100px;
+    width: 85%;
     margin: 0 auto;
 }
 
 /* --- CARD BOXES --- */
 .box {
     background: #ffffff;
-    border: none;
     border-radius: 14px;
     padding: 20px 25px;
     box-shadow: 0 4px 14px rgba(0,0,0,0.08);
@@ -151,7 +145,7 @@ body > .hero-box {
     font-weight: 600;
 }
 
-/* --- LEFT COLUMN --- */
+/* LEFT */
 .left {
     display: flex;
     flex-direction: column;
@@ -165,7 +159,6 @@ body > .hero-box {
     margin-top: 15px;
 }
 
-/* detail cards */
 .detail-item {
     background: #f2f6fa;
     border-radius: 10px;
@@ -176,25 +169,10 @@ body > .hero-box {
 .detail-item h4 {
     margin: 0 0 6px 0;
     font-weight: 700;
-    color: #000;
     font-size: 1rem;
 }
 
-
-
-.simple-list {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-top: 8px;
-}
-
-.simple-item {
-    display: flex;
-    justify-content: space-between;
-}
-
-/* sub-box */
+/* Sub-boxes (e.g., equipment) */
 .sub-box {
     background: #fff;
     border-radius: 12px;
@@ -209,62 +187,65 @@ body > .hero-box {
     flex-direction: column;
     gap: 25px;
     position: sticky;
-    top: 20px;
+    top: 80px;
     height: fit-content;
 }
 
 .right table {
-    border-collapse: collapse;
     width: 100%;
+    border-collapse: collapse;
 }
 
 .right td {
     padding: 4px 0;
 }
 
-/* PARTICIPANTS BOX STICKY FIX */
-.right .box:first-child {
-    position: sticky;
-    top: 100px;
-    z-index: 10;
-}
-
-/* PRICING BOX BEAUTIFIED */
-.right .box:last-child {
+/* Participants box */
+.participants-box {
     background: #ffffff;
     border-radius: 16px;
     padding: 28px 32px;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
-    text-align: center;
-    position: sticky;
-    top: 260px;
-    z-index: 5;
-    margin-top: 60px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    transition: 0.2s ease;
 }
 
-.right .box:last-child h3 {
+.participants-box h3 {
     font-size: 1.35rem;
     font-weight: 700;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
     color: #111827;
 }
 
-.right .box:last-child p {
-    margin: 6px 0;
-    font-size: 1rem;
-    color: #4b5563;
+.participants-box .divider-line {
+    width: 100%;
+    height: 1px;
+    background: #e5e7eb;
+    margin: 16px 0;
 }
 
-/* Preis große Zahl */
-.right .box:last-child p:nth-of-type(2) {
+/* Pricing box */
+.pricing-box {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 32px 34px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    text-align: center;
+    transition: 0.25s ease;
+}
+
+.pricing-box h3 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.pricing-box .price-amount {
     font-size: 2rem;
     font-weight: 700;
-    color: #111827;
-    margin-top: 10px;
-    margin-bottom: 22px;
+    margin: 10px 0 22px;
 }
 
-/* --- Book Button --- */
+/* Book button */
 .book-btn {
     display: block;
     width: 70%;
@@ -277,7 +258,7 @@ body > .hero-box {
     font-size: 1.05rem;
     font-weight: 600;
     cursor: pointer;
-    text-decoration: none !important;
+    text-decoration: none;
     transition: 0.2s ease;
 }
 
@@ -286,140 +267,29 @@ body > .hero-box {
     transform: translateY(-1px);
 }
 
+.disabled-link {
+    pointer-events: none;
+    opacity: 0.5;
+}
+
 /* --- RESPONSIVE --- */
 @media (max-width: 1000px) {
     .page {
         grid-template-columns: 1fr;
-        gap: 25px;
     }
 
     .hero-grid {
         grid-template-columns: 1fr;
     }
 
-    .right .box:first-child,
-    .right .box:last-child {
+    .pricing-box,
+    .participants-box {
         position: static;
-        top: unset;
         margin-top: 0;
     }
 }
 
-nav {
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-/* Abstand zwischen Header und erstem Inhalt */
-body > .hero-box {
-    margin-top: 80px; /* 👈 kannst du anpassen (60–100px sieht gut aus) */
-}
-
-/* --- Modern Card Style --- */
-.box {
-    background: #ffffff;
-    border: none;                    /* no more ugly borders */
-    border-radius: 14px;             /* soft rounded corners */
-    padding: 20px 25px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.08);  /* soft floating shadow */
-    line-height: 1.6;
-}
-
-/* headings in cards */
-.box h3 {
-    font-size: 1.25rem;
-    margin-bottom: 12px;
-    font-weight: 600;
-}
-
-/* smaller sub boxes like equipment */
-.sub-box {
-    background: #fff;
-    border: none;
-    border-radius: 12px;
-    padding: 18px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.06);
-    margin-top: 20px; /* Abstand zwischen den beiden Boxen */
-}
-
-/* tiny grid boxes inside "Event Details" */
-.detail-item {
-    background: #f2f6fa;
-    color: #000;
-    border-radius: 10px;
-    padding: 18px;
-    border: none;
-    box-shadow: inset 0 0 0 1px #e5e7eb; /* subtle border */
-}
-
-.detail-item h4 {
-    margin: 0 0 6px 0;
-    font-weight: 700;
-    color: #000;
-    font-size: 1rem;
-    color: #374151;
-}
-
-/* Divider line */
-.participants-box .divider-line {
-    width: 100%;
-    height: 1px;
-    background: #e5e7eb;
-    margin: 16px 0;
-}
-
-/* Pricing box button */
-.book-btn {
-    width: 100%;
-    background: #111827;
-    border-radius: 10px;
-    padding: 12px;
-    font-size: 1rem;
-    font-weight: 600;
-    transition: .2s;
-}
-
-.book-btn:hover {
-    background: #000;
-}
-
-.disabled-link {
-    pointer-events: none;
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* Right sidebar cards */
-.right .box {
-    position: sticky;
-    top: 100px;
-.back-link:hover {
-    background-color: #e9eef5;
-    transform: translateX(-2px);
-}
-
-/* --- Sticky Fix: beide Right-Side-Boxen scroll-fixiert ohne Überlappen --- */
-
-/* Participants sticky */
-.right .box:first-child {
-    position: sticky;
-    top: 100px;
-    z-index: 10;
-}
-
-/* Pricing sticky – knapp darunter */
-.right .box:last-child {
-    position: sticky;
-    top: 260px; /* viel kleiner! */
-    z-index: 5;
-    margin-top: 60px; /* schiebt sie nach oben */
-}
-
-.simple-item {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-    gap: 8px;
-}
-
+/* --- EQUIPMENT TABLE --- */
 .equipment-table {
     margin-top: 10px;
     width: 100%;
@@ -429,25 +299,16 @@ body > .hero-box {
 .equipment-row {
     display: grid;
     grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-    padding: 8px 0;
+    padding: 10px 0;
+    border-bottom: 1px solid #e5e7eb;
 }
 
-.equipment-header {
+.equipment-header span {
     font-weight: 700;
-    border-bottom: 2px solid #e5e7eb;
-    margin-bottom: 8px;
+    color: #111827;
 }
 
-.equipment-row {
-    border-bottom: 1px solid #f0f0f0;
-}
-
-.equipment-row span {
-    display: flex;
-    align-items: center;
-}
-
-/* Make all equipment cells flex and center by default */
+/* Make all cells flex centered */
 .equipment-header span,
 .equipment-row span {
     display: flex;
@@ -455,10 +316,16 @@ body > .hero-box {
     align-items: center;
 }
 
-/* First two columns left aligned */
+/* First 2 columns left */
 .equipment-header span:nth-child(1),
 .equipment-row span:nth-child(1),
 .equipment-header span:nth-child(2),
 .equipment-row span:nth-child(2) {
     justify-content: flex-start;
 }
+
+/* Row spacing */
+.equipment-row {
+    padding: 8px 0;
+}
+

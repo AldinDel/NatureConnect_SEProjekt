@@ -84,7 +84,7 @@ body {
     font-size: .95rem;
 }
 
-.btn:hover { border-color: #3b3767; }
+.btn:hover { border-color: #3b3767; transform: translateY(-1px); }
 
 .btn-secondary,
 .btn-primary {
@@ -97,6 +97,7 @@ body {
 .btn-secondary:hover,
 .btn-primary:hover {
     background: #3b3767;
+    transform: translateY(-1px);
 }
 
 .btn-primary {
@@ -107,7 +108,7 @@ body {
     font-size: 1rem;
 }
 
-.btn-primary:hover { background: #1e293b; }
+.btn-primary:hover { background: #3b3767; transform: translateY(-1px); }
 
 .form-group { margin-bottom: 1.2rem; }
 
@@ -213,19 +214,19 @@ body {
 }
 
 .btn-guest {
-    background: #111827;
+    background: #0b2545;
     color: white;
-    border: 1.5px solid #111827;
 }
 
 .btn-guest:hover {
-    background: #1e293b;
+    background: #3b3767;
+    transform: translateY(-1px);
 }
 
-.btn-guest.active {
-    background: #111827;
-    box-shadow: 0 2px 8px rgba(17, 24, 39, 0.15);
-}
+/*.btn-guest.active {*/
+/*    background: #0b2545;*/
+/*    box-shadow: 0 2px 8px rgba(17, 24, 39, 0.15);*/
+/*}*/
 
 .checkbox-label {
     display: flex;
@@ -330,19 +331,19 @@ body {
     background: #e5e7eb;
 }
 
-.hidden { display: none; }
 
 /* VOUCHER */
 .voucher-wrapper-bottom {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 14px;
     margin-bottom: 1.3rem;
 }
 
 .voucher-input-wrapper {
     position: relative;
     flex: 1;
+    overflow: visible;
 }
 
 .voucher-input {
@@ -352,11 +353,6 @@ body {
     border: 1px solid #e5e7eb;
     border-radius: 13px;
     font-size: 1rem;
-}
-
-.voucher-input-wrapper {
-    position: relative;
-    flex: 1;
 }
 
 .voucher-apply {
@@ -369,17 +365,22 @@ body {
     cursor: pointer;
     white-space: nowrap;
 }
-
+.voucher-apply:hover {
+    background: #3b3767; transform: translateY(-1px);
+}
 .voucher-remove {
     position: absolute;
-    right: 10px;
+    right: 12px;
     top: 50%;
     transform: translateY(-50%);
     background: none;
     border: none;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     color: #ef4444;
     cursor: pointer;
+    font-weight: 600;
+    line-height: 1;
+    z-index: 10;
 }
 
 /* RESPONSIVE */
@@ -402,7 +403,6 @@ body {
 }
 
 /* --- Equipment Checkbox Fix --- */
-.equipment-checkbox,
 .checkbox-label input[type="checkbox"] {
     position: relative;
     top: 8px;

@@ -87,12 +87,18 @@
 
 
 <section class="hero-box">
-    <div class="category-tag"
-         th:attr="data-category=${event.category}"
-         th:text="${event.category}">
+
+    <div class="hero-top">
+        <a href="/events" class="back-link back-detail">❮ Back</a>
+
+        <div class="category-tag"
+             th:attr="data-category=${event.category}"
+             th:text="${event.category}">
+        </div>
     </div>
 
     <h1 class="event-title" th:text="${event.title}">Event Title</h1>
+
 
     <div class="hero-grid">
         <div class="hero-left">

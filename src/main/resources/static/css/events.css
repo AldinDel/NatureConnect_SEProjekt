@@ -5,6 +5,7 @@ body {
     padding: 0;
 }
 
+
 /* Hauptcontainer für die gesamte EventEntity-Übersicht */
 .event-overview {
     width: 90%;
@@ -663,28 +664,7 @@ html, body {
     justify-content: flex-start;
 }
 
-.back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 14.5px;
-    font-weight: 500;
-    text-decoration: none;
-    color: #0b2545;
-    background-color: #f9fafb;
-    border: 1px solid #e5e7eb;
-    padding: 8px 14px;
-    border-radius: 10px;
-    transition: all 0.25s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-}
 
-.back-link:hover {
-    background-color: #e9eef5;
-    color: #0b2545;
-    transform: translateX(-2px);
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-}
 
 .category-bar button.active {
     background-color: #0f2740;
@@ -960,6 +940,33 @@ html, body {
     color: #e53935;
     font-weight: 600;
     padding: 6px 0;
+}
+
+/* Back-Link Button (❮ Home) */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14.5px;
+    font-weight: 500;
+    text-decoration: none;
+    color: #0b2545;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    padding: 8px 14px;
+    border-radius: 10px;
+    transition: all 0.25s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+
+
+    margin-top: 45px !important;
+}
+
+.back-link:hover {
+    background-color: #e9eef5;
+    color: #0b2545;
+    transform: translateX(-2px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
 }
 
 

@@ -21,7 +21,7 @@ body {
 }
 
 .header {
-    background: #1a1a1a;
+    background: #0b2545;
     color: white;
     padding: 40px 32px;
     text-align: center;
@@ -189,7 +189,7 @@ input[type="text"]::placeholder {
 .submit-btn {
     width: 100%;
     padding: 16px;
-    background: #1a1a1a;
+    background: #0b2545;
     color: white;
     border: none;
     border-radius: 12px;
@@ -202,7 +202,7 @@ input[type="text"]::placeholder {
 }
 
 .submit-btn:hover {
-    background: #333;
+    background: #3b3767;
     transform: translateY(-1px);
 }
 
