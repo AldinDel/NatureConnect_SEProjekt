@@ -1,11 +1,27 @@
 package at.fhv.Event.domain.model.user;
 
-import jakarta.persistence.*;
-
-@Entity
-@Table(name = "role", schema = "nature_connect")
 public class Role {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
-    @Column(nullable = false, unique = true, length = 50) private String code;
+    private Long _id;
+    private String _code;
+
+    public Role(Long id, String code) {
+        _id = id;
+        _code = code;
+    }
+
+    public Long get_id() {
+        return _id;
+    }
+
+    public void set_id(Long _id) {
+        this._id = _id;
+    }
+
+    public String get_code() {
+        return _code;
+    }
+
+    public void set_code(String _code) {
+        this._code = _code;
+    }
 }

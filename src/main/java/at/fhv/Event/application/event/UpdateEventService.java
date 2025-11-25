@@ -88,14 +88,12 @@ public class UpdateEventService {
             });
         }
 
-        // === Alte Equipments merken (für spätere Bereinigung) ===
         var oldLinks = new java.util.ArrayList<>(entity.getEventEquipments());
         java.util.Set<EquipmentEntity> oldEquipments = new java.util.HashSet<>();
         for (var link : oldLinks) {
             oldEquipments.add(link.getEquipment());
         }
 
-        // Alle alten Links entfernen
         for (var link : oldLinks) {
             entity.removeEquipment(link);
         }
@@ -104,8 +102,6 @@ public class UpdateEventService {
         if (req.getEquipments() != null && !req.getEquipments().isEmpty()) {
 
             for (var eqReq : req.getEquipments()) {
-
-                // Skip komplett leere Equipment Einträge (z.B. falls irgendwas komisches aus dem Formular kommt)
                 if (eqReq.getName() == null || eqReq.getName().isBlank()) {
                     continue;
                 }
@@ -157,10 +153,7 @@ public class UpdateEventService {
                 System.out.println("  ✓ Linked to event with required=" + eqReq.isRequired());
             }
         }
-
-        // === Alte Equipments aufräumen ===
-        // Lösche jedes alte Equipment, das jetzt von KEINEM Event mehr verwendet wird
-        eventJpaRepository.flush(); // sicherstellen, dass neue Links in der DB sind
+        eventJpaRepository.flush();
 
         for (EquipmentEntity oldEq : oldEquipments) {
             if (oldEq.getId() == null) {
@@ -176,7 +169,6 @@ public class UpdateEventService {
             }
         }
         EventEntity saved = eventJpaRepository.save(entity);
-        System.out.println("=== EVENT SAVED ===");
         return dtoMapper.toDetailDTO(domainMapper.toDomain(saved));
 
     }

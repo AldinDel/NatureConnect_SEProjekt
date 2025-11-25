@@ -2,7 +2,6 @@ package at.fhv.Event.application.event;
 
 import at.fhv.Event.infrastructure.persistence.event.EventEntity;
 import at.fhv.Event.infrastructure.persistence.event.EventJpaRepository;
-import at.fhv.Event.rest.response.event.EventDetailDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +22,6 @@ public class CancelEventService {
                 .orElseThrow(() -> new RuntimeException("Event not found: " + id));
 
         if (Boolean.TRUE.equals(entity.getCancelled())) {
-            // schon cancelled → nix mehr machen
             return;
         }
 

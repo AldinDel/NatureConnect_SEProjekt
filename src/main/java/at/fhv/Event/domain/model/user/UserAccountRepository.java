@@ -1,8 +1,8 @@
 package at.fhv.Event.domain.model.user;
-import org.springframework.data.jpa.repository.JpaRepository;
+
 import java.util.Optional;
 
-public interface UserAccountRepository extends JpaRepository<UserAccount, Long> {
+public interface UserAccountRepository {
     Optional<UserAccount> findByEmailIgnoreCase(String email);
 }
 
