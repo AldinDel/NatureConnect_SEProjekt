@@ -1,185 +1,85 @@
-
-:root {
-    --nc-bg: #0b2545;         /* dunkles Navy */
-    --nc-bg-hover: #122d4a;
-    --nc-text: #ffffff;
-    --nc-muted: #a8b7c9;
-    --nc-pill: rgba(255,255,255,0.1);
-}
-
-html, body {
-    margin: 0;
-    padding: 0;
-    font-family: "Inter", "Segoe UI", Roboto, sans-serif;
-    background: #fff;
-}
-
-/* --- HEADER --- */
-.nc-header {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    background: var(--nc-bg);
-    color: var(--nc-text);
-    box-shadow: 0 2px 10px rgba(0,0,0,0.25);
-}
-
-/* --- CONTAINER --- */
-.nc-container {
-    max-width: 1200px;
-    margin: 0 auto;
+/* --- Profil Dropdown spezifisch --- */
+.profile-link {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-    padding: 14px 30px;
+    gap: 8px;
+    cursor: pointer;
 }
 
-/* --- LOGO --- */
-.nc-logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    text-decoration: none;
-    color: var(--nc-text);
+/* --- BADGES & PROFILE STYLES --- */
+.badge-item {
+    padding: 8px 16px;
+    cursor: default;
+    border-bottom: 1px solid #eee;
 }
 
-.nc-logo img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-.nc-brand {
-    font-size: 1.1rem;
-    letter-spacing: 0.3px;
-}
-
-/* --- NAVIGATION --- */
-.nc-nav {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex: 1;
-    gap: 16px;
-}
-
-.nc-nav ul {
-    display: flex;
-    align-items: center;
-    gap: 25px;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-/* --- LINKS --- */
-.nc-nav a {
-    color: var(--nc-text);
-    text-decoration: none;
-    font-weight: 500;
-    transition: opacity 0.2s ease, border-color 0.2s ease;
-}
-
-.nc-left a {
-    opacity: 0.9;
-}
-
-.nc-left a:hover {
-    opacity: 1;
-}
-
-.is-active {
-    border-bottom: 2px solid var(--nc-accent);
-    padding-bottom: 6px;
-}
-
-/* --- DROPDOWN --- */
-.dropdown {
-    position: relative;
-}
-
-.dropdown-content {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background: #ffffff;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+.badge-card {
+    padding: 8px 12px;
     border-radius: 6px;
-    list-style: none;
-    padding: 8px 0;
-    min-width: 160px;
-    z-index: 1001;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    font-weight: bold;
+    font-size: 0.85rem;
+    margin-bottom: 0;
 }
 
-.dropdown-content li {
-    padding: 8px 16px;
+/* Backend Mitarbeiter (Admin) - Gold */
+.badge-gold {
+    background-color: #FFD700;
+    color: #000;
+    border: 1px solid #e6c200;
 }
 
-.dropdown-content a {
-    color: #000000;
-    text-decoration: none;
-    display: block;
-    font-weight: 500;
-    transition: background-color 0.2s ease;
-}
-
-.dropdown-content a:hover {
-    background-color: #f2f2f2;
-}
-
-/* Nur bei Hover oder Fokus sichtbar */
-.dropdown:hover .dropdown-content,
-.dropdown:focus-within .dropdown-content {
-    display: block;
-}
-
-/* --- RIGHT SIDE --- */
-.nc-right a {
-    color: var(--nc-text);
-    opacity: 0.9;
-}
-
-.nc-right a:hover {
-    opacity: 1;
-}
-
-.divider {
-    opacity: 0.5;
-}
-
-/* --- LOGIN BUTTON --- */
-.nc-login {
-    display: inline-block;
-    padding: 8px 16px;
-    border-radius: 999px;
-    background: var(--nc-pill);
-    border: 1px solid rgba(255,255,255,0.15);
+/* Frontend Mitarbeiter - Dunkelblau / Weiß */
+.badge-blue {
+    background-color: #0b2545;
     color: #fff;
+}
+
+/* Organizer - Schwarz / Weiß */
+.badge-black {
+    background-color: #000;
+    color: #fff;
+}
+
+.badge-role {
+    font-size: 14px;
+    text-transform: uppercase;
+}
+
+.badge-sub {
+    font-size: 11px;
+    font-weight: normal;
+    opacity: 0.8;
+    display: block;
+}
+
+/* Logout Button im Dropdown */
+.logout-item {
+    padding: 0;
+    margin: 0;
+}
+
+.logout-form {
+    margin: 0;
+    width: 100%;
+}
+
+.logout-btn {
+    background: none;
+    border: none;
+    color: #d9534f; /* Rot für Logout */
+    width: 100%;
+    text-align: left;
+    padding: 12px 16px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 14px;
     font-weight: 500;
-    transition: all 0.25s ease;
+    display: block;
 }
 
-.nc-login:hover {
-    background: var(--nc-bg-hover);
-}
-
-/* --- RESPONSIVE --- */
-@media (max-width: 960px) {
-    .nc-nav {
-        display: none;
-        flex-direction: column;
-        align-items: flex-start;
-        background: var(--nc-bg);
-        position: absolute;
-        top: 60px;
-        left: 0;
-        right: 0;
-        padding: 20px;
-    }
-    .nc-nav.open {
-        display: flex;
-    }
+.logout-btn:hover {
+    background-color: #f9f9f9;
 }

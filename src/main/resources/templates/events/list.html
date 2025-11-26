@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>NatureConnect - Events</title>
-    <!-- Stylesheets-->
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/events.css}">
     <link rel="icon" type="image/png" th:href="@{/images/NatureConnectLogo.png}" href="/images/NatureConnectLogo.png">
@@ -11,12 +10,9 @@
 
 <body>
 
-<!-- Erfolgsmeldung Popup -->
 <div th:if="${success != null}" id="success-popup" class="popup-message" th:text="${success}"></div>
-<!-- Fehlerpopup-->
 <div th:if="${error != null}" id="error-popup" class="popup-message error" th:text="${error}"></div>
 
-<!-- Popup Styling-->
 <style>
     .popup-message {
         position: fixed;
@@ -110,7 +106,6 @@
     }
 </style>
 
-<!-- Popup-Timeout script -->
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const popup = document.getElementById("success-popup");
@@ -121,45 +116,11 @@
 </script>
 
 
-<!-- Header -->
-<header class="nc-header">
-    <div class="nc-container">
-        <!-- Logo mit Link zur Website -->
-        <a class="nc-logo" th:href="@{/}" href="/" aria-label="NATUREConnect Home">
-            <img src="/images/NatureConnectLogo.png" alt="Logo">
-            <span class="nc-brand"><strong>NATURE</strong>Connect</span>
-        </a>
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
 
-        <!-- Navigation -->
-        <nav class="nc-nav" id="nc-nav" aria-label="Primary">
-            <ul class="nc-left">
-                <li><a th:href="@{/}" href="/">Home</a></li>
-
-                <!-- Dropdown-Menü für Events -->
-                <li class="dropdown has-dropdown">
-                    <a href="#" class="dropbtn with-caret" aria-haspopup="true" aria-expanded="false">Events ▾</a>
-                    <ul class="dropdown-content" role="menu" aria-label="Events">
-                        <li role="none"><a role="menuitem" th:href="@{/events/new}" href="/events/new">Create Event</a></li>
-                        <li role="none"><a role="menuitem" th:href="@{/events/backoffice}" href="/events/backoffice">Backoffice View</a></li>
-                    </ul>
-                </li>
-            </ul>
-
-            <ul class="nc-right">
-                <li><a th:href="@{/about}" href="/about">About Us</a></li>
-                <li><span class="divider">|</span></li>
-                <li><a th:href="@{/contact}" href="/contact">Contact Us</a></li>
-                <li><a class="nc-login" th:href="@{/login}" href="/login">Log In</a></li>
-            </ul>
-        </nav>
-    </div>
-</header>
-
-<!-- Eventübersicht-->
 <section class="event-overview">
     <a th:href="@{/}" href="/" class="back-link">❮ Home</a>
 
-    <!-- Titel unterscheiden zwischen normaler und Backoffice-Ansicht -->
     <h1 th:if="${showCancelled}" style="color: #0f2740;">
         📋 Backoffice - All Events
         <span style="font-size: 14px; font-weight: normal; color: #666; display: block; margin-top: 4px;">
@@ -170,10 +131,8 @@
 
     <p th:unless="${showCancelled}">Discover exciting events and activities near you</p>
 
-    <!-- Suchleiste -->
     <form th:action="@{/events/search}" method="get" class="search-form">
 
-        <!-- Keyword search -->
         <div class="search-bar">
             <i data-lucide="search" class="search-icon" aria-hidden="true"></i>
             <input
@@ -190,9 +149,7 @@
 
         </div>
 
-        <!-- Kategorie-Filter-->
         <div class="category-bar">
-            <!-- Buttons filtern direkt-->
             <button type="submit" name="category" value=""
                     th:classappend="${param.category == null or param.category == ''} ? 'active' : ''">
                 All Events
@@ -218,7 +175,6 @@
                 Climbing
             </button>
 
-            <!-- Erweiterter Filter -->
             <button type="button" id="open-filters" class="filter-btn-inline"
                     th:classappend="${param.location != null or param.minPrice != null or param.maxPrice != null or param.difficulty != null} ? 'active' : ''">
                 <svg xmlns="http://www.w3.org/2000/svg" class="filter-icon" viewBox="0 0 24 24" fill="none"
@@ -238,7 +194,6 @@
         </div>
     </form>
 
-    <!-- Seitliches Filterpanel -->
     <div id="filter-panel" class="filter-panel">
         <div class="filter-header">
             <h3>More Filters</h3>
@@ -247,12 +202,9 @@
             </button>
         </div>
 
-        <!-- Filterformular -->
         <form th:action="@{/events/search}" method="get" class="filter-form">
-            <!-- damit Suchwort bestehen bleibt -->
             <input type="hidden" name="q" th:value="${param.q}"/>
 
-            <!-- Location -->
             <div class="filter-group">
                 <label for="location">Location</label>
                 <input list="location-list"
@@ -269,7 +221,6 @@
                 </datalist>
             </div>
 
-            <!-- Kategorie -->
             <div class="filter-group">
                 <label for="category" class="filter-label">Category</label>
                 <select id="category" name="category" class="filter-select">
@@ -286,7 +237,6 @@
                 </select>
             </div>
 
-            <!-- Datum -->
             <div class="filter-group">
                 <label>Date Range</label>
                 <div class="date-range">
@@ -296,7 +246,6 @@
                 </div>
             </div>
 
-            <!-- Difficulty -->
             <div class="filter-group">
                 <label>Difficulty</label>
                 <div class="checkbox-group">
@@ -323,7 +272,6 @@
                 </div>
             </div>
 
-            <!-- Preis -->
             <div class="filter-group">
                 <label>Price Range (€)</label>
                 <div class="price-range">
@@ -337,16 +285,13 @@
         </form>
     </div>
 
-    <!-- Overlay -->
     <div id="overlay" class="overlay"></div>
 
 
-    <!-- EventEntity Meta Bar (Anzahl und Sortierung) -->
     <div class="event-meta-bar">
         <div class="event-count">
             <span th:text="${#lists.size(events)} + ' Events found'">0 Events found</span>
         </div>
-        <!-- Sortiermenü -->
         <div class="sort-options">
             <form th:action="@{/events/search}" method="get">
                 <input type="hidden" name="q" th:value="${param.q}"/>
@@ -370,7 +315,6 @@
     </div>
 
 
-    <!-- EventEntity cards -->
     <div class="event-grid">
         <div class="event-card"
              th:each="event : ${events}"
@@ -384,7 +328,6 @@
                       th:classappend="|tag-${#strings.replace(#strings.toLowerCase(event.category != null ? event.category : 'general'), ' ', '-')}|">
                 </span>
 
-                <!-- CANCELLED Badge -->
                 <span th:if="${event.cancelled}" class="cancelled-badge">CANCELLED</span>
             </div>
 
@@ -421,7 +364,6 @@
                         <a th:href="@{/events/{id}(id=${event.id})}" class="view-btn">View Details</a>
                         <a th:href="@{/events/{id}/edit(id=${event.id})}" class="edit-btn">Edit</a>
 
-                        <!-- Cancel Button - nur anzeigen wenn Event NICHT cancelled ist -->
                         <form th:unless="${event.cancelled}"
                               th:action="@{/events/{id}/cancel(id=${event.id})}"
                               method="post"
@@ -430,7 +372,6 @@
                             <button type="submit" class="cancel-btn">Cancel</button>
                         </form>
 
-                        <!-- Status-Anzeige wenn bereits cancelled -->
                         <span th:if="${event.cancelled}">✕ Cancelled</span>
 
                     </div>
@@ -440,7 +381,6 @@
     </div>
 </section>
 
-<!-- Scripts -->
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>
     lucide.createIcons();
