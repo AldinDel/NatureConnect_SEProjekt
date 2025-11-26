@@ -16,6 +16,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -92,11 +93,22 @@ public class EventController {
             // Detail erst holen
             EventDetailDTO detail = detailsService.getEventDetails(id);
 
+            boolean expired = detail.date().isBefore(LocalDate.now());
+
             // Dann prüfen, ob cancelled
             if (Boolean.TRUE.equals(detail.cancelled())) {
                 redirect.addFlashAttribute(
                         "error",
                         "Event is already cancelled, you can't edit it anymore."
+                );
+                return "redirect:/events/" + id;
+            }
+
+            // expired blocken
+            if (expired) {
+                redirect.addFlashAttribute(
+                        "error",
+                        "Event is already expired, you can't edit it anymore."
                 );
                 return "redirect:/events/" + id;
             }
@@ -180,6 +192,7 @@ public class EventController {
         );
 
         model.addAttribute("events", events);
+        model.addAttribute("now", LocalDateTime.now());
         return "events/list";
     }
 
@@ -253,6 +266,7 @@ public class EventController {
             public final LocalDate endDatev = endDate;
         });
         model.addAttribute("sort", sort);
+        model.addAttribute("now", LocalDateTime.now());
         return "events/list";
     }
 
@@ -267,7 +281,12 @@ public class EventController {
     public String details(@PathVariable("id") Long id, Model model, RedirectAttributes redirect) {
         try {
             var event = detailsService.getEventDetails(id);
+            LocalDateTime start = LocalDateTime.of(event.date(), event.startTime());
+            boolean expired = start.isBefore(LocalDateTime.now());
+
+
             model.addAttribute("event", event);
+            model.addAttribute("expired", expired);
 
             int confirmed = bookingRepository.countSeatsForEvent(event.id());
             int baseSlots = event.maxParticipants() - event.minParticipants();

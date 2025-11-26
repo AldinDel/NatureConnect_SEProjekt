@@ -225,11 +225,21 @@
             <p class="price-amount">
                 <span th:text="${event.price}">20</span> €
             </p>
+
+            <!-- bookable only if event isnt cancelled-->
             <a class="book-btn"
+               th:if="${!event.cancelled and !expired and remainingSpots > 0}"
                th:href="@{'/booking/' + ${event.id}}"
                th:classappend="${remainingSpots == 0} ? ' disabled-link'">
                 Book now
             </a>
+
+            <!-- button gray, if event cancelled or expired-->
+            <a class="book-btn disabled-link"
+               th:if="${event.cancelled or expired}">
+                Not bookable
+            </a>
+
 
             <p th:if="${remainingSpots == 0}" style="color:red;">
                 This event is fully booked

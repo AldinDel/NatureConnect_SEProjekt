@@ -113,6 +113,9 @@ body {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     overflow: hidden;
     transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 /* Effekt für Karten */
@@ -184,6 +187,9 @@ body {
 /* Card content */
 .card-content {
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
 /* Header - Titel und Schwierigkeitsgrad */
@@ -253,6 +259,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    margin-top: auto;
 }
 
 .price {
@@ -271,6 +278,7 @@ body {
     cursor: pointer;
     font-size: 14px;
     transition: 0.2s;
+    text-decoration: none;
 }
 
 /* Edit Button */
@@ -812,18 +820,20 @@ html, body {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 10px;
+    width: 180px;   /* gleiche Breite wie View-Button */
 }
 
 /* EDIT SMALL */
 .edit-small {
+    width: 100%;
     background: #f3f4f6;
     color: #111;
     border-radius: 8px;
-    padding: 10px 0;
+    padding: 8px 0;
     text-align: center;
     text-decoration: none;
     font-weight: 500;
-    font-size: 14px;
+    font-size: 13px;
     border: 1px solid #d1d5db;
 }
 
@@ -834,25 +844,25 @@ html, body {
 /* CANCEL SMALL */
 .cancel-small {
     width: 100%;
-    background: #ef4444;
+    background: #842626;
     color: white;
     border: none;
     border-radius: 8px;
-    padding: 10px 0;
+    padding: 8px 0;
     cursor: pointer;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 .cancel-small:hover {
-    background: #dc2626;
+    background: #842626;
 }
 
 /* Cancelled state */
 .cancel-status {
     grid-column: span 2;
     text-align: center;
-    color: #e53935;
+    color: #842626;
     font-weight: 600;
     padding: 6px 0;
 }
@@ -888,86 +898,4 @@ html, body {
 .view-full:hover {
     background: #1e375d;
 }
-
-.edit-cancel-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    width: 180px;     /* GLEICHE BREITE WIE VIEW BUTTON */
-}
-
-
-.edit-small {
-    width: 100%;
-    background: #f3f4f6;
-    color: #111;
-    border-radius: 8px;
-    padding: 8px 0;
-    text-align: center;
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 13px;
-    border: 1px solid #d1d5db;
-}
-
-
-.edit-small:hover {
-    background: #e5e7eb;
-}
-
-/* Cancel */
-.cancel-small {
-    width: 100%;
-    background: #ef4444;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 8px 0;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 13px;
-}
-
-
-.cancel-small:hover {
-    background: #dc2626;
-}
-
-/* If cancelled */
-.cancel-status {
-    grid-column: span 2;
-    text-align: center;
-    color: #e53935;
-    font-weight: 600;
-    padding: 6px 0;
-}
-
-/* Back-Link Button (❮ Home) */
-.back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 14.5px;
-    font-weight: 500;
-    text-decoration: none;
-    color: #0b2545;
-    background-color: #f9fafb;
-    border: 1px solid #e5e7eb;
-    padding: 8px 14px;
-    border-radius: 10px;
-    transition: all 0.25s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-
-
-    margin-top: 45px !important;
-}
-
-.back-link:hover {
-    background-color: #e9eef5;
-    color: #0b2545;
-    transform: translateX(-2px);
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-}
-
-
 
