@@ -6,6 +6,9 @@ import at.fhv.Event.rest.response.equipment.EquipmentDTO;
 import at.fhv.Event.rest.response.event.EventDTO;
 import at.fhv.Event.rest.response.event.EventDetailDTO;
 import at.fhv.Event.rest.response.event.EventOverviewDTO;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -40,11 +43,13 @@ public class EventMapperDTO {
                 .map(ee -> ee.getEquipment().getId())
                 .collect(Collectors.toList());
 
+        String organizerDisplay = getOrganizerDisplay(e.getOrganizer());
+
         return new EventDetailDTO(
                 e.getId(),
                 e.getTitle(),
                 e.getDescription(),
-                e.getOrganizer(),
+                organizerDisplay, // Angepasster Organisator-Name
                 e.getCategory(),
                 e.getDate(),
                 e.getStartTime(),
@@ -60,7 +65,6 @@ public class EventMapperDTO {
                 requiredIds,
                 optionalIds,
                 e.getAudience() != null ? e.getAudience().toString() : null
-
         );
     }
 
@@ -81,10 +85,13 @@ public class EventMapperDTO {
     public EventOverviewDTO toOverview(Event e) {
         if (e == null) return null;
 
+        String organizerDisplay = getOrganizerDisplay(e.getOrganizer());
+
         return new EventOverviewDTO(
                 e.getId(),
                 e.getTitle(),
                 e.getDescription(),
+                organizerDisplay, // Angepasster Organisator-Name
                 e.getCategory(),
                 e.getDate(),
                 e.getStartTime(),
@@ -99,5 +106,23 @@ public class EventMapperDTO {
                 e.getCancelled()
         );
     }
-}
 
+    private String getOrganizerDisplay(String originalOrganizer) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth != null && auth.isAuthenticated()) {
+            // Admin sieht immer den vollen Namen
+            if (auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) {
+                return originalOrganizer;
+            }
+            // Der Organisator selbst sieht seinen Namen
+            // (Hier vereinfacht über Namensvergleich, idealerweise über ID)
+            // Wir nehmen an, dass der eingeloggte Benutzername (Email) nicht direkt mit dem Organisator-Namen übereinstimmt,
+            // daher ist dieser Check hier schwierig ohne weitere DB-Abfragen.
+            // Für dieses Szenario blenden wir es für alle anderen (inkl. Frontend und Customer) aus.
+        }
+
+        // Standard-Anzeige für alle anderen (Frontend, Customer, nicht eingeloggt)
+        return "NatureConnect Team";
+    }
+}

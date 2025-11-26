@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title th:text="${event.title}">Event Details</title>
@@ -7,39 +8,18 @@
     <!-- Stylesheets -->
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/event_detail.css}">
-
+    <!-- WICHTIG: Navbar CSS für das Dropdown/Profil -->
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
 </head>
 
 <body>
 
-<!-- Erfolgsmeldung Popup -->
-<div th:if="${success != null}" id="success-popup" class="popup-message" th:text="${success}"></div>
-<!-- Fehlerpopup-->
-<div th:if="${error != null}" id="error-popup" class="popup-message error" th:text="${error}"></div>
+<!-- 1. NAVBAR EINBINDEN (Ersetzt den alten statischen Header) -->
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
 
-<style>
-    .popup-message {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #4caf50;
-        color: #fff;
-        padding: 14px 22px;
-        border-radius: 8px;
-        font-weight: 500;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        animation: fadeInOut 4s ease forwards;
-        z-index: 9999 !important;
-    }
-    .popup-message.error {
-        background: #e53935;
-    }
-    @keyframes fadeInOut {
-        0% { opacity: 0; transform: translateY(-10px); }
-        10%, 90% { opacity: 1; transform: translateY(0); }
-        100% { opacity: 0; transform: translateY(-10px); }
-    }
-</style>
+<!-- 2. POPUPS (für Erfolgs/Fehlermeldungen) -->
+<div th:if="${success != null}" id="success-popup" class="popup-message" th:text="${success}"></div>
+<div th:if="${error != null}" id="error-popup" class="popup-message error" th:text="${error}"></div>
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
@@ -50,44 +30,8 @@
     });
 </script>
 
-
-<header class="nc-header">
-    <div class="nc-container">
-        <!-- Logo & Brand -->
-        <div class="nc-top">
-            <a class="nc-logo" th:href="@{/}" href="/" aria-label="NATUREConnect Home">
-                <img src="/images/NatureConnectLogo.png" alt="Logo">
-                <span class="nc-brand"><strong>NATURE</strong>Connect</span>
-            </a>
-        </div>
-        <div class="nc-divider"></div>
-
-        <!-- Navigation unten -->
-        <nav class="nc-nav" id="nc-nav" aria-label="Primary">
-            <ul class="nc-left">
-                <li><a th:href="@{/}" href="/" class="is-active">Home</a></li>
-                <li class="dropdown has-dropdown">
-                    <a href="#" class="dropbtn with-caret">Events ▾</a>
-                    <ul class="dropdown-content">
-                        <li><a th:href="@{/events}" href="/events">All Events</a></li>
-                        <li><a th:href="@{/events/new}" href="/events/new">Create Event</a></li>
-                    </ul>
-                </li>
-            </ul>
-
-            <ul class="nc-right">
-                <li><a href="/about">About Us</a></li>
-                <li><span class="divider">|</span></li>
-                <li><a href="/contact">Contact Us</a></li>
-                <li><a class="nc-login" href="/login">Log In</a></li>
-            </ul>
-        </nav>
-    </div>
-</header>
-
-
+<!-- 3. HERO SECTION (Titel, Bilder, Karte) -->
 <section class="hero-box">
-
     <div class="hero-top">
         <a href="/events" class="back-link back-detail">❮ Back</a>
 
@@ -99,18 +43,20 @@
 
     <h1 class="event-title" th:text="${event.title}">Event Title</h1>
 
-
     <div class="hero-grid">
         <div class="hero-left">
             <img th:if="${event.imageUrl != null}" th:src="${event.imageUrl}" alt="Main Event Image">
+            <img th:unless="${event.imageUrl != null}" th:src="@{/images/default_event.jpg}" alt="Placeholder">
         </div>
 
         <div class="hero-right">
             <div class="hero-small-img">
                 <img th:if="${event.imageUrl != null}" th:src="${event.imageUrl}" alt="Secondary Event Image">
+                <img th:unless="${event.imageUrl != null}" th:src="@{/images/default_event.jpg}" alt="Placeholder">
             </div>
 
             <div class="hero-map">
+                <!-- Beispiel Karte (OpenStreetMap) -->
                 <iframe
                         th:src="'https://www.openstreetmap.org/export/embed.html?bbox=9.73,47.4,9.75,47.42&layer=mapnik&marker=47.41,9.74'"
                         width="100%"
@@ -123,9 +69,9 @@
     </div>
 </section>
 
-
+<!-- 4. MAIN CONTENT (Details, Equipment, Sidebar) -->
 <main class="page">
-    <!-- left column -->
+    <!-- Linke Spalte -->
     <section class="left">
         <div class="box organizer-box">
             <h3>Organized by</h3>
@@ -147,7 +93,7 @@
             <div class="details-grid">
                 <div class="detail-item">
                     <h4>Difficulty</h4>
-                    <p th:text="${#strings.capitalize(event.difficulty.toString().toLowerCase())}">Medium</p>
+                    <p th:text="${event.difficulty}">Medium</p>
                 </div>
 
                 <div class="detail-item">
@@ -157,7 +103,8 @@
 
                 <div class="detail-item">
                     <h4>Duration</h4>
-                    <p th:text="${event.duration()}">4 hours</p>
+                    <!-- Falls du eine duration() Methode im DTO hast, sonst berechnen -->
+                    <p th:text="${event.startTime} + ' - ' + ${event.endTime}">Time</p>
                 </div>
 
                 <div class="detail-item">
@@ -172,10 +119,7 @@
 
         <div class="box">
             <h3>Equipment Add-ons</h3>
-
             <div class="sub-box">
-
-
                 <div class="equipment-table">
                     <div class="equipment-header">
                         <span>Name</span>
@@ -193,7 +137,7 @@
         </div>
     </section>
 
-    <!-- right column -->
+    <!-- Rechte Spalte (Sidebar) -->
     <aside class="right">
         <div class="box participants-box">
             <h3>Participants</h3>
@@ -218,27 +162,53 @@
             </p>
         </div>
 
-
         <div class="box pricing-box">
             <h3>Pricing</h3>
             <p>Price per person</p>
             <p class="price-amount">
                 <span th:text="${event.price}">20</span> €
             </p>
+
+            <!-- Buchen Button -->
             <a class="book-btn"
                th:href="@{'/booking/' + ${event.id}}"
                th:classappend="${remainingSpots == 0} ? ' disabled-link'">
                 Book now
             </a>
 
-            <p th:if="${remainingSpots == 0}" style="color:red;">
+            <p th:if="${remainingSpots == 0}" style="color:red; margin-top:10px;">
                 This event is fully booked
             </p>
         </div>
+
+        <!-- ADMIN / MITARBEITER TOOLS (Nur sichtbar wenn berechtigt) -->
+        <div class="box" th:if="${canEdit or canCancel}" style="border: 2px solid #0b2545;">
+            <h3>Management</h3>
+
+            <div style="display: flex; gap: 10px; flex-direction: column;">
+                <a th:if="${canEdit}"
+                   th:href="@{/events/{id}/edit(id=${event.id})}"
+                   class="edit-btn" style="text-align: center; background: #f3f4f6; padding: 10px; border-radius: 8px; text-decoration: none; color: #333;">
+                    ✎ Edit Event
+                </a>
+
+                <form th:if="${canCancel}"
+                      th:action="@{/events/{id}/cancel(id=${event.id})}"
+                      method="post">
+                    <button type="submit"
+                            class="cancel-btn"
+                            style="width:100%; background: #ef4444; color: white; padding: 10px; border: none; border-radius: 8px; cursor: pointer;"
+                            onclick="return confirm('Really cancel this event?')">
+                        ✕ Cancel Event
+                    </button>
+                </form>
+            </div>
+        </div>
+
     </aside>
 </main>
 
-<!-- JS for at.fhv.Event.infrastructure.persistence.equipment.EventEquipmentEntity -->
+<!-- JS für Equipment -->
 <script th:inline="javascript">
     /*<![CDATA[*/
     const equipmentList = /*[[${event.equipments}]]*/ [];
@@ -249,9 +219,7 @@
     if (!equipmentList || equipmentList.length === 0) {
         noEquipMsg.style.display = "block";
     } else {
-
         equipmentList.forEach(eq => {
-
             const rentableIcon = eq.rentable
                 ? `<span style="color:green; font-weight:600;">✔</span>`
                 : `<span style="color:#999;">—</span>`;
@@ -273,12 +241,10 @@
             <span>${priceText}</span>
             <span>${stockText}</span>
         `;
-
             allList.appendChild(row);
         });
     }
     /*]]>*/
-
 </script>
 
 </body>
