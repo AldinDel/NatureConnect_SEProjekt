@@ -18,5 +18,5 @@ steps:
     publishJUnitResults: true
     testResultsFiles: '**/TEST-*.xml'  # Updated pattern for test result files
     javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.11'  # Replace with your JDK version
+    jdkVersionOption: '17'  # Replace with your JDK version
     jdkArchitectureOption: 'x64'
