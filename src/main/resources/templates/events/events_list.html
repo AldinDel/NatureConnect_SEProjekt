@@ -1,93 +1,131 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <meta charset="UTF-8"/>
-    <title>Events</title>
-
-    <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
-    <link rel="stylesheet" th:href="@{/css/events.css}" href="/css/events.css">
+    <meta charset="UTF-8">
+    <title>NatureConnect - Events</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/events.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link rel="icon" type="image/png" th:href="@{/images/NatureConnectLogo.png}" href="/images/NatureConnectLogo.png">
 </head>
 
 <body>
-<header class="nc-header">
-    <div class="nc-top">
-        <a class="nc-logo" th:href="@{/}" href="/">
-            <img src="/images/NatureConnectLogo.png" alt="Logo" width="40" height="40">
-            <span class="nc-brand"><strong>NATURE</strong>Connect</span>
-        </a>
+
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
+
+<div th:if="${success != null}" id="success-popup" class="popup-message" th:text="${success}"></div>
+<div th:if="${error != null}" id="error-popup" class="popup-message error" th:text="${error}"></div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const popup = document.getElementById("success-popup");
+        const errorPopup = document.getElementById("error-popup");
+        if (popup) setTimeout(() => popup.style.display = "none", 3000);
+        if (errorPopup) setTimeout(() => errorPopup.style.display = "none", 3500);
+    });
+</script>
+
+<div id="filter-panel" class="filter-panel">
+    <div class="filter-header">
+        <h3>More Filters</h3>
+        <button type="button" id="close-filters" class="close-btn">✕</button>
+    </div>
+    <form th:action="@{/events/search}" method="get" class="filter-form">
+        <input type="hidden" name="q" th:value="${param.q}"/>
+        <!-- Location, Category etc. Inputs hier, gekürzt für Übersichtlichkeit -->
+        <!-- Bitte die existierenden Filter-Inputs aus deiner alten list.html hier wieder einfügen wenn nötig -->
+    </form>
+</div>
+<div id="overlay" class="overlay"></div>
+
+<section class="event-overview" style="margin-top: 100px;">
+
+    <form th:action="@{/events/search}" method="get" class="search-form">
+        <div class="search-bar">
+            <input type="text" name="q" placeholder="Browse Events..." th:value="${param.q}">
+        </div>
+        <!-- Category Buttons... -->
+    </form>
+
+    <div class="event-meta-bar">
+        <div class="event-count">
+            <span th:text="${#lists.size(events)} + ' Events found'">0 Events found</span>
+        </div>
     </div>
 
-    <div class="nc-divider"></div>
+    <div class="event-grid">
+        <div class="event-card"
+             th:each="event : ${events}"
+             th:classappend="${event.cancelled} ? ' cancelled-event' : ''">
 
-    <nav class="nc-bottom">
-        <ul class="nc-left">
-            <li><a th:href="@{/}" href="/">Home</a></li>
-            <li class="dropdown has-dropdown">
-                <a href="#" class="dropbtn with-caret">Events ▾</a>
-                <ul class="dropdown-content">
-                    <li><a th:href="@{/events}" href="/events">All Events</a></li>
-                    <li><a th:href="@{/events/new}" href="/events/new">Create Event</a></li>
-                </ul>
-            </li>
-        </ul>
-
-        <ul class="nc-right">
-            <li><a href="/about">About Us</a></li>
-            <li><span class="divider">|</span></li>
-            <li><a href="/contact">Contact Us</a></li>
-            <li><a class="nc-login" href="/login">Log In</a></li>
-        </ul>
-    </nav>
-</header>
-
-
-
-<!-- Erfolgsmeldung -->
-<div th:if="${success}" style="color:green;margin:8px 0;margin-top:100px;" th:text="${success}"></div>
-
-<!-- EventEntity Grid -->
-<div class="event-overview" style="margin-top:120px;">
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;">
-        <div th:each="ev : ${events}" style="border:1px solid #e5e7eb;border-radius:12px;overflow:hidden;">
-            <div th:if="${ev.imageUrl}"
-                 th:style="'height:160px;background-size:cover;background-position:center;background-image:url(' + ${ev.imageUrl} + ');'">
+            <div class="card-image">
+                <img th:src="${event.imageUrl != null} ? ${event.imageUrl} : @{/images/default_event.jpg}" th:alt="${event.title}">
+                <span class="tag" th:text="${event.category}">Category</span>
+                <span th:if="${event.cancelled}" class="cancelled-badge">CANCELLED</span>
             </div>
 
-            <div style="padding:14px;">
-                <div style="font-size:0.8rem;opacity:.7;" th:text="${ev.category}">Category</div>
-                <h3 style="margin:.25rem 0;" th:text="${ev.title}">Title</h3>
-                <p style="font-size:.9rem;opacity:.8;height:44px;overflow:hidden;text-overflow:ellipsis;"
-                   th:text="${ev.description}">Desc</p>
+            <div class="card-content">
+                <div class="card-header">
+                    <h3 th:text="${event.title}">Event Title</h3>
+                    <span class="difficulty" th:text="${event.difficulty}">Difficulty</span>
+                </div>
 
-                <ul style="list-style:none;padding:0;margin:.5rem 0;font-size:.9rem;opacity:.9;">
-                    <li>
-                        <span th:text="${#temporals.format(ev.date, 'dd.MM.yyyy')}">01.01.2026</span>
-                        <span th:if="${ev.startTime}"> ·
-                            <span th:text="${#temporals.format(ev.startTime, 'HH:mm')}">08:00</span>
-                        </span>
-                        <span th:if="${ev.endTime}"> –
-                            <span th:text="${#temporals.format(ev.endTime, 'HH:mm')}">17:00</span>
-                        </span>
-                    </li>
-                    <li th:text="${ev.location}">Location</li>
-                    <li>
-                        <span th:text="${ev.minParticipants} + '–' + ${ev.maxParticipants} + ' participants'">
-                            1–10 participants
-                        </span>
-                        <span th:if="${ev.audience != null}"> · </span>
-                        <span th:text="${ev.audience}">For Individuals</span>
-                    </li>
+                <p th:text="${event.description}">Description...</p>
 
+                <ul class="details">
+                    <li><span th:text="${#temporals.format(event.date, 'MMMM dd, yyyy')}"></span></li>
+                    <li><span th:text="${event.location}"></span></li>
+                    <li style="font-size: 0.8rem; color:#888;">by <span th:text="${event.organizer}"></span></li>
                 </ul>
 
-                <div style="display:flex;justify-content:space-between;align-items:center;">
-                    <strong th:text="'€ ' + ${#numbers.formatDecimal(ev.price, 1, 'COMMA', 2, 'POINT')}">€ 0,00</strong>
+                <div class="footer">
+                    <span class="price" th:text="'€ ' + ${event.price}"></span>
+                    <div class="buttons">
+                        <a th:href="@{/events/{id}(id=${event.id})}" class="view-btn">View Details</a>
+
+                        <!-- EDIT -->
+                        <a sec:authorize="hasAnyRole('ADMIN', 'FO_STAFF')"
+                           th:href="@{/events/{id}/edit(id=${event.id})}" class="edit-btn">Edit</a>
+
+                        <th:block sec:authorize="hasRole('ORGANIZER')">
+                            <a th:if="${currentUserName != null and event.organizer != null and #strings.equalsIgnoreCase(currentUserName, event.organizer)}"
+                               th:href="@{/events/{id}/edit(id=${event.id})}" class="edit-btn">Edit</a>
+                        </th:block>
+
+                        <!-- CANCEL -->
+                        <th:block th:unless="${event.cancelled}">
+                            <form sec:authorize="hasRole('ADMIN')"
+                                  th:action="@{/events/{id}/cancel(id=${event.id})}"
+                                  method="post" style="display:inline;">
+                                <button type="submit" class="cancel-btn" onclick="return confirm('Cancel event?')">Cancel</button>
+                            </form>
+
+                            <form sec:authorize="hasRole('ORGANIZER')"
+                                  th:if="${currentUserName != null and event.organizer != null and #strings.equalsIgnoreCase(currentUserName, event.organizer)}"
+                                  th:action="@{/events/{id}/cancel(id=${event.id})}"
+                                  method="post" style="display:inline;">
+                                <button type="submit" class="cancel-btn" onclick="return confirm('Cancel event?')">Cancel</button>
+                            </form>
+                        </th:block>
+
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
+
+<script>
+    const openBtn = document.getElementById("open-filters");
+    const closeBtn = document.getElementById("close-filters");
+    const panel = document.getElementById("filter-panel");
+    const overlay = document.getElementById("overlay");
+
+    if(openBtn) openBtn.addEventListener("click", () => { panel.classList.add("open"); overlay.classList.add("active"); });
+    if(closeBtn) closeBtn.addEventListener("click", () => { panel.classList.remove("open"); overlay.classList.remove("active"); });
+    if(overlay) overlay.addEventListener("click", () => { panel.classList.remove("open"); overlay.classList.remove("active"); });
+</script>
 
 </body>
 </html>

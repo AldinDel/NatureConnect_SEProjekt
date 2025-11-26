@@ -8,7 +8,11 @@ import at.fhv.Event.application.request.event.UpdateEventRequest;
 import at.fhv.Event.domain.model.booking.BookingRepository;
 import at.fhv.Event.rest.response.event.EventDetailDTO;
 import at.fhv.Event.rest.response.event.EventOverviewDTO;
+import at.fhv.Event.infrastructure.persistence.user.UserAccountJpaRepository;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +36,7 @@ public class EventController {
     private final GetAllEquipmentService equipmentService;
     private final CancelEventService cancelService;
     private final BookingRepository bookingRepository;
+    private final UserAccountJpaRepository userRepo;
 
     public EventController(CreateEventService createService,
                            UpdateEventService updateService,
@@ -39,7 +44,9 @@ public class EventController {
                            SearchEventService searchService,
                            FilterEventService filterService,
                            GetAllEquipmentService equipmentService,
-                           CancelEventService cancelService, BookingRepository bookingRepository) {
+                           CancelEventService cancelService,
+                           BookingRepository bookingRepository,
+                           UserAccountJpaRepository userRepo) {
 
         this.createService = createService;
         this.updateService = updateService;
@@ -49,9 +56,11 @@ public class EventController {
         this.equipmentService = equipmentService;
         this.cancelService = cancelService;
         this.bookingRepository = bookingRepository;
+        this.userRepo = userRepo;
     }
 
     @GetMapping("/new")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ORGANIZER')")
     public String showCreateForm(Model model) {
         model.addAttribute("event", new CreateEventRequest());
         model.addAttribute("equipments", equipmentService.getAll());
@@ -61,14 +70,23 @@ public class EventController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'ORGANIZER')")
     public String create(@ModelAttribute("event") CreateEventRequest req,
-                         RedirectAttributes redirect) {
+                         RedirectAttributes redirect,
+                         Authentication auth) {
 
-        //checked ob das datum in der vergangenheit ist
         if (req.getDate() != null && req.getDate().isBefore(LocalDate.now())) {
             redirect.addFlashAttribute("error", "Event date cannot be in the past.");
             return "redirect:/events/new";
         }
+
+        if (auth != null) {
+            // Organizer-Namen automatisch setzen
+            userRepo.findByEmailIgnoreCase(auth.getName()).ifPresent(u -> {
+                req.setOrganizer(u.getFirstName() + " " + u.getLastName());
+            });
+        }
+
         createService.createEvent(req);
         redirect.addFlashAttribute("success", "Event created successfully!");
         return "redirect:/events";
@@ -86,21 +104,24 @@ public class EventController {
     }
 
     @GetMapping("/{id}/edit")
+    @PreAuthorize("hasAnyRole('ADMIN', 'FRONT', 'ORGANIZER')")
     public String showEditForm(@PathVariable("id") Long id,
                                Model model,
-                               RedirectAttributes redirect) {
+                               RedirectAttributes redirect,
+                               Authentication auth) {
         try {
-            // Detail erst holen
             EventDetailDTO detail = detailsService.getEventDetails(id);
 
             boolean expired = detail.date().isBefore(LocalDate.now());
 
             // Dann prüfen, ob cancelled
+            if (!canEdit(auth, detail)) {
+                redirect.addFlashAttribute("error", "You are not allowed to edit this event.");
+                return "redirect:/events/" + id;
+            }
+
             if (Boolean.TRUE.equals(detail.cancelled())) {
-                redirect.addFlashAttribute(
-                        "error",
-                        "Event is already cancelled, you can't edit it anymore."
-                );
+                redirect.addFlashAttribute("error", "Event is already cancelled, you can't edit it anymore.");
                 return "redirect:/events/" + id;
             }
 
@@ -141,10 +162,6 @@ public class EventController {
             }).toList();
 
             req.setEquipments(eqReqs);
-            model.addAttribute("eventEquipments", eqReqs);
-            System.out.println("eventEquipments size: " + eqReqs.size());
-            eqReqs.forEach(eq -> System.out.println("  - " + eq.getId() + ": " + eq.getName()));
-
 
             model.addAttribute("event", req);
             model.addAttribute("eventEquipments", eqReqs);
@@ -161,9 +178,11 @@ public class EventController {
     }
 
     @PostMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'FRONT', 'ORGANIZER')")
     public String update(@PathVariable("id") Long id,
                          @ModelAttribute("event") UpdateEventRequest req,
-                         RedirectAttributes redirect) {
+                         RedirectAttributes redirect,
+                         Authentication auth) {
 
         //checked ob das datum in der vergangenheit liegt
         if (req.getDate() != null && req.getDate().isBefore(LocalDate.now())) {
@@ -177,25 +196,12 @@ public class EventController {
     }
 
     @GetMapping
-    public String list(Model model) {
-        // alle Filter = null -> "All Events", inkl. cancelled
-        List<EventOverviewDTO> events = filterService.filter(
-                null, // q
-                null, // category
-                null, // location
-                null, // difficulty
-                null, // minPrice
-                null, // maxPrice
-                null, // startDate
-                null, // endDate
-                null  // sort
-        );
-
+    public String list(Model model, Authentication auth) {
+        List<EventOverviewDTO> events = filterService.filter(null, null, null, null, null, null, null, null, null);
+        enrichEventsWithPermissions(model, auth);
         model.addAttribute("events", events);
-        model.addAttribute("now", LocalDateTime.now());
         return "events/list";
     }
-
 
     @GetMapping("/search")
     public String searchEvents(
@@ -210,35 +216,11 @@ public class EventController {
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) String source,
             RedirectAttributes redirect,
-            Model model
+            Model model,
+            Authentication auth
     ) {
         if (q != null && q.length() > 75) {
             redirect.addFlashAttribute("error", "Search keyword must not exceed 75 characters.");
-            return redirectBack(source);
-        }
-
-        if (location != null && location.length() > 75) {
-            redirect.addFlashAttribute("error", "Location cannot exceed 75 characters.");
-            return redirectBack(source);
-        }
-
-        if (startDate != null && startDate.isBefore(LocalDate.now())) {
-            redirect.addFlashAttribute("error", "Start date cannot be in the past.");
-            return redirectBack(source);
-        }
-
-        if (endDate != null && endDate.isBefore(LocalDate.now())) {
-            redirect.addFlashAttribute("error", "End date cannot be in the past.");
-            return redirectBack(source);
-        }
-
-        if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
-            redirect.addFlashAttribute("error", "End date cannot be before start date.");
-            return redirectBack(source);
-        }
-
-        if (minPrice != null && maxPrice != null && maxPrice.compareTo(minPrice) < 0) {
-            redirect.addFlashAttribute("error", "Maximum price cannot be lower than minimum price.");
             return redirectBack(source);
         }
 
@@ -246,13 +228,10 @@ public class EventController {
         if ("home".equals(source) && startDate != null && endDate == null) {
             events = filterService.filterExactDate(startDate, sort);
         } else {
-            events = filterService.filter(
-                    q, category, location, difficulty,
-                    minPrice, maxPrice,
-                    startDate, endDate,
-                    sort
-            );
+            events = filterService.filter(q, category, location, difficulty, minPrice, maxPrice, startDate, endDate, sort);
         }
+
+        enrichEventsWithPermissions(model, auth);
 
         model.addAttribute("events", events);
         model.addAttribute("param", new Object() {
@@ -271,14 +250,12 @@ public class EventController {
     }
 
     private String redirectBack(String source) {
-        if ("home".equals(source)) {
-            return "redirect:/";
-        }
+        if ("home".equals(source)) return "redirect:/";
         return "redirect:/events";
     }
 
     @GetMapping("/{id}")
-    public String details(@PathVariable("id") Long id, Model model, RedirectAttributes redirect) {
+    public String details(@PathVariable("id") Long id, Model model, RedirectAttributes redirect, Authentication auth) {
         try {
             var event = detailsService.getEventDetails(id);
             LocalDateTime start = LocalDateTime.of(event.date(), event.startTime());
@@ -286,7 +263,9 @@ public class EventController {
 
 
             model.addAttribute("event", event);
-            model.addAttribute("expired", expired);
+
+            model.addAttribute("canEdit", canEdit(auth, event));
+            model.addAttribute("canCancel", canCancel(auth, event));
 
             int confirmed = bookingRepository.countSeatsForEvent(event.id());
             int baseSlots = event.maxParticipants() - event.minParticipants();
@@ -304,11 +283,16 @@ public class EventController {
 
 
     @PostMapping("/{id}/cancel")
-    public String cancelEvent(@PathVariable("id") Long id, RedirectAttributes redirect) {
+    @PreAuthorize("hasAnyRole('ADMIN', 'ORGANIZER')")
+    public String cancelEvent(@PathVariable("id") Long id, RedirectAttributes redirect, Authentication auth) {
         try {
             EventDetailDTO detail = detailsService.getEventDetails(id);
 
-            // falls schon gecancelled: nur Meldung, nichts mehr machen
+            if (!canCancel(auth, detail)) {
+                redirect.addFlashAttribute("error", "You are not allowed to cancel this event.");
+                return "redirect:/events/" + id;
+            }
+
             if (Boolean.TRUE.equals(detail.cancelled())) {
                 redirect.addFlashAttribute("error", "Event is already cancelled.");
                 return "redirect:/events/" + id;
@@ -325,6 +309,36 @@ public class EventController {
         }
     }
 
+    private void enrichEventsWithPermissions(Model model, Authentication auth) {
+        if (auth != null) {
+            userRepo.findByEmailIgnoreCase(auth.getName()).ifPresent(u ->
+                    model.addAttribute("currentUserName", u.getFirstName() + " " + u.getLastName())
+            );
+        }
+    }
 
+    private boolean canEdit(Authentication auth, EventDetailDTO event) {
+        if (auth == null) return false;
+        if (auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) return true;
+        if (auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_FRONT"))) return true;
 
+        if (auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ORGANIZER"))) {
+            return userRepo.findByEmailIgnoreCase(auth.getName())
+                    .map(u -> (u.getFirstName() + " " + u.getLastName()).equalsIgnoreCase(event.organizer()))
+                    .orElse(false);
+        }
+        return false;
+    }
+
+    private boolean canCancel(Authentication auth, EventDetailDTO event) {
+        if (auth == null) return false;
+        if (auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) return true;
+
+        if (auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ORGANIZER"))) {
+            return userRepo.findByEmailIgnoreCase(auth.getName())
+                    .map(u -> (u.getFirstName() + " " + u.getLastName()).equalsIgnoreCase(event.organizer()))
+                    .orElse(false);
+        }
+        return false;
+    }
 }
