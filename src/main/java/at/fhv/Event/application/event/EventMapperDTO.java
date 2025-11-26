@@ -85,6 +85,7 @@ public class EventMapperDTO {
                 e.getId(),
                 e.getTitle(),
                 e.getDescription(),
+                e.getOrganizer(),
                 e.getCategory(),
                 e.getDate(),
                 e.getStartTime(),
