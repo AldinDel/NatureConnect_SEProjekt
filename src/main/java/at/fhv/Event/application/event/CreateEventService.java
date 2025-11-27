@@ -35,16 +35,16 @@ public class CreateEventService {
                 : req.getRequiredEquipmentIds().stream()
                 .map(id -> equipmentRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Equipment not found: " + id)))
-                .collect(Collectors.toList());
+                .toList();
 
         List<Equipment> optional = req.getOptionalEquipmentIds() == null ? List.of()
                 : req.getOptionalEquipmentIds().stream()
                 .map(id -> equipmentRepository.findById(id)
                         .orElseThrow(() -> new RuntimeException("Equipment not found: " + id)))
-                .collect(Collectors.toList());
+                .toList();
 
         List<EventEquipment> ees = required.stream().map(eq -> new EventEquipment(eq, true)).collect(Collectors.toList());
-        ees.addAll(optional.stream().map(eq -> new EventEquipment(eq, false)).collect(Collectors.toList()));
+        ees.addAll(optional.stream().map(eq -> new EventEquipment(eq, false)).toList());
 
         Difficulty diff = req.getDifficulty() != null ? Difficulty.valueOf(req.getDifficulty().toUpperCase()) : null;
 

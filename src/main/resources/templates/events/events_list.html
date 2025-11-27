@@ -85,7 +85,7 @@
                         <a th:href="@{/events/{id}(id=${event.id})}" class="view-btn">View Details</a>
 
                         <!-- EDIT -->
-                        <a sec:authorize="hasAnyRole('ADMIN', 'FO_STAFF')"
+                        <a sec:authorize="hasAnyRole('ADMIN', 'FRONT')"
                            th:href="@{/events/{id}/edit(id=${event.id})}" class="edit-btn">Edit</a>
 
                         <th:block sec:authorize="hasRole('ORGANIZER')">
