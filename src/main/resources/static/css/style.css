@@ -282,6 +282,8 @@ body {
     text-decoration: none;
     font-weight: 500;
     cursor: pointer;
+    position: relative;
+    top: 1px;
 }
 
 /* Dropdown-Inhalt */

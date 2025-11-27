@@ -37,7 +37,7 @@ public class SecurityConfig {
                         .requestMatchers("/events/new", "/events/backoffice").hasAnyRole("ADMIN", "ORGANIZER")
 
                         // Edit/Cancel Generell (Details im Controller)
-                        .requestMatchers("/events/{id}/edit", "/events/{id}/cancel").hasAnyRole("ADMIN", "FO_STAFF", "ORGANIZER")
+                        .requestMatchers("/events/{id}/edit", "/events/{id}/cancel").hasAnyRole("ADMIN", "FRONT", "ORGANIZER")
 
                         // Booking braucht Login
                         .requestMatchers("/booking/**").authenticated()

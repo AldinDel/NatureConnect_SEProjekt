@@ -5,13 +5,12 @@ body {
     padding: 0;
 }
 
-
 /* Hauptcontainer für die gesamte EventEntity-Übersicht */
 .event-overview {
     width: 90%;
     max-width: 1000px;
     background: #fff;
-    margin: 0 auto;
+    margin: 50px auto 0; /* margin-top 50px, horizontal auto */
     padding: 40px;
     border-radius: 16px;
 }
@@ -53,7 +52,6 @@ body {
     stroke: currentColor;
     fill: none;
     pointer-events: none;
-
 }
 
 /* Textfeld für die Suche */
@@ -95,8 +93,13 @@ body {
 
 /* Aktive Kategorie */
 .category-bar button.active {
-    background: #111827;
+    background-color: #0f2740;
     color: #fff;
+    border-color: #0f2740;
+}
+
+.category-bar button {
+    transition: all 0.2s ease;
 }
 
 /* EventEntity grid & cards */
@@ -169,12 +172,10 @@ body {
     color: #854d0e;
 }
 
-
 .tag-climbing {
     background: #fee2e2;
     color: #7f1d1d;
 }
-
 
 .tag-general {
     background: #f3f4f6;
@@ -222,7 +223,7 @@ body {
     color: #8B7400;
 }
 
-/*  Advanced */
+/* Advanced */
 .advanced {
     background-color: #FFD1D1;
     color: #9E1A1A;
@@ -246,75 +247,12 @@ body {
 
 .details li {
     margin-bottom: 4px;
-}
-
-/* Footer */
-.footer {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-}
-
-.price {
-    font-size: 18px;
-    font-weight: 700;
-    color: #111827;
-}
-
-/* View Button */
-.view-btn {
-    background: #111827;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 8px 16px;
-    cursor: pointer;
+    gap: 6px;
+    color: #374151;
     font-size: 14px;
-    transition: 0.2s;
 }
-
-/* Edit Button */
-.edit-btn {
-    background: #f3f4f6;
-    color: #111827;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    padding: 8px 16px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    transition: 0.2s;
-    text-decoration: none;
-}
-
-/* Edit Button Effekt */
-.edit-btn:hover {
-    background: #e5e7eb;
-}
-
-.view-btn:hover {
-    background: #1f2937;
-}
-
-.footer .buttons {
-    display: flex;
-    gap: 10px;
-}
-
-html, body {
-    background: #ffffff !important;
-    background-image: auto !important;
-    background-size: auto !important;
-    background-attachment: scroll !important;
-}
-
-html, body {
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    background: #ffffff !important;
-}
-
 
 .details svg {
     width: 15px;
@@ -331,21 +269,167 @@ html, body {
     stroke-width: 1.6 !important;
 }
 
-.details li {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 6px;
-    color: #374151;
-    font-size: 14px;
-}
-
 .details li:hover svg {
     color: #111827;
     transform: scale(1.05);
     transition: all 0.16s ease;
 }
 
+/* Footer */
+.footer {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px; /* Abstand Preis <-> Buttons */
+}
+
+.price {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.footer .buttons {
+    display: flex;
+    gap: 10px;
+}
+
+/* --- Button Styles --- */
+
+/* View Button (Standard) */
+.view-btn {
+    background: #111827;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: 0.2s;
+    text-decoration: none;
+}
+
+.view-btn:hover {
+    background: #1f2937;
+}
+
+/* Full width "View Details" button (optional für andere Layouts) */
+.view-full {
+    width: 100%;
+    display: block;
+    text-align: center;
+    padding: 10px 0;
+    background: #0b2545;
+    color: #fff;
+    border-radius: 10px;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 14px;
+    margin-bottom: 10px;
+}
+
+.view-full:hover {
+    background: #1e375d;
+}
+
+/* Edit Button */
+.edit-btn {
+    background: #f3f4f6;
+    color: #111827;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: 0.2s;
+    text-decoration: none;
+}
+
+.edit-btn:hover {
+    background: #e5e7eb;
+}
+
+/* Small Edit Button (Full Width) */
+.edit-small {
+    width: 100%;
+    background: #f3f4f6;
+    color: #111;
+    border-radius: 8px;
+    padding: 8px 0;
+    text-align: center;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 13px;
+    border: 1px solid #d1d5db;
+    display: block;
+}
+
+.edit-small:hover {
+    background: #e5e7eb;
+}
+
+/* Cancel Button */
+.cancel-small {
+    width: 100%;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 0;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.cancel-small:hover {
+    background: #dc2626;
+}
+
+/* Edit/Cancel Row Layout */
+.edit-cancel-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    width: 100%;
+}
+
+/* Cancel Status Text */
+.cancel-status {
+    grid-column: span 2;
+    text-align: center;
+    color: #e53935;
+    font-weight: 600;
+    padding: 6px 0;
+}
+
+/* Back-Link Button (❮ Home) */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14.5px;
+    font-weight: 500;
+    text-decoration: none;
+    color: #0b2545;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    padding: 8px 14px;
+    border-radius: 10px;
+    transition: all 0.25s ease;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    margin-top: 45px !important;
+    margin-bottom: 20px; /* Added margin-bottom for spacing */
+}
+
+.back-link:hover {
+    background-color: #e9eef5;
+    color: #0b2545;
+    transform: translateX(-2px);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* --- Filter Panel Styling --- */
 .filter-panel {
     position: fixed;
     top: 0;
@@ -427,6 +511,15 @@ html, body {
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+.filter-group select {
+    cursor: pointer;
+}
+
+.filter-group select:focus {
+    outline: none;
+    border-color: #0b2545;
+}
+
 .date-range {
     display: flex;
     align-items: center;
@@ -435,11 +528,6 @@ html, body {
 
 .date-range input[type="date"] {
     flex: 1;
-    padding: 10px 12px;
-    font-family: 'Inter', sans-serif;
-    border-radius: 8px;
-    font-size: 14px;
-    color: #374151;
 }
 
 .checkbox-group {
@@ -450,6 +538,21 @@ html, body {
 
 .checkbox-group input {
     margin-right: 6px;
+}
+
+.price-range {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.price-range input[type="number"] {
+    flex: 1;
+}
+
+.price-range span {
+    color: #6b7280;
+    font-weight: 500;
 }
 
 .apply-btn {
@@ -468,6 +571,7 @@ html, body {
     background: #1f2937;
 }
 
+/* Overlay */
 .overlay {
     position: fixed;
     inset: 0;
@@ -476,6 +580,11 @@ html, body {
     z-index: 1500;
 }
 
+.overlay.active {
+    display: block;
+}
+
+/* Filter Button (Inline) */
 .filter-btn-inline {
     display: inline-flex;
     align-items: center;
@@ -516,43 +625,7 @@ html, body {
     opacity: 1;
 }
 
-.filter-group select {
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    padding: 8px 10px;
-    font-size: 14px;
-    color: #374151;
-    background: #fff;
-    cursor: pointer;
-}
-
-.filter-group select:focus {
-    outline: none;
-    border-color: #0b2545;
-}
-
-.price-range {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.price-range input[type="number"] {
-    flex: 1; /* statt max-width */
-    padding: 10px 12px;
-    font-family: 'Inter', sans-serif;
-    border-radius: 8px;
-    font-size: 14px;
-    color: #374151;
-    border: 1px solid #d1d5db;
-    box-sizing: border-box;
-}
-
-.price-range span {
-    color: #6b7280;
-    font-weight: 500;
-}
-
+/* Meta Bar & Sort Options */
 .event-meta-bar {
     display: flex;
     justify-content: space-between;
@@ -562,7 +635,7 @@ html, body {
     background: #ffffff;
     border: none;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(17, 24, 39, 0.04); /* sehr feiner soft shadow */
+    box-shadow: 0 4px 12px rgba(17, 24, 39, 0.04);
     transition: all 0.25s ease;
 }
 
@@ -589,12 +662,6 @@ html, body {
 .sort-select-wrapper {
     display: flex;
     align-items: center;
-    gap: 8px;
-}
-
-.sort-select-wrapper {
-    display: flex;
-    align-items: center;
     gap: 0.6rem;
     font-size: 0.95rem;
     color: #333;
@@ -605,7 +672,6 @@ html, body {
     color: #444;
 }
 
-/* dropdown */
 .sort-select select {
     all: unset;
     display: inline-block;
@@ -645,329 +711,9 @@ html, body {
     padding: 8px;
 }
 
-.current-sort-inline {
-    margin-left: 0.6rem;
-    font-style: italic;
-    color: #6b7280;
-    font-size: 0.9rem;
-}
-
-.current-sort-inline::before {
-    content: "• ";
-    color: #9ca3af;
-}
-.back-container {
-    max-width: 1100px;
-    width: 85%;
-    margin: 120px auto 0 auto; /* Abstand unter dem Header */
-    display: flex;
-    justify-content: flex-start;
-}
-
-
-
-.category-bar button.active {
-    background-color: #0f2740;
-    color: #fff;
-    border-color: #0f2740;
-}
-
-.category-bar button {
-    transition: all 0.2s ease;
-}
-
-.overlay.active {
-    display: block;
-}
-
-
-.event-overview {
-    margin-top: 50px;
-}
-
-/* fix body spacing  */
+/* Fix Body Spacing on event pages */
 html, body {
     margin: 0 !important;
     padding: 0 !important;
     background: #ffffff;
 }
-
-/*  HEADER STYLING  */
-.nc-header {
-    background-color: #0b2545;
-    color: white;
-    width: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 999;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    font-family: 'Inter', sans-serif;
-}
-
-/* --- OBERER TEIL: LOGO --- */
-.nc-top {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 14px 80px 6px 80px;
-}
-
-.nc-logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    text-decoration: none;
-    color: white;
-    font-size: 22px;
-    font-weight: 600;
-}
-
-.nc-logo img {
-    width: 42px;
-    height: 42px;
-}
-
-/* --- TRENNLINIE DIREKT UNTER LOGO --- */
-/* Homepage-style divider */
-.nc-divider {
-    height: 1px;
-    width: 100%;
-    background: #ffffff33; /* bright white with transparency */
-    margin: 0;
-    border: none;
-    position: relative;
-    z-index: 5;
-}
-
-
-
-/* --- NAVI TEIL UNTEN --- */
-.nc-bottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 80px;
-    font-size: 16px;
-}
-
-.nc-left, .nc-right {
-    display: flex;
-    align-items: center;
-    gap: 24px;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-.nc-left a, .nc-right a {
-    color: white;
-    text-decoration: none;
-    font-weight: 500;
-    transition: opacity 0.2s ease;
-}
-
-.nc-left a:hover, .nc-right a:hover {
-    opacity: 0.7;
-}
-
-.divider {
-    opacity: 0.4;
-}
-
-/* --- LOGIN BUTTON --- */
-.nc-login {
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    padding: 6px 14px;
-    border-radius: 20px;
-    transition: background 0.3s ease;
-}
-
-.nc-login:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-
-/* FULL WIDTH VIEW BUTTON */
-.view-full {
-    width: 100%;
-    display: block;
-    text-align: center;
-    padding: 12px 0;
-    background: #0b2545;
-    color: #fff;
-    border-radius: 10px;
-    font-weight: 600;
-    text-decoration: none;
-    font-size: 15px;
-    margin: 10px 0;
-}
-
-.view-full:hover {
-    background: #1e375d;
-}
-
-/* ROW FOR EDIT + CANCEL */
-.edit-cancel-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-/* EDIT SMALL */
-.edit-small {
-    background: #f3f4f6;
-    color: #111;
-    border-radius: 8px;
-    padding: 10px 0;
-    text-align: center;
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 14px;
-    border: 1px solid #d1d5db;
-}
-
-.edit-small:hover {
-    background: #e5e7eb;
-}
-
-/* CANCEL SMALL */
-.cancel-small {
-    width: 100%;
-    background: #ef4444;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 0;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 14px;
-}
-
-.cancel-small:hover {
-    background: #dc2626;
-}
-
-/* Cancelled state */
-.cancel-status {
-    grid-column: span 2;
-    text-align: center;
-    color: #e53935;
-    font-weight: 600;
-    padding: 6px 0;
-}
-
-.footer {
-    display: flex;
-    align-items: flex-start;
-    gap: 20px;                  /* Abstand Preis <-> Buttons */
-}
-
-.button-area {
-    width: 100%;
-    max-width: 230px;
-    margin-left: 70px;
-}
-
-/* Full width "View Details" button */
-.view-full {
-    width: 180px;      /* SCHMÄLER */
-    display: block;
-    text-align: center;
-    padding: 10px 0;
-    background: #0b2545;
-    color: #fff;
-    border-radius: 10px;
-    font-weight: 600;
-    text-decoration: none;
-    font-size: 14px;
-    margin-bottom: 10px;
-}
-
-
-.view-full:hover {
-    background: #1e375d;
-}
-
-.edit-cancel-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    width: 180px;     /* GLEICHE BREITE WIE VIEW BUTTON */
-}
-
-
-.edit-small {
-    width: 100%;
-    background: #f3f4f6;
-    color: #111;
-    border-radius: 8px;
-    padding: 8px 0;
-    text-align: center;
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 13px;
-    border: 1px solid #d1d5db;
-}
-
-
-.edit-small:hover {
-    background: #e5e7eb;
-}
-
-/* Cancel */
-.cancel-small {
-    width: 100%;
-    background: #ef4444;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 8px 0;
-    cursor: pointer;
-    font-weight: 600;
-    font-size: 13px;
-}
-
-
-.cancel-small:hover {
-    background: #dc2626;
-}
-
-/* If cancelled */
-.cancel-status {
-    grid-column: span 2;
-    text-align: center;
-    color: #e53935;
-    font-weight: 600;
-    padding: 6px 0;
-}
-
-/* Back-Link Button (❮ Home) */
-.back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 14.5px;
-    font-weight: 500;
-    text-decoration: none;
-    color: #0b2545;
-    background-color: #f9fafb;
-    border: 1px solid #e5e7eb;
-    padding: 8px 14px;
-    border-radius: 10px;
-    transition: all 0.25s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-
-
-    margin-top: 45px !important;
-}
-
-.back-link:hover {
-    background-color: #e9eef5;
-    color: #0b2545;
-    transform: translateX(-2px);
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-}
-
-
-
