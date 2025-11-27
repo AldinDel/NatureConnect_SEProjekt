@@ -17,6 +17,8 @@ import at.fhv.Event.rest.response.booking.BookingDTO;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -44,6 +46,19 @@ public class BookEventService {
 
     public BookingDTO bookEvent(CreateBookingRequest request) {
         Event event = bookingRepository.loadEventForBooking(request.getEventId());
+
+        // cancelled events arent bookable
+        if (Boolean.TRUE.equals(event.getCancelled())) {
+            throw new IllegalStateException("Cannot book a cancelled event.");
+        }
+
+        // same for expired events
+        LocalDateTime start = LocalDateTime.of(event.getDate(), event.getStartTime());
+        if (start.isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("Cannot book an expired event.");
+        }
+
+
         int confirmed = bookingRepository.countSeatsForEvent(event.getId());
         int baseSlots = event.getMaxParticipants() - event.getMinParticipants();
         int remaining = baseSlots - confirmed;

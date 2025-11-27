@@ -20,6 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 
@@ -111,6 +112,9 @@ public class EventController {
         try {
             EventDetailDTO detail = detailsService.getEventDetails(id);
 
+            boolean expired = detail.date().isBefore(LocalDate.now());
+
+            // Dann prüfen, ob cancelled
             if (!canEdit(auth, detail)) {
                 redirect.addFlashAttribute("error", "You are not allowed to edit this event.");
                 return "redirect:/events/" + id;
@@ -118,6 +122,15 @@ public class EventController {
 
             if (Boolean.TRUE.equals(detail.cancelled())) {
                 redirect.addFlashAttribute("error", "Event is already cancelled, you can't edit it anymore.");
+                return "redirect:/events/" + id;
+            }
+
+            // expired blocken
+            if (expired) {
+                redirect.addFlashAttribute(
+                        "error",
+                        "Event is already expired, you can't edit it anymore."
+                );
                 return "redirect:/events/" + id;
             }
 
@@ -171,6 +184,7 @@ public class EventController {
                          RedirectAttributes redirect,
                          Authentication auth) {
 
+        //checked ob das datum in der vergangenheit liegt
         if (req.getDate() != null && req.getDate().isBefore(LocalDate.now())) {
             redirect.addFlashAttribute("error", "Event date cannot be in the past.");
             return "redirect:/events/" + id + "/edit";
@@ -231,6 +245,7 @@ public class EventController {
             public final LocalDate endDatev = endDate;
         });
         model.addAttribute("sort", sort);
+        model.addAttribute("now", LocalDateTime.now());
         return "events/list";
     }
 
@@ -243,6 +258,10 @@ public class EventController {
     public String details(@PathVariable("id") Long id, Model model, RedirectAttributes redirect, Authentication auth) {
         try {
             var event = detailsService.getEventDetails(id);
+            LocalDateTime start = LocalDateTime.of(event.date(), event.startTime());
+            boolean expired = start.isBefore(LocalDateTime.now());
+
+
             model.addAttribute("event", event);
 
             model.addAttribute("canEdit", canEdit(auth, event));
@@ -262,6 +281,7 @@ public class EventController {
         }
     }
 
+
     @PostMapping("/{id}/cancel")
     @PreAuthorize("hasAnyRole('ADMIN', 'ORGANIZER')")
     public String cancelEvent(@PathVariable("id") Long id, RedirectAttributes redirect, Authentication auth) {
@@ -278,6 +298,7 @@ public class EventController {
                 return "redirect:/events/" + id;
             }
 
+            // Erstes Mal canceln -> Service ausführen
             cancelService.cancel(id);
             redirect.addFlashAttribute("success", "Event cancelled successfully!");
             return "redirect:/events/" + id;

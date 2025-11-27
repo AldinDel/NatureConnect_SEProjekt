@@ -5,15 +5,19 @@
     <meta charset="UTF-8">
     <title th:text="${event.title}">Event Details</title>
 
+    <!-- Stylesheets -->
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/event_detail.css}">
+    <!-- WICHTIG: Navbar CSS für das Dropdown/Profil -->
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
 </head>
 
 <body>
 
+<!-- 1. NAVBAR EINBINDEN (Ersetzt den alten statischen Header) -->
 <div th:replace="~{events/fragments/navbar :: navbar}"></div>
 
+<!-- 2. POPUPS (für Erfolgs/Fehlermeldungen) -->
 <div th:if="${success != null}" id="success-popup" class="popup-message" th:text="${success}"></div>
 <div th:if="${error != null}" id="error-popup" class="popup-message error" th:text="${error}"></div>
 
@@ -26,6 +30,7 @@
     });
 </script>
 
+<!-- 3. HERO SECTION (Titel, Bilder, Karte) -->
 <section class="hero-box">
     <div class="hero-top">
         <a href="/events" class="back-link back-detail">❮ Back</a>
@@ -51,6 +56,7 @@
             </div>
 
             <div class="hero-map">
+                <!-- Beispiel Karte (OpenStreetMap) -->
                 <iframe
                         th:src="'https://www.openstreetmap.org/export/embed.html?bbox=9.73,47.4,9.75,47.42&layer=mapnik&marker=47.41,9.74'"
                         width="100%"
@@ -63,7 +69,9 @@
     </div>
 </section>
 
+<!-- 4. MAIN CONTENT (Details, Equipment, Sidebar) -->
 <main class="page">
+    <!-- Linke Spalte -->
     <section class="left">
         <div class="box organizer-box">
             <h3>Organized by</h3>
@@ -95,6 +103,7 @@
 
                 <div class="detail-item">
                     <h4>Duration</h4>
+                    <!-- Falls du eine duration() Methode im DTO hast, sonst berechnen -->
                     <p th:text="${event.startTime} + ' - ' + ${event.endTime}">Time</p>
                 </div>
 
@@ -128,6 +137,7 @@
         </div>
     </section>
 
+    <!-- Rechte Spalte (Sidebar) -->
     <aside class="right">
         <div class="box participants-box">
             <h3>Participants</h3>
@@ -159,6 +169,7 @@
                 <span th:text="${event.price}">20</span> €
             </p>
 
+            <!-- Buchen Button -->
             <a class="book-btn"
                th:href="@{'/booking/' + ${event.id}}"
                th:classappend="${remainingSpots == 0} ? ' disabled-link'">
@@ -170,61 +181,34 @@
             </p>
         </div>
 
-        <div class="box" sec:authorize="hasAnyRole('ADMIN', 'FRONT', 'ORGANIZER')" style="border: 2px solid #0b2545;">
+        <!-- ADMIN / MITARBEITER TOOLS (Nur sichtbar wenn berechtigt) -->
+        <div class="box" th:if="${canEdit or canCancel}" style="border: 2px solid #0b2545;">
             <h3>Management</h3>
 
             <div style="display: flex; gap: 10px; flex-direction: column;">
-
-                <a sec:authorize="hasAnyRole('ADMIN', 'FRONT')"
+                <a th:if="${canEdit}"
                    th:href="@{/events/{id}/edit(id=${event.id})}"
                    class="edit-btn" style="text-align: center; background: #f3f4f6; padding: 10px; border-radius: 8px; text-decoration: none; color: #333;">
                     ✎ Edit Event
                 </a>
 
-                <th:block sec:authorize="hasRole('ORGANIZER')">
-                    <a th:if="${currentUserName != null and event.organizer != null and #strings.equalsIgnoreCase(currentUserName, event.organizer)}"
-                       th:href="@{/events/{id}/edit(id=${event.id})}"
-                       class="edit-btn" style="text-align: center; background: #f3f4f6; padding: 10px; border-radius: 8px; text-decoration: none; color: #333;">
-                        ✎ Edit Event
-                    </a>
-                </th:block>
-
-                <th:block th:unless="${event.cancelled}">
-                    <form sec:authorize="hasRole('ADMIN')"
-                          th:action="@{/events/{id}/cancel(id=${event.id})}"
-                          method="post">
-                        <button type="submit"
-                                class="cancel-btn"
-                                style="width:100%; background: #ef4444; color: white; padding: 10px; border: none; border-radius: 8px; cursor: pointer;"
-                                onclick="return confirm('Really cancel this event?')">
-                            ✕ Cancel Event
-                        </button>
-                    </form>
-
-                    <th:block sec:authorize="hasRole('ORGANIZER')">
-                        <form th:if="${currentUserName != null and event.organizer != null and #strings.equalsIgnoreCase(currentUserName, event.organizer)}"
-                              th:action="@{/events/{id}/cancel(id=${event.id})}"
-                              method="post">
-                            <button type="submit"
-                                    class="cancel-btn"
-                                    style="width:100%; background: #ef4444; color: white; padding: 10px; border: none; border-radius: 8px; cursor: pointer;"
-                                    onclick="return confirm('Really cancel your event?')">
-                                ✕ Cancel Event
-                            </button>
-                        </form>
-                    </th:block>
-
-                </th:block>
-
-                <p th:if="${event.cancelled}" style="text-align:center; color:#e53935; font-weight:bold; margin-top:10px;">
-                    Event is Cancelled
-                </p>
+                <form th:if="${canCancel}"
+                      th:action="@{/events/{id}/cancel(id=${event.id})}"
+                      method="post">
+                    <button type="submit"
+                            class="cancel-btn"
+                            style="width:100%; background: #ef4444; color: white; padding: 10px; border: none; border-radius: 8px; cursor: pointer;"
+                            onclick="return confirm('Really cancel this event?')">
+                        ✕ Cancel Event
+                    </button>
+                </form>
             </div>
         </div>
 
     </aside>
 </main>
 
+<!-- JS für Equipment -->
 <script th:inline="javascript">
     /*<![CDATA[*/
     const equipmentList = /*[[${event.equipments}]]*/ [];
