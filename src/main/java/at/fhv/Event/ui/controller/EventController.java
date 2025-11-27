@@ -5,6 +5,7 @@ import at.fhv.Event.application.event.*;
 import at.fhv.Event.application.request.event.CreateEventRequest;
 import at.fhv.Event.application.request.event.EventEquipmentUpdateRequest;
 import at.fhv.Event.application.request.event.UpdateEventRequest;
+import at.fhv.Event.application.user.UserPermissionService; // <--- NEU
 import at.fhv.Event.domain.model.booking.BookingRepository;
 import at.fhv.Event.rest.response.event.EventDetailDTO;
 import at.fhv.Event.rest.response.event.EventOverviewDTO;
@@ -12,7 +13,6 @@ import at.fhv.Event.infrastructure.persistence.user.UserAccountJpaRepository;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +22,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-
 
 @Controller
 @RequestMapping("/events")
@@ -37,6 +36,7 @@ public class EventController {
     private final CancelEventService cancelService;
     private final BookingRepository bookingRepository;
     private final UserAccountJpaRepository userRepo;
+    private final UserPermissionService permissionService; // <--- NEU
 
     public EventController(CreateEventService createService,
                            UpdateEventService updateService,
@@ -46,7 +46,8 @@ public class EventController {
                            GetAllEquipmentService equipmentService,
                            CancelEventService cancelService,
                            BookingRepository bookingRepository,
-                           UserAccountJpaRepository userRepo) {
+                           UserAccountJpaRepository userRepo,
+                           UserPermissionService permissionService) { // <--- Im Konstruktor hinzufügen
 
         this.createService = createService;
         this.updateService = updateService;
@@ -57,6 +58,7 @@ public class EventController {
         this.cancelService = cancelService;
         this.bookingRepository = bookingRepository;
         this.userRepo = userRepo;
+        this.permissionService = permissionService; // <--- Zuweisen
     }
 
     @GetMapping("/new")
@@ -74,14 +76,12 @@ public class EventController {
     public String create(@ModelAttribute("event") CreateEventRequest req,
                          RedirectAttributes redirect,
                          Authentication auth) {
-
         if (req.getDate() != null && req.getDate().isBefore(LocalDate.now())) {
             redirect.addFlashAttribute("error", "Event date cannot be in the past.");
             return "redirect:/events/new";
         }
 
         if (auth != null) {
-            // Organizer-Namen automatisch setzen
             userRepo.findByEmailIgnoreCase(auth.getName()).ifPresent(u -> {
                 req.setOrganizer(u.getFirstName() + " " + u.getLastName());
             });
@@ -111,11 +111,10 @@ public class EventController {
                                Authentication auth) {
         try {
             EventDetailDTO detail = detailsService.getEventDetails(id);
-
             boolean expired = detail.date().isBefore(LocalDate.now());
 
-            // Dann prüfen, ob cancelled
-            if (!canEdit(auth, detail)) {
+            // --- ÄNDERUNG: NUTZUNG DES SERVICES ---
+            if (!permissionService.canEdit(auth, detail)) {
                 redirect.addFlashAttribute("error", "You are not allowed to edit this event.");
                 return "redirect:/events/" + id;
             }
@@ -125,12 +124,8 @@ public class EventController {
                 return "redirect:/events/" + id;
             }
 
-            // expired blocken
             if (expired) {
-                redirect.addFlashAttribute(
-                        "error",
-                        "Event is already expired, you can't edit it anymore."
-                );
+                redirect.addFlashAttribute("error", "Event is already expired, you can't edit it anymore.");
                 return "redirect:/events/" + id;
             }
 
@@ -184,7 +179,6 @@ public class EventController {
                          RedirectAttributes redirect,
                          Authentication auth) {
 
-        //checked ob das datum in der vergangenheit liegt
         if (req.getDate() != null && req.getDate().isBefore(LocalDate.now())) {
             redirect.addFlashAttribute("error", "Event date cannot be in the past.");
             return "redirect:/events/" + id + "/edit";
@@ -261,11 +255,11 @@ public class EventController {
             LocalDateTime start = LocalDateTime.of(event.date(), event.startTime());
             boolean expired = start.isBefore(LocalDateTime.now());
 
-
             model.addAttribute("event", event);
 
-            model.addAttribute("canEdit", canEdit(auth, event));
-            model.addAttribute("canCancel", canCancel(auth, event));
+            // --- ÄNDERUNG: NUTZUNG DES SERVICES ---
+            model.addAttribute("canEdit", permissionService.canEdit(auth, event));
+            model.addAttribute("canCancel", permissionService.canCancel(auth, event));
 
             int confirmed = bookingRepository.countSeatsForEvent(event.id());
             int baseSlots = event.maxParticipants() - event.minParticipants();
@@ -281,14 +275,14 @@ public class EventController {
         }
     }
 
-
     @PostMapping("/{id}/cancel")
     @PreAuthorize("hasAnyRole('ADMIN', 'ORGANIZER')")
     public String cancelEvent(@PathVariable("id") Long id, RedirectAttributes redirect, Authentication auth) {
         try {
             EventDetailDTO detail = detailsService.getEventDetails(id);
 
-            if (!canCancel(auth, detail)) {
+            // --- ÄNDERUNG: NUTZUNG DES SERVICES ---
+            if (!permissionService.canCancel(auth, detail)) {
                 redirect.addFlashAttribute("error", "You are not allowed to cancel this event.");
                 return "redirect:/events/" + id;
             }
@@ -298,7 +292,6 @@ public class EventController {
                 return "redirect:/events/" + id;
             }
 
-            // Erstes Mal canceln -> Service ausführen
             cancelService.cancel(id);
             redirect.addFlashAttribute("success", "Event cancelled successfully!");
             return "redirect:/events/" + id;
@@ -315,30 +308,5 @@ public class EventController {
                     model.addAttribute("currentUserName", u.getFirstName() + " " + u.getLastName())
             );
         }
-    }
-
-    private boolean canEdit(Authentication auth, EventDetailDTO event) {
-        if (auth == null) return false;
-        if (auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) return true;
-        if (auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_FRONT"))) return true;
-
-        if (auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ORGANIZER"))) {
-            return userRepo.findByEmailIgnoreCase(auth.getName())
-                    .map(u -> (u.getFirstName() + " " + u.getLastName()).equalsIgnoreCase(event.organizer()))
-                    .orElse(false);
-        }
-        return false;
-    }
-
-    private boolean canCancel(Authentication auth, EventDetailDTO event) {
-        if (auth == null) return false;
-        if (auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))) return true;
-
-        if (auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ORGANIZER"))) {
-            return userRepo.findByEmailIgnoreCase(auth.getName())
-                    .map(u -> (u.getFirstName() + " " + u.getLastName()).equalsIgnoreCase(event.organizer()))
-                    .orElse(false);
-        }
-        return false;
     }
 }

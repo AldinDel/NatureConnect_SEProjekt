@@ -1,9 +1,11 @@
 package at.fhv.Event.ui.controller;
 
+import at.fhv.Event.application.user.RegisterUserRequest;
 import at.fhv.Event.application.user.RegisterUserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -39,15 +41,15 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public String registerUser(
-            @RequestParam("firstName") String firstName,
-            @RequestParam("lastName") String lastName,
-            @RequestParam("email") String email,
-            @RequestParam("password") String password,
-            Model model) {
-
+    public String registerUser(@ModelAttribute RegisterUserRequest request, Model model) {
         try {
-            registerService.registerCustomer(firstName, lastName, email, password);
+            // Wir holen die Daten jetzt aus dem 'request' Objekt
+            registerService.registerCustomer(
+                    request.firstName(),
+                    request.lastName(),
+                    request.email(),
+                    request.password()
+            );
             return "redirect:/login?success=Registrierung erfolgreich. Bitte einloggen.";
         } catch (Exception e) {
             model.addAttribute("error", e.getMessage());
