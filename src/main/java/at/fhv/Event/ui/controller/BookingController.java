@@ -12,7 +12,11 @@ import at.fhv.Event.rest.response.event.EventDetailDTO;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -34,9 +38,24 @@ public class BookingController {
     }
 
     @GetMapping("/{eventId}")
-    public String showBookingPage(@PathVariable Long eventId, Model model) {
+    public String showBookingPage(@PathVariable Long eventId,
+                                  Model model,
+                                  RedirectAttributes redirectAttributes) {
 
         EventDetailDTO event = getEventDetailsService.getEventDetails(eventId);
+
+        // cancelled Events cant open booking page over url
+        if (Boolean.TRUE.equals(event.cancelled())) {
+            redirectAttributes.addFlashAttribute("error", "This event is cancelled and cannot be booked.");
+            return "redirect:/events/" + eventId;
+        }
+
+        // same for expired events
+        LocalDateTime start = LocalDateTime.of(event.date(), event.startTime());
+        if (start.isBefore(LocalDateTime.now())) {
+            redirectAttributes.addFlashAttribute("error", "This event is expired and cannot be booked.");
+            return "redirect:/events/" + eventId;
+        }
 
         CreateBookingRequest req = new CreateBookingRequest();
         req.setEventId(eventId);
@@ -52,14 +71,27 @@ public class BookingController {
     }
 
     @PostMapping
-    public String submitBooking(
-            @ModelAttribute("booking") CreateBookingRequest request
-    ) {
-        BookingDTO bookingDTO = bookEventService.bookEvent(request);
+    public String submitBooking(@ModelAttribute("booking") CreateBookingRequest request,
+                                RedirectAttributes redirectAttributes) {
 
+        EventDetailDTO event = getEventDetailsService.getEventDetails(request.getEventId());
+
+        if (Boolean.TRUE.equals(event.cancelled())) {
+            redirectAttributes.addFlashAttribute("error", "This event is cancelled and cannot be booked.");
+            return "redirect:/events/" + event.id();
+        }
+
+        LocalDateTime start = LocalDateTime.of(event.date(), event.startTime());
+        if (start.isBefore(LocalDateTime.now())) {
+            redirectAttributes.addFlashAttribute("error", "This event is expired and cannot be booked.");
+            return "redirect:/events/" + event.id();
+        }
+
+        BookingDTO bookingDTO = bookEventService.bookEvent(request);
         Long bookingId = bookingDTO.getId();
         return "redirect:/booking/payment/" + bookingId;
     }
+
 
     @GetMapping("/payment/{id}")
     public String paymentPage(@PathVariable Long id, Model model) {

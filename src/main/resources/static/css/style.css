@@ -282,6 +282,8 @@ body {
     text-decoration: none;
     font-weight: 500;
     cursor: pointer;
+    position: relative;
+    top: 1px;
 }
 
 /* Dropdown-Inhalt */
@@ -548,7 +550,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 
 .time-range .time-inputs input[type="time"] {
     font-family: 'Inter'; !important
-    flex: 1;
+flex: 1;
     min-width: 0;
 }
 
@@ -837,5 +839,3 @@ input[type="date"]::-webkit-calendar-picker-indicator {
     border-radius: 6px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
-
-

@@ -1,44 +1,92 @@
-<!-- src/main/resources/templates/events/fragments/navbar.html -->
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
-    <meta charset="utf-8">
-    <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
-
 </head>
+<body>
 <th:block th:fragment="navbar">
     <header class="nc-header">
         <div class="nc-container">
+            <div class="nc-top">
+                <a class="nc-logo" th:href="@{/}" href="/">
+                    <img th:src="@{/images/NatureConnectLogo.png}" src="/images/NatureConnectLogo.png" alt="Logo">
+                    <span class="nc-brand"><strong>NATURE</strong>Connect</span>
+                </a>
+            </div>
 
-            <!-- Logo -->
-            <a class="nc-logo" th:href="@{/}" aria-label="NATUREConnect Home">
-                <img src="/images/NatureConnectLogo.png" alt="Logo">
-                <span class="nc-brand"><strong>NATURE</strong>Connect</span>
-            </a>
+            <div class="nc-divider"></div>
 
-            <!-- Navigation -->
-            <nav class="nc-nav" aria-label="Primary">
+            <nav class="nc-nav" id="nc-nav">
                 <ul class="nc-left">
-                    <li><a th:href="@{/}" class="is-active">Home</a></li>
-
+                    <li><a th:href="@{/}" href="/">Home</a></li>
                     <li class="dropdown">
                         <a href="#" class="dropbtn">Events ▾</a>
                         <ul class="dropdown-content">
-                            <li><a th:href="@{/events}">All Events</a></li>
-                            <li><a th:href="@{/events/new}">Create Event</a></li>
+                            <li><a th:href="@{/events}" href="/events">All Events</a></li>
+
+                            <li sec:authorize="hasAnyRole('ADMIN', 'ORGANIZER')">
+                                <a th:href="@{/events/new}" href="/events/new">Create Event</a>
+                            </li>
                         </ul>
                     </li>
                 </ul>
 
                 <ul class="nc-right">
-                    <li><a th:href="@{/about}">About Us</a></li>
-                    <li><span class="divider">|</span></li>
-                    <li><a th:href="@{/contact}">Contact Us</a></li>
-                    <li><a class="nc-login" th:href="@{/login}">Log In</a></li>
+                    <li sec:authorize="!isAuthenticated() or (hasRole('FRONT') and !hasAnyRole('ADMIN', 'ORGANIZER', 'FRONT'))">
+                        <a th:href="@{/about}" href="/about">About Us</a>
+                    </li>
+
+                    <li sec:authorize="!isAuthenticated() or (hasRole('FRONT') and !hasAnyRole('ADMIN', 'ORGANIZER', 'FRONT'))">
+                        <span class="divider">|</span>
+                    </li>
+
+                    <li sec:authorize="!isAuthenticated() or (hasRole('FRONT') and !hasAnyRole('ADMIN', 'ORGANIZER', 'FRONT'))">
+                        <a th:href="@{/contact}" href="/contact">Contact Us</a>
+                    </li>
+
+                    <li sec:authorize="!isAuthenticated()">
+                        <a class="nc-login" th:href="@{/login}" href="/login">Log In</a>
+                    </li>
+
+                    <li sec:authorize="isAuthenticated()" class="dropdown">
+                        <a href="#" class="dropbtn profile-link">
+                            <span>👤</span>
+                            <span th:text="'Willkommen, ' + ${currentUserName != null ? currentUserName : #authentication.name}">User</span>
+                            <span> ▾</span>
+                        </a>
+                        <ul class="dropdown-content">
+                            <li class="badge-item" sec:authorize="hasRole('ADMIN')">
+                                <div class="badge-card badge-gold">
+                                    <span class="badge-role">Backend</span> <span class="badge-sub">Admin</span>
+                                </div>
+                            </li>
+                            <li class="badge-item" sec:authorize="hasRole('FRONT')">
+                                <div class="badge-card badge-blue">
+                                    <span class="badge-role">Frontend</span>
+                                </div>
+                            </li>
+                            <li class="badge-item" sec:authorize="hasRole('ORGANIZER')">
+                                <div class="badge-card badge-black">
+                                    <span class="badge-role">Organizer</span>
+                                </div>
+                            </li>
+
+                            <li sec:authorize="hasRole('FRONT') and !hasAnyRole('ADMIN', 'ORGANIZER', 'FRONT')">
+                                <a href="#">My Bookings</a>
+                            </li>
+
+                            <li>
+                                <form th:action="@{/logout}" method="post" style="margin:0">
+                                    <button type="submit" class="logout-btn">Abmelden</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
                 </ul>
             </nav>
         </div>
     </header>
 </th:block>
+</body>
 </html>
