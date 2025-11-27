@@ -19,32 +19,7 @@
 
 <!-- 2. POPUPS (für Erfolgs/Fehlermeldungen) -->
 <div th:if="${success != null}" id="success-popup" class="popup-message" th:text="${success}"></div>
-<!-- Fehlerpopup-->
 <div th:if="${error != null}" id="error-popup" class="popup-message error" th:text="${error}"></div>
-
-<style>
-    .popup-message {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #4caf50;
-        color: #fff;
-        padding: 14px 22px;
-        border-radius: 8px;
-        font-weight: 500;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        animation: fadeInOut 4s ease forwards;
-        z-index: 9999 !important;
-    }
-    .popup-message.error {
-        background: #e53935;
-    }
-    @keyframes fadeInOut {
-        0% { opacity: 0; transform: translateY(-10px); }
-        10%, 90% { opacity: 1; transform: translateY(0); }
-        100% { opacity: 0; transform: translateY(-10px); }
-    }
-</style>
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
@@ -57,7 +32,6 @@
 
 <!-- 3. HERO SECTION (Titel, Bilder, Karte) -->
 <section class="hero-box">
-
     <div class="hero-top">
         <a href="/events" class="back-link back-detail">❮ Back</a>
 
@@ -68,7 +42,6 @@
     </div>
 
     <h1 class="event-title" th:text="${event.title}">Event Title</h1>
-
 
     <div class="hero-grid">
         <div class="hero-left">
@@ -189,27 +162,20 @@
             </p>
         </div>
 
-
         <div class="box pricing-box">
             <h3>Pricing</h3>
             <p>Price per person</p>
             <p class="price-amount">
                 <span th:text="${event.price}">20</span> €
             </p>
+
+            <!-- Buchen Button -->
             <a class="book-btn"
                th:href="@{'/booking/' + ${event.id}}"
                th:classappend="${remainingSpots == 0} ? ' disabled-link'">
                 Book now
             </a>
 
-            <!-- button gray, if event cancelled or expired-->
-            <a class="book-btn disabled-link"
-               th:if="${event.cancelled or expired}">
-                Not bookable
-            </a>
-
-
-            <p th:if="${remainingSpots == 0}" style="color:red;">
             <p th:if="${remainingSpots == 0}" style="color:red; margin-top:10px;">
                 This event is fully booked
             </p>

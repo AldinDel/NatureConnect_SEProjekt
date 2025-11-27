@@ -5,6 +5,7 @@
     <title>NatureConnect - Events</title>
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/events.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link rel="icon" type="image/png" th:href="@{/images/NatureConnectLogo.png}" href="/images/NatureConnectLogo.png">
 </head>
 
@@ -318,7 +319,7 @@
     <div class="event-grid">
         <div class="event-card"
              th:each="event : ${events}"
-             th:classappend="${event.cancelled or T(java.time.LocalDateTime).of(event.date, event.startTime).isBefore(now)} ? ' cancelled-event' : ''">
+             th:classappend="${event.cancelled} ? ' cancelled-event' : ''">
 
             <div class="card-image">
                 <img th:src="${event.imageUrl != null} ? ${event.imageUrl} : @{/images/default_event.jpg}"
@@ -329,11 +330,6 @@
                 </span>
 
                 <span th:if="${event.cancelled}" class="cancelled-badge">CANCELLED</span>
-                <!-- EXPIRED Badge -->
-                <span th:if="${!event.cancelled and T(java.time.LocalDateTime).of(event.date, event.startTime).isBefore(now)}"
-                      class="cancelled-badge">
-                    EXPIRED
-                </span>
             </div>
 
             <div class="card-content">
@@ -369,9 +365,7 @@
                         <a th:href="@{/events/{id}(id=${event.id})}" class="view-btn">View Details</a>
                         <a th:href="@{/events/{id}/edit(id=${event.id})}" class="edit-btn">Edit</a>
 
-                        <!-- Cancel Button - nur anzeigen wenn Event NICHT cancelled ist -->
-                        <form th:unless="${event.cancelled or
-                                         T(java.time.LocalDateTime).of(event.date, event.startTime).isBefore(now)}"
+                        <form th:unless="${event.cancelled}"
                               th:action="@{/events/{id}/cancel(id=${event.id})}"
                               method="post"
                               style="display:inline; margin:0;"
@@ -379,6 +373,7 @@
                             <button type="submit" class="cancel-btn">Cancel</button>
                         </form>
 
+                        <span th:if="${event.cancelled}">✕ Cancelled</span>
 
                     </div>
                 </div>
