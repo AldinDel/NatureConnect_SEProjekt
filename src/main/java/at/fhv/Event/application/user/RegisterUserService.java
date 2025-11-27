@@ -43,9 +43,9 @@ public class RegisterUserService {
         user.setCreatedAt(OffsetDateTime.now());
         user.setUpdatedAt(OffsetDateTime.now());
 
-        // Rolle: Customer (FO_USER)
-        RoleEntity role = roleRepo.findByCode("FO_USER")
-                .orElseThrow(() -> new RuntimeException("Rolle FO_USER nicht gefunden."));
+        // Rolle: Customer
+        RoleEntity role = roleRepo.findByCode("CUSTOMER")
+                .orElseThrow(() -> new RuntimeException("Rolle CUSTOMER nicht gefunden."));
         user.setRoles(Set.of(role));
 
         UserAccountEntity savedUser = userRepo.save(user);

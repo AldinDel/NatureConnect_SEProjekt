@@ -33,15 +33,15 @@
                 </ul>
 
                 <ul class="nc-right">
-                    <li sec:authorize="!isAuthenticated() or (hasRole('FRONT') and !hasAnyRole('ADMIN', 'ORGANIZER', 'FRONT'))">
+                    <li sec:authorize="!isAuthenticated() or hasRole('CUSTOMER')">
                         <a th:href="@{/about}" href="/about">About Us</a>
                     </li>
 
-                    <li sec:authorize="!isAuthenticated() or (hasRole('FRONT') and !hasAnyRole('ADMIN', 'ORGANIZER', 'FRONT'))">
+                    <li sec:authorize="!isAuthenticated() or hasRole('CUSTOMER')">
                         <span class="divider">|</span>
                     </li>
 
-                    <li sec:authorize="!isAuthenticated() or (hasRole('FRONT') and !hasAnyRole('ADMIN', 'ORGANIZER', 'FRONT'))">
+                    <li sec:authorize="!isAuthenticated() or hasRole('CUSTOMER')">
                         <a th:href="@{/contact}" href="/contact">Contact Us</a>
                     </li>
 
@@ -71,8 +71,13 @@
                                     <span class="badge-role">Organizer</span>
                                 </div>
                             </li>
+                            <li class="badge-item" sec:authorize="hasRole('CUSTOMER')">
+                                <div class="badge-card badge-green">
+                                    <span class="badge-role">Customer</span>
+                                </div>
+                            </li>
 
-                            <li sec:authorize="hasRole('FRONT') and !hasAnyRole('ADMIN', 'ORGANIZER', 'FRONT')">
+                            <li sec:authorize="hasRole('CUSTOMER')">
                                 <a href="#">My Bookings</a>
                             </li>
 

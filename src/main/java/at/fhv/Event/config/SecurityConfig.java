@@ -26,6 +26,11 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        // Role-based access control:
+        // - ADMIN: Full access to all operations
+        // - FRONT: Frontend staff - can edit events but not create/cancel (see UserPermissionService)
+        // - ORGANIZER: Can create and manage their own events
+        // - CUSTOMER: Can view events and make bookings (no event management)
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
