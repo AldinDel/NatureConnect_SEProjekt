@@ -91,7 +91,7 @@ public class EventMapperDTO {
                 e.getId(),
                 e.getTitle(),
                 e.getDescription(),
-                organizerDisplay, // Angepasster Organisator-Name
+                e.getOrganizer(),
                 e.getCategory(),
                 e.getDate(),
                 e.getStartTime(),

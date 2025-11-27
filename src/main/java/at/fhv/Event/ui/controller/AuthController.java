@@ -1,6 +1,6 @@
 package at.fhv.Event.ui.controller;
 
-import at.fhv.Event.application.user.RegisterUserRequest;
+import at.fhv.Event.application.request.user.RegisterUserRequest;
 import at.fhv.Event.application.user.RegisterUserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

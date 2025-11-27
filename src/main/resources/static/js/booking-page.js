@@ -70,7 +70,6 @@ function generateParticipants(num) {
         });
 
         participantsContainer.appendChild(section);
-        participantsContainer.appendChild(section);
     }
 }
 

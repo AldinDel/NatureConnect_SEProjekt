@@ -24,7 +24,7 @@ public class SearchEventService {
                         e.getId(),
                         e.getTitle(),
                         e.getDescription(),
-                        e.getOrganizer(), // NEU: Organizer Feld
+                        e.getOrganizer(),
                         e.getCategory(),
                         e.getDate(),
                         e.getStartTime(),
@@ -48,7 +48,7 @@ public class SearchEventService {
                         e.getId(),
                         e.getTitle(),
                         e.getDescription(),
-                        e.getOrganizer(), // NEU: Organizer Feld
+                        e.getOrganizer(),
                         e.getCategory(),
                         e.getDate(),
                         e.getStartTime(),

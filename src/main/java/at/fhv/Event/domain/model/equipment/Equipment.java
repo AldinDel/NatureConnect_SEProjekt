@@ -17,6 +17,19 @@ public class Equipment {
         this.stock = stock;
     }
 
+    public void reduceStock(int quantity) {
+        if (quantity > this.stock) {
+            throw new IllegalStateException(
+                    String.format("Can't reduce stock: requested %d, available%d", quantity, this.stock)
+            );
+        } this.stock = this.stock - quantity;
+    }
+
+    public boolean hasEnoughStock(int quantity) {
+        return this.stock>=quantity;
+    }
+
+
     public Long getId() {
         return id;
     }

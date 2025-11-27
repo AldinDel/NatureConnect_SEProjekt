@@ -1,116 +1,184 @@
 package at.fhv.Event.ui.controller;
 
 import at.fhv.Event.application.booking.BookEventService;
+import at.fhv.Event.application.equipment.GetRentableEquipmentService;
 import at.fhv.Event.application.event.GetEventDetailsService;
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
 import at.fhv.Event.domain.model.booking.AudienceType;
 import at.fhv.Event.domain.model.booking.Booking;
-import at.fhv.Event.infrastructure.persistence.equipment.EquipmentEntity;
-import at.fhv.Event.infrastructure.persistence.equipment.EquipmentJpaRepository;
+import at.fhv.Event.domain.model.exception.BookingValidationException;
+import at.fhv.Event.domain.model.exception.EventFullyBookedException;
+import at.fhv.Event.domain.model.exception.ValidationError;
 import at.fhv.Event.rest.response.booking.BookingDTO;
+import at.fhv.Event.rest.response.equipment.EquipmentDTO;
 import at.fhv.Event.rest.response.event.EventDetailDTO;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/booking")
 public class BookingController {
 
-    private final BookEventService bookEventService;
-    private final GetEventDetailsService getEventDetailsService;
-    private final EquipmentJpaRepository equipmentRepository;
+    private final BookEventService _bookEventService;
+    private final GetEventDetailsService _eventDetailsService;
+    private final GetRentableEquipmentService _rentableEquipmentService;
 
-    public BookingController(
-            BookEventService bookEventService,
-            GetEventDetailsService getEventDetailsService,
-            EquipmentJpaRepository equipmentRepository
-    ) {
-        this.bookEventService = bookEventService;
-        this.getEventDetailsService = getEventDetailsService;
-        this.equipmentRepository = equipmentRepository;
+    public BookingController(BookEventService bookEventService, GetEventDetailsService eventDetailsService, GetRentableEquipmentService rentableEquipmentService) {
+        _bookEventService = bookEventService;
+        _eventDetailsService = eventDetailsService;
+        _rentableEquipmentService = rentableEquipmentService;
     }
 
     @GetMapping("/{eventId}")
-    public String showBookingPage(@PathVariable Long eventId,
-                                  Model model,
-                                  RedirectAttributes redirectAttributes) {
-
-        EventDetailDTO event = getEventDetailsService.getEventDetails(eventId);
-
-        // cancelled Events cant open booking page over url
-        if (Boolean.TRUE.equals(event.cancelled())) {
-            redirectAttributes.addFlashAttribute("error", "This event is cancelled and cannot be booked.");
+    public String showBookingPage(@PathVariable Long eventId, Model model, RedirectAttributes redirectAttributes) {
+        EventDetailDTO event = _eventDetailsService.getEventDetails(eventId);
+        if (isEventUnavailable(event)) {
+            redirectAttributes.addFlashAttribute("error", getUnavailabilityMessage(event));
             return "redirect:/events/" + eventId;
         }
 
-        // same for expired events
-        LocalDateTime start = LocalDateTime.of(event.date(), event.startTime());
-        if (start.isBefore(LocalDateTime.now())) {
-            redirectAttributes.addFlashAttribute("error", "This event is expired and cannot be booked.");
-            return "redirect:/events/" + eventId;
-        }
-
-        CreateBookingRequest req = new CreateBookingRequest();
-        req.setEventId(eventId);
-        req.setAudience(AudienceType.INDIVIDUAL);
-
-        List<EquipmentEntity> addons = equipmentRepository.findByRentableTrue();
-
-        model.addAttribute("addons", addons);
+        CreateBookingRequest bookingRequest = createInitialBookingRequest(eventId);
+        List<EquipmentDTO> availableEquipment = _rentableEquipmentService.getRentableEquipment();
         model.addAttribute("event", event);
-        model.addAttribute("booking", req);
-
+        model.addAttribute("booking", bookingRequest);
+        model.addAttribute("addons", availableEquipment);
         return "booking/booking-page";
     }
 
     @PostMapping
-    public String submitBooking(@ModelAttribute("booking") CreateBookingRequest request,
-                                RedirectAttributes redirectAttributes) {
+    public String submitBooking(@ModelAttribute("booking") CreateBookingRequest request, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            EventDetailDTO event = _eventDetailsService.getEventDetails(request.getEventId());
+            if (isEventUnavailable(event)) {
+                redirectAttributes.addFlashAttribute("error", getUnavailabilityMessage(event));
+                return "redirect:/events/" + event.id();
+            }
 
-        EventDetailDTO event = getEventDetailsService.getEventDetails(request.getEventId());
+            BookingDTO booking = _bookEventService.bookEvent(request);
+            return "redirect:/booking/payment/" + booking.getId();
 
-        if (Boolean.TRUE.equals(event.cancelled())) {
-            redirectAttributes.addFlashAttribute("error", "This event is cancelled and cannot be booked.");
-            return "redirect:/events/" + event.id();
+        } catch (BookingValidationException exception) {
+            return handleValidationErrors(exception, request, model);
+
+        } catch (EventFullyBookedException exception) {
+            redirectAttributes.addFlashAttribute("error", exception.getMessage());
+            return "redirect:/events/" + request.getEventId();
+
+        } catch (Exception exception) {
+            return handleUnexpectedError(exception, request, model);
         }
-
-        LocalDateTime start = LocalDateTime.of(event.date(), event.startTime());
-        if (start.isBefore(LocalDateTime.now())) {
-            redirectAttributes.addFlashAttribute("error", "This event is expired and cannot be booked.");
-            return "redirect:/events/" + event.id();
-        }
-
-        BookingDTO bookingDTO = bookEventService.bookEvent(request);
-        Long bookingId = bookingDTO.getId();
-        return "redirect:/booking/payment/" + bookingId;
     }
 
-
     @GetMapping("/payment/{id}")
-    public String paymentPage(@PathVariable Long id, Model model) {
-        Booking booking = bookEventService.getById(id);
+    public String showPaymentPage(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
+        try {
+            Booking booking = _bookEventService.getById(id);
+            model.addAttribute("bookingId", booking.getId());
+            model.addAttribute("amount", booking.getTotalPrice());
+            model.addAttribute("paymentMethod", booking.getPaymentMethod());
 
-        model.addAttribute("bookingId", booking.getId());
-        model.addAttribute("amount", booking.getTotalPrice());
-        model.addAttribute("paymentMethod", booking.getPaymentMethod());
-
-        return "booking/payment";
+            return "booking/payment";
+        } catch (Exception exception) {
+            redirectAttributes.addFlashAttribute("error", "Booking not found");
+            return "redirect:/events";
+        }
     }
 
     @PostMapping("/payment/{id}")
-    public String completePayment(
-            @PathVariable Long id,
-            @RequestParam("paymentMethod") String paymentMethod
-    ) {
-        bookEventService.updatePaymentMethod(id, paymentMethod);
+    public String processPayment(@PathVariable Long id, @RequestParam("paymentMethod") String paymentMethod, RedirectAttributes redirectAttributes) {
+        try {
+            _bookEventService.updatePaymentMethod(id, paymentMethod);
+            return "redirect:/booking/confirmation/" + id;
+        } catch (Exception exception) {
+            redirectAttributes.addFlashAttribute("error",
+                    "Payment processing failed: " + exception.getMessage());
+            return "redirect:/booking/payment/" + id;
+        }
+    }
 
-        return "redirect:/booking/confirmation/" + id;
+    @GetMapping("/confirmation/{id}")
+    public String showConfirmationPage(@PathVariable Long id, Model model) {
+        try {
+            Booking booking = _bookEventService.getById(id);
+            model.addAttribute("booking", booking);
+            model.addAttribute("bookingId", booking.getId());
+            model.addAttribute("amount", booking.getTotalPrice());
+            model.addAttribute("paymentMethod", booking.getPaymentMethod());
+            return "booking/confirmation";
+        } catch (Exception exception) {
+            model.addAttribute("error", "Booking not found");
+            return "error/404";
+        }
+    }
+
+    private boolean isEventUnavailable(EventDetailDTO event) {
+        if (Boolean.TRUE.equals(event.cancelled())) {
+            return true;
+        }
+        LocalDateTime eventStart = LocalDateTime.of(event.date(), event.startTime());
+        return eventStart.isBefore(LocalDateTime.now());
+    }
+
+    private String getUnavailabilityMessage(EventDetailDTO event) {
+        if (Boolean.TRUE.equals(event.cancelled())) {
+            return "This event is cancelled and cannot be booked.";
+        }
+        return "This event is expired and cannot be booked.";
+    }
+
+    private CreateBookingRequest createInitialBookingRequest(Long eventId) {
+        CreateBookingRequest request = new CreateBookingRequest();
+        request.setEventId(eventId);
+        request.setAudience(AudienceType.INDIVIDUAL);
+        return request;
+    }
+
+    private String handleValidationErrors(BookingValidationException exception, CreateBookingRequest request, Model model) {
+
+        Map<String, String> fieldErrors = new HashMap<>();
+        List<String> errorMessages = new ArrayList<>();
+        for (ValidationError error : exception.getErrors()) {
+            String field = error.get_field();
+            String message = error.get_message();
+
+            if (fieldErrors.containsKey(field)) {
+                String existing = fieldErrors.get(field);
+                fieldErrors.put(field, existing + "; " + message);
+            } else {
+                fieldErrors.put(field, message);
+            }
+            errorMessages.add(message);
+        }
+
+        EventDetailDTO event = _eventDetailsService.getEventDetails(request.getEventId());
+        List<EquipmentDTO> availableEquipment = _rentableEquipmentService.getRentableEquipment();
+
+        model.addAttribute("fieldErrors", fieldErrors);
+        model.addAttribute("errors", errorMessages);
+        model.addAttribute("event", event);
+        model.addAttribute("addons", availableEquipment);
+        model.addAttribute("booking", request);
+
+        return "booking/booking-page";
+    }
+
+    private String handleUnexpectedError(Exception exception, CreateBookingRequest request, Model model) {
+        EventDetailDTO event = _eventDetailsService.getEventDetails(request.getEventId());
+        List<EquipmentDTO> availableEquipment = _rentableEquipmentService.getRentableEquipment();
+
+        model.addAttribute("error", "An unexpected error occurred. Please try again.");
+        model.addAttribute("event", event);
+        model.addAttribute("addons", availableEquipment);
+        model.addAttribute("booking", request);
+
+        return "booking/booking-page";
     }
 }

@@ -8,7 +8,9 @@ import org.springframework.stereotype.Component;
 public class EquipmentMapper {
 
     public Equipment toDomain(EquipmentEntity e) {
-        if (e == null) return null;
+        if (e == null) {
+            return null;
+        }
         return new Equipment(
                 e.getId(),
                 e.getName(),
