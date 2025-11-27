@@ -15,7 +15,7 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity // Erlaubt @PreAuthorize in Controllern
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
@@ -32,21 +32,14 @@ public class SecurityConfig {
         // - ORGANIZER: Can create and manage their own events
         // - CUSTOMER: Can view events and make bookings (no event management)
         http
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // Statische Ressourcen
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/uploads/**").permitAll()
-                        // Öffentliche Seiten
                         .requestMatchers("/", "/events", "/events/search", "/events/{id}", "/register", "/login").permitAll()
-
-                        // Create Event: Nur Admin & Organizer
                         .requestMatchers("/events/new", "/events/backoffice").hasAnyRole("ADMIN", "ORGANIZER")
-
-                        // Edit/Cancel: Admin, Front, Organizer (Details im Controller via UserPermissionService)
+                        .requestMatchers("/api/bookings").permitAll()
                         .requestMatchers("/events/{id}/edit", "/events/{id}/cancel").hasAnyRole("ADMIN", "FRONT", "ORGANIZER")
-
-                        // Booking: Alle authentifizierten Benutzer (inkl. CUSTOMER)
                         .requestMatchers("/booking/**").authenticated()
-
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

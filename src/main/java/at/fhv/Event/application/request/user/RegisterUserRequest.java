@@ -1,4 +1,4 @@
-package at.fhv.Event.application.user;
+package at.fhv.Event.application.request.user;
 
 public record RegisterUserRequest(
         String firstName,
