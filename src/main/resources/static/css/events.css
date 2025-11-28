@@ -271,6 +271,7 @@ body {
     cursor: pointer;
     font-size: 14px;
     transition: 0.2s;
+    text-decoration: none;
 }
 
 /* Edit Button */
@@ -967,7 +968,72 @@ html, body {
     color: #0b2545;
     transform: translateX(-2px);
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+
 }
+
+
+.event-card.expired-event {
+    position: relative;
+}
+
+
+.event-card.expired-event .card-image::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.2); /* gleiche Farbe wie cancelled */
+}
+
+
+.expired-badge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #ea7a57;      /* Expired-Farbe */
+    color: white;
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    z-index: 20;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+
+
+.event-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
+}
+
+
+.event-card {
+    display: flex;
+    flex-direction: column;
+}
+
+
+.card-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+
+.card-content .footer {
+    margin-top: auto;
+}
+
+
+
+
 
 
 
