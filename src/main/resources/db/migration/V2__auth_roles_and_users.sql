@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS user_role (
 
 -- Seed default roles
 INSERT INTO role (code)
-VALUES ('ADMIN'), ('FRONT'), ('ORGANIZER'), ('CUSTOMER')
+VALUES ('ADMIN'), ('FO_STAFF'), ('FO_USER'), ('ORGANIZER')
 ON CONFLICT (code) DO NOTHING;
 
 -- Customer profile (optional link to user_account)
