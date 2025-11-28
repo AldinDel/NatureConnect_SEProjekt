@@ -5,11 +5,10 @@
     <meta charset="UTF-8">
     <title th:text="${event.title}">Event Details</title>
 
-    <!-- Stylesheets -->
+    <!-- Stylesheets - navbar.css must be loaded first for consistency -->
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/event_detail.css}">
-    <!-- WICHTIG: Navbar CSS für das Dropdown/Profil -->
-    <link rel="stylesheet" th:href="@{/css/navbar.css}">
 </head>
 
 <body>

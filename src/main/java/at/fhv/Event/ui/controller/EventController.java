@@ -113,7 +113,6 @@ public class EventController {
             EventDetailDTO detail = detailsService.getEventDetails(id);
             boolean expired = detail.date().isBefore(LocalDate.now());
 
-            // --- ÄNDERUNG: NUTZUNG DES SERVICES ---
             if (!permissionService.canEdit(auth, detail)) {
                 redirect.addFlashAttribute("error", "You are not allowed to edit this event.");
                 return "redirect:/events/" + id;
