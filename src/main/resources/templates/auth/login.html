@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - NatureConnect</title>
+    <link rel="stylesheet" th:href="@{/css/navbar.css}" href="/css/navbar.css">
     <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
     <link rel="icon" type="image/png" th:href="@{/images/NatureConnectLogo.png}" href="/images/NatureConnectLogo.png">
     <style>
@@ -194,68 +196,12 @@
             color: #3c3;
             border: 1px solid #cfc;
         }
-
-        /* Fix für die Navbar-Trennlinie */
-        .nc-nav .divider {
-            color: white;
-            font-weight: 300;
-            margin: 0 8px;
-            text-align: left !important;
-            position: static !important;
-        }
-
-        .nc-nav .divider::before {
-            display: none !important;
-        }
-
-        /* Navbar Abstände anpassen */
-        .nc-nav .nc-right {
-            gap: 19px !important;
-        }
-
-        .nc-nav .nc-right .divider {
-            margin: 0 2px;
-        }
     </style>
 </head>
 <body>
 
-<!-- HEADER mit dem neuen Design -->
-<header class="nc-header">
-    <div class="nc-container">
-        <!-- Logo & Brand -->
-        <div class="nc-top">
-            <a class="nc-logo" th:href="@{/}" href="/" aria-label="NATUREConnect Home">
-                <img src="/images/NatureConnectLogo.png" alt="Logo">
-                <span class="nc-brand"><strong>NATURE</strong>Connect</span>
-            </a>
-        </div>
-
-        <!-- Trennlinie -->
-        <div class="nc-divider"></div>
-
-        <!-- Navigation unten -->
-        <nav class="nc-nav" id="nc-nav" aria-label="Primary">
-            <ul class="nc-left">
-                <li><a th:href="@{/}" href="/">Home</a></li>
-                <li class="dropdown has-dropdown">
-                    <a href="#" class="dropbtn with-caret">Events ▾</a>
-                    <ul class="dropdown-content">
-                        <li><a th:href="@{/events}" href="/events">All Events</a></li>
-                        <li><a th:href="@{/events/new}" href="/events/new">Create Event</a></li>
-                    </ul>
-                </li>
-            </ul>
-
-            <ul class="nc-right">
-                <li><a href="/about">About Us</a></li>
-                <li><span class="divider">|</span></li>
-                <li><a href="/contact">Contact Us</a></li>
-                <li><a class="nc-login" href="/login">Log In</a></li>
-            </ul>
-        </nav>
-    </div>
-</header>
+<!-- HEADER with secure navbar fragment -->
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
 
 <div class="main-content">
     <div class="login-container">
