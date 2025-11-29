@@ -15,6 +15,9 @@ import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    // booking exceptions
+
     @ExceptionHandler(BookingValidationException.class)
     public ResponseEntity<ErrorResponse> handleValidationErrors(
             BookingValidationException exception,
@@ -150,6 +153,101 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED).body(response);
     }
 
+    // event exceptions
+
+    @ExceptionHandler(EventValidationException.class)
+    public ResponseEntity<ErrorResponse> handleEventValidationErrors(
+            EventValidationException exception,
+            WebRequest request) {
+
+        List<FieldError> fieldErrors = new ArrayList<>();
+
+        for (ValidationError error : exception.getErrors()) {
+            FieldError fieldError = new FieldError(
+                    error.get_field(),
+                    error.get_message(),
+                    error.get_type().toString(),
+                    error.get_rejectedValue()
+            );
+            fieldErrors.add(fieldError);
+        }
+
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Event Validation Failed",
+                exception.getMessage(),
+                extractPath(request),
+                fieldErrors
+        );
+
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(EventAlreadyCancelledException.class)
+    public ResponseEntity<ErrorResponse> handleEventAlreadyCancelled(
+            EventAlreadyCancelledException exception,
+            WebRequest request) {
+
+        Map<String, Object> details = new HashMap<>();
+        details.put("eventId", exception.getEventId());
+
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.CONFLICT.value(),
+                "Event Already Cancelled",
+                exception.getMessage(),
+                extractPath(request),
+                details
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    @ExceptionHandler(EventDateInPastException.class)
+    public ResponseEntity<ErrorResponse> handleEventDateInPast(
+            EventDateInPastException exception,
+            WebRequest request) {
+
+        Map<String, Object> details = new HashMap<>();
+        details.put("eventId", exception.getEventId());
+        details.put("eventDate", exception.getEventDate());
+
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Event Date In Past",
+                exception.getMessage(),
+                extractPath(request),
+                details
+        );
+
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(InvalidParticipantRangeException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidParticipantRange(
+            InvalidParticipantRangeException exception,
+            WebRequest request) {
+
+        Map<String, Object> details = new HashMap<>();
+        details.put("minParticipants", exception.getMinParticipants());
+        details.put("maxParticipants", exception.getMaxParticipants());
+
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Invalid Participant Range",
+                exception.getMessage(),
+                extractPath(request),
+                details
+        );
+
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    // generic exception
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnexpectedError(
             Exception exception,
@@ -166,6 +264,8 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
+
+    // helper methods
 
     private String extractPath(WebRequest request) {
         return request.getDescription(false).replace("uri=", "");

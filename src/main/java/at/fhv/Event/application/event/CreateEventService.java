@@ -7,6 +7,8 @@ import at.fhv.Event.domain.model.equipment.EventEquipment;
 import at.fhv.Event.domain.model.event.Difficulty;
 import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.domain.model.event.EventRepository;
+import at.fhv.Event.domain.model.exception.EventValidationException;
+import at.fhv.Event.domain.model.exception.ValidationError;
 import at.fhv.Event.rest.response.event.EventDetailDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,17 +22,26 @@ public class CreateEventService {
     private final EventRepository eventRepository;
     private final EquipmentRepository equipmentRepository;
     private final EventMapperDTO mapper;
+    private final EventValidator eventValidator;
 
     public CreateEventService(EventRepository eventRepository,
                               EquipmentRepository equipmentRepository,
-                              EventMapperDTO mapper) {
+                              EventMapperDTO mapper,
+                              EventValidator eventValidator) {
         this.eventRepository = eventRepository;
         this.equipmentRepository = equipmentRepository;
         this.mapper = mapper;
+        this.eventValidator = eventValidator;
     }
 
     @Transactional
     public EventDetailDTO createEvent(CreateEventRequest req) {
+        // VALIDATION
+        List<ValidationError> errors = eventValidator.validate(req);
+        if (!errors.isEmpty()) {
+            throw new EventValidationException(errors);
+        }
+
         List<Equipment> required = req.getRequiredEquipmentIds() == null ? List.of()
                 : req.getRequiredEquipmentIds().stream()
                 .map(id -> equipmentRepository.findById(id)

@@ -2,6 +2,11 @@ package at.fhv.Event.application.event;
 
 import at.fhv.Event.application.request.event.UpdateEventRequest;
 import at.fhv.Event.domain.model.event.EventAudience;
+import at.fhv.Event.domain.model.exception.EventAlreadyCancelledException;
+import at.fhv.Event.domain.model.exception.EventDateInPastException;
+import at.fhv.Event.domain.model.exception.EventNotFoundException;
+import at.fhv.Event.domain.model.exception.EventValidationException;
+import at.fhv.Event.domain.model.exception.ValidationError;
 import at.fhv.Event.infrastructure.mapper.EventMapper;
 import at.fhv.Event.infrastructure.persistence.equipment.EquipmentEntity;
 import at.fhv.Event.infrastructure.persistence.equipment.EquipmentJpaRepository;
@@ -13,6 +18,9 @@ import at.fhv.Event.rest.response.event.EventDetailDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Service
 public class UpdateEventService {
 
@@ -21,23 +29,32 @@ public class UpdateEventService {
     private final EventMapper domainMapper;
     private final EventMapperDTO dtoMapper;
     private final EventEquipmentJpaRepository eventEquipmentJpaRepository;
+    private final EventValidator eventValidator;
 
     public UpdateEventService(
             EventJpaRepository eventJpaRepository,
             EquipmentJpaRepository equipmentJpaRepository,
             EventEquipmentJpaRepository eventEquipmentJpaRepository,
             EventMapper domainMapper,
-            EventMapperDTO dtoMapper
+            EventMapperDTO dtoMapper,
+            EventValidator eventValidator
     ) {
         this.eventJpaRepository = eventJpaRepository;
         this.equipmentJpaRepository = equipmentJpaRepository;
         this.eventEquipmentJpaRepository = eventEquipmentJpaRepository;
         this.domainMapper = domainMapper;
         this.dtoMapper = dtoMapper;
+        this.eventValidator = eventValidator;
     }
 
     @Transactional
     public EventDetailDTO updateEvent(Long id, UpdateEventRequest req) {
+
+        // VALIDATION
+        List<ValidationError> errors = eventValidator.validate(req);
+        if (!errors.isEmpty()) {
+            throw new EventValidationException(errors);
+        }
 
         if (req.getEquipments() != null) {
             req.getEquipments().forEach(e -> System.out.println(
@@ -49,7 +66,17 @@ public class UpdateEventService {
         }
 
         EventEntity entity = eventJpaRepository.findByIdWithEquipments(id)
-                .orElseThrow(() -> new RuntimeException("Event not found: " + id));
+                .orElseThrow(() -> new EventNotFoundException(id));
+
+        // Check if event is cancelled
+        if (entity.getCancelled() != null && entity.getCancelled()) {
+            throw new EventAlreadyCancelledException(id);
+        }
+
+        // Check if event date is in past
+        if (req.getDate().isBefore(LocalDate.now())) {
+            throw new EventDateInPastException(id, req.getDate());
+        }
 
         entity.setTitle(req.getTitle());
         entity.setDescription(req.getDescription());
