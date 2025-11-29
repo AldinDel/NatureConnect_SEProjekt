@@ -199,7 +199,7 @@ public class BookEventService {
         return bookingEquipmentList;
     }
 
-    private void reduceEquipmentStock(Equipment equipment, int quantity) {
+    void reduceEquipmentStock(Equipment equipment, int quantity) {
         if (!equipment.hasEnoughStock(quantity)) {
             throw new InsufficientStockException(
                     equipment.getId(),
