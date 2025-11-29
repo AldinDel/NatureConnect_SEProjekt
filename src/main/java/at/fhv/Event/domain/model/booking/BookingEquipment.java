@@ -8,9 +8,19 @@ public class BookingEquipment {
     private double unitPrice;
     private double totalPrice;
 
-    public BookingEquipment() {}
+    public BookingEquipment() {
+    }
 
     public BookingEquipment(Long equipmentId, int quantity, double unitPrice) {
+        if (equipmentId == null) {
+            throw new IllegalArgumentException("equipmentId must not be null");
+        }
+        if (quantity < 1) {
+            throw new IllegalArgumentException("Quantity must be >= 1");
+        }
+        if (unitPrice < 0) {
+            throw new IllegalArgumentException("Unit price must be >= 0");
+        }
         this.equipmentId = equipmentId;
         this.quantity = quantity;
         this.unitPrice = unitPrice;

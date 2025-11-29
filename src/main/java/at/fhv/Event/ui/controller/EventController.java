@@ -266,6 +266,9 @@ public class EventController {
             if (remaining < 0) remaining = 0;
 
             model.addAttribute("remainingSpots", remaining);
+
+            model.addAttribute("expired", expired);
+
             return "events/event_detail";
 
         } catch (Exception e) {
@@ -288,6 +291,12 @@ public class EventController {
 
             if (Boolean.TRUE.equals(detail.cancelled())) {
                 redirect.addFlashAttribute("error", "Event is already cancelled.");
+                return "redirect:/events/" + id;
+            }
+
+            LocalDateTime start = LocalDateTime.of(detail.date(), detail.startTime());
+            if (start.isBefore(LocalDateTime.now())) {
+                redirect.addFlashAttribute("error", "Expired events cannot be cancelled.");
                 return "redirect:/events/" + id;
             }
 
