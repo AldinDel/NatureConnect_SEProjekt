@@ -64,6 +64,14 @@ public class BookingRepositoryImpl implements BookingRepository {
     }
 
     @Override
+    public List<Booking> findByCustomerEmail(String email) {
+        return jpa.findByBookerEmail(email).stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
+
+    @Override
     public int countSeatsForEvent(Long eventId) {
         Integer result = jpa.countConfirmedSeatsForEvent(eventId);
         return result == null ? 0 : result;

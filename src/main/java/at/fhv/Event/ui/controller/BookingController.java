@@ -17,6 +17,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,7 +55,7 @@ public class BookingController {
     }
 
     @PostMapping
-    public String submitBooking(@ModelAttribute("booking") CreateBookingRequest request, Model model, RedirectAttributes redirectAttributes) {
+    public String submitBooking(@ModelAttribute("booking") CreateBookingRequest request, @RequestParam("guestMode") boolean guestMode, Model model, RedirectAttributes redirectAttributes, Principal principal) {
         try {
             EventDetailDTO event = _eventDetailsService.getEventDetails(request.getEventId());
             if (isEventUnavailable(event)) {
@@ -63,7 +64,11 @@ public class BookingController {
             }
 
             BookingDTO booking = _bookEventService.bookEvent(request);
-            return "redirect:/booking/payment/" + booking.getId();
+
+            if (principal != null) {
+                return "redirect:/booking/payment/" + booking.getId();
+            }
+            return "redirect:/booking/guest-info?bookingId=" + booking.getId();
 
         } catch (BookingValidationException exception) {
             return handleValidationErrors(exception, request, model);
@@ -118,6 +123,12 @@ public class BookingController {
             return "error/404";
         }
     }
+
+    @GetMapping("/guest-info")
+    public String guestInfoPage() {
+        return "booking/guest-info";
+    }
+
 
     private boolean isEventUnavailable(EventDetailDTO event) {
         if (Boolean.TRUE.equals(event.cancelled())) {

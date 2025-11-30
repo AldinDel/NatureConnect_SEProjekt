@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>All Bookings</title>
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/bookings-admin-overview.css}">
+</head>
+
+<body class="bookings-admin-page">
+
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
+
+<div class="admin-booking-container">
+    <h1>All Bookings</h1>
+
+    <table class="admin-booking-table">
+        <thead>
+        <tr>
+            <th>Event</th>
+            <th>Booking ID</th>
+            <th>User</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Participants</th>
+            <th>Total</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="b : ${bookings}">
+
+            <!-- 1) EVENT -->
+            <td class="event-info">
+                <span th:text="${b.eventId}"></span>
+            </td>
+
+            <!-- 2) BOOKING ID -->
+            <td th:text="'#' + ${b.id}"></td>
+
+            <!-- 3) USER -->
+            <td th:text="${b.bookerEmail}"></td>
+
+            <!-- 4) DATE -->
+            <td th:text="${#dates.format(b.createdAt, 'yyyy-MM-dd')}"></td>
+
+            <!-- 5) TIME -->
+            <td th:text="${#dates.format(b.createdAt, 'HH:mm')}"></td>
+
+            <!-- 6) PARTICIPANTS -->
+            <td th:text="${b.seats}"></td>
+
+            <!-- 7) TOTAL -->
+            <td>€ <span th:text="${b.totalPrice}"></span></td>
+
+            <!-- 8) ACTIONS -->
+            <td class="actions">
+                <a th:href="@{'/booking/confirmation/' + ${b.id}}" class="btn-edit">Edit</a>
+                <button class="btn-cancel">Cancel</button>
+            </td>
+        </tr>
+        </tbody>
+
+    </table>
+</div>
+
+</body>
+</html>
