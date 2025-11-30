@@ -23,6 +23,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import at.fhv.Event.application.request.booking.ParticipantDTO;
+import at.fhv.Event.domain.model.booking.BookingParticipant;
+import at.fhv.Event.domain.model.exception.BookingValidationException;
+import at.fhv.Event.domain.model.exception.EventFullyBookedException;
+import at.fhv.Event.domain.model.exception.ValidationError;
+
 @Service
 public class BookEventService {
     private final BookingRepository _bookingRepository;
@@ -67,6 +73,95 @@ public class BookEventService {
     }
 
     @Transactional
+    public BookingDTO updateBooking(Long bookingId, CreateBookingRequest request) {
+        Booking booking = findBookingById(bookingId);
+
+        Event event = loadEvent(request.getEventId());
+
+        checkEventAvailability(event);
+
+        checkEventCapacityForUpdate(event, booking, request.getSeats());
+
+        Map<Long, Equipment> equipmentMap = loadEquipmentMap(request);
+
+        int alreadyBooked = _bookingRepository.countSeatsForEvent(event.getId());
+        int alreadyBookedExcludingThis = Math.max(0, alreadyBooked - booking.getSeats());
+
+        List<ValidationError> errors =
+                _bookingValidator.validate(request, event, equipmentMap, alreadyBookedExcludingThis);
+        if (!errors.isEmpty()) {
+            throw new BookingValidationException(errors);
+        }
+
+        normalizeVoucherCode(request);
+
+        BigDecimal totalPrice = calculateTotalPrice(request, event, equipmentMap);
+        BigDecimal discount = calculateDiscount(totalPrice, request);
+
+        booking.setSeats(request.getSeats());
+        booking.setAudience(request.getAudience());
+        booking.setBookerFirstName(request.getBookerFirstName());
+        booking.setBookerLastName(request.getBookerLastName());
+        booking.setBookerEmail(request.getBookerEmail());
+        booking.setVoucherCode(request.getVoucherCode());
+        booking.setSpecialNotes(request.getSpecialNotes());
+        booking.setDiscountAmount(discount.doubleValue());
+        booking.setTotalPrice(totalPrice.doubleValue());
+
+        List<BookingParticipant> participants = new ArrayList<>();
+        if (request.getParticipants() != null) {
+            for (ParticipantDTO p : request.getParticipants()) {
+                BookingParticipant bp = new BookingParticipant(
+                        p.getFirstName(),
+                        p.getLastName(),
+                        p.getAge()
+                );
+                participants.add(bp);
+            }
+        }
+        booking.setParticipants(participants);
+
+        // Equipment neu setzen – alte erst leeren, dann aus Request neu aufbauen
+        List<BookingEquipment> newEquipmentList = new ArrayList<>();
+
+        if (request.getEquipment() != null) {
+            for (var entry : request.getEquipment().entrySet()) {
+                Long equipmentId = entry.getKey();
+                EquipmentSelection selection = entry.getValue();
+
+                if (!selection.isSelected() || selection.getQuantity() <= 0) {
+                    continue;
+                }
+
+                Equipment equipment = equipmentMap.get(equipmentId);
+                if (equipment == null) {
+                    continue;
+                }
+
+                BookingEquipment be = new BookingEquipment(
+                        equipment.getId(),
+                        selection.getQuantity(),
+                        equipment.getUnitPrice().doubleValue()
+                );
+                newEquipmentList.add(be);
+            }
+        }
+
+        if (booking.getEquipment() != null) {
+            booking.getEquipment().clear();
+            booking.getEquipment().addAll(newEquipmentList);
+        } else {
+            booking.setEquipment(newEquipmentList);
+        }
+
+
+        Booking savedBooking = _bookingRepository.save(booking);
+        return _bookingMapperDTO.toDTO(savedBooking);
+    }
+
+
+
+    @Transactional
     public BookingDTO updatePaymentMethod(Long bookingId, String paymentMethodName) {
         Booking booking = findBookingById(bookingId);
         PaymentMethod paymentMethod = parsePaymentMethod(bookingId, paymentMethodName);
@@ -108,10 +203,34 @@ public class BookEventService {
         }
     }
 
+    private void checkEventCapacityForUpdate(Event event, Booking existingBooking, int newSeats) {
+        int confirmedSeats = _bookingRepository.countSeatsForEvent(event.getId());
+        int confirmedSeatsExcludingThis = confirmedSeats - existingBooking.getSeats();
+        if (confirmedSeatsExcludingThis < 0) {
+            confirmedSeatsExcludingThis = 0;
+        }
+
+        int availableSeats = event.getMaxParticipants() - event.getMinParticipants();
+        int remainingSeats = availableSeats - confirmedSeatsExcludingThis;
+
+        if (remainingSeats <= 0) {
+            throw new EventFullyBookedException(event.getId(), newSeats, 0);
+        }
+        if (newSeats > remainingSeats) {
+            throw new EventFullyBookedException(event.getId(), newSeats, remainingSeats);
+        }
+    }
+
+
     private Map<Long, Equipment> loadEquipmentMap(CreateBookingRequest request) {
+        if (request.getEquipment() == null || request.getEquipment().isEmpty()) {
+            return Map.of(); // LEERE MAP ZURÜCKGEBEN
+        }
+
         List<Long> equipmentIds = new ArrayList<>(request.getEquipment().keySet());
         return _equipmentRepository.findByIds(equipmentIds);
     }
+
 
     private void validateBookingRequest(CreateBookingRequest request, Event event, Map<Long, Equipment> equipmentMap) {
         int alreadyBooked = _bookingRepository.countSeatsForEvent(event.getId());

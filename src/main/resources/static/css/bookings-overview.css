@@ -160,3 +160,25 @@ body.bookings-page {
     border-radius: 0 0 12px 12px;
 }
 
+.toast-success {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #c5f7c5;
+    color: #0f5f0f;
+    padding: 12px 18px;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    font-size: 16px;
+    z-index: 2000;
+
+    opacity: 1;
+    animation: fadeout 4s forwards;
+}
+
+@keyframes fadeout {
+    0% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { opacity: 0; }
+}
+

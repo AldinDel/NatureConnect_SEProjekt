@@ -10,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -25,7 +26,6 @@ public class UserBookingController {
         this.eventDetailsService = eventDetailsService;
         this.getAllBookingsService = getAllBookingsService;
     }
-
 
     @GetMapping("/bookings")
     public String bookingsPage(Model model, Principal principal) {
@@ -43,10 +43,18 @@ public class UserBookingController {
 
         if (isStaff) {
             var bookings = getAllBookingsService.getAllBookings();
+
+            bookings.forEach(b -> {
+                var event = eventDetailsService.getEventDetails(b.getEventId());
+                LocalDateTime eventStart = LocalDateTime.of(event.date(), event.startTime());
+                boolean editable = !Boolean.TRUE.equals(event.cancelled())
+                        && !eventStart.isBefore(LocalDateTime.now());
+                b.setEditable(editable);
+            });
+
             model.addAttribute("bookings", bookings);
             return "booking/bookings-admin-overview";
         }
-
 
         List<Booking> userBookings = userBookingsService.getBookingsByUserEmail(email);
 
@@ -62,26 +70,34 @@ public class UserBookingController {
         return "booking/bookings-overview";
     }
 
-
     @GetMapping("/bookings/all")
     public String allBookingsPage(Model model, Principal principal) {
 
         if (principal == null) return "booking/booking-info";
 
-        //Mitarbeiter-Rolle
         boolean allowed =
-                principal.toString().contains("ADMIN")||
-                principal.toString().contains("FRONT")||
-                principal.toString().contains("ORGANIZER");
-        if(!allowed){
+                principal.toString().contains("ADMIN") ||
+                        principal.toString().contains("FRONT") ||
+                        principal.toString().contains("ORGANIZER");
+
+        if (!allowed) {
             return "redirect:/bookings";
         }
 
         var bookings = getAllBookingsService.getAllBookings();
+
+        bookings.forEach(b -> {
+            var event = eventDetailsService.getEventDetails(b.getEventId());
+            LocalDateTime eventStart = LocalDateTime.of(event.date(), event.startTime());
+            boolean editable = !Boolean.TRUE.equals(event.cancelled())
+                    && !eventStart.isBefore(LocalDateTime.now());
+            b.setEditable(editable);
+        });
+
         model.addAttribute("bookings", bookings);
 
         return "booking/bookings-admin-overview";
-
     }
+
 
 }
