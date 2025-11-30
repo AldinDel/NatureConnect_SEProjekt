@@ -190,11 +190,21 @@ public class EventController {
 
     @GetMapping
     public String list(Model model, Authentication auth) {
-        List<EventOverviewDTO> events = filterService.filter(null, null, null, null, null, null, null, null, null);
+        List<EventOverviewDTO> events = filterService.filter(
+                null, null, null, null,
+                null, null,
+                null, null,
+                null
+        );
+
+        // NEU: Sichtbarkeit nach Rolle und Status filtern
+        events = applyVisibilityFilter(events, auth);
+
         enrichEventsWithPermissions(model, auth);
         model.addAttribute("events", events);
         return "events/list";
     }
+
 
     @GetMapping("/search")
     public String searchEvents(
@@ -223,6 +233,8 @@ public class EventController {
         } else {
             events = filterService.filter(q, category, location, difficulty, minPrice, maxPrice, startDate, endDate, sort);
         }
+
+        events = applyVisibilityFilter(events, auth);
 
         enrichEventsWithPermissions(model, auth);
 
@@ -309,6 +321,59 @@ public class EventController {
             return "redirect:/events";
         }
     }
+
+    private List<EventOverviewDTO> applyVisibilityFilter(List<EventOverviewDTO> events, Authentication auth) {
+        LocalDate today = LocalDate.now();
+
+        boolean isAdminOrFront = false;
+        boolean isOrganizer = false;
+        String organizerName = null;
+
+        if (auth != null) {
+            var authorities = auth.getAuthorities();
+
+            isAdminOrFront = authorities.stream().anyMatch(a ->
+                    "ROLE_ADMIN".equals(a.getAuthority()) ||
+                            "ROLE_FRONT".equals(a.getAuthority())
+            );
+
+            isOrganizer = authorities.stream().anyMatch(a ->
+                    "ROLE_ORGANIZER".equals(a.getAuthority())
+            );
+
+            if (isOrganizer) {
+                organizerName = userRepo.findByEmailIgnoreCase(auth.getName())
+                        .map(u -> u.getFirstName() + " " + u.getLastName())
+                        .orElse(null);
+            }
+        }
+
+        String finalOrganizerName = organizerName;
+        boolean finalIsAdminOrFront = isAdminOrFront;
+        boolean finalIsOrganizer = isOrganizer;
+
+        return events.stream()
+                .filter(e -> {
+                    boolean cancelled = Boolean.TRUE.equals(e.cancelled());
+                    boolean expired = e.date() != null && e.date().isBefore(today);
+
+                    if (!cancelled && !expired) {
+                        return true;
+                    }
+
+                    if (finalIsAdminOrFront) {
+                        return true;
+                    }
+
+                    if (finalIsOrganizer && finalOrganizerName != null) {
+                        return finalOrganizerName.equalsIgnoreCase(e.organizer());
+                    }
+
+                    return false;
+                })
+                .toList();
+    }
+
 
     private void enrichEventsWithPermissions(Model model, Authentication auth) {
         if (auth != null) {
