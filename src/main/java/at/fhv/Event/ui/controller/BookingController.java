@@ -281,12 +281,15 @@ public class BookingController {
             }
 
             Booking booking = _bookEventService.getById(id);
-            EventDetailDTO event = _eventDetailsService.getEventDetails(booking.getEventId());
 
-            if (isEventUnavailable(event)) {
-                redirectAttributes.addFlashAttribute("error", getUnavailabilityMessage(event));
+            try {
+                _bookEventService.assertEventIsEditableForBooking(booking);
+            } catch (IllegalStateException ex) {
+                redirectAttributes.addFlashAttribute("error", ex.getMessage());
                 return "redirect:/bookings";
             }
+
+            EventDetailDTO event = _eventDetailsService.getEventDetails(booking.getEventId());
 
             List<EquipmentDTO> availableEquipment = event.equipments();
             CreateBookingRequest request = mapBookingToCreateBookingRequest(booking);
@@ -313,6 +316,7 @@ public class BookingController {
         }
     }
 
+
     @PostMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER', 'FRONT', 'ORGANIZER')")
     public String updateBooking(@PathVariable("id") Long id,
@@ -320,7 +324,6 @@ public class BookingController {
                                 Model model,
                                 RedirectAttributes redirectAttributes,
                                 Authentication auth) {
-        System.out.println(">>> updateBooking HIT, id=" + id);
         try {
             if (!_bookingPermissionService.canEdit(auth, id)) {
                 redirectAttributes.addFlashAttribute("error", "You don't have the permission to edit this booking.");

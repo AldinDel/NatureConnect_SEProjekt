@@ -72,6 +72,12 @@ public class BookEventService {
         return findBookingById(bookingId);
     }
 
+    public void assertEventIsEditableForBooking(Booking booking) {
+        Event event = loadEvent(booking.getEventId());
+        checkEventAvailability(event);
+    }
+
+
     @Transactional
     public BookingDTO updateBooking(Long bookingId, CreateBookingRequest request) {
         Booking booking = findBookingById(bookingId);
@@ -182,11 +188,11 @@ public class BookEventService {
 
     private void checkEventAvailability(Event event) {
         if (Boolean.TRUE.equals(event.getCancelled())) {
-            throw new IllegalStateException("Can't book a cancelled event");
+            throw new IllegalStateException("This event is cancelled and cannot be booked.");
         }
         LocalDateTime eventStart = LocalDateTime.of(event.getDate(), event.getStartTime());
         if (eventStart.isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("Can't book an expired event");
+            throw new IllegalStateException("This event is expired and cannot be booked.");
         }
     }
 
