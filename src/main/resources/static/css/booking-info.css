@@ -1,0 +1,71 @@
+/* === Hintergrund wie Home + Bookings Overview === */
+body.booking-info-page {
+    background-image: url("../images/ManOnMountain.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+
+    /* gleiche Abdunklung */
+    background-color: rgba(0, 0, 0, 0.65);
+    background-blend-mode: darken;
+}
+
+
+/* === Booking Info Page Styling === */
+
+.booking-info-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding-top: 150px;
+}
+
+
+.booking-info-card {
+    background: rgba(255, 255, 255, 0.90);
+    backdrop-filter: blur(6px);
+    padding: 40px 50px;
+    border-radius: 16px;
+    text-align: center;
+    max-width: 420px;
+    width: 90%;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    animation: fadeInUp 0.4s ease;
+}
+
+.booking-info-card h1 {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #0B2343;
+}
+
+.booking-info-card p {
+    font-size: 17px;
+    color: #333;
+    margin-bottom: 28px;
+}
+
+.login-btn {
+    display: inline-block;
+    background: #0B2343;
+    color: #fff;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-size: 17px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: 0.25s ease;
+}
+
+.login-btn:hover {
+    background: #13335f;
+    transform: translateY(-2px);
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}

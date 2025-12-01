@@ -5,10 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title th:text="${event.title}">Booking</title>
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/booking-page.css}">
 </head>
 
 <body>
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
 <div class="hero">
     <img th:src="${event.imageUrl}" alt="Event image" />
     <div class="hero-overlay"></div>
@@ -23,6 +26,7 @@
         <input type="hidden" id="eventBasePrice" th:value="${event.price}">
         <input type="hidden" id="eventMinParticipants" th:value="${event.minParticipants}">
         <input type="hidden" id="eventMaxParticipants" th:value="${event.maxParticipants}">
+        <input type="hidden" id="guestMode" name="guestMode" value="false">
 
         <div class="grid">
             <div class="left-column">
@@ -48,6 +52,16 @@
                             <a href="/login" class="btn-account btn-login">Log In</a>
                             <button type="button" class="btn-account btn-guest active">Continue as Guest</button>
                         </div>
+                        <script>
+                            document.addEventListener("DOMContentLoaded", () => {
+                                const guestBtn = document.querySelector(".btn-guest");
+                                guestBtn.addEventListener("click", () => {
+                                    document.getElementById("guestMode").value = "true";
+                                    console.log("Guest Mode activated ✔️");
+                                });
+                            });
+                        </script>
+
                     </div>
                 </div>
                 <div class="card">
@@ -103,7 +117,13 @@
                     <h2 class="card-title">Equipment & Add-ons</h2>
 
                     <div id="equipmentContainer">
+                        <div th:each="addon : ${addons}" class="equipment-item">
+                            <input type="checkbox" th:value="${addon.id}">
+                            <span th:text="${addon.name}"></span>
+                            <span th:text="${addon.unitPrice}"></span>
+                        </div>
                     </div>
+
                 </div>
 
                 <div class="card">

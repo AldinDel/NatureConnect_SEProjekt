@@ -1,0 +1,125 @@
+/* PAGE BACKGROUND */
+body.bookings-admin-page {
+    background-image: url("../images/ManOnMountain.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-color: rgba(0, 0, 0, 0.7);
+    background-blend-mode: darken;
+}
+
+/* MAIN WRAPPER */
+.admin-booking-container {
+    width: 90%;
+    max-width: 1100px;
+    margin: 120px auto 80px;
+}
+
+/* TITLE */
+.admin-booking-container h1 {
+    text-align: center;
+    color: white;
+    margin-bottom: 30px;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+/* TABLE WRAPPER */
+.admin-booking-table {
+    width: 100%;
+    border-collapse: separate !important;
+    border-spacing: 0 10px; /* same style as user table */
+}
+
+/* HEADER */
+.admin-booking-table thead tr {
+    display: grid;
+    grid-template-columns:
+        1.4fr   /* Event */
+        1.3fr   /* Booking ID */
+        2.4fr   /* User */
+        1.4fr   /* Date */
+        1.1fr   /* Time */
+        1.1fr   /* Participants */
+        1.2fr   /* Total */
+        1.6fr   /* Actions */
+;
+
+    background: #0d2847;
+    color: white;
+    padding: 14px 20px;
+    border-radius: 12px 12px 0 0;
+    font-weight: 600;
+}
+
+/* BODY ROWS */
+.admin-booking-table tbody tr {
+    display: grid;
+    grid-template-columns:
+        1.4fr
+        1.3fr
+        2.4fr
+        1.4fr
+        1.1fr
+        1.1fr
+        1.2fr
+        1.6fr
+;
+
+    background: rgba(255,255,255,0.95);
+    padding: 18px 20px;
+    align-items: center;
+}
+
+.admin-booking-table tbody tr:nth-child(even) {
+    background: #fffaeb;
+}
+
+/* TEXT STYLING */
+.admin-booking-table td {
+    color: black !important;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+}
+
+/* ACTION BUTTONS */
+.actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-edit {
+    appearance: none;
+    background: white;
+    color: #0b2545;
+    border: 1.5px solid #d1d5db;
+    padding: 6px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: .2s;
+}
+
+.btn-edit:hover {
+    background: #f3f4f6;
+    border-color: #0b2545;
+    transform: translateY(-1px);
+}
+
+.btn-cancel {
+    background: #dc2626;
+    color: white;
+    padding: 6px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    transition: .2s;
+}
+
+.btn-cancel:hover {
+    background: #b91c1c;
+    transform: translateY(-1px);
+}

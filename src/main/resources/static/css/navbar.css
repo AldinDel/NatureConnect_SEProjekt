@@ -1,3 +1,4 @@
+
 /* --- Profil Dropdown spezifisch --- */
 .profile-link {
     display: flex;
@@ -26,21 +27,29 @@
 
 /* Backend Mitarbeiter (Admin) - Gold */
 .badge-gold {
-    background-color: #FFD700;
+    background-color: #fff6c7;
     color: #000;
     border: 1px solid #e6c200;
 }
 
 /* Frontend Mitarbeiter - Dunkelblau / Weiß */
 .badge-blue {
-    background-color: #0b2545;
-    color: #fff;
+    background-color: #dce7f5;
+    color: #0b2545;
+    border: 1px solid #bfcfe5;
 }
 
 /* Organizer - Schwarz / Weiß */
 .badge-black {
-    background-color: #000;
-    color: #fff;
+    background-color: #e5e5e5;
+    color: #111;
+    border: 1px solid #cfcfcf;
+}
+
+.badge-green {
+    background-color: #e8f5e1; /* leichtes Grün, falls du willst */
+    color: #000 !important;   /* SCHWARZE SCHRIFT */
+    border: 1px solid #c6dfc0;
 }
 
 .badge-role {
@@ -82,4 +91,29 @@
 
 .logout-btn:hover {
     background-color: #f9f9f9;
+}
+
+/* FIX Difficulty Radio Layout */
+.checkbox-group {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 14px 20px !important;
+    align-items: center;
+}
+
+/* Jede einzelne Option */
+.checkbox-group label {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    font-size: 14px;
+    color: #111827;
+}
+
+/* Radio Buttons selbst */
+.checkbox-group input[type="radio"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #0b2545; /* nice dark blue */
+    cursor: pointer;
 }

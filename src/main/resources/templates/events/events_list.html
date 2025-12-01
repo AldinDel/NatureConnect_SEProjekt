@@ -9,10 +9,12 @@
     <link rel="stylesheet" th:href="@{/css/events.css}">
     <link rel="icon" type="image/png" th:href="@{/images/NatureConnectLogo.png}" href="/images/NatureConnectLogo.png">
 </head>
+<body class="events-page">
 
-<body>
+<div th:replace="events/fragments/navbar :: navbar"></div>
 
-<div th:replace="~{events/fragments/navbar :: navbar}"></div>
+
+
 
 <div th:if="${success != null}" id="success-popup" class="popup-message" th:text="${success}"></div>
 <div th:if="${error != null}" id="error-popup" class="popup-message error" th:text="${error}"></div>

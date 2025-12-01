@@ -16,7 +16,8 @@ public class BookingMapperDTO {
                 b.getBookerEmail(),
                 b.getSeats(),
                 b.getTotalPrice(),
-                b.getStatus()
+                b.getStatus(),
+                b.getCreatedAt()
         );
     }
 }

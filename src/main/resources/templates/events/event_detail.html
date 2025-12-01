@@ -14,7 +14,7 @@
 <body>
 
 <!-- 1. NAVBAR EINBINDEN (Ersetzt den alten statischen Header) -->
-<div th:replace="~{events/fragments/navbar :: navbar}"></div>
+<div th:replace="events/fragments/navbar :: navbar"></div>
 
 <!-- 2. POPUPS (für Erfolgs/Fehlermeldungen) -->
 <div th:if="${success != null}" id="success-popup" class="popup-message" th:text="${success}"></div>

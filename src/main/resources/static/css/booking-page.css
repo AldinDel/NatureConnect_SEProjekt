@@ -12,24 +12,27 @@ body {
 }
 
 .hero {
-    position: relative;
-    height: 300px;
     width: 100%;
+    height: 300px; /* << Bildhöhe anpassen */
     overflow: hidden;
-    background: #0f172a;
+    position: relative;
 }
 
 .hero img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    opacity: .8;
+    object-fit: cover; /* << macht das Bild perfekt */
+    object-position: center;
+    z-index: 1;
+    position: relative;
 }
 
 .hero-overlay {
+    display: block;
     position: absolute;
     inset: 0;
-    background: linear-gradient(0deg, rgba(15,23,42,0.6), transparent);
+    background: rgba(0, 0, 0, 0.60);
+    z-index: 2;
 }
 
 .container {
@@ -407,3 +410,4 @@ body {
     position: relative;
     top: 8px;
 }
+

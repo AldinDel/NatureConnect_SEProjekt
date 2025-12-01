@@ -30,6 +30,7 @@
                             </li>
                         </ul>
                     </li>
+                    <li><a th:href="@{/bookings}" href="/bookings">Bookings</a></li>
                 </ul>
 
                 <ul class="nc-right">
@@ -75,10 +76,6 @@
                                 <div class="badge-card badge-green">
                                     <span class="badge-role">Customer</span>
                                 </div>
-                            </li>
-
-                            <li sec:authorize="hasRole('CUSTOMER')">
-                                <a href="#">My Bookings</a>
                             </li>
 
                             <li>
