@@ -242,11 +242,27 @@ public class BookingValidator {
             validateEquipmentQuantity(eventEquipment, selection.getQuantity(), request.getSeats(), prefix, errors);
         }
     }
-    private void validateEquipmentQuantity(EventEquipment eventEquipment, int requestedQuantity, int participantCount, String prefix, List<ValidationError> errors) {
+    private void validateEquipmentQuantity(EventEquipment eventEquipment,
+                                           int requestedQuantity,
+                                           int participantCount,
+                                           String prefix,
+                                           List<ValidationError> errors) {
+
         String equipmentName = eventEquipment.getEquipment().getName();
         int availableStock = eventEquipment.getEquipment().getStock();
         boolean isRequired = eventEquipment.isRequired();
-        if (!isRequired && requestedQuantity > availableStock) {
+
+        if (requestedQuantity <= 0) {
+            errors.add(new ValidationError(
+                    ValidationErrorType.INVALID_INPUT,
+                    prefix + ".quantity",
+                    String.format("%s: quantity must be at least 1", equipmentName),
+                    String.valueOf(requestedQuantity)
+            ));
+            return;
+        }
+
+        if (requestedQuantity > availableStock) {
             errors.add(new ValidationError(
                     ValidationErrorType.EQUIPMENT_ERROR,
                     prefix + ".quantity",
@@ -254,25 +270,26 @@ public class BookingValidator {
                     String.valueOf(requestedQuantity)
             ));
         }
-        if (isRequired) {
-            if (participantCount > availableStock) {
-                errors.add(new ValidationError(
-                        ValidationErrorType.EQUIPMENT_ERROR,
-                        prefix,
-                        String.format("%s: required %d but only %d available", equipmentName, participantCount, availableStock),
-                        String.valueOf(participantCount)
-                ));
-            }
-            if (requestedQuantity != participantCount) {
-                errors.add(new ValidationError(
-                        ValidationErrorType.BUSINESS_RULE_VIOLATION,
-                        prefix + ".quantity",
-                        String.format("%s must be booked for all participants(%d)", equipmentName, participantCount),
-                        String.valueOf(requestedQuantity)
-                ));
-            }
+
+        if (participantCount > 0 && requestedQuantity > participantCount) {
+            errors.add(new ValidationError(
+                    ValidationErrorType.BUSINESS_RULE_VIOLATION,
+                    prefix + ".quantity",
+                    String.format("%s cannot be booked for more than the number of participants (%d)", equipmentName, participantCount),
+                    String.valueOf(requestedQuantity)
+            ));
+        }
+
+        if (isRequired && participantCount > availableStock) {
+            errors.add(new ValidationError(
+                    ValidationErrorType.EQUIPMENT_ERROR,
+                    prefix,
+                    String.format("%s: required for %d participants but only %d available", equipmentName, participantCount, availableStock),
+                    String.valueOf(participantCount)
+            ));
         }
     }
+
     private Map<Long, EventEquipment> createEventEquipmentMap(Event event) {
         Map<Long, EventEquipment> map = new HashMap<>();
         for (EventEquipment eventEquipment : event.getEventEquipments()) {

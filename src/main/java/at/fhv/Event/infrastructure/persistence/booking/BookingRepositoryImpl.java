@@ -38,10 +38,16 @@ public class BookingRepositoryImpl implements BookingRepository {
 
     @Override
     public Booking save(Booking booking) {
+
+        if (booking.getId() != null) {
+            jpa.deleteEquipmentByBookingId(booking.getId());
+        }
+
         var entity = mapper.toEntity(booking);
         var saved = jpa.save(entity);
         return mapper.toDomain(saved);
     }
+
 
     @Override
     public Optional<Booking> findById(Long id) {

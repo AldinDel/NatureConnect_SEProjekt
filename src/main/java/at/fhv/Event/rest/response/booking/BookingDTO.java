@@ -17,9 +17,11 @@ public class BookingDTO {
     private double totalPrice;
     private BookingStatus status;
     private Instant createdAt;
+    private boolean editable;
 
 
-    public BookingDTO() {}
+    public BookingDTO() {
+    }
 
     public BookingDTO(Long id, Long eventId,
                       String bookerFirstName, String bookerLastName, String bookerEmail,
@@ -100,8 +102,20 @@ public class BookingDTO {
         this.status = status;
     }
 
-    public Instant getCreatedAt() { return createdAt;}
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
 
-    public void setCreatedAt(Instant createdAt) {this.createdAt = createdAt;}
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public boolean isEditable() {
+        return editable;
+    }
+
+    public void setEditable(boolean editable) {
+        this.editable = editable;
+    }
 
 }
