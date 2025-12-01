@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Bookings</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/booking-info.css}">
+
+</head>
+<body class="booking-info-page">
+
+
+<div th:replace="events/fragments/navbar :: navbar"></div>
+
+<div class="booking-info-wrapper">
+    <div class="booking-info-card">
+        <h1>Bookings</h1>
+        <p>Please log in to view your bookings.</p>
+
+        <a th:href="@{/login}" class="login-btn">Log In</a>
+    </div>
+</div>
+
+
+</body>
+</html>

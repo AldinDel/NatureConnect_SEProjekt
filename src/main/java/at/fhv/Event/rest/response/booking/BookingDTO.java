@@ -2,6 +2,8 @@ package at.fhv.Event.rest.response.booking;
 
 import at.fhv.Event.domain.model.booking.BookingStatus;
 
+import java.time.Instant;
+
 public class BookingDTO {
 
     private Long id;
@@ -14,12 +16,16 @@ public class BookingDTO {
     private int seats;
     private double totalPrice;
     private BookingStatus status;
+    private Instant createdAt;
+    private boolean editable;
 
-    public BookingDTO() {}
+
+    public BookingDTO() {
+    }
 
     public BookingDTO(Long id, Long eventId,
                       String bookerFirstName, String bookerLastName, String bookerEmail,
-                      int seats, double totalPrice, BookingStatus status) {
+                      int seats, double totalPrice, BookingStatus status, Instant createdAt) {
 
         this.id = id;
         this.eventId = eventId;
@@ -29,6 +35,7 @@ public class BookingDTO {
         this.seats = seats;
         this.totalPrice = totalPrice;
         this.status = status;
+        this.createdAt = createdAt;
     }
 
     public Long getId() {
@@ -94,4 +101,21 @@ public class BookingDTO {
     public void setStatus(BookingStatus status) {
         this.status = status;
     }
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public boolean isEditable() {
+        return editable;
+    }
+
+    public void setEditable(boolean editable) {
+        this.editable = editable;
+    }
+
 }

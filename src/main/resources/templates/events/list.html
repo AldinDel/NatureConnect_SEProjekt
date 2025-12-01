@@ -6,107 +6,15 @@
     <title>NatureConnect - Events</title>
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
-    <link rel="stylesheet" th:href="@{/css/events.css}">
+    <link rel="stylesheet" th:href="@{/css/events.css}">  <!-- ALLES IST HIER DRIN -->
     <link rel="icon" type="image/png" th:href="@{/images/NatureConnectLogo.png}" href="/images/NatureConnectLogo.png">
 </head>
 
-<body>
+<body class="events-page">
+<div th:replace="events/fragments/navbar :: navbar"></div>
 
 <div th:if="${success != null}" id="success-popup" class="popup-message" th:text="${success}"></div>
 <div th:if="${error != null}" id="error-popup" class="popup-message error" th:text="${error}"></div>
-
-<style>
-    .popup-message {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #4caf50;
-        color: #fff;
-        padding: 14px 22px;
-        border-radius: 8px;
-        font-weight: 500;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        animation: fadeInOut 4s ease forwards;
-        z-index: 9999 !important;
-    }
-
-    .popup-message.error {
-        background: #e53935;
-    }
-
-    @keyframes fadeInOut {
-        0% {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-        10%, 90% {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        100% {
-            opacity: 0;
-            transform: translateY(-10px);
-        }
-    }
-
-    /* Cancel Button Styling */
-    .cancel-btn {
-        background: #e53935;
-        color: #fff;
-        border: none;
-        border-radius: 8px;
-        padding: 8px 16px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 500;
-        transition: 0.2s;
-    }
-
-    .cancel-btn:hover {
-        background: #c62828;
-        transform: translateY(-1px);
-    }
-
-    /* Cancelled Event Card Styling */
-    .event-card.cancelled-event {
-        opacity: 0.65;
-        position: relative;
-    }
-
-    .event-card.cancelled-event .card-image::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.3);
-    }
-
-    .cancelled-badge {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: #e53935;
-        color: white;
-        padding: 8px 20px;
-        border-radius: 6px;
-        font-size: 14px;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        z-index: 10;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    }
-
-    /* Disabled buttons for cancelled events */
-    .event-card.cancelled-event .edit-btn,
-    .event-card.cancelled-event .cancel-btn {
-        pointer-events: none;
-        opacity: 0.5;
-    }
-</style>
 
 <script>
     document.addEventListener("DOMContentLoaded", () => {
@@ -118,7 +26,7 @@
 </script>
 
 
-<div th:replace="~{events/fragments/navbar :: navbar}"></div>
+
 
 <section class="event-overview">
     <a th:href="@{/}" href="/" class="back-link">❮ Home</a>
@@ -133,204 +41,138 @@
 
     <p th:unless="${showCancelled}">Discover exciting events and activities near you</p>
 
+
+    <!-- SEARCH + CATEGORY FILTERS -->
     <form th:action="@{/events/search}" method="get" class="search-form">
 
         <div class="search-bar">
-            <i data-lucide="search" class="search-icon" aria-hidden="true"></i>
-            <input
-                    type="text"
-                    name="q"
-                    placeholder="Browse Events..."
-                    th:value="${param.q}"
-                    aria-label="Search events"
-                    minlength="3"
-                    maxlength="75"
-                    pattern="^[A-Za-zÀ-ž0-9\s.,'-]+$"
-                    title="Please enter at least 3 valid characters (letters or numbers only)"
-            >
-
+            <i data-lucide="search" class="search-icon"></i>
+            <input type="text" name="q" placeholder="Browse Events..." th:value="${param.q}">
         </div>
 
         <div class="category-bar">
-            <button type="submit" name="category" value=""
-                    th:classappend="${param.category == null or param.category == ''} ? 'active' : ''">
-                All Events
-            </button>
-            <button type="submit" name="category" value="Camping"
-                    th:classappend="${param.category == 'Camping'} ? 'active' : ''">
-                Camping
-            </button>
-            <button type="submit" name="category" value="Kayaking"
-                    th:classappend="${param.category == 'Kayaking'} ? 'active' : ''">
-                Kayaking
-            </button>
-            <button type="submit" name="category" value="Hiking"
-                    th:classappend="${param.category == 'Hiking'} ? 'active' : ''">
-                Hiking
-            </button>
-            <button type="submit" name="category" value="Wildlife Tour"
-                    th:classappend="${param.category == 'Wildlife Tour'} ? 'active' : ''">
-                Wildlife Tour
-            </button>
-            <button type="submit" name="category" value="Climbing"
-                    th:classappend="${param.category == 'Climbing'} ? 'active' : ''">
-                Climbing
-            </button>
+            <button type="submit" name="category" value="" th:classappend="${param.category == null || param.category == ''} ? 'active'">All Events</button>
+            <button type="submit" name="category" value="Camping" th:classappend="${param.category == 'Camping'} ? 'active'">Camping</button>
+            <button type="submit" name="category" value="Kayaking" th:classappend="${param.category == 'Kayaking'} ? 'active'">Kayaking</button>
+            <button type="submit" name="category" value="Hiking" th:classappend="${param.category == 'Hiking'} ? 'active'">Hiking</button>
+            <button type="submit" name="category" value="Wildlife Tour" th:classappend="${param.category == 'Wildlife Tour'} ? 'active'">Wildlife Tour</button>
+            <button type="submit" name="category" value="Climbing" th:classappend="${param.category == 'Climbing'} ? 'active'">Climbing</button>
 
-            <button type="button" id="open-filters" class="filter-btn-inline"
-                    th:classappend="${param.location != null or param.minPrice != null or param.maxPrice != null or param.difficulty != null} ? 'active' : ''">
-                <svg xmlns="http://www.w3.org/2000/svg" class="filter-icon" viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor">
-                    <line x1="4" y1="21" x2="4" y2="14"></line>
-                    <line x1="4" y1="10" x2="4" y2="3"></line>
-                    <line x1="12" y1="21" x2="12" y2="12"></line>
-                    <line x1="12" y1="8" x2="12" y2="3"></line>
-                    <line x1="20" y1="21" x2="20" y2="16"></line>
-                    <line x1="20" y1="12" x2="20" y2="3"></line>
-                    <line x1="1" y1="14" x2="7" y2="14"></line>
-                    <line x1="9" y1="8" x2="15" y2="8"></line>
-                    <line x1="17" y1="16" x2="23" y2="16"></line>
-                </svg>
-                More Filters
-            </button>
+            <button type="button" id="open-filters" class="filter-btn-inline">More Filters</button>
         </div>
     </form>
 
+
+    <!-- FILTER PANEL -->
     <div id="filter-panel" class="filter-panel">
         <div class="filter-header">
             <h3>More Filters</h3>
-            <button type="button" id="close-filters" class="close-btn">
-                <i data-lucide="x"></i>
-            </button>
+            <button type="button" id="close-filters" class="close-btn">✕</button>
         </div>
 
         <form th:action="@{/events/search}" method="get" class="filter-form">
-            <input type="hidden" name="q" th:value="${param.q}"/>
-
+            <input type="hidden" name="q" th:value="${param.q}">
+            <!-- location -->
             <div class="filter-group">
-                <label for="location">Location</label>
-                <input list="location-list"
-                       id="location"
-                       name="location"
-                       placeholder="Enter a location..."
-                       th:value="${param.location}">
+                <label>Location</label>
+                <input list="location-list" name="location" th:value="${param.location}" placeholder="Enter a location...">
                 <datalist id="location-list">
-                    <option value="Vienna">
-                    <option value="Salzburg">
-                    <option value="Innsbruck">
-                    <option value="Graz">
-                    <option value="Dornbirn">
+                    <option value="Vienna"><option value="Salzburg"><option value="Innsbruck">
+                    <option value="Graz"><option value="Dornbirn">
                 </datalist>
             </div>
 
+            <!-- Category -->
             <div class="filter-group">
-                <label for="category" class="filter-label">Category</label>
-                <select id="category" name="category" class="filter-select">
-                    <option value=""
-                            th:selected="${param.category == null or param.category == ''}">
-                        All Categories
-                    </option>
+                <label>Category</label>
+                <select name="category">
+                    <option value="" th:selected="${param.category == null}">All Categories</option>
                     <option value="Hiking" th:selected="${param.category == 'Hiking'}">Hiking</option>
                     <option value="Camping" th:selected="${param.category == 'Camping'}">Camping</option>
                     <option value="Kayaking" th:selected="${param.category == 'Kayaking'}">Kayaking</option>
                     <option value="Climbing" th:selected="${param.category == 'Climbing'}">Climbing</option>
-                    <option value="Wildlife Tour" th:selected="${param.category == 'Wildlife Tour'}">Wildlife Tour
-                    </option>
+                    <option value="Wildlife Tour" th:selected="${param.category == 'Wildlife Tour'}">Wildlife Tour</option>
                 </select>
             </div>
 
+            <!-- Dates -->
             <div class="filter-group">
                 <label>Date Range</label>
                 <div class="date-range">
-                    <input type="date" name="startDate" id="startDate" th:value="${param.startDate}">
+                    <input type="date" name="startDate" th:value="${param.startDate}">
                     <span>to</span>
-                    <input type="date" name="endDate" id="endDate" th:value="${param.endDate}">
+                    <input type="date" name="endDate" th:value="${param.endDate}">
                 </div>
             </div>
 
+            <!-- Difficulty -->
             <div class="filter-group">
                 <label>Difficulty</label>
                 <div class="checkbox-group">
-                    <label>
-                        <input type="radio" name="difficulty" value=""
-                               th:checked="${param.difficulty == null or param.difficulty == ''}">
-                        Any
-                    </label>
-                    <label>
-                        <input type="radio" name="difficulty" value="BEGINNER"
-                               th:checked="${param.difficulty == 'BEGINNER'}">
-                        Beginner
-                    </label>
-                    <label>
-                        <input type="radio" name="difficulty" value="INTERMEDIATE"
-                               th:checked="${param.difficulty == 'INTERMEDIATE'}">
-                        Intermediate
-                    </label>
-                    <label>
-                        <input type="radio" name="difficulty" value="ADVANCED"
-                               th:checked="${param.difficulty == 'ADVANCED'}">
-                        Advanced
-                    </label>
+                    <label><input type="radio" name="difficulty" value="" th:checked="${param.difficulty == null}">Any</label>
+                    <label><input type="radio" name="difficulty" value="BEGINNER" th:checked="${param.difficulty == 'BEGINNER'}">Beginner</label>
+                    <label><input type="radio" name="difficulty" value="INTERMEDIATE" th:checked="${param.difficulty == 'INTERMEDIATE'}">Intermediate</label>
+                    <label><input type="radio" name="difficulty" value="ADVANCED" th:checked="${param.difficulty == 'ADVANCED'}">Advanced</label>
                 </div>
             </div>
 
+            <!-- Price -->
             <div class="filter-group">
                 <label>Price Range (€)</label>
                 <div class="price-range">
-                    <input type="number" name="minPrice" placeholder="Min" min="0" th:value="${param.minPrice}">
+                    <input type="number" name="minPrice" th:value="${param.minPrice}" placeholder="Min">
                     <span>–</span>
-                    <input type="number" name="maxPrice" placeholder="Max" min="0" th:value="${param.maxPrice}">
+                    <input type="number" name="maxPrice" th:value="${param.maxPrice}" placeholder="Max">
                 </div>
             </div>
 
-            <button type="submit" class="apply-btn">Apply Filters</button>
+            <button class="apply-btn" type="submit">Apply Filters</button>
         </form>
     </div>
 
     <div id="overlay" class="overlay"></div>
 
 
+    <!-- META, GRID, CARDS -->
     <div class="event-meta-bar">
         <div class="event-count">
             <span th:text="${#lists.size(events)} + ' Events found'">0 Events found</span>
         </div>
+
         <div class="sort-options">
             <form th:action="@{/events/search}" method="get">
-                <input type="hidden" name="q" th:value="${param.q}"/>
-                <input type="hidden" name="category" th:value="${param.category}"/>
+                <input type="hidden" name="q" th:value="${param.q}">
+                <input type="hidden" name="category" th:value="${param.category}">
 
                 <div class="sort-select-wrapper">
-                    <label for="sort" class="sort-label">Sort by:</label>
-
-                    <div class="sort-select">
-                        <select id="sort" name="sort" onchange="this.form.submit()" th:value="${sort}">
-                            <option value="" th:selected="${sort == null or sort == ''}">Default</option>
-                            <option value="dateAsc" th:selected="${sort == 'dateAsc'}">Date: Soonest First</option>
-                            <option value="dateDesc" th:selected="${sort == 'dateDesc'}">Date: Latest First</option>
-                            <option value="priceAsc" th:selected="${sort == 'priceAsc'}">Price: Low → High</option>
-                            <option value="priceDesc" th:selected="${sort == 'priceDesc'}">Price: High → Low</option>
-                        </select>
-                    </div>
+                    <label>Sort by:</label>
+                    <select name="sort" onchange="this.form.submit()">
+                        <option value="" th:selected="${sort == null}">Default</option>
+                        <option value="dateAsc" th:selected="${sort == 'dateAsc'}">Date: Soonest First</option>
+                        <option value="dateDesc" th:selected="${sort == 'dateDesc'}">Date: Latest First</option>
+                        <option value="priceAsc" th:selected="${sort == 'priceAsc'}">Price: Low → High</option>
+                        <option value="priceDesc" th:selected="${sort == 'priceDesc'}">Price: High → Low</option>
+                    </select>
                 </div>
             </form>
         </div>
     </div>
 
 
+    <!-- EVENT GRID -->
     <div class="event-grid">
 
         <div class="event-card"
              th:each="event : ${events}"
              th:with="eventStart=${event.date.atTime(event.startTime)},
                       expired=${eventStart.isBefore(#temporals.createNow())}"
-             th:classappend="${event.cancelled} ? ' cancelled-event' : (expired ? ' expired-event' : '')">
+             th:classappend="${event.cancelled} ? 'cancelled-event' : (expired ? 'expired-event' : '')">
 
             <div class="card-image">
-                <img th:src="${event.imageUrl != null} ? ${event.imageUrl} : @{/images/default_event.jpg}"
-                     th:alt="${event.title}">
+                <img th:src="${event.imageUrl != null} ? ${event.imageUrl} : @{/images/default_event.jpg}">
                 <span class="tag"
                       th:text="${event.category != null ? event.category : 'General'}"
-                      th:classappend="|tag-${#strings.replace(#strings.toLowerCase(event.category != null ? event.category : 'general'), ' ', '-')}|">
+                      th:classappend="|tag-${#strings.replace(#strings.toLowerCase(event.category ?: 'general'), ' ', '-')}|">
                 </span>
 
                 <span th:if="${event.cancelled}" class="cancelled-badge">CANCELLED</span>
@@ -338,27 +180,23 @@
             </div>
 
             <div class="card-content">
+
                 <div class="card-header">
-                    <h3 th:text="${event.title}">Event Title</h3>
+                    <h3 th:text="${event.title}">Event</h3>
                     <span class="difficulty"
                           th:classappend="| ${#strings.toLowerCase(event.difficulty)}|"
-                          th:text="${#strings.capitalize(#strings.toLowerCase(event.difficulty))}">
-                        Intermediate
+                          th:text="${event.difficulty}">
                     </span>
                 </div>
 
-                <p th:text="${event.description}">Event description here...</p>
+                <p th:text="${event.description}"></p>
 
                 <ul class="details">
-                    <li><i data-lucide="calendar"></i>
-                        <span th:text="${#temporals.format(event.date, 'MMMM dd, yyyy')}"></span>
-                    </li>
+                    <li><i data-lucide="calendar"></i><span th:text="${#temporals.format(event.date, 'MMMM dd, yyyy')}"></span></li>
                     <li><i data-lucide="clock"></i>
                         <span th:text="${#temporals.format(event.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(event.endTime, 'HH:mm')}"></span>
                     </li>
-                    <li><i data-lucide="map-pin"></i>
-                        <span th:text="${event.location}"></span>
-                    </li>
+                    <li><i data-lucide="map-pin"></i><span th:text="${event.location}"></span></li>
                     <li><i data-lucide="users"></i>
                         <span th:text="${event.minParticipants} + ' - ' + ${event.maxParticipants} + ' Participants'"></span>
                     </li>
@@ -370,64 +208,47 @@
                         <a th:href="@{/events/{id}(id=${event.id})}" class="view-btn">View Details</a>
 
                         <th:block th:unless="${event.cancelled or expired}">
-                            <a sec:authorize="hasAnyRole('ADMIN', 'FRONT')"
-                               th:href="@{/events/{id}/edit(id=${event.id})}" class="edit-btn">Edit</a>
+                            <a sec:authorize="hasAnyRole('ADMIN','FRONT')" th:href="@{/events/{id}/edit(id=${event.id})}" class="edit-btn">Edit</a>
 
                             <th:block sec:authorize="hasRole('ORGANIZER')">
-                                <a th:if="${currentUserName != null and event.organizer != null and #strings.equalsIgnoreCase(currentUserName, event.organizer)}"
+                                <a th:if="${currentUserName != null && event.organizer != null && #strings.equalsIgnoreCase(currentUserName, event.organizer)}"
                                    th:href="@{/events/{id}/edit(id=${event.id})}" class="edit-btn">Edit</a>
                             </th:block>
 
-                            <form sec:authorize="hasRole('ADMIN')"
-                                  th:action="@{/events/{id}/cancel(id=${event.id})}"
-                                  method="post"
-                                  style="display:inline; margin:0;"
-                                  onsubmit="return confirm('Are you sure you want to cancel this event? This action cannot be undone.');">
-                                <button type="submit" class="cancel-btn">Cancel</button>
+                            <form sec:authorize="hasRole('ADMIN')" th:action="@{/events/{id}/cancel(id=${event.id})}"
+                                  method="post" style="display:inline;">
+                                <button class="cancel-btn" onclick="return confirm('Cancel event?')">Cancel</button>
                             </form>
 
                             <form sec:authorize="hasRole('ORGANIZER')"
-                                  th:if="${currentUserName != null and event.organizer != null and #strings.equalsIgnoreCase(currentUserName, event.organizer)}"
+                                  th:if="${currentUserName != null && event.organizer != null && #strings.equalsIgnoreCase(currentUserName, event.organizer)}"
                                   th:action="@{/events/{id}/cancel(id=${event.id})}"
-                                  method="post"
-                                  style="display:inline; margin:0;"
-                                  onsubmit="return confirm('Are you sure you want to cancel this event? This action cannot be undone.');">
-                                <button type="submit" class="cancel-btn">Cancel</button>
+                                  method="post" style="display:inline;">
+                                <button class="cancel-btn" onclick="return confirm('Cancel event?')">Cancel</button>
                             </form>
                         </th:block>
+
                     </div>
                 </div>
             </div>
         </div>
 
-    </div> <!-- event-grid -->
-</section>
+    </div>
 
+</section>
 
 <script src="https://unpkg.com/lucide@latest"></script>
 <script>
     lucide.createIcons();
 
-    // Filter panel öffnen und schließen
     const openBtn = document.getElementById("open-filters");
     const closeBtn = document.getElementById("close-filters");
     const panel = document.getElementById("filter-panel");
     const overlay = document.getElementById("overlay");
 
-    openBtn.addEventListener("click", () => {
-        panel.classList.add("open");
-        overlay.classList.add("active");
-    });
-
-    closeBtn.addEventListener("click", () => {
-        panel.classList.remove("open");
-        overlay.classList.remove("active");
-    });
-
-    overlay.addEventListener("click", () => {
-        panel.classList.remove("open");
-        overlay.classList.remove("active");
-    });
+    openBtn?.addEventListener("click", () => { panel.classList.add("open"); overlay.classList.add("active"); });
+    closeBtn?.addEventListener("click", () => { panel.classList.remove("open"); overlay.classList.remove("active"); });
+    overlay?.addEventListener("click", () => { panel.classList.remove("open"); overlay.classList.remove("active"); });
 </script>
 
 </body>

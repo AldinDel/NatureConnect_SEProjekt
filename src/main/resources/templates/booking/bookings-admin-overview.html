@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <title>All Bookings</title>
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/bookings-admin-overview.css}">
+</head>
+
+<body class="bookings-admin-page">
+
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
+
+<div th:if="${success}" class="toast-success">
+    <span th:text="${success}"></span>
+</div>
+
+<div th:if="${error}" class="toast-error">
+    <span th:text="${error}"></span>
+</div>
+
+<div class="admin-booking-container">
+    <h1>All Bookings</h1>
+
+    <table class="admin-booking-table">
+        <thead>
+        <tr>
+            <th>Event</th>
+            <th>Booking ID</th>
+            <th>User</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Participants</th>
+            <th>Total</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="b : ${bookings}">
+
+            <td class="event-info">
+                <span th:text="${b.eventId}"></span>
+            </td>
+
+            <td th:text="'#' + ${b.id}"></td>
+
+            <td th:text="${b.bookerEmail}"></td>
+
+            <td th:text="${#dates.format(b.createdAt, 'yyyy-MM-dd')}"></td>
+
+            <td th:text="${#dates.format(b.createdAt, 'HH:mm')}"></td>
+
+            <td th:text="${b.seats}"></td>
+
+            <td>€ <span th:text="${b.totalPrice}"></span></td>
+
+            <td class="actions">
+
+                <a th:if="${b.editable}"
+                   th:href="@{/booking/{id}/edit(id=${b.id})}"
+                   class="btn-edit"
+                   sec:authorize="hasAnyRole('ADMIN','CUSTOMER')">
+                    Edit
+                </a>
+
+
+                <span th:if="${!b.editable}" class="badge-disabled">
+                    Not editable
+                </span>
+
+                <button class="btn-small btn-cancel"
+                        sec:authorize="hasAnyRole('ADMIN','CUSTOMER')">
+                    Cancel
+                </button>
+            </td>
+
+
+
+        </tr>
+        </tbody>
+
+    </table>
+</div>
+
+</body>
+</html>
