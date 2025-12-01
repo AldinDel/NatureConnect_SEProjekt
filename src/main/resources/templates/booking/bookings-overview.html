@@ -12,6 +12,10 @@
     <span th:text="${success}"></span>
 </div>
 
+<div th:if="${error}" class="toast-error">
+    <span th:text="${error}"></span>
+</div>
+
 <div th:replace="~{events/fragments/navbar :: navbar}"></div>
 
 <div class="booking-container">

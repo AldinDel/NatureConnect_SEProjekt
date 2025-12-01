@@ -268,7 +268,7 @@ public class BookingController {
     }
 
     @GetMapping("/{id}/edit")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER', 'FRONT', 'ORGANIZER')")
     public String showEditBookingForm(@PathVariable("id") Long id,
                                       Model model,
                                       RedirectAttributes redirectAttributes,
@@ -276,7 +276,7 @@ public class BookingController {
         try {
 
             if (!_bookingPermissionService.canEdit(auth, id)) {
-                redirectAttributes.addFlashAttribute("error", "You are not allowed to edit this booking.");
+                redirectAttributes.addFlashAttribute("error", "You don't have the permission to edit this booking.");
                 return "redirect:/bookings";
             }
 
@@ -314,7 +314,7 @@ public class BookingController {
     }
 
     @PostMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER', 'FRONT', 'ORGANIZER')")
     public String updateBooking(@PathVariable("id") Long id,
                                 @ModelAttribute("booking") CreateBookingRequest request,
                                 Model model,
@@ -323,7 +323,7 @@ public class BookingController {
         System.out.println(">>> updateBooking HIT, id=" + id);
         try {
             if (!_bookingPermissionService.canEdit(auth, id)) {
-                redirectAttributes.addFlashAttribute("error", "You are not allowed to edit this booking.");
+                redirectAttributes.addFlashAttribute("error", "You don't have the permission to edit this booking.");
                 return "redirect:/bookings";
             }
 

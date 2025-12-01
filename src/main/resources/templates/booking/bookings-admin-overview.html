@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <title>All Bookings</title>
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
@@ -13,6 +15,10 @@
 
 <div th:if="${success}" class="toast-success">
     <span th:text="${success}"></span>
+</div>
+
+<div th:if="${error}" class="toast-error">
+    <span th:text="${error}"></span>
 </div>
 
 <div class="admin-booking-container">
@@ -55,15 +61,20 @@
 
                 <a th:if="${b.editable}"
                    th:href="@{/booking/{id}/edit(id=${b.id})}"
-                   class="btn-edit">
+                   class="btn-edit"
+                   sec:authorize="hasAnyRole('ADMIN','CUSTOMER')">
                     Edit
                 </a>
+
 
                 <span th:if="${!b.editable}" class="badge-disabled">
                     Not editable
                 </span>
 
-                <button class="btn-small btn-cancel">Cancel</button>
+                <button class="btn-small btn-cancel"
+                        sec:authorize="hasAnyRole('ADMIN','CUSTOMER')">
+                    Cancel
+                </button>
             </td>
 
 

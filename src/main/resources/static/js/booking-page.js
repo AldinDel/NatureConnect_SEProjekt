@@ -147,11 +147,18 @@ async function loadEquipmentForEvent(eventId) {
 
             qty.addEventListener("input", () => {
                 const participants = parseInt(numParticipantsInput.value, 10) || 1;
+
                 if (qty.value < 1) qty.value = 1;
                 if (qty.value > item.stock) qty.value = item.stock;
-                if (qty.value > participants) qty.value = participants;
+
+                if (qty.value > participants) {
+                    qty.value = participants;
+                    alert("You can't select more equipment than participants.");
+                }
+
                 updatePriceSummary();
             });
+
 
             wrapper.appendChild(cb);
             wrapper.appendChild(content);
@@ -189,10 +196,16 @@ function initEquipmentListenersForEdit() {
             const maxStock = parseInt(qty.max, 10) || participants;
 
             if (qty.value < 1) qty.value = 1;
-            if (qty.value > participants) qty.value = participants;
+            if (qty.value > maxStock) qty.value = maxStock;
+
+            if (qty.value > participants) {
+                qty.value = participants;
+                alert("You can't select more equipment than participants.");
+            }
 
             updatePriceSummary();
         });
+
 
         if (cb.checked) {
             qty.style.display = "block";
