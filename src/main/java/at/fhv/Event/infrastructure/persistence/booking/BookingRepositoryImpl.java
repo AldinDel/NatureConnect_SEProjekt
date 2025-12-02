@@ -3,6 +3,7 @@ package at.fhv.Event.infrastructure.persistence.booking;
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
 import at.fhv.Event.domain.model.booking.Booking;
 import at.fhv.Event.domain.model.booking.BookingRepository;
+import at.fhv.Event.domain.model.booking.BookingStatus;
 import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.infrastructure.mapper.BookingMapper;
 import at.fhv.Event.infrastructure.mapper.EventMapper;
@@ -109,5 +110,10 @@ public class BookingRepositoryImpl implements BookingRepository {
                         EquipmentEntity::getId,
                         e -> e
                 ));
+    }
+
+    @Override
+    public int countPaidSeatsForEvent(Long eventId) {
+        return jpa.sumSeatsByEventIdAndStatus(eventId, BookingStatus.PAID);
     }
 }

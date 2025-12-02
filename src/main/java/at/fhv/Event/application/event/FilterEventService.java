@@ -1,7 +1,7 @@
 package at.fhv.Event.application.event;
 
 import at.fhv.Event.domain.model.event.EventRepository;
-import at.fhv.Event.rest.response.event.EventOverviewDTO;
+import at.fhv.Event.presentation.rest.response.event.EventOverviewDTO;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;

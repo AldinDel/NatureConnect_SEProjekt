@@ -5,25 +5,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - NatureConnect</title>
+
     <link rel="stylesheet" th:href="@{/css/navbar.css}" href="/css/navbar.css">
     <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
     <link rel="icon" type="image/png" th:href="@{/images/NatureConnectLogo.png}" href="/images/NatureConnectLogo.png">
+
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: "Inter", "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(135deg, #0b2545 0%, #ffffff 100%);
+            background: linear-gradient(140deg, #0b2545 0%, #ffffff 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
-        /* MAIN CONTENT */
         .main-content {
             flex: 1;
             display: flex;
@@ -34,11 +32,11 @@
 
         .register-container {
             background: white;
-            border-radius: 12px;
+            border-radius: 16px;
             padding: 40px;
             width: 100%;
             max-width: 420px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.25);
         }
 
         .register-header {
@@ -47,10 +45,9 @@
         }
 
         .register-header h1 {
-            color: #1a1a1a;
             font-size: 28px;
-            font-weight: 600;
-            margin-bottom: 8px;
+            font-weight: 700;
+            color: #0b2545;
         }
 
         .register-header p {
@@ -62,7 +59,6 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 12px;
-            margin-bottom: 20px;
         }
 
         .form-group {
@@ -71,9 +67,9 @@
 
         .form-group label {
             display: block;
-            color: #333;
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 600;
+            color: #333;
             margin-bottom: 8px;
         }
 
@@ -81,32 +77,25 @@
             position: relative;
         }
 
+        /* ⬅️ TEXT LINKS */
         .input-wrapper input {
             width: 100%;
-            padding: 12px 40px 12px 40px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 10px;
             font-size: 14px;
-            transition: all 0.3s ease;
             background: #f8f9fa;
+            transition: 0.2s;
         }
 
         .input-wrapper input:focus {
-            outline: none;
-            border-color: #2a5298;
             background: white;
-            box-shadow: 0 0 0 3px rgba(42, 82, 152, 0.1);
+            border-color: #0b2545;
+            box-shadow: 0 0 0 3px rgba(11, 37, 69, 0.15);
+            outline: none;
         }
 
-        .input-icon {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #999;
-            font-size: 16px;
-        }
-
+        /* Passwort Toggle Button */
         .password-toggle {
             position: absolute;
             right: 12px;
@@ -115,35 +104,44 @@
             background: none;
             border: none;
             cursor: pointer;
-            color: #999;
-            font-size: 16px;
-            padding: 4px;
+            padding: 0;
+        }
+
+        .password-toggle svg {
+            width: 22px;
+            height: 22px;
+            stroke: #666;
+            transition: 0.2s ease;
+        }
+
+        .password-toggle:hover svg {
+            stroke: #0b2545;
         }
 
         .checkbox-wrapper {
             display: flex;
             align-items: flex-start;
             gap: 8px;
-            margin-bottom: 24px;
-            font-size: 13px;
-            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+            color: #444;
         }
 
-        .checkbox-wrapper input[type="checkbox"] {
+        .checkbox-wrapper input {
             width: 16px;
             height: 16px;
-            cursor: pointer;
-            margin-top: 2px;
             flex-shrink: 0;
+            cursor: pointer;
+            accent-color: #0b2545;
         }
 
-        .checkbox-wrapper a {
-            color: #2a5298;
+        .checkbox-wrapper label a {
+            color: #0b2545;
+            font-weight: 600;
             text-decoration: none;
-            font-weight: 500;
         }
 
-        .checkbox-wrapper a:hover {
+        .checkbox-wrapper label a:hover {
             text-decoration: underline;
         }
 
@@ -153,164 +151,75 @@
             background: #0b2545;
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: 0.2s;
         }
 
         .btn-primary:hover {
-            background: #3b3767;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        }
-
-        .divider {
-            text-align: center;
-            margin: 24px 0;
-            position: relative;
-        }
-
-        .divider::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            width: 100%;
-            height: 1px;
-            background: #e0e0e0;
-        }
-
-        .divider span {
-            background: white;
-            padding: 0 12px;
-            color: #999;
-            font-size: 13px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .social-btn {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            background: white;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 12px;
-            transition: all 0.3s ease;
-        }
-
-        .social-btn:hover {
-            background: #f8f9fa;
-            border-color: #ccc;
+            background: #143b6e;
+            transform: translateY(-2px);
         }
 
         .login-link {
             text-align: center;
             margin-top: 24px;
             font-size: 14px;
-            color: #666;
         }
 
         .login-link a {
-            color: #2a5298;
+            color: #0b2545;
+            font-weight: 700;
             text-decoration: none;
-            font-weight: 600;
-        }
-
-        .login-link a:hover {
-            text-decoration: underline;
-        }
-
-        .alert {
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            display: none;
-        }
-
-        .alert:not(:empty) {
-            display: block;
-        }
-
-        .alert-error {
-            background: #fee;
-            color: #c33;
-            border: 1px solid #fcc;
-        }
-
-        .alert-success {
-            background: #efe;
-            color: #3c3;
-            border: 1px solid #cfc;
         }
 
         .footer-text {
             text-align: center;
             padding: 20px;
             font-size: 12px;
-            color: rgba(255,255,255,0.8);
+            color: rgba(0,0,0,0.6);
+        }
+        .login-link {
+            color: #444 !important;
         }
 
-        .footer-text a {
-            color: rgba(255,255,255,0.9);
-            text-decoration: underline;
+        .login-link a {
+            color: #0b2545 !important;
         }
+
+
+
     </style>
 </head>
+
 <body>
 
-<!-- HEADER with secure navbar fragment -->
 <div th:replace="~{events/fragments/navbar :: navbar}"></div>
 
 <div class="main-content">
     <div class="register-container">
+
         <div class="register-header">
             <h1>Create Account</h1>
             <p>Sign up and discover exciting events</p>
         </div>
 
-        <!-- Error/Success Messages (only shown when messages exist) -->
-        <div th:if="${error != null and !#strings.isEmpty(error)}" class="alert alert-error" th:text="${error}"></div>
-        <div th:if="${success != null and !#strings.isEmpty(success)}" class="alert alert-success" th:text="${success}"></div>
-
-        <!-- Register Form -->
         <form th:action="@{/register}" method="post">
+
             <div class="form-row">
                 <div class="form-group">
                     <label for="firstName">First Name</label>
                     <div class="input-wrapper">
-                        <span class="input-icon">👤</span>
-                        <input
-                                type="text"
-                                id="firstName"
-                                name="firstName"
-                                placeholder="Max"
-                                required
-                                autocomplete="given-name">
+                        <input id="firstName" name="firstName" type="text" placeholder="Max" required autocomplete="given-name">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label for="lastName">Last Name</label>
                     <div class="input-wrapper">
-                        <span class="input-icon">👤</span>
-                        <input
-                                type="text"
-                                id="lastName"
-                                name="lastName"
-                                placeholder="Mustermann"
-                                required
-                                autocomplete="family-name">
+                        <input id="lastName" name="lastName" type="text" placeholder="Mustermann" required autocomplete="family-name">
                     </div>
                 </div>
             </div>
@@ -318,44 +227,36 @@
             <div class="form-group">
                 <label for="email">Email Address</label>
                 <div class="input-wrapper">
-                    <span class="input-icon">📧</span>
-                    <input
-                            type="email"
-                            id="email"
-                            name="email"
-                            placeholder="example@email.com"
-                            required
-                            autocomplete="email">
+                    <input id="email" name="email" type="email" placeholder="example@email.com" required autocomplete="email">
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="password">Password</label>
                 <div class="input-wrapper">
-                    <span class="input-icon">🔒</span>
-                    <input
-                            type="password"
-                            id="password"
-                            name="password"
-                            placeholder="••••••••"
-                            required
-                            autocomplete="new-password">
-                    <button type="button" class="password-toggle" onclick="togglePassword('password')">👁️</button>
+                    <input id="password" name="password" type="password" placeholder="••••••••" required autocomplete="new-password">
+
+                    <!-- SVG EYE -->
+                    <button type="button" class="password-toggle" onclick="togglePassword('password', 'eye1')">
+                        <svg id="eye1" fill="none" viewBox="0 0 24 24" stroke-width="2">
+                            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="confirmPassword">Confirm Password</label>
                 <div class="input-wrapper">
-                    <span class="input-icon"></span>
-                    <input
-                            type="password"
-                            id="confirmPassword"
-                            name="confirmPassword"
-                            placeholder="••••••••"
-                            required
-                            autocomplete="new-password">
-                    <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword')">👁️</button>
+                    <input id="confirmPassword" name="confirmPassword" type="password" placeholder="••••••••" required autocomplete="new-password">
+
+                    <button type="button" class="password-toggle" onclick="togglePassword('confirmPassword', 'eye2')">
+                        <svg id="eye2" fill="none" viewBox="0 0 24 24" stroke-width="2">
+                            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
 
@@ -366,32 +267,37 @@
                 </label>
             </div>
 
-            <button type="submit" class="btn-primary">Create Account</button>
+            <button class="btn-primary" type="submit">Create Account</button>
         </form>
 
         <div class="login-link">
-            Already have an account? <a href="/login">Sign in now</a>
+            Already have an account? <a href="/login">Sign in</a>
         </div>
+
     </div>
 </div>
 
 <div class="footer-text">
-    By creating an account, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+    By creating an account, you agree to our Terms of Service and Privacy Policy.
 </div>
 
 <script>
-    function togglePassword(fieldId) {
-        const passwordInput = document.getElementById(fieldId);
-        const button = event.currentTarget;
+    function togglePassword(field, eyeId) {
+        const input = document.getElementById(field);
+        const icon = document.getElementById(eyeId);
 
-        if (passwordInput.type === 'password') {
-            passwordInput.type = 'text';
-            button.textContent = '🙈';
+        if (input.type === "password") {
+            input.type = "text";
+            icon.innerHTML =
+                `<path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.77 21.77 0 0 1 5.06-6.94M9.88 9.88a3 3 0 0 1 4.24 4.24M1 1l22 22"/>`;
         } else {
-            passwordInput.type = 'password';
-            button.textContent = '👁️';
+            input.type = "password";
+            icon.innerHTML =
+                `<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
+                 <circle cx="12" cy="12" r="3"/>`;
         }
     }
 </script>
+
 </body>
 </html>

@@ -1,7 +1,7 @@
 package at.fhv.Event.application.booking;
 
 import at.fhv.Event.domain.model.booking.BookingRepository;
-import at.fhv.Event.rest.response.booking.BookingDTO;
+import at.fhv.Event.presentation.rest.response.booking.BookingDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

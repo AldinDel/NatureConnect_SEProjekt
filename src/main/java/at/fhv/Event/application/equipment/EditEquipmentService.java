@@ -3,7 +3,7 @@ package at.fhv.Event.application.equipment;
 import at.fhv.Event.application.request.equipment.UpdateEquipmentRequest;
 import at.fhv.Event.domain.model.equipment.Equipment;
 import at.fhv.Event.domain.model.equipment.EquipmentRepository;
-import at.fhv.Event.rest.response.equipment.EquipmentDTO;
+import at.fhv.Event.presentation.rest.response.equipment.EquipmentDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

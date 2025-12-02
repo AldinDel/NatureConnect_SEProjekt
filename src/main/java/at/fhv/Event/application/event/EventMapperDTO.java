@@ -2,10 +2,10 @@ package at.fhv.Event.application.event;
 
 import at.fhv.Event.domain.model.equipment.EventEquipment;
 import at.fhv.Event.domain.model.event.Event;
-import at.fhv.Event.rest.response.equipment.EquipmentDTO;
-import at.fhv.Event.rest.response.event.EventDTO;
-import at.fhv.Event.rest.response.event.EventDetailDTO;
-import at.fhv.Event.rest.response.event.EventOverviewDTO;
+import at.fhv.Event.presentation.rest.response.equipment.EquipmentDTO;
+import at.fhv.Event.presentation.rest.response.event.EventDTO;
+import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
+import at.fhv.Event.presentation.rest.response.event.EventOverviewDTO;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;

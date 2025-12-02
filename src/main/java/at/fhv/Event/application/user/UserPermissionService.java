@@ -1,7 +1,7 @@
 package at.fhv.Event.application.user;
 
 import at.fhv.Event.infrastructure.persistence.user.UserAccountJpaRepository;
-import at.fhv.Event.rest.response.event.EventDetailDTO;
+import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
