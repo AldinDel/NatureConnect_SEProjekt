@@ -8,7 +8,7 @@ import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.domain.model.exception.*;
 import at.fhv.Event.domain.model.payment.PaymentMethod;
 import at.fhv.Event.domain.model.payment.PaymentStatus;
-import at.fhv.Event.rest.response.booking.BookingDTO;
+import at.fhv.Event.presentation.rest.response.booking.BookingDTO;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

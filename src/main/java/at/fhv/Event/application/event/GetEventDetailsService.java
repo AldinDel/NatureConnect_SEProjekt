@@ -2,7 +2,7 @@ package at.fhv.Event.application.event;
 
 import at.fhv.Event.domain.model.event.EventRepository;
 import at.fhv.Event.infrastructure.persistence.equipment.EquipmentJpaRepository;
-import at.fhv.Event.rest.response.event.EventDetailDTO;
+import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
 import org.springframework.stereotype.Service;
 
 @Service

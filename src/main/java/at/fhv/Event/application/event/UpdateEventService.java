@@ -14,7 +14,7 @@ import at.fhv.Event.infrastructure.persistence.equipment.EventEquipmentEntity;
 import at.fhv.Event.infrastructure.persistence.equipment.EventEquipmentJpaRepository;
 import at.fhv.Event.infrastructure.persistence.event.EventEntity;
 import at.fhv.Event.infrastructure.persistence.event.EventJpaRepository;
-import at.fhv.Event.rest.response.event.EventDetailDTO;
+import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

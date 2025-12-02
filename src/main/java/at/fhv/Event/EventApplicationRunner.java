@@ -1,7 +1,7 @@
 package at.fhv.Event;
 
 import at.fhv.Event.application.event.SearchEventService;
-import at.fhv.Event.rest.response.event.EventOverviewDTO;
+import at.fhv.Event.presentation.rest.response.event.EventOverviewDTO;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
