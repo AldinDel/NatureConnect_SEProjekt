@@ -5,8 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Payment - Nature Connect</title>
     <link rel="stylesheet" th:href="@{/css/payment.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
 </head>
 <body>
+<div th:replace="events/fragments/navbar :: navbar"></div>
 <div class="container">
     <div class="header">
         <h1>Complete Your Payment</h1>
@@ -14,12 +18,14 @@
     </div>
 
     <div class="content">
-        <form th:action="@{/booking/payment/{id}(id=${bookingId})}" method="post" id="paymentForm">
+    <form id="paymentForm" class="payment-form">
+            <input type="hidden" id="bookingIdHidden" th:value="${bookingId}">
+            <input type="hidden" id="amountHidden" th:value="${amount}">
             <div class="form-group">
                 <label>Payment Method</label>
                 <div class="payment-methods">
 
-                    <div class="payment-option" onclick="selectPayment('CREDIT_CARD')">
+                    <div class="payment-option" onclick="selectPayment('CREDIT_CARD', this)">
                         <input type="radio" name="paymentMethod" value="CREDIT_CARD" id="creditCard">
                         <label for="creditCard">
                             <span class="payment-icon">
@@ -35,7 +41,7 @@
                         </label>
                     </div>
 
-                    <div class="payment-option" onclick="selectPayment('PAYPAL')">
+                    <div class="payment-option" onclick="selectPayment('PAYPAL', this)">
                         <input type="radio" name="paymentMethod" value="PAYPAL" id="paypal">
                         <label for="paypal">
                             <span class="payment-icon">
@@ -52,7 +58,7 @@
                         </label>
                     </div>
 
-                    <div class="payment-option" onclick="selectPayment('INVOICE')">
+                    <div class="payment-option" onclick="selectPayment('INVOICE', this)">
                         <input type="radio" name="paymentMethod" value="INVOICE" id="invoice">
                         <label for="invoice">
                             <span class="payment-icon">
@@ -71,7 +77,7 @@
                         </label>
                     </div>
 
-                    <div class="payment-option" onclick="selectPayment('ON_SITE')">
+                    <div class="payment-option" onclick="selectPayment('ON_SITE', this)">
                         <input type="radio" name="paymentMethod" value="ON_SITE" id="onSite">
                         <label for="onSite">
                             <span class="payment-icon">
@@ -130,8 +136,10 @@
                 <h3>Pay On-Site</h3>
                 <p>You can pay with cash or card when you arrive at our venue. Your booking will be reserved.</p>
             </div>
-
-            <button type="submit" class="submit-btn">Complete Payment</button>
+            <div class="payment-buttons">
+                <button type="button" class="cancel-btn" onclick="cancelPayment()">Cancel</button>
+                <button type="button" class="submit-btn" onclick="openPayment()">Complete Payment</button>
+            </div>
         </form>
     </div>
 </div>

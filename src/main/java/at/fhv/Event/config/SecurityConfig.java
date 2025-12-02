@@ -43,8 +43,9 @@ public class SecurityConfig {
                         .requestMatchers("/events/new", "/events/backoffice").hasAnyRole("ADMIN", "ORGANIZER")
                         .requestMatchers("/api/bookings").permitAll()
                         .requestMatchers("/events/*/edit", "/events/*/cancel").hasAnyRole("ADMIN", "FRONT", "ORGANIZER")
+                        .requestMatchers("/api/webhooks/payment").permitAll()
                         .requestMatchers("/booking/payment/**").authenticated()
-                        .requestMatchers("/booking/confirmation/**").authenticated()
+                        .requestMatchers("/booking/confirmation/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

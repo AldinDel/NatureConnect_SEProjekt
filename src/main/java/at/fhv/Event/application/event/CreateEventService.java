@@ -9,7 +9,7 @@ import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.domain.model.event.EventRepository;
 import at.fhv.Event.domain.model.exception.EventValidationException;
 import at.fhv.Event.domain.model.exception.ValidationError;
-import at.fhv.Event.rest.response.event.EventDetailDTO;
+import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

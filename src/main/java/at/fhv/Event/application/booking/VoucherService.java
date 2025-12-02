@@ -4,7 +4,7 @@ package at.fhv.Event.application.booking;
 import at.fhv.Event.application.request.booking.VoucherRequest;
 import at.fhv.Event.infrastructure.persistence.payment.VoucherEntity;
 import at.fhv.Event.infrastructure.persistence.payment.VoucherJpaRepository;
-import at.fhv.Event.rest.response.booking.VoucherValidationResponseDTO;
+import at.fhv.Event.presentation.rest.response.booking.VoucherValidationResponseDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 

@@ -2,18 +2,15 @@ package at.fhv.Event.application.booking;
 
 import at.fhv.Event.application.request.booking.BookingRequestMapper;
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
-import at.fhv.Event.domain.model.booking.Booking;
-import at.fhv.Event.domain.model.booking.BookingEquipment;
-import at.fhv.Event.domain.model.booking.BookingRepository;
-import at.fhv.Event.domain.model.booking.BookingStatus;
+import at.fhv.Event.application.request.booking.ParticipantDTO;
+import at.fhv.Event.domain.model.booking.*;
 import at.fhv.Event.domain.model.equipment.Equipment;
 import at.fhv.Event.domain.model.equipment.EquipmentRepository;
 import at.fhv.Event.domain.model.equipment.EquipmentSelection;
 import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.domain.model.exception.*;
 import at.fhv.Event.domain.model.payment.PaymentMethod;
-import at.fhv.Event.domain.model.payment.PaymentStatus;
-import at.fhv.Event.rest.response.booking.BookingDTO;
+import at.fhv.Event.presentation.rest.response.booking.BookingDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,12 +19,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import at.fhv.Event.application.request.booking.ParticipantDTO;
-import at.fhv.Event.domain.model.booking.BookingParticipant;
-import at.fhv.Event.domain.model.exception.BookingValidationException;
-import at.fhv.Event.domain.model.exception.EventFullyBookedException;
-import at.fhv.Event.domain.model.exception.ValidationError;
 
 @Service
 public class BookEventService {
@@ -81,7 +72,6 @@ public class BookEventService {
     @Transactional
     public BookingDTO updateBooking(Long bookingId, CreateBookingRequest request) {
         Booking booking = findBookingById(bookingId);
-
         Event event = loadEvent(request.getEventId());
 
         checkEventAvailability(event);
@@ -172,8 +162,6 @@ public class BookEventService {
         Booking booking = findBookingById(bookingId);
         PaymentMethod paymentMethod = parsePaymentMethod(bookingId, paymentMethodName);
         booking.setPaymentMethod(paymentMethod);
-        booking.setPaymentStatus(PaymentStatus.PAID);
-        booking.setStatus(BookingStatus.CONFIRMED);
         Booking savedBooking = _bookingRepository.save(booking);
         return _bookingMapperDTO.toDTO(savedBooking);
     }
@@ -197,9 +185,8 @@ public class BookEventService {
     }
 
     private void checkEventCapacity(Event event, int requestedSeats) {
-        int confirmedSeats = _bookingRepository.countSeatsForEvent(event.getId());
-        int availableSeats = event.getMaxParticipants() - event.getMinParticipants();
-        int remainingSeats = availableSeats - confirmedSeats;
+        int confirmedSeats = _bookingRepository.countPaidSeatsForEvent(event.getId());
+        int remainingSeats = event.getMaxParticipants() - event.getMinParticipants() - confirmedSeats;
 
         if (remainingSeats <= 0) {
             throw new EventFullyBookedException(event.getId(), requestedSeats, 0);
@@ -208,6 +195,7 @@ public class BookEventService {
             throw new EventFullyBookedException(event.getId(), requestedSeats, remainingSeats);
         }
     }
+
 
     private void checkEventCapacityForUpdate(Event event, Booking existingBooking, int newSeats) {
         int confirmedSeats = _bookingRepository.countSeatsForEvent(event.getId());
@@ -230,7 +218,7 @@ public class BookEventService {
 
     private Map<Long, Equipment> loadEquipmentMap(CreateBookingRequest request) {
         if (request.getEquipment() == null || request.getEquipment().isEmpty()) {
-            return Map.of(); // LEERE MAP ZURÜCKGEBEN
+            return Map.of();
         }
 
         List<Long> equipmentIds = new ArrayList<>(request.getEquipment().keySet());
@@ -351,5 +339,28 @@ public class BookEventService {
                     "Invalid payment method: " + paymentMethodName
             );
         }
+    }
+
+    public int getAvailableSeats(Long eventId) {
+        Event event = loadEvent(eventId);
+
+        int confirmedSeats = _bookingRepository.countPaidSeatsForEvent(eventId);
+        int availableSeats = event.getMaxParticipants() - event.getMinParticipants() - confirmedSeats;
+        return Math.max(0, availableSeats);
+    }
+
+
+    @Transactional
+    public void markAsPaid(Long bookingId) {
+        Booking booking = getById(bookingId);
+        booking.setStatus(BookingStatus.PAID);
+        _bookingRepository.save(booking);
+    }
+
+    @Transactional
+    public void markAsFailed(Long bookingId) {
+        Booking booking = getById(bookingId);
+        booking.setStatus(BookingStatus.PAYMENT_FAILED);
+        _bookingRepository.save(booking);
     }
 }
