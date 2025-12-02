@@ -15,6 +15,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -35,6 +39,12 @@ import static org.mockito.Mockito.*;
 // 7) bookEvent: event is cancelled → IllegalStateException, kein save(), kein validator
 // 8) bookEvent: event ist bereits vorbei → IllegalStateException, kein save
 // 9) bookEvent: event ist voll → EventFullyBookedException
+
+// 10) updateBooking: booking wird upgedatet wenn der input valid ist
+// 11) updateBooking: IllegalStateException wenn das Event cancelled ist
+// 12) updateBooking: BookingValidationException wenn validation fehlerhaft ist - kein save
+// 13) updateBooking: FullyBookedException wenn Event voll und Customer will weiteren Participant adden
+
 
 @ExtendWith(MockitoExtension.class)
 class BookEventServiceTest {
@@ -74,7 +84,7 @@ class BookEventServiceTest {
                 0.0,
                 null,
                 List.of(),         // participants
-                List.of()          // equipment
+                new ArrayList<>()  // equipment
         );
         booking.setId(bookingId);
         return booking;
@@ -359,5 +369,148 @@ class BookEventServiceTest {
         verifyNoInteractions(bookingMapperDTO);
     }
 
+    // 10) updateBooking: booking wird upgedatet wenn der input valid ist
+    @Test
+    void updateBooking_shouldUpdateBookingAndSave_whenValid() {
+        // given
+        Long bookingId = 1L;
+        Booking existingBooking = createBooking(bookingId);
+
+        CreateBookingRequest request = createValidRequest();
+        request.setSeats(3);
+
+        Event mockEvent = mock(Event.class);
+        when(mockEvent.getCancelled()).thenReturn(false);
+        when(mockEvent.getDate()).thenReturn(java.time.LocalDate.now().plusDays(1));
+        when(mockEvent.getStartTime()).thenReturn(java.time.LocalTime.NOON);
+        when(mockEvent.getId()).thenReturn(42L);
+        when(mockEvent.getMaxParticipants()).thenReturn(10);
+        when(mockEvent.getMinParticipants()).thenReturn(0);
+        when(mockEvent.getPrice()).thenReturn(BigDecimal.valueOf(100));
+
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(existingBooking));
+        when(bookingRepository.loadEventForBooking(42L)).thenReturn(mockEvent);
+
+        // 2 Plätze insgesamt gebucht, alte Buchung hatte 2 Seats → alreadyBookedExcludingThis = 0
+        when(bookingRepository.countSeatsForEvent(42L)).thenReturn(2);
+
+        // keine Ausrüstung → leere Map
+        request.setEquipment(Map.of());
+
+        when(bookingValidator.validate(eq(request), eq(mockEvent), eq(Map.of()), eq(0)))
+                .thenReturn(List.of());
+
+        BookingDTO dto = new BookingDTO();
+        when(bookingRepository.save(existingBooking)).thenReturn(existingBooking);
+        when(bookingMapperDTO.toDTO(existingBooking)).thenReturn(dto);
+
+        existingBooking.setEquipment(new ArrayList<>());
+        existingBooking.setParticipants(new ArrayList<>());
+
+        // when
+        BookingDTO result = bookEventService.updateBooking(bookingId, request);
+
+        // then
+        assertSame(dto, result);
+        assertEquals(3, existingBooking.getSeats());
+
+        verify(bookingRepository).findById(bookingId);
+        verify(bookingRepository, times(2)).countSeatsForEvent(42L); // einmal in checkEventCapacityForUpdate, einmal für validate
+        verify(bookingRepository).save(existingBooking);
+        verify(bookingMapperDTO).toDTO(existingBooking);
+    }
+
+    // 11) updateBooking: IllegalStateException wenn das Event cancelled ist
+    @Test
+    void updateBooking_shouldThrowIllegalState_whenEventCancelled() {
+        Long bookingId = 1L;
+        Booking existingBooking = createBooking(bookingId);
+        CreateBookingRequest request = createValidRequest();
+
+        Event mockEvent = mock(Event.class);
+        when(mockEvent.getCancelled()).thenReturn(true); // cancelled
+
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(existingBooking));
+        when(bookingRepository.loadEventForBooking(request.getEventId())).thenReturn(mockEvent);
+
+        assertThrows(IllegalStateException.class,
+                () -> bookEventService.updateBooking(bookingId, request));
+
+        verify(bookingRepository).findById(bookingId);
+        verify(bookingRepository).loadEventForBooking(request.getEventId());
+        verifyNoInteractions(bookingValidator);
+        verify(bookingRepository, never()).save(any());
+    }
+
+    // 12) updateBooking: BookingValidationException wenn validation fehlerhaft ist - kein save
+    @Test
+    void updateBooking_shouldThrowBookingValidationException_whenValidatorReturnsErrors() {
+        Long bookingId = 1L;
+        Booking existingBooking = createBooking(bookingId);
+        CreateBookingRequest request = createValidRequest();
+        request.setSeats(3);
+
+        Event mockEvent = mock(Event.class);
+        when(mockEvent.getCancelled()).thenReturn(false);
+        when(mockEvent.getDate()).thenReturn(java.time.LocalDate.now().plusDays(1));
+        when(mockEvent.getStartTime()).thenReturn(java.time.LocalTime.NOON);
+        when(mockEvent.getId()).thenReturn(42L);
+        when(mockEvent.getMaxParticipants()).thenReturn(10);
+        when(mockEvent.getMinParticipants()).thenReturn(0);
+
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(existingBooking));
+        when(bookingRepository.loadEventForBooking(42L)).thenReturn(mockEvent);
+
+        when(bookingRepository.countSeatsForEvent(42L)).thenReturn(2);
+
+        request.setEquipment(Map.of());
+
+        ValidationError error = new ValidationError(
+                ValidationErrorType.INVALID_INPUT,
+                "seats",
+                3,
+                "Seats invalid"
+        );
+        when(bookingValidator.validate(eq(request), eq(mockEvent), eq(Map.of()), eq(0)))
+                .thenReturn(List.of(error));
+
+        assertThrows(BookingValidationException.class,
+                () -> bookEventService.updateBooking(bookingId, request));
+
+        verify(bookingRepository, never()).save(any());
+        verify(bookingMapperDTO, never()).toDTO(any());
+    }
+
+    // 13) updateBooking: FullyBookedException wenn Event voll und Customer will weiteren Participant adden
+    @Test
+    void updateBooking_shouldThrowEventFullyBookedException_whenEventHasNoRemainingSeats() {
+        Long bookingId = 1L;
+
+        Booking booking = createBooking(bookingId);
+        booking.setSeats(2);
+        booking.setEventId(42L);
+        booking.setEquipment(new ArrayList<>());
+        booking.setParticipants(new ArrayList<>());
+
+        CreateBookingRequest request = createValidRequest();
+        request.setSeats(3);
+        request.setEventId(42L);
+
+        // mock
+        Event event = mock(Event.class);
+        when(event.getCancelled()).thenReturn(false);
+        when(event.getDate()).thenReturn(LocalDate.now().plusDays(1));
+        when(event.getStartTime()).thenReturn(LocalTime.NOON);
+        when(event.getId()).thenReturn(42L);
+        when(event.getMaxParticipants()).thenReturn(10);
+
+        // Repository-Verhalten
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+        when(bookingRepository.loadEventForBooking(42L)).thenReturn(event);
+        when(bookingRepository.countSeatsForEvent(42L)).thenReturn(10);
+
+        assertThrows(EventFullyBookedException.class,
+                () -> bookEventService.updateBooking(bookingId, request));
+    }
 
 }

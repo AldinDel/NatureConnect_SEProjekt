@@ -19,7 +19,7 @@ import static org.mockito.Mockito.*;
 // 2) Genug Lagerbestand - reduceStock + save() wird ausgeführt
 
 @ExtendWith(MockitoExtension.class)
-class BookEventServiceStockTest {
+public class BookEventServiceStockTest {
 
     @Mock
     private EquipmentRepository equipmentRepository;

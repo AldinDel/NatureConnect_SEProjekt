@@ -10,7 +10,7 @@ public class ValidationError {
         _type = type;
         _field = field;
         _message = message;
-        _rejectedValue = null;
+        _rejectedValue = rejectedValue;
     }
 
     public ValidationErrorType get_type() {
