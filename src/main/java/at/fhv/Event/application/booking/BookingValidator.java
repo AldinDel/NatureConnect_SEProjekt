@@ -252,23 +252,23 @@ public class BookingValidator {
         int availableStock = eventEquipment.getEquipment().getStock();
         boolean isRequired = eventEquipment.isRequired();
 
-        if (requestedQuantity <= 0) {
-            errors.add(new ValidationError(
-                    ValidationErrorType.INVALID_INPUT,
-                    prefix + ".quantity",
-                    String.format("%s: quantity must be at least 1", equipmentName),
-                    String.valueOf(requestedQuantity)
-            ));
-            return;
-        }
-
         if (requestedQuantity > availableStock) {
             errors.add(new ValidationError(
                     ValidationErrorType.EQUIPMENT_ERROR,
                     prefix + ".quantity",
-                    String.format("%s: maximum available is %d", equipmentName, availableStock),
-                    String.valueOf(requestedQuantity)
+                    String.valueOf(requestedQuantity), // <-- NEU: Dies ist jetzt rejectedValue (3. Argument)
+                    String.format("%s: maximum available is %d", equipmentName, availableStock) // <-- NEU: Dies ist jetzt message (4. Argument)
             ));
+        }
+
+        if (requestedQuantity <= 0) {
+            errors.add(new ValidationError(
+                    ValidationErrorType.INVALID_INPUT,
+                    prefix + ".quantity",
+                    String.valueOf(requestedQuantity), // <-- NEU: rejectedValue
+                    String.format("%s: quantity must be at least 1", equipmentName) // <-- NEU: message
+            ));
+            return;
         }
 
         if (participantCount > 0 && requestedQuantity > participantCount) {
