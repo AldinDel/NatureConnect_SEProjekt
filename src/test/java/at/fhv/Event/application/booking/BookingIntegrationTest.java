@@ -14,7 +14,7 @@ import at.fhv.Event.infrastructure.persistence.equipment.EventEquipmentEntity;
 import at.fhv.Event.infrastructure.persistence.equipment.EventEquipmentJpaRepository;
 import at.fhv.Event.infrastructure.persistence.event.EventEntity;
 import at.fhv.Event.infrastructure.persistence.event.EventJpaRepository;
-import at.fhv.Event.rest.response.booking.BookingDTO;
+import at.fhv.Event.presentation.rest.response.booking.BookingDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

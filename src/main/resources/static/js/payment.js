@@ -1,3 +1,6 @@
+const MAIN_BASE = "http://10.0.40.198:8080";
+const PAYMENT_BASE = "http://10.0.40.198:9090";
+
 function selectPayment(method, el) {
     document.querySelectorAll('.payment-option').forEach(opt => {
         opt.classList.remove('selected');
@@ -57,7 +60,7 @@ async function openPayment() {
         return;
     }
     try {
-        await fetch(`http://localhost:8080/booking/payment/${bookingId}`, {
+        await fetch(`${MAIN_BASE}/booking/payment/${bookingId}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
@@ -72,7 +75,7 @@ async function openPayment() {
     const token = Math.random().toString(36).substring(2);
 
     const paymentUrl =
-        `http://localhost:9090/payment-service.html` +
+        `${PAYMENT_BASE}/payment-service.html` +
         `?bookingId=${bookingId}` +
         `&amount=${amount}` +
         `&method=${method}` +
