@@ -8,21 +8,21 @@ import java.util.List;
 
 public class Event {
 
-    private final Long id;
-    private final String title;
-    private final String description;
-    private final String organizer;
-    private final String category;
-    private final LocalDate date;
-    private final LocalTime startTime;
-    private final LocalTime endTime;
-    private final String location;
-    private final Difficulty difficulty;
-    private final Integer minParticipants;
-    private final Integer maxParticipants;
-    private final BigDecimal price;
-    private final String imageUrl;
-    private final String audience;
+    private Long id;
+    private String title;
+    private String description;
+    private String organizer;
+    private String category;
+    private LocalDate date;
+    private LocalTime startTime;
+    private LocalTime endTime;
+    private String location;
+    private Difficulty difficulty;
+    private Integer minParticipants;
+    private Integer maxParticipants;
+    private BigDecimal price;
+    private String imageUrl;
+    private EventAudience audience;
 
     private Boolean cancelled = false;
     private List<EventEquipment> eventEquipments;
@@ -41,7 +41,7 @@ public class Event {
                  Integer maxParticipants,
                  BigDecimal price,
                  String imageUrl,
-                 String audience,
+                 EventAudience audience,
                  List<EventEquipment> eventEquipments) {
 
         this.id = id;
@@ -63,34 +63,139 @@ public class Event {
         this.audience = audience;
     }
 
-    public Long getId() { return id; }
-    public String getTitle() { return title; }
-    public String getDescription() { return description; }
-    public String getOrganizer() { return organizer; }
-    public String getCategory() { return category; }
-    public LocalDate getDate() { return date; }
-    public LocalTime getStartTime() { return startTime; }
-    public LocalTime getEndTime() { return endTime; }
-    public String getLocation() { return location; }
-    public Difficulty getDifficulty() { return difficulty; }
-    public Integer getMinParticipants() { return minParticipants; }
-    public Integer getMaxParticipants() { return maxParticipants; }
-    public BigDecimal getPrice() { return price; }
-    public String getImageUrl() { return imageUrl; }
-    public List<EventEquipment> getEventEquipments() { return eventEquipments; }
+    public Long getId() {
+        return id;
+    }
 
-    public Boolean getCancelled() { return cancelled; }
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getOrganizer() {
+        return organizer;
+    }
+
+    public void setOrganizer(String organizer) {
+        this.organizer = organizer;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
+    public LocalTime getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
+    }
+
+    public LocalTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public Difficulty getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(Difficulty difficulty) {
+        this.difficulty = difficulty;
+    }
+
+    public Integer getMinParticipants() {
+        return minParticipants;
+    }
+
+    public void setMinParticipants(Integer minParticipants) {
+        this.minParticipants = minParticipants;
+    }
+
+    public Integer getMaxParticipants() {
+        return maxParticipants;
+    }
+
+    public void setMaxParticipants(Integer maxParticipants) {
+        this.maxParticipants = maxParticipants;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public EventAudience getAudience() {
+        return audience;
+    }
+
+    public void setAudience(EventAudience audience) {
+        this.audience = audience;
+    }
+
+    public Boolean getCancelled() {
+        return cancelled;
+    }
 
     public void setCancelled(Boolean cancelled) {
         this.cancelled = cancelled;
     }
 
-    public Boolean cancelled() {
-        return cancelled;
+    public List<EventEquipment> getEventEquipments() {
+        return eventEquipments;
     }
 
-    public String getAudience() {
-        return audience;
+    public void setEventEquipments(List<EventEquipment> eventEquipments) {
+        this.eventEquipments = eventEquipments;
     }
-
 }

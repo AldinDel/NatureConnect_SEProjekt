@@ -11,6 +11,10 @@ const discountBtn = document.getElementById("applyDiscountBtn");
 const discountMessage = document.getElementById("discountMessage");
 const removeDiscountBtn = document.getElementById("removeDiscountBtn");
 const voucherCodeField = document.getElementById("voucherCodeField");
+const discountRow = document.getElementById("summaryDiscountRow");
+const discountText = document.getElementById("summaryDiscountText");
+const discountAmount = document.getElementById("summaryDiscountAmount");
+
 
 if (removeDiscountBtn) {
     removeDiscountBtn.addEventListener("click", () => {
@@ -23,6 +27,7 @@ if (removeDiscountBtn) {
         discountBtn.classList.remove("btn-disabled");
         discountMessage.classList.add("hidden");
         removeDiscountBtn.classList.add("hidden");
+        discountRow.style.display = "none";
         updatePriceSummary();
     });
 }
@@ -174,6 +179,18 @@ async function loadEquipmentForEvent(eventId) {
     }
 }
 
+
+
+function updateDiscountRow(code, amount) {
+    discountText.innerText = `Discount Code "${code}"`;
+    discountAmount.innerText = `-${amount.toFixed(2)}€`;
+    discountRow.classList.remove("hidden");
+}
+
+function hideDiscountRow() {
+    discountRow.classList.add("hidden");
+}
+
 function initEquipmentListenersForEdit() {
     document.querySelectorAll('#equipmentContainer .checkbox-label').forEach(label => {
         const cb = label.querySelector('input[type="checkbox"][name^="equipment"]');
@@ -244,12 +261,22 @@ function updatePriceSummary() {
     });
 
     const subtotal = participantsCost + addonsCost;
-    const discountAmount = subtotal * (currentDiscount / 100);
-    const total = subtotal - discountAmount;
+    const discountValue = subtotal * (currentDiscount / 100);
+    const total = subtotal - discountValue;
 
-    document.getElementById("summarySeats").textContent = participants;
+    document.getElementById("summaryParticipantsPrice").textContent = `${participants} × ${BASE_PRICE.toFixed(2)} €`;
     document.getElementById("summaryTotal").textContent = `${total.toFixed(2)} €`;
+
+
+    if (currentDiscount > 0) {
+        discountText.innerText = `Discount Code "${voucherCodeField.value}"`;
+        discountAmount.innerText = `-${discountValue.toFixed(2)} €`;
+        discountRow.style.display = "flex";
+    } else {
+        discountRow.style.display = "none";
+    }
 }
+
 
 if (discountBtn) {
     discountBtn.addEventListener("click", async () => {

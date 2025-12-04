@@ -203,7 +203,7 @@
                 </ul>
 
                 <div class="footer">
-                    <span class="price" th:text="'€ ' + ${#numbers.formatDecimal(event.price, 1, 2)}"></span>
+                    <span class="price" style="color: black;" th:text="'€ ' + ${#numbers.formatDecimal(event.price, 1, 2)}"></span>
                     <div class="buttons">
                         <a th:href="@{/events/{id}(id=${event.id})}" class="view-btn">View Details</a>
 
