@@ -328,4 +328,34 @@ body > .hero-box {
 .equipment-row {
     padding: 8px 0;
 }
+.equipment-row input,
+.equipment-row {
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.equipment-item label {
+    color: #000 !important;
+}
+
+.equipment-row label,
+.equipment-row span,
+.equipment-row {
+    color: #111827 !important;   /* Schönes dunkles Grau */
+    opacity: 1 !important;       /* Hebt evtl. ausgegraut auf */
+}
+
+/* Checkbox selbst klar sichtbar */
+.equipment-row input[type="checkbox"] {
+    opacity: 1 !important;
+    filter: none !important;
+}
+
+.equipment-row {
+    background: transparent !important;
+}
+
+.equipment-row * {
+    color: #111827 !important;
+}
 

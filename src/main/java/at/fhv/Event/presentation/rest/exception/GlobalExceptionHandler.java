@@ -15,9 +15,6 @@ import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
-
-    // booking exceptions
-
     @ExceptionHandler(BookingValidationException.class)
     public ResponseEntity<ErrorResponse> handleValidationErrors(
             BookingValidationException exception,
@@ -153,8 +150,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED).body(response);
     }
 
-    // event exceptions
-
     @ExceptionHandler(EventValidationException.class)
     public ResponseEntity<ErrorResponse> handleEventValidationErrors(
             EventValidationException exception,
@@ -200,7 +195,6 @@ public class GlobalExceptionHandler {
                 extractPath(request),
                 details
         );
-
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
@@ -221,7 +215,6 @@ public class GlobalExceptionHandler {
                 extractPath(request),
                 details
         );
-
         return ResponseEntity.badRequest().body(response);
     }
 
@@ -246,7 +239,44 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(response);
     }
 
-    // generic exception
+    @ExceptionHandler(EquipmentNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEquipmentNotFound(
+            EquipmentNotFoundException exception,
+            WebRequest request) {
+
+        Map<String, Object> details = new HashMap<>();
+        details.put("equipmentId", exception.getEquipmentId());
+
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                "Equipment Not Found",
+                exception.getMessage(),
+                extractPath(request),
+                details
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(
+            IllegalArgumentException exception,
+            WebRequest request) {
+
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Invalid Request",
+                exception.getMessage(),
+                extractPath(request),
+                null
+        );
+
+        return ResponseEntity.badRequest().body(response);
+    }
+
+
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnexpectedError(
@@ -264,8 +294,6 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
-
-    // helper methods
 
     private String extractPath(WebRequest request) {
         return request.getDescription(false).replace("uri=", "");

@@ -2,7 +2,7 @@ package at.fhv.Event.application.equipment;
 
 import at.fhv.Event.domain.model.equipment.Equipment;
 import at.fhv.Event.domain.model.equipment.EquipmentRepository;
-import at.fhv.Event.presentation.rest.mapper.EquipmentResponseMapper;
+import at.fhv.Event.presentation.rest.response.equipment.EquipmentResponseMapper;
 import at.fhv.Event.presentation.rest.response.equipment.EquipmentDTO;
 import org.springframework.stereotype.Service;
 

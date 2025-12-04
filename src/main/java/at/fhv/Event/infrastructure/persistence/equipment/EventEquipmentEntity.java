@@ -8,7 +8,7 @@ import jakarta.persistence.*;
 public class EventEquipmentEntity {
 
     @EmbeddedId
-    private EventEquipmentId id;
+    private EventEquipmentId id = new EventEquipmentId();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("eventId")
@@ -36,7 +36,23 @@ public class EventEquipmentEntity {
     public EquipmentEntity getEquipment() { return equipment; }
     public boolean isRequired() { return required; }
 
-    public void setEvent(EventEntity event) { this.event = event; }
-    public void setEquipment(EquipmentEntity equipment) { this.equipment = equipment; }
-    public void setRequired(boolean required) { this.required = required; }
+    public void setId(EventEquipmentId id) {
+        this.id = id;
+    }
+
+    public void setEvent(EventEntity event) {
+        this.event = event;
+        if (this.id == null) this.id = new EventEquipmentId();
+        this.id.setEventId(event.getId());
+    }
+
+    public void setEquipment(EquipmentEntity equipment) {
+        this.equipment = equipment;
+        if (this.id == null) this.id = new EventEquipmentId();
+        this.id.setEquipmentId(equipment.getId());
+    }
+
+    public void setRequired(boolean required) {
+        this.required = required;
+    }
 }
