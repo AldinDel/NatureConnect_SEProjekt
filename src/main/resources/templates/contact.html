@@ -3,20 +3,29 @@
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
-    <title>About Us</title>
-    <link rel="stylesheet" th:href="@{/css/navbar.css}" href="/css/navbar.css">
-    <link rel="stylesheet" th:href="@{/css/footer.css}" href="/css/footer.css">
-    <link rel="stylesheet" th:href="@{/css/contact.css}" href="/css/style.css">
-    <link rel="icon" type="image/png" th:href="@{/images/NatureConnectLogo.png}" href="/images/NatureConnectLogo.png">
+    <title>Contact us</title>
+
+    <!-- Globales CSS - immer notwendig -->
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="icon" type="image/png" th:href="@{/images/NatureConnectLogo.png}">
+
+    <!-- Spezifisches CSS nur für Contact -->
+    <link rel="stylesheet" th:href="@{/css/contact.css}">
 </head>
+
 <body>
 <div th:replace="~{events/fragments/navbar :: navbar}"></div>
 <div class="container">
+    <div class="info-text"><h2>Have something on your mind and want to tell us?</h2> <br>
+        send us a quick Email so we can check out your query and help your needs</div>
     <label for="email">Enter your E-Mail</label>
     <input type="email" name="email" id="email" placeholder="Email Address">
     <label for="info">Subject</label>
-    <input type="text" name="info" id="info" placeholder="What do you want to tell us?">
+    <textarea name="info" id="info" cols="30" rows="10"></textarea>
 
+    <input type="button" value="Send" id="send">
 </div>
 <div th:replace="~{events/fragments/footer :: footer}"></div>
 </body>

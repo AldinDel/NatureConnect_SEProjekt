@@ -1,5 +1,44 @@
-body{
-    background: white;
-    display: flex;
+body {
+    margin: 0;
+    padding: 0;
+    font-family: "Inter", "Segoe UI", Roboto, sans-serif;
+    color: black;
+}
 
+.abouttext{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.compinf{
+    text-align: center;
+    width: 800px;
+    margin-bottom: 50px;
+}
+
+h2{
+    border-bottom: lightgray 1px solid;
+}
+.aiminf{
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.aiminf ul{
+    text-align: left;
+}
+
+.offinf{
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.offinf ul{
+    text-align: left;
 }
