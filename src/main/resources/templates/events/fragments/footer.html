@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+</head>
+<body>
+<th:block th:fragment="navbar">
+    <footer>
+        <nav class="footer-nav" id="footer">
+            <ul class="footer-nav">
+                <li><a><img th:src="@{/images/NatureConnectLogo.png}" src="/images/NatureConnectLogo.png" alt="Logo" ></a></li>
+                <li><a th:href="@{/}" href="/"  style="text-decoration: none">Home</a></li>
+                <li><a th:href="@{/events}" href="/events" style="text-decoration: none">Events</a></li>
+                <li><a th:href="@{/events/about}" href="/about" style="text-decoration: none">About Us</a></li>
+                <li><a th:href="@{/events/contact}" href="/contact" style="text-decoration: none">Contact Us</a></li>
+            </ul>
+        </nav>
+    </footer>
+</th:block>
+</body>
+</html>

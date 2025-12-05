@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <title>About Us</title>
+    <link rel="stylesheet" th:href="@{/css/navbar.css}" href="/css/navbar.css">
+    <link rel="stylesheet" th:href="@{/css/footer.css}" href="/css/footer.css">
+    <link rel="stylesheet" th:href="@{/css/contact.css}" href="/css/style.css">
+    <link rel="icon" type="image/png" th:href="@{/images/NatureConnectLogo.png}" href="/images/NatureConnectLogo.png">
+</head>
+<body>
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
+<div class="container">
+    <label for="email">Enter your E-Mail</label>
+    <input type="email" name="email" id="email" placeholder="Email Address">
+    <label for="info">Subject</label>
+    <input type="text" name="info" id="info" placeholder="What do you want to tell us?">
+
+</div>
+<div th:replace="~{events/fragments/footer :: footer}"></div>
+</body>
+</html>

@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>NatureConnect</title>
     <link rel="stylesheet" th:href="@{/css/navbar.css}" href="/css/navbar.css">
+    <link rel="stylesheet" th:href="@{/css/footer.css}" href="/css/footer.css">
     <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
     <link rel="icon" type="image/png" th:href="@{/images/NatureConnectLogo.png}" href="/images/NatureConnectLogo.png">
 </head>
@@ -72,5 +73,7 @@
     });
 </script>
 
+<!-- Footer einbinden -->
+<div th:replace="~{events/fragments/footer :: footer}"></div>
 </body>
 </html>
