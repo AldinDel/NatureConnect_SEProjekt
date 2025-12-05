@@ -50,7 +50,12 @@ public class BookingController {
     }
 
     @GetMapping("/{eventId}")
-    public String showBookingPage(@PathVariable Long eventId, Model model, RedirectAttributes redirectAttributes) {
+    public String showBookingPage(@PathVariable Long eventId, Model model, RedirectAttributes redirectAttributes,Principal principal) {
+
+        if (principal == null) {
+            return "redirect:/booking/guest-info?eventId=" + eventId;
+        }
+
         EventDetailDTO event = _eventDetailsService.getEventDetails(eventId);
         int availableSeats = _bookEventService.getAvailableSeats(eventId);
         if (isEventUnavailable(event)) {
@@ -148,9 +153,12 @@ public class BookingController {
     }
 
     @GetMapping("/guest-info")
-    public String guestInfoPage() {
+    public String guestInfoPage(@RequestParam Long eventId, Model model) {
+        model.addAttribute("eventId", eventId);
         return "booking/guest-info";
     }
+
+
 
 
     private boolean isEventUnavailable(EventDetailDTO event) {

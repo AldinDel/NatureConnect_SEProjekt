@@ -53,36 +53,47 @@
                     <li sec:authorize="isAuthenticated()" class="dropdown">
                         <a href="#" class="dropbtn profile-link">
                             <span>👤</span>
-                            <span th:text="'Willkommen, ' + ${currentUserName != null ? currentUserName : #authentication.name}">User</span>
+                            <span th:text="'Welcome, ' + ${currentUserName != null ? currentUserName : #authentication.name}">User</span>
                             <span> ▾</span>
                         </a>
+
                         <ul class="dropdown-content">
+
                             <li class="badge-item" sec:authorize="hasRole('ADMIN')">
                                 <div class="badge-card badge-gold">
-                                    <span class="badge-role">Backend</span> <span class="badge-sub">Admin</span>
+                                    <span class="badge-role">Backend</span>
+                                    <span class="badge-sub">Admin</span>
                                 </div>
                             </li>
+
+
                             <li class="badge-item" sec:authorize="hasRole('FRONT')">
                                 <div class="badge-card badge-blue">
                                     <span class="badge-role">Frontend</span>
                                 </div>
                             </li>
+
                             <li class="badge-item" sec:authorize="hasRole('ORGANIZER')">
                                 <div class="badge-card badge-black">
                                     <span class="badge-role">Organizer</span>
                                 </div>
                             </li>
-                            <li class="badge-item" sec:authorize="hasRole('CUSTOMER')">
+
+
+                            <li class="badge-item" sec:authorize="hasRole('CUSTOMER') and !hasRole('ORGANIZER')">
                                 <div class="badge-card badge-green">
                                     <span class="badge-role">Customer</span>
                                 </div>
                             </li>
+
+
 
                             <li>
                                 <form th:action="@{/logout}" method="post" style="margin:0">
                                     <button type="submit" class="logout-btn">Abmelden</button>
                                 </form>
                             </li>
+
                         </ul>
                     </li>
                 </ul>
