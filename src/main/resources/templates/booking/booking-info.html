@@ -16,7 +16,8 @@
         <h1>Bookings</h1>
         <p>Please log in to view your bookings.</p>
 
-        <a th:href="@{/login}" class="login-btn">Log In</a>
+        <a th:href="@{/login(redirect='/bookings')}" class="login-btn">Log In</a>
+
     </div>
 </div>
 

@@ -217,6 +217,8 @@
         </div>
 
         <form th:action="@{/login}" method="post">
+            <input type="hidden" name="redirect" th:value="${param.redirect}">
+
 
             <div class="form-group">
                 <label for="email">Email address</label>

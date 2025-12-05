@@ -10,7 +10,9 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
@@ -36,10 +38,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/uploads/**").permitAll()
                         .requestMatchers("/", "/events", "/events/search", "/events/*", "/register", "/login").permitAll()
-                        .requestMatchers("/bookings/all").hasAnyRole("ADMIN", "FRONT", "ORGANIZER")
-                        .requestMatchers("/booking").permitAll()
+                        .requestMatchers("/bookings").permitAll()
                         .requestMatchers("/booking/guest-info/**").permitAll()
                         .requestMatchers("/booking/*").permitAll()
+                        .requestMatchers("/bookings/all").hasAnyRole("ADMIN", "FRONT", "ORGANIZER")
                         .requestMatchers("/events/new", "/events/backoffice").hasAnyRole("ADMIN", "ORGANIZER")
                         .requestMatchers("/api/bookings").permitAll()
                         .requestMatchers("/events/*/edit", "/events/*/cancel").hasAnyRole("ADMIN", "FRONT", "ORGANIZER")
@@ -50,14 +52,37 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/", true)
+                        .successHandler((req, res, auth) -> {
+
+                            String redirect = req.getParameter("redirect");
+
+                            if (redirect != null && !redirect.isBlank()) {
+                                res.sendRedirect(redirect);
+                                return;
+                            }
+
+                            var saved = (SavedRequest) req.getSession()
+                                    .getAttribute("SPRING_SECURITY_SAVED_REQUEST");
+
+                            if (saved != null) {
+                                res.sendRedirect(saved.getRedirectUrl());
+                                return;
+                            }
+
+                            res.sendRedirect("/");
+                        })
+
                         .permitAll()
                 )
+
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 );
+
+
+
 
         return http.build();
     }
@@ -74,4 +99,6 @@ public class SecurityConfig {
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
+
+
 }
