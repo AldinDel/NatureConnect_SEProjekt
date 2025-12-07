@@ -394,5 +394,12 @@ public class BookingController {
         return req;
     }
 
+    @PostMapping
+    public String cancelBooking(@PathVariable("id") long bookingId,
+                                @RequestParam("reason") String reason,
+                                RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("message", "Booking was cancelled.");
+        return "redirect:/bookings";
+    }
 
 }

@@ -363,4 +363,11 @@ public class BookEventService {
         booking.setStatus(BookingStatus.PAYMENT_FAILED);
         _bookingRepository.save(booking);
     }
+
+    @Transactional
+    public void cancelBooking(Long bookingId, String reason) {
+        Booking booking = _bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new BookingNotFoundException(bookingId));
+        booking.cancel(reason);
+    }
 }

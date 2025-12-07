@@ -97,19 +97,63 @@
 
                         <!-- CANCEL -->
                         <th:block th:unless="${event.cancelled}">
-                            <form sec:authorize="hasRole('ADMIN')"
-                                  th:action="@{/events/{id}/cancel(id=${event.id})}"
-                                  method="post" style="display:inline;">
-                                <button type="submit" class="cancel-btn" onclick="return confirm('Cancel event?')">Cancel</button>
-                            </form>
+                            <button sec:authorize="hasRole('ADMIN')"
+                                    type="button"
+                                    class="cancel-btn"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#cancelBookingModal"
+                                    th:attr="data-booking-id=${event.id}">
+                                Cancel
+                            </button>
 
-                            <form sec:authorize="hasRole('ORGANIZER')"
-                                  th:if="${currentUserName != null and event.organizer != null and #strings.equalsIgnoreCase(currentUserName, event.organizer)}"
-                                  th:action="@{/events/{id}/cancel(id=${event.id})}"
-                                  method="post" style="display:inline;">
-                                <button type="submit" class="cancel-btn" onclick="return confirm('Cancel event?')">Cancel</button>
-                            </form>
+                            <button sec:authorize="hasRole('ORGANIZER')"
+                                    th:if="${currentUserName != null and event.organizer != null and #strings.equalsIgnoreCase(currentUserName, event.organizer)}"
+                                    type="button"
+                                    class="cancel-btn"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#cancelBookingModal"
+                                    th:attr="data-booking-id=${event.id}">
+                                Cancel
+                            </button>
                         </th:block>
+                        <div class="modal fade" id="cancelBookingModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <form id="cancelBookingForm" method="post">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Cancel Booking</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                        </div>
+
+                                        <div class="modal-body">
+                                            <p>Please enter the reason for cancellation:</p>
+                                            <textarea name="reason" class="form-control" required></textarea>
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" class="cancel-btn">Cancel</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function () {
+                                const modal = document.getElementById('cancelBookingModal');
+                                const form = document.getElementById('cancelBookingForm');
+
+                                modal.addEventListener('show.bs.modal', function (event) {
+                                    const button = event.relatedTarget;
+                                    const bookingId = button.getAttribute('data-booking-id');
+
+                                    // Insert your correct route here:
+                                    form.action = `/bookings/${bookingId}/cancel`;
+                                });
+                            });
+                        </script>
+
 
                     </div>
                 </div>
