@@ -1,0 +1,27 @@
+/* Footer Elemente*/
+.footer-nav{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    list-style: none;
+    background-color: #0b2545;
+}
+
+.footer-nav li {
+    margin: 0 10px;
+}
+
+.footer-nav li a {
+    color: white;
+}
+
+.footer-nav li a:hover {
+    color: #a3c9f1;
+}
+
+.footer-nav img{
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
