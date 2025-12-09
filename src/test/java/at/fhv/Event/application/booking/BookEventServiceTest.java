@@ -221,7 +221,7 @@ class BookEventServiceTest {
         when(bookingRepository.loadEventForBooking(42L)).thenReturn(mockEvent);
 
         // Seats / Capacity
-        when(bookingRepository.countOccupiedSeatsForEvent(42L)).thenReturn(0);
+        lenient().when(bookingRepository.countOccupiedSeatsForEvent(42L)).thenReturn(0);
 
         // Equipment leer
         when(equipmentRepository.findByIds(List.of())).thenReturn(Map.of());
