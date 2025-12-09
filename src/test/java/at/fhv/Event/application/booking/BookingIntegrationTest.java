@@ -222,14 +222,12 @@ public class BookingIntegrationTest {
         initialBooking.setBookerFirstName("First");
         initialBooking.setBookerLastName("Booker");
         initialBooking.setBookerEmail("first@test.at");
-        initialBooking.setSeats(2);
+        initialBooking.setSeats(1);
         initialBooking.setAudience(AudienceType.INDIVIDUAL);
-        initialBooking.setTotalPrice(200.0);
-        initialBooking.setStatus(BookingStatus.CONFIRMED);
+        initialBooking.setTotalPrice(100.0);
+        initialBooking.setStatus(BookingStatus.PAID);
         initialBooking.setCreatedAt(java.time.Instant.now());
         initialBooking.setPaymentStatus(at.fhv.Event.domain.model.payment.PaymentStatus.PAID);
-
-        bookingJpaRepository.save(initialBooking);
 
         bookingJpaRepository.save(initialBooking);
 
@@ -246,7 +244,7 @@ public class BookingIntegrationTest {
         request.setSeats(1);
         request.setAudience(AudienceType.INDIVIDUAL);
         request.setEquipment(Map.of());
-
+        request.setParticipants(List.of());
 
         // WHEN + THEN: Der Service sollte EventFullyBookedException werfen
         EventFullyBookedException exception = assertThrows(

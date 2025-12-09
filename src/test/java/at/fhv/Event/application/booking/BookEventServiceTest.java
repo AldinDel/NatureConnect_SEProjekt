@@ -214,14 +214,15 @@ class BookEventServiceTest {
         when(mockEvent.getDate()).thenReturn(java.time.LocalDate.now().plusDays(1));
         when(mockEvent.getStartTime()).thenReturn(java.time.LocalTime.NOON);
         when(mockEvent.getId()).thenReturn(42L);
+        when(mockEvent.getMaxParticipants()).thenReturn(10);
+        when(mockEvent.getMinParticipants()).thenReturn(0);
 
         // Event wird geladen
         when(bookingRepository.loadEventForBooking(42L)).thenReturn(mockEvent);
 
         // Seats / Capacity
-        when(bookingRepository.countSeatsForEvent(42L)).thenReturn(0);
-        when(mockEvent.getMaxParticipants()).thenReturn(10);
-        when(mockEvent.getMinParticipants()).thenReturn(0);
+        when(bookingRepository.countOccupiedSeatsForEvent(42L)).thenReturn(0);
+        when(equipmentRepository.findByIds(List.of())).thenReturn(Map.of());
 
         // Equipment leer
         when(equipmentRepository.findByIds(List.of())).thenReturn(Map.of());
@@ -230,8 +231,8 @@ class BookEventServiceTest {
         ValidationError error = new ValidationError(
                 ValidationErrorType.INVALID_INPUT,
                 "seats",
-                2,
-                "Seats invalid"
+                "Seats invalid",
+                "2"
         );
 
         when(bookingValidator.validate(
@@ -350,7 +351,7 @@ class BookEventServiceTest {
         when(mockEvent.getMinParticipants()).thenReturn(0);
 
         // bereits 10 gebucht → voll
-        when(bookingRepository.countSeatsForEvent(42L)).thenReturn(10);
+        when(bookingRepository.countOccupiedSeatsForEvent(42L)).thenReturn(10);
 
         // Event wird geladen
         when(bookingRepository.loadEventForBooking(request.getEventId()))
@@ -392,7 +393,7 @@ class BookEventServiceTest {
         when(bookingRepository.loadEventForBooking(42L)).thenReturn(mockEvent);
 
         // 2 Plätze insgesamt gebucht, alte Buchung hatte 2 Seats → alreadyBookedExcludingThis = 0
-        when(bookingRepository.countSeatsForEvent(42L)).thenReturn(2);
+        when(bookingRepository.countOccupiedSeatsForEvent(42L)).thenReturn(2);
 
         // keine Ausrüstung → leere Map
         request.setEquipment(Map.of());
@@ -415,7 +416,7 @@ class BookEventServiceTest {
         assertEquals(3, existingBooking.getSeats());
 
         verify(bookingRepository).findById(bookingId);
-        verify(bookingRepository, times(2)).countSeatsForEvent(42L); // einmal in checkEventCapacityForUpdate, einmal für validate
+        verify(bookingRepository, times(2)).countOccupiedSeatsForEvent(42L); // einmal in checkEventCapacityForUpdate, einmal für validate
         verify(bookingRepository).save(existingBooking);
         verify(bookingMapperDTO).toDTO(existingBooking);
     }
@@ -461,15 +462,15 @@ class BookEventServiceTest {
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(existingBooking));
         when(bookingRepository.loadEventForBooking(42L)).thenReturn(mockEvent);
 
-        when(bookingRepository.countSeatsForEvent(42L)).thenReturn(2);
+        when(bookingRepository.countOccupiedSeatsForEvent(42L)).thenReturn(2);
 
         request.setEquipment(Map.of());
 
         ValidationError error = new ValidationError(
                 ValidationErrorType.INVALID_INPUT,
                 "seats",
-                3,
-                "Seats invalid"
+                "Seats invalid",
+                "3"
         );
         when(bookingValidator.validate(eq(request), eq(mockEvent), eq(Map.of()), eq(0)))
                 .thenReturn(List.of(error));
@@ -503,11 +504,12 @@ class BookEventServiceTest {
         when(event.getStartTime()).thenReturn(LocalTime.NOON);
         when(event.getId()).thenReturn(42L);
         when(event.getMaxParticipants()).thenReturn(10);
+        when(event.getMinParticipants()).thenReturn(0);
 
         // Repository-Verhalten
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
         when(bookingRepository.loadEventForBooking(42L)).thenReturn(event);
-        when(bookingRepository.countSeatsForEvent(42L)).thenReturn(10);
+        when(bookingRepository.countOccupiedSeatsForEvent(42L)).thenReturn(10);
 
         assertThrows(EventFullyBookedException.class,
                 () -> bookEventService.updateBooking(bookingId, request));
