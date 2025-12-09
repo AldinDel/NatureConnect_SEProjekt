@@ -1,5 +1,5 @@
 trigger:
-  - main
+  - master
 
 pool:
   name: fhv-linux-pool
