@@ -1,22 +1,39 @@
 # Gradle
 # Build your Java project and run tests with Gradle using a Gradle wrapper script.
-# Add steps that analyze code, save build artifacts, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/java
 
 trigger:
 - master
 
 pool:
-  vmImage: ubuntu-latest
+  name: fhv-linux-pool
 
 steps:
-- task: Gradle@3
+- checkout: self
+
+- script: |
+    sudo apt-get update
+    sudo apt-get install -y openjdk-17-jdk
+    java -version
+  displayName: 'Install Java 17'
+
+- script: |
+    chmod +x ./gradlew
+    ./gradlew build --no-daemon
+  displayName: 'Build & Test with Gradle'
+  env:
+    JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+
+- task: PublishTestResults@2
+  condition: always()
   inputs:
-    gradleWrapperFile: 'gradlew'  # Path to your Gradle wrapper
-    tasks: 'build'  # Replace with the tasks you want to run
-    # options: '-Xmx3072m' 
-    publishJUnitResults: true
-    testResultsFiles: '**/TEST-*.xml'  # Updated pattern for test result files
-    javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '17'  # Replace with your JDK version
-    jdkArchitectureOption: 'x64'
+    testResultsFormat: 'JUnit'
+    testResultsFiles: '**/build/test-results/test/*.xml'
+    failTaskOnFailedTests: true
+    testRunTitle: 'Test Results'
+
+- task: PublishCodeCoverageResults@1
+  condition: always()
+  inputs:
+    codeCoverageTool: 'JaCoCo'
+    summaryFileLocation: '**/build/reports/jacoco/test/*.xml'
+    reportDirectory: '**/build/reports/jacoco/test/html'
