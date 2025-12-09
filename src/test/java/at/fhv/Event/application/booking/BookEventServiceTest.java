@@ -221,10 +221,7 @@ class BookEventServiceTest {
         when(bookingRepository.loadEventForBooking(42L)).thenReturn(mockEvent);
 
         // Seats / Capacity
-        lenient().when(bookingRepository.countOccupiedSeatsForEvent(42L)).thenReturn(0);
-
-        // Equipment leer
-        when(equipmentRepository.findByIds(List.of())).thenReturn(Map.of());
+        when(bookingRepository.countOccupiedSeatsForEvent(42L)).thenReturn(0);
 
         // Validator liefert ECHTEN ValidationError
         ValidationError error = new ValidationError(
