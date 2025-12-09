@@ -10,24 +10,18 @@ pool:
 steps:
 - checkout: self
 
-- task: JavaToolInstaller@0
-  displayName: 'Use Java 17'
-  inputs:
-    versionSpec: '17'
-    jdkArchitectureOption: 'x64'
-    jdkSourceOption: 'PreInstalled'
+- script: |
+    sudo apt-get update
+    sudo apt-get install -y openjdk-17-jdk
+    java -version
+  displayName: 'Install Java 17'
 
-- task: Gradle@3
+- script: |
+    chmod +x ./gradlew
+    ./gradlew build --no-daemon
   displayName: 'Build & Test with Gradle'
-  inputs:
-    gradleWrapperFile: 'gradlew'
-    tasks: 'build'
-    publishJUnitResults: true
-    testResultsFiles: '**/build/test-results/test/*.xml'
-    javaHomeOption: 'JDKVersion'
-    jdkVersionOption: '1.17'
-    gradleOptions: '-Xmx3072m'
-    sonarQubeRunAnalysis: false
+  env:
+    JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
 
 - task: PublishTestResults@2
   condition: always()
