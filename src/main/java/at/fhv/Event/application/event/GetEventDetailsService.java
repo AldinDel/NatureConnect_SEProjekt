@@ -1,39 +1,32 @@
 package at.fhv.Event.application.event;
 
+import at.fhv.Event.domain.model.equipment.EquipmentRepository;
+import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.domain.model.event.EventRepository;
-import at.fhv.Event.infrastructure.persistence.equipment.EquipmentJpaRepository;
-import at.fhv.Event.rest.response.event.EventDetailDTO;
+import at.fhv.Event.domain.model.exception.EventNotFoundException;
+import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
 import org.springframework.stereotype.Service;
 
 @Service
 public class GetEventDetailsService {
+    private final EventRepository _eventRepository;
+    private final EventMapperDTO _mapper;
+    private final EquipmentRepository _equipmentRepository;
 
-    private final EventRepository eventRepository;
-    private final EventMapperDTO mapper;
-    private final EquipmentJpaRepository equipmentJpa;
-
-    public GetEventDetailsService(EventRepository eventRepository, EventMapperDTO mapper,
-                                  EquipmentJpaRepository equipmentJpa) {
-        this.eventRepository = eventRepository;
-        this.mapper = mapper;
-        this.equipmentJpa = equipmentJpa;
+    public GetEventDetailsService(EventRepository eventRepository, EventMapperDTO mapper, EquipmentRepository equipmentRepository) {
+        _eventRepository = eventRepository;
+        _mapper = mapper;
+        _equipmentRepository = equipmentRepository;
     }
 
     public EventDetailDTO getEventDetails(Long eventId) {
-        var eventOptional = eventRepository.findByIdWithEquipments(eventId);
-
-        if (eventOptional.isEmpty()) {
-            throw new RuntimeException("Event not found: " + eventId);
+        Event event = _eventRepository.findByIdWithEquipments(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
+        for (var eventEquipment : event.getEventEquipments()) {
+            Long equipmentId = eventEquipment.getEquipment().getId();
+            _equipmentRepository.findById(equipmentId).ifPresent(equipment -> {
+                eventEquipment.getEquipment().setStock(equipment.getStock());
+            });
         }
-
-        var event = eventOptional.get();
-
-        event.getEventEquipments().forEach(ee -> {
-            var fresh = equipmentJpa.findById(ee.getEquipment().getId()).orElseThrow();
-            ee.getEquipment().setStock(fresh.getStock());
-        });
-
-        return mapper.toDetailDTO(event);
+        return _mapper.toDetailDTO(event);
     }
-
 }

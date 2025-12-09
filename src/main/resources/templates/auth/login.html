@@ -1,12 +1,17 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - NatureConnect</title>
+
+    <link rel="stylesheet" th:href="@{/css/navbar.css}" href="/css/navbar.css">
     <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
     <link rel="icon" type="image/png" th:href="@{/images/NatureConnectLogo.png}" href="/images/NatureConnectLogo.png">
+
     <style>
+
         * {
             margin: 0;
             padding: 0;
@@ -15,13 +20,12 @@
 
         body {
             font-family: "Inter", "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(135deg, #0b2545 0%, #ffffff 100%);
+            background: linear-gradient(140deg, #0b2545 0%, #ffffff 100%);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
 
-        /* LOGIN CONTAINER */
         .main-content {
             flex: 1;
             display: flex;
@@ -32,39 +36,40 @@
 
         .login-container {
             background: white;
-            border-radius: 12px;
-            padding: 40px;
+            border-radius: 20px;
+            padding: 48px 42px;
             width: 100%;
-            max-width: 420px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 440px;
+            box-shadow: 0px 35px 85px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .login-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 32px;
         }
 
         .login-header h1 {
-            color: #1a1a1a;
-            font-size: 28px;
-            font-weight: 600;
-            margin-bottom: 8px;
+            color: #0b2545;
+            font-size: 30px;
+            font-weight: 700;
+            margin-bottom: 6px;
         }
 
         .login-header p {
-            color: #666;
+            color: #555;
             font-size: 14px;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 22px;
         }
 
         .form-group label {
             display: block;
-            color: #333;
-            font-size: 13px;
-            font-weight: 500;
+            color: #222;
+            font-size: 14px;
+            font-weight: 600;
             margin-bottom: 8px;
         }
 
@@ -72,61 +77,85 @@
             position: relative;
         }
 
+        /* ⬅️ TEXT WEITER LINKS */
         .input-wrapper input {
             width: 100%;
-            padding: 12px 40px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 14px;
-            background: #f8f9fa;
+            padding: 14px 18px; /* statt 45px */
+            border: 1px solid #d9d9d9;
+            border-radius: 10px;
+            font-size: 15px;
+            background: #f3f5f7;
+            transition: all 0.2s ease;
         }
 
         .input-wrapper input:focus {
+            background: #fff;
+            border-color: #0b2545;
+            box-shadow: 0 0 0 3px rgba(11, 37, 69, 0.15);
             outline: none;
-            border-color: #2a5298;
-            background: white;
-            box-shadow: 0 0 0 3px rgba(42,82,152,0.1);
         }
 
-        .input-icon {
-            position: absolute;
-            left: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #999;
-            font-size: 16px;
-        }
-
+        /* Passwort-Auge Icon Button */
         .password-toggle {
             position: absolute;
-            right: 12px;
+            right: 14px;
             top: 50%;
             transform: translateY(-50%);
             background: none;
             border: none;
             cursor: pointer;
-            color: #999;
-            font-size: 16px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .password-toggle svg {
+            width: 22px;
+            height: 22px;
+            stroke: #666;
+            transition: 0.2s ease;
+        }
+
+        .password-toggle:hover svg {
+            stroke: #0b2545;
+        }
+
+        /* REMOVE Browser Autofill Icons */
+        input::-webkit-contacts-auto-fill-button,
+        input::-webkit-credentials-auto-fill-button,
+        input::-webkit-textfield-decoration-container {
+            display: none !important;
+        }
+
+        input[type="password"]::-ms-reveal,
+        input[type="password"]::-ms-clear {
+            display: none !important;
         }
 
         .form-options {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
+            margin-bottom: 28px;
             font-size: 13px;
         }
 
         .checkbox-wrapper {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+        }
+
+        input[type="checkbox"] {
+            width: 15px;
+            height: 15px;
+            accent-color: #0b2545;
         }
 
         .forgot-link {
-            color: #2a5298;
+            color: #0b2545;
+            font-weight: 600;
             text-decoration: none;
-            font-weight: 500;
         }
 
         .btn-submit {
@@ -135,143 +164,65 @@
             background: #0b2545;
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 15px;
+            border-radius: 10px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
         }
 
-        .btn-submit:hover {
+        .btn-submit:hover{
             background: #3b3767;
-            transform: translateY(-1px);
         }
 
         .register-link {
             text-align: center;
-            margin-top: 24px;
+            margin-top: 26px;
             font-size: 14px;
-            color: #666;
+            color: #555;
         }
 
         .register-link a {
-            color: #2a5298;
+            color: #0b2545;
+            font-weight: 700;
             text-decoration: none;
-            font-weight: 600;
         }
 
         .footer-text {
             text-align: center;
-            padding: 20px;
+            padding: 22px;
             font-size: 12px;
-            color: rgba(255,255,255,0.8);
+            color: rgba(255, 255, 255, 0.9);
         }
 
-        .footer-text a {
-            color: rgba(255,255,255,0.9);
-            text-decoration: underline;
-        }
-
-        .alert {
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
+        .checkbox-wrapper label {
+            margin-left: 6px;
+            cursor: pointer;
+            color: #222;
             font-size: 14px;
-            display: none;
+            font-weight: 500;
         }
 
-        .alert:not(:empty) {
-            display: block;
-        }
-
-        .alert-error {
-            background: #fee;
-            color: #c33;
-            border: 1px solid #fcc;
-        }
-
-        .alert-success {
-            background: #efe;
-            color: #3c3;
-            border: 1px solid #cfc;
-        }
-
-        /* Fix für die Navbar-Trennlinie */
-        .nc-nav .divider {
-            color: white;
-            font-weight: 300;
-            margin: 0 8px;
-            text-align: left !important;
-            position: static !important;
-        }
-
-        .nc-nav .divider::before {
-            display: none !important;
-        }
-
-        /* Navbar Abstände anpassen */
-        .nc-nav .nc-right {
-            gap: 19px !important;
-        }
-
-        .nc-nav .nc-right .divider {
-            margin: 0 2px;
-        }
     </style>
 </head>
 <body>
 
-<!-- HEADER mit dem neuen Design -->
-<header class="nc-header">
-    <div class="nc-container">
-        <!-- Logo & Brand -->
-        <div class="nc-top">
-            <a class="nc-logo" th:href="@{/}" href="/" aria-label="NATUREConnect Home">
-                <img src="/images/NatureConnectLogo.png" alt="Logo">
-                <span class="nc-brand"><strong>NATURE</strong>Connect</span>
-            </a>
-        </div>
-
-        <!-- Trennlinie -->
-        <div class="nc-divider"></div>
-
-        <!-- Navigation unten -->
-        <nav class="nc-nav" id="nc-nav" aria-label="Primary">
-            <ul class="nc-left">
-                <li><a th:href="@{/}" href="/">Home</a></li>
-                <li class="dropdown has-dropdown">
-                    <a href="#" class="dropbtn with-caret">Events ▾</a>
-                    <ul class="dropdown-content">
-                        <li><a th:href="@{/events}" href="/events">All Events</a></li>
-                        <li><a th:href="@{/events/new}" href="/events/new">Create Event</a></li>
-                    </ul>
-                </li>
-            </ul>
-
-            <ul class="nc-right">
-                <li><a href="/about">About Us</a></li>
-                <li><span class="divider">|</span></li>
-                <li><a href="/contact">Contact Us</a></li>
-                <li><a class="nc-login" href="/login">Log In</a></li>
-            </ul>
-        </nav>
-    </div>
-</header>
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
 
 <div class="main-content">
     <div class="login-container">
+
         <div class="login-header">
             <h1>Welcome</h1>
             <p>Sign in to continue</p>
         </div>
 
-        <div th:if="${error != null and !#strings.isEmpty(error)}" class="alert alert-error" th:text="${error}"></div>
-        <div th:if="${success != null and !#strings.isEmpty(success)}" class="alert alert-success" th:text="${success}"></div>
-
         <form th:action="@{/login}" method="post">
+            <input type="hidden" name="redirect" th:value="${param.redirect}">
+
+
             <div class="form-group">
                 <label for="email">Email address</label>
                 <div class="input-wrapper">
-                    <span class="input-icon">📧</span>
                     <input type="email" id="email" name="username" placeholder="example@email.com" required>
                 </div>
             </div>
@@ -279,9 +230,15 @@
             <div class="form-group">
                 <label for="password">Password</label>
                 <div class="input-wrapper">
-                    <span class="input-icon">🔒</span>
                     <input type="password" id="password" name="password" placeholder="••••••••" required>
-                    <button type="button" class="password-toggle" onclick="togglePassword()">👁️</button>
+
+                    <!-- SVG AUGE ICON -->
+                    <button type="button" class="password-toggle" onclick="togglePassword()">
+                        <svg id="eyeIcon" fill="none" viewBox="0 0 24 24" stroke-width="2">
+                            <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                    </button>
                 </div>
             </div>
 
@@ -307,17 +264,25 @@
 </div>
 
 <script>
+    /* PASSWORD TOGGLE */
     function togglePassword() {
-        const input = document.getElementById('password');
-        const button = event.currentTarget;
-        if (input.type === 'password') {
-            input.type = 'text';
-            button.textContent = '🙈';
+        let pw = document.getElementById("password");
+        let icon = document.getElementById("eyeIcon");
+
+        if (pw.type === "password") {
+            pw.type = "text";
+            icon.innerHTML = `
+                <path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.77 21.77 0 0 1 5.06-6.94M9.88 9.88a3 3 0 0 1 4.24 4.24M1 1l22 22"/>
+            `;
         } else {
-            input.type = 'password';
-            button.textContent = '👁️';
+            pw.type = "password";
+            icon.innerHTML = `
+                <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
+                <circle cx="12" cy="12" r="3"/>
+            `;
         }
     }
 </script>
+
 </body>
 </html>

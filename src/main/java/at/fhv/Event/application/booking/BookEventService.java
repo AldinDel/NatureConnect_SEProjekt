@@ -2,303 +2,365 @@ package at.fhv.Event.application.booking;
 
 import at.fhv.Event.application.request.booking.BookingRequestMapper;
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
-import at.fhv.Event.domain.model.booking.Booking;
-import at.fhv.Event.domain.model.booking.BookingEquipment;
-import at.fhv.Event.domain.model.booking.BookingRepository;
-import at.fhv.Event.domain.model.booking.BookingStatus;
+import at.fhv.Event.application.request.booking.ParticipantDTO;
+import at.fhv.Event.domain.model.booking.*;
+import at.fhv.Event.domain.model.equipment.Equipment;
+import at.fhv.Event.domain.model.equipment.EquipmentRepository;
 import at.fhv.Event.domain.model.equipment.EquipmentSelection;
-import at.fhv.Event.domain.model.equipment.EventEquipment;
 import at.fhv.Event.domain.model.event.Event;
+import at.fhv.Event.domain.model.exception.*;
 import at.fhv.Event.domain.model.payment.PaymentMethod;
-import at.fhv.Event.domain.model.payment.PaymentStatus;
-import at.fhv.Event.infrastructure.persistence.equipment.EquipmentEntity;
-import at.fhv.Event.infrastructure.persistence.equipment.EquipmentJpaRepository;
-import at.fhv.Event.rest.response.booking.BookingDTO;
+import at.fhv.Event.presentation.rest.response.booking.BookingDTO;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class BookEventService {
+    private final BookingRepository _bookingRepository;
+    private final EquipmentRepository _equipmentRepository;
+    private final BookingRequestMapper _bookingRequestMapper;
+    private final BookingMapperDTO _bookingMapperDTO;
+    private final BookingValidator _bookingValidator;
 
-    private final BookingRepository bookingRepository;
-    private final BookingRequestMapper bookingRequestMapper;
-    private final BookingMapperDTO bookingMapperDTO;
-    private final EquipmentJpaRepository equipmentJpa;
-
-
-    public BookEventService(
-            BookingRepository bookingRepository,
-            BookingRequestMapper bookingRequestMapper,
-            BookingMapperDTO bookingMapperDTO, EquipmentJpaRepository equipmentJpa
-    ) {
-        this.bookingRepository = bookingRepository;
-        this.bookingRequestMapper = bookingRequestMapper;
-        this.bookingMapperDTO = bookingMapperDTO;
-        this.equipmentJpa = equipmentJpa;
+    public BookEventService(BookingRepository bookingRepository, EquipmentRepository equipmentRepository, BookingRequestMapper bookingRequestMapper, BookingMapperDTO bookingMapperDTO, BookingValidator bookingValidator) {
+        _bookingRepository = bookingRepository;
+        _equipmentRepository = equipmentRepository;
+        _bookingRequestMapper = bookingRequestMapper;
+        _bookingMapperDTO = bookingMapperDTO;
+        _bookingValidator = bookingValidator;
     }
 
+    @Transactional
     public BookingDTO bookEvent(CreateBookingRequest request) {
-        Event event = bookingRepository.loadEventForBooking(request.getEventId());
-        int confirmed = bookingRepository.countSeatsForEvent(event.getId());
-        int baseSlots = event.getMaxParticipants() - event.getMinParticipants();
-        int remaining = baseSlots - confirmed;
+        Event event = loadEvent(request.getEventId());
+        checkEventAvailability(event);
+        checkEventCapacity(event, request.getSeats());
+        Map<Long, Equipment> equipmentMap = loadEquipmentMap(request);
+        validateBookingRequest(request, event, equipmentMap);
+        normalizeVoucherCode(request);
 
-        if (remaining <= 0) {
-            throw new IllegalArgumentException("This event is fully booked.");
-        }
+        BigDecimal totalPrice = calculateTotalPrice(request, event, equipmentMap);
+        Booking booking = createBooking(request, totalPrice);
+        List<BookingEquipment> equipment = processEquipmentBooking(request, equipmentMap);
+        booking.setEquipment(equipment);
 
-        if (request.getSeats() > remaining) {
-            throw new IllegalArgumentException("Only " + remaining + " spots are remaining for this event.");
-        }
-        Map<Long, EquipmentEntity> equipmentMap = bookingRepository.loadEquipmentMap(request);
+        Booking savedBooking = _bookingRepository.save(booking);
+        return _bookingMapperDTO.toDTO(savedBooking);
+    }
 
-        List<String> errors = validateBooking(request, event, equipmentMap);
+    public BookingDTO getDTOById(Long bookingId) {
+        Booking booking = findBookingById(bookingId);
+        return _bookingMapperDTO.toDTO(booking);
+    }
+
+    public Booking getById(Long bookingId) {
+        return findBookingById(bookingId);
+    }
+
+    public void assertEventIsEditableForBooking(Booking booking) {
+        Event event = loadEvent(booking.getEventId());
+        checkEventAvailability(event);
+    }
+
+
+    @Transactional
+    public BookingDTO updateBooking(Long bookingId, CreateBookingRequest request) {
+        Booking booking = findBookingById(bookingId);
+        Event event = loadEvent(request.getEventId());
+
+        checkEventAvailability(event);
+
+        checkEventCapacityForUpdate(event, booking, request.getSeats());
+
+        Map<Long, Equipment> equipmentMap = loadEquipmentMap(request);
+
+        int alreadyBooked = _bookingRepository.countSeatsForEvent(event.getId());
+        int alreadyBookedExcludingThis = Math.max(0, alreadyBooked - booking.getSeats());
+
+        List<ValidationError> errors =
+                _bookingValidator.validate(request, event, equipmentMap, alreadyBookedExcludingThis);
         if (!errors.isEmpty()) {
-            throw new IllegalArgumentException(String.join(" | ", errors));
+            throw new BookingValidationException(errors);
         }
 
-        if (request.getSeats() <= 0) {
-            throw new IllegalArgumentException("Seats must be > 0.");
+        normalizeVoucherCode(request);
+
+        BigDecimal totalPrice = calculateTotalPrice(request, event, equipmentMap);
+        BigDecimal discount = calculateDiscount(totalPrice, request);
+
+        booking.setSeats(request.getSeats());
+        booking.setAudience(request.getAudience());
+        booking.setBookerFirstName(request.getBookerFirstName());
+        booking.setBookerLastName(request.getBookerLastName());
+        booking.setBookerEmail(request.getBookerEmail());
+        booking.setVoucherCode(request.getVoucherCode());
+        booking.setSpecialNotes(request.getSpecialNotes());
+        booking.setDiscountAmount(discount.doubleValue());
+        booking.setTotalPrice(totalPrice.doubleValue());
+
+        List<BookingParticipant> participants = new ArrayList<>();
+        if (request.getParticipants() != null) {
+            for (ParticipantDTO p : request.getParticipants()) {
+                BookingParticipant bp = new BookingParticipant(
+                        p.getFirstName(),
+                        p.getLastName(),
+                        p.getAge()
+                );
+                participants.add(bp);
+            }
+        }
+        booking.setParticipants(participants);
+
+        // Equipment neu setzen – alte erst leeren, dann aus Request neu aufbauen
+        List<BookingEquipment> newEquipmentList = new ArrayList<>();
+
+        if (request.getEquipment() != null) {
+            for (var entry : request.getEquipment().entrySet()) {
+                Long equipmentId = entry.getKey();
+                EquipmentSelection selection = entry.getValue();
+
+                if (!selection.isSelected() || selection.getQuantity() <= 0) {
+                    continue;
+                }
+
+                Equipment equipment = equipmentMap.get(equipmentId);
+                if (equipment == null) {
+                    continue;
+                }
+
+                BookingEquipment be = new BookingEquipment(
+                        equipment.getId(),
+                        selection.getQuantity(),
+                        equipment.getUnitPrice().doubleValue()
+                );
+                newEquipmentList.add(be);
+            }
         }
 
-        if (request.getBookerEmail() == null || !request.getBookerEmail().contains("@")) {
-            throw new IllegalArgumentException("A valid email is required.");
+        if (booking.getEquipment() != null) {
+            booking.getEquipment().clear();
+            booking.getEquipment().addAll(newEquipmentList);
+        } else {
+            booking.setEquipment(newEquipmentList);
         }
 
+
+        Booking savedBooking = _bookingRepository.save(booking);
+        return _bookingMapperDTO.toDTO(savedBooking);
+    }
+
+
+
+    @Transactional
+    public BookingDTO updatePaymentMethod(Long bookingId, String paymentMethodName) {
+        Booking booking = findBookingById(bookingId);
+        PaymentMethod paymentMethod = parsePaymentMethod(bookingId, paymentMethodName);
+        booking.setPaymentMethod(paymentMethod);
+        Booking savedBooking = _bookingRepository.save(booking);
+        return _bookingMapperDTO.toDTO(savedBooking);
+    }
+
+    private Event loadEvent(Long eventId) {
+        try {
+            return _bookingRepository.loadEventForBooking(eventId);
+        } catch (Exception e) {
+            throw new EventNotFoundException(eventId);
+        }
+    }
+
+    private void checkEventAvailability(Event event) {
+        if (Boolean.TRUE.equals(event.getCancelled())) {
+            throw new IllegalStateException("This event is cancelled and cannot be booked.");
+        }
+        LocalDateTime eventStart = LocalDateTime.of(event.getDate(), event.getStartTime());
+        if (eventStart.isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("This event is expired and cannot be booked.");
+        }
+    }
+
+    private void checkEventCapacity(Event event, int requestedSeats) {
+        int confirmedSeats = _bookingRepository.countPaidSeatsForEvent(event.getId());
+        int remainingSeats = event.getMaxParticipants() - event.getMinParticipants() - confirmedSeats;
+
+        if (remainingSeats <= 0) {
+            throw new EventFullyBookedException(event.getId(), requestedSeats, 0);
+        }
+        if (requestedSeats > remainingSeats) {
+            throw new EventFullyBookedException(event.getId(), requestedSeats, remainingSeats);
+        }
+    }
+
+
+    private void checkEventCapacityForUpdate(Event event, Booking existingBooking, int newSeats) {
+        int confirmedSeats = _bookingRepository.countSeatsForEvent(event.getId());
+        int confirmedSeatsExcludingThis = confirmedSeats - existingBooking.getSeats();
+        if (confirmedSeatsExcludingThis < 0) {
+            confirmedSeatsExcludingThis = 0;
+        }
+
+        int availableSeats = event.getMaxParticipants() - event.getMinParticipants();
+        int remainingSeats = availableSeats - confirmedSeatsExcludingThis;
+
+        if (remainingSeats <= 0) {
+            throw new EventFullyBookedException(event.getId(), newSeats, 0);
+        }
+        if (newSeats > remainingSeats) {
+            throw new EventFullyBookedException(event.getId(), newSeats, remainingSeats);
+        }
+    }
+
+
+    private Map<Long, Equipment> loadEquipmentMap(CreateBookingRequest request) {
+        if (request.getEquipment() == null || request.getEquipment().isEmpty()) {
+            return Map.of();
+        }
+
+        List<Long> equipmentIds = new ArrayList<>(request.getEquipment().keySet());
+        return _equipmentRepository.findByIds(equipmentIds);
+    }
+
+
+    private void validateBookingRequest(CreateBookingRequest request, Event event, Map<Long, Equipment> equipmentMap) {
+        int alreadyBooked = _bookingRepository.countSeatsForEvent(event.getId());
+        List<ValidationError> errors = _bookingValidator.validate(request, event, equipmentMap, alreadyBooked);
+        if (!errors.isEmpty()) {
+            throw new BookingValidationException(errors);
+        }
+    }
+
+    private void normalizeVoucherCode(CreateBookingRequest request) {
         if (request.getVoucherCode() != null && request.getVoucherCode().isBlank()) {
             request.setVoucherCode(null);
         }
-
-        BigDecimal basePrice = event.getPrice()
-                .multiply(BigDecimal.valueOf(request.getSeats()));
-
-        BigDecimal addons = calculateAddonsTotal(request, equipmentMap);
-        BigDecimal subtotal = basePrice.add(addons);
-        BigDecimal discount = calculateDiscount(subtotal, request);
-        BigDecimal total = subtotal.subtract(discount);
-        Booking booking = bookingRequestMapper.toDomain(request, total.doubleValue());
-
-        List<BookingEquipment> equipmentList = new ArrayList<>();
-
-        for (Map.Entry<Long, EquipmentSelection> entry : request.getEquipment().entrySet()) {
-            Long eqId = entry.getKey();
-            EquipmentSelection selected = entry.getValue();
-
-            if (!selected.isSelected() || selected.getQuantity() <= 0) continue;
-
-            EquipmentEntity eqEntity = equipmentMap.get(eqId);
-            if (eqEntity == null) continue;
-
-            int newStock = eqEntity.getStock() - selected.getQuantity();
-            if (newStock < 0) {
-                throw new IllegalArgumentException("Not enough stock for equipment: " + eqEntity.getName());
-            }
-
-            eqEntity.setStock(newStock);
-            equipmentJpa.save(eqEntity);
-            BookingEquipment be = new BookingEquipment(
-                    eqEntity.getId(),
-                    selected.getQuantity(),
-                    eqEntity.getUnitPrice().doubleValue()
-            );
-
-            equipmentList.add(be);
-        }
-
-        booking.setEquipment(equipmentList);
-
-        booking.setDiscountAmount(discount.doubleValue());
-        booking.setTotalPrice(total.doubleValue());
-
-        Booking saved = bookingRepository.save(booking);
-        return bookingMapperDTO.toDTO(saved);
     }
 
-    public List<String> validateBooking(CreateBookingRequest req, Event event, Map<Long, EquipmentEntity> equipmentMap) {
-        List<String> errors = new ArrayList<>();
+    private BigDecimal calculateTotalPrice(CreateBookingRequest request, Event event, Map<Long, Equipment> equipmentMap) {
+        BigDecimal basePrice = calculateBasePrice(event, request.getSeats());
+        BigDecimal equipmentPrice = calculateEquipmentPrice(request, equipmentMap);
+        BigDecimal subtotal = basePrice.add(equipmentPrice);
+        BigDecimal discount = calculateDiscount(subtotal, request);
+        return subtotal.subtract(discount);
+    }
 
-        if (req.getBookerFirstName() == null || req.getBookerFirstName().isBlank()) {
-            errors.add("First name is required.");
-        } else if (req.getBookerFirstName().length() > 50) {
-            errors.add("First name cannot exceed 50 characters.");
-        }
+    private BigDecimal calculateBasePrice(Event event, int seats) {
+        return event.getPrice().multiply(BigDecimal.valueOf(seats));
+    }
 
-        if (req.getBookerLastName() == null || req.getBookerLastName().isBlank()) {
-            errors.add("Last name is required.");
-        } else if (req.getBookerLastName().length() > 50) {
-            errors.add("Last name cannot exceed 50 characters.");
-        }
+    private BigDecimal calculateEquipmentPrice(CreateBookingRequest request, Map<Long, Equipment> equipmentMap) {
+        BigDecimal total = BigDecimal.ZERO;
+        for (var entry : request.getEquipment().entrySet()) {
+            EquipmentSelection selection = entry.getValue();
 
-        if (req.getBookerEmail() == null || req.getBookerEmail().isBlank()) {
-            errors.add("Email is required.");
-        } else if (!req.getBookerEmail().matches("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")) {
-            errors.add("Email format is invalid.");
-        } else if (req.getBookerEmail().length() > 100) {
-            errors.add("Email cannot exceed 100 characters.");
-        }
-
-        if (req.getSeats() < 1) {
-            errors.add("At least 1 participant is required.");
-        }
-        int alreadyBooked = bookingRepository.countSeatsForEvent(event.getId());
-        int remaining = event.getMaxParticipants() - alreadyBooked;
-
-        if (req.getSeats() > remaining) {
-            errors.add("Only " + remaining + " spots are remaining for this event.");
-        }
-
-        if (req.getSeats() > event.getMaxParticipants()) {
-            errors.add("Participants exceed maximum allowed for this event.");
-        }
-
-        if (req.getParticipants() != null) {
-            for (int i = 0; i < req.getParticipants().size(); i++) {
-                var p = req.getParticipants().get(i);
-
-                if (p.getFirstName() == null || p.getFirstName().isBlank()) {
-                    errors.add("Participant " + (i + 1) + ": First name is required.");
-                } else if (p.getFirstName().length() > 50) {
-                    errors.add("Participant " + (i + 1) + ": First name too long.");
-                }
-
-                if (p.getLastName() == null || p.getLastName().isBlank()) {
-                    errors.add("Participant " + (i + 1) + ": Last name is required.");
-                } else if (p.getLastName().length() > 50) {
-                    errors.add("Participant " + (i + 1) + ": Last name too long.");
-                }
-
-                if (p.getAge() < 1 || p.getAge() > 120) {
-                    errors.add("Participant " + (i + 1) + ": Age must be between 1 and 120.");
-                }
+            if (!selection.isSelected()) {
+                continue;
             }
-        }
-
-        if (req.getSpecialNotes() != null && req.getSpecialNotes().length() > 250) {
-            errors.add("Special notes cannot exceed 250 characters.");
-        }
-
-        if (!req.getBookerFirstName().matches("^[A-Za-zÄÖÜäöüß\\- ]+$")) {
-            errors.add("First name can only contain letters and '-'.");
-        }
-
-        if (!req.getBookerLastName().matches("^[A-Za-zÄÖÜäöüß\\- ]+$")) {
-            errors.add("Last name can only contain letters and '-'.");
-        }
-
-
-        if (req.getVoucherCode() != null && req.getVoucherCode().length() > 50) {
-            errors.add("Voucher code cannot exceed 50 characters.");
-        }
-        Map<Long, EventEquipment> eventEqMap = event.getEventEquipments()
-                .stream()
-                .collect(Collectors.toMap(
-                        ee -> ee.getEquipment().getId(),
-                        ee -> ee
-                ));
-
-        for (var entry : req.getEquipment().entrySet()) {
-
-            Long equipmentId = entry.getKey();
-            EquipmentSelection chosen = entry.getValue();
-
-            if (!chosen.isSelected()) continue;
-
-            EventEquipment ee = eventEqMap.get(equipmentId);
-            if (ee == null) {
-                errors.add("Equipment " + equipmentId + " is not available for this event.");
+            Equipment equipment = equipmentMap.get(entry.getKey());
+            if (equipment == null) {
                 continue;
             }
 
-            boolean required = ee.isRequired();
-            int stock = ee.getEquipment().getStock();
-            int qty = chosen.getQuantity();
-            int participants = req.getSeats();
-
-            if (!required) {
-                if (qty > stock) {
-                    errors.add(ee.getEquipment().getName()
-                            + ": maximum available is " + stock);
-                }
-            }
-
-            if (required) {
-                if (participants > stock) {
-                    errors.add(ee.getEquipment().getName()
-                            + ": requires " + participants + " but only "
-                            + stock + " available.");
-                }
-
-                if (qty != participants) {
-                    errors.add(ee.getEquipment().getName()
-                            + " must be booked for all participants (" + participants + ")");
-                }
-            }
+            BigDecimal itemTotal = equipment.getUnitPrice().multiply(BigDecimal.valueOf(selection.getQuantity()));
+            total = total.add(itemTotal);
         }
-        return errors;
-    }
-
-    public BookingDTO getDTOById(Long id) {
-        Booking booking = bookingRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
-
-        return bookingMapperDTO.toDTO(booking);
-    }
-
-    public Booking getById(Long id) {
-        return bookingRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
-    }
-
-    private BigDecimal calculateAddonsTotal(
-            CreateBookingRequest req,
-            Map<Long, EquipmentEntity> equipmentMap
-    ) {
-        BigDecimal total = BigDecimal.ZERO;
-
-        for (var entry : req.getEquipment().entrySet()) {
-            Long id = entry.getKey();
-            var chosen = entry.getValue();
-
-            if (!chosen.isSelected()) continue;
-
-            EquipmentEntity eq = equipmentMap.get(id);
-            if (eq == null) continue;
-
-            BigDecimal price = eq.getUnitPrice();
-            int qty = chosen.getQuantity();
-
-            total = total.add(price.multiply(BigDecimal.valueOf(qty)));
-        }
-
         return total;
     }
 
-    private BigDecimal calculateDiscount(BigDecimal subtotal, CreateBookingRequest req) {
-        if (req.getDiscountPercent() == null) {
+    private BigDecimal calculateDiscount(BigDecimal subtotal, CreateBookingRequest request) {
+        if (request.getDiscountPercent() == null) {
             return BigDecimal.ZERO;
         }
-
-        BigDecimal percent = BigDecimal.valueOf(req.getDiscountPercent())
-                .divide(BigDecimal.valueOf(100));
-
-        return subtotal.multiply(percent);
+        BigDecimal discountRate = BigDecimal.valueOf(request.getDiscountPercent()).divide(BigDecimal.valueOf(100));
+        return subtotal.multiply(discountRate);
     }
 
-    public BookingDTO updatePaymentMethod(Long bookingId, String paymentMethod) {
+    private Booking createBooking(CreateBookingRequest request, BigDecimal totalPrice) {
+        Booking booking = _bookingRequestMapper.toDomain(request, totalPrice.doubleValue());
+        BigDecimal discount = calculateDiscount(totalPrice, request);
+        booking.setDiscountAmount(discount.doubleValue());
+        booking.setTotalPrice(totalPrice.doubleValue());
+        return booking;
+    }
+
+    private List<BookingEquipment> processEquipmentBooking(CreateBookingRequest request, Map<Long, Equipment> equipmentMap) {
+        List<BookingEquipment> bookingEquipmentList = new ArrayList<>();
+
+        for (var entry : request.getEquipment().entrySet()) {
+            EquipmentSelection selection = entry.getValue();
+            if (!selection.isSelected() || selection.getQuantity() <= 0) {
+                continue;
+            }
+
+            Equipment equipment = equipmentMap.get(entry.getKey());
+            if (equipment == null) {
+                continue;
+            }
+
+            reduceEquipmentStock(equipment, selection.getQuantity());
+            BookingEquipment bookingEquipment = new BookingEquipment(
+                    equipment.getId(),
+                    selection.getQuantity(),
+                    equipment.getUnitPrice().doubleValue()
+            );
+            bookingEquipmentList.add(bookingEquipment);
+        }
+        return bookingEquipmentList;
+    }
+
+    void reduceEquipmentStock(Equipment equipment, int quantity) {
+        if (!equipment.hasEnoughStock(quantity)) {
+            throw new InsufficientStockException(
+                    equipment.getId(),
+                    equipment.getName(),
+                    quantity,
+                    equipment.getStock()
+            );
+        }
+        equipment.reduceStock(quantity);
+        _equipmentRepository.save(equipment);
+    }
+
+    private Booking findBookingById(long bookingId) {
+        return _bookingRepository.findById(bookingId).orElseThrow(() -> new BookingNotFoundException(bookingId));
+    }
+
+    private PaymentMethod parsePaymentMethod(Long bookingId, String paymentMethodName) {
+        try {
+            return PaymentMethod.valueOf(paymentMethodName);
+        } catch (IllegalArgumentException e) {
+            throw new PaymentProcessingException(
+                    bookingId,
+                    paymentMethodName,
+                    "Invalid payment method: " + paymentMethodName
+            );
+        }
+    }
+
+    public int getAvailableSeats(Long eventId) {
+        Event event = loadEvent(eventId);
+
+        int confirmedSeats = _bookingRepository.countPaidSeatsForEvent(eventId);
+        int availableSeats = event.getMaxParticipants() - event.getMinParticipants() - confirmedSeats;
+        return Math.max(0, availableSeats);
+    }
+
+
+    @Transactional
+    public void markAsPaid(Long bookingId) {
         Booking booking = getById(bookingId);
-
-        booking.setPaymentMethod(PaymentMethod.valueOf(paymentMethod));
-        booking.setPaymentStatus(PaymentStatus.PAID);
-        booking.setStatus(BookingStatus.CONFIRMED);
-
-        Booking saved = bookingRepository.save(booking);
-        return bookingMapperDTO.toDTO(saved);
+        booking.setStatus(BookingStatus.PAID);
+        _bookingRepository.save(booking);
     }
 
+    @Transactional
+    public void markAsFailed(Long bookingId) {
+        Booking booking = getById(bookingId);
+        booking.setStatus(BookingStatus.PAYMENT_FAILED);
+        _bookingRepository.save(booking);
+    }
 }
-//

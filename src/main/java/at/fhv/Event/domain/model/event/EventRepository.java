@@ -7,6 +7,6 @@ public interface EventRepository {
     Optional<Event> findById(Long id);
     Optional<Event> findByIdWithEquipments(Long id);
     List<Event> findAll();
-    void save(Event event);
+    Event save(Event event);
 
 }

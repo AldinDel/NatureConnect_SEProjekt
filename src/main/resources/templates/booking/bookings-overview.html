@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Your Bookings</title>
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/bookings-overview.css}">
+</head>
+<body class="bookings-page">
+
+<div th:if="${success}" class="toast-success">
+    <span th:text="${success}"></span>
+</div>
+
+<div th:if="${error}" class="toast-error">
+    <span th:text="${error}"></span>
+</div>
+
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
+
+<div class="booking-container">
+
+    <h1>Your Bookings</h1>
+
+    <p th:if="${bookings.size() == 0}" class="no-bookings">
+        You don't have any bookings yet
+    </p>
+
+    <table th:if="${bookings.size() > 0}" class="booking-table">
+        <thead>
+        <tr>
+            <th>Event</th>
+            <th>Date</th>
+            <th>Participants</th>
+            <th>Total Price</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="dto : ${bookings}">
+            <td class="event-col">
+                <div class="event-info">
+                    <img th:src="${dto.event.imageUrl}" alt="thumbnail">
+                    <span th:text="${dto.event.title}"></span>
+                </div>
+            </td>
+
+            <td th:text="${dto.event.date}"></td>
+            <td th:text="${dto.seats}"></td>
+            <td><span th:text="${#numbers.formatDecimal(dto.totalPrice, 1, 2, 'COMMA')} + ' €'"></span></td>
+
+            <td class="actions">
+
+                <a th:if="${!dto.event.cancelled and dto.event.date >= T(java.time.LocalDate).now()}"
+                   th:href="@{/booking/{id}/edit(id=${dto.id})}"
+                   class="btn-edit">
+                    Edit
+                </a>
+
+                <span th:if="${dto.event.cancelled or dto.event.date < T(java.time.LocalDate).now()}"
+                      class="badge-disabled">
+                    Not editable
+                </span>
+
+                <button class="btn-small btn-cancel">Cancel</button>
+            </td>
+
+
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+
+</body>
+</html>

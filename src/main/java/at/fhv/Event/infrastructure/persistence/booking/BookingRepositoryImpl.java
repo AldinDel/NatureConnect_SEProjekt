@@ -3,6 +3,7 @@ package at.fhv.Event.infrastructure.persistence.booking;
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
 import at.fhv.Event.domain.model.booking.Booking;
 import at.fhv.Event.domain.model.booking.BookingRepository;
+import at.fhv.Event.domain.model.booking.BookingStatus;
 import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.infrastructure.mapper.BookingMapper;
 import at.fhv.Event.infrastructure.mapper.EventMapper;
@@ -38,10 +39,16 @@ public class BookingRepositoryImpl implements BookingRepository {
 
     @Override
     public Booking save(Booking booking) {
+
+        if (booking.getId() != null) {
+            jpa.deleteEquipmentByBookingId(booking.getId());
+        }
+
         var entity = mapper.toEntity(booking);
         var saved = jpa.save(entity);
         return mapper.toDomain(saved);
     }
+
 
     @Override
     public Optional<Booking> findById(Long id) {
@@ -62,6 +69,14 @@ public class BookingRepositoryImpl implements BookingRepository {
                 .map(mapper::toDomain)
                 .toList();
     }
+
+    @Override
+    public List<Booking> findByCustomerEmail(String email) {
+        return jpa.findByBookerEmail(email).stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
+
 
     @Override
     public int countSeatsForEvent(Long eventId) {
@@ -95,5 +110,10 @@ public class BookingRepositoryImpl implements BookingRepository {
                         EquipmentEntity::getId,
                         e -> e
                 ));
+    }
+
+    @Override
+    public int countPaidSeatsForEvent(Long eventId) {
+        return jpa.sumSeatsByEventIdAndStatus(eventId, BookingStatus.PAID);
     }
 }

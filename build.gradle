@@ -14,10 +14,12 @@ java {
     }
 }
 
-// ⭐ NEU: Compiler-Parameter für Parameter-Namen
+// Compiler-Parameter für Parameter-Namen (wichtig für Spring Security)
 tasks.withType(JavaCompile) {
     options.compilerArgs += ['-parameters']
 }
+
+
 
 repositories {
     mavenCentral()
@@ -34,14 +36,26 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 
+    // --- SECURITY DEPENDENCIES ---
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
+
     runtimeOnly 'org.postgresql:postgresql'
 
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation "org.junit.jupiter:junit-jupiter:5.11.0"
+    testImplementation "org.junit.platform:junit-platform-suite:1.14.0"
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    testImplementation 'com.h2database:h2'
+    implementation 'com.cloudinary:cloudinary-http44:1.38.0'
+
+
 }
-
-
 
 tasks.named('test') {
     useJUnitPlatform()

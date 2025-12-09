@@ -1,7 +1,7 @@
 package at.fhv.Event.application.booking;
 
 import at.fhv.Event.domain.model.booking.Booking;
-import at.fhv.Event.rest.response.booking.BookingDTO;
+import at.fhv.Event.presentation.rest.response.booking.BookingDTO;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,7 +16,8 @@ public class BookingMapperDTO {
                 b.getBookerEmail(),
                 b.getSeats(),
                 b.getTotalPrice(),
-                b.getStatus()
+                b.getStatus(),
+                b.getCreatedAt()
         );
     }
 }

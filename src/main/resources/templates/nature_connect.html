@@ -1,50 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>NatureConnect</title>
+    <link rel="stylesheet" th:href="@{/css/navbar.css}" href="/css/navbar.css">
     <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
     <link rel="icon" type="image/png" th:href="@{/images/NatureConnectLogo.png}" href="/images/NatureConnectLogo.png">
 </head>
 
-<header class="nc-header">
-    <div class="nc-container">
-        <!-- Logo & Brand -->
-        <div class="nc-top">
-            <a class="nc-logo" th:href="@{/}" href="/" aria-label="NATUREConnect Home">
-                <img src="/images/NatureConnectLogo.png" alt="Logo">
-                <span class="nc-brand"><strong>NATURE</strong>Connect</span>
-            </a>
-        </div>
+<body class="home">
 
-        <!-- Trennlinie -->
-        <div class="nc-divider"></div>
+<!-- Navbar einbinden -->
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
 
-        <!-- Navigation unten -->
-        <nav class="nc-nav" id="nc-nav" aria-label="Primary">
-            <ul class="nc-left">
-                <li><a th:href="@{/}" href="/" class="is-active">Home</a></li>
-                <li class="dropdown has-dropdown">
-                    <a href="#" class="dropbtn with-caret">Events ▾</a>
-                    <ul class="dropdown-content">
-                        <li><a th:href="@{/events}" href="/events">All Events</a></li>
-                        <li><a th:href="@{/events/new}" href="/events/new">Create Event</a></li>
-                    </ul>
-                </li>
-            </ul>
-
-            <ul class="nc-right">
-                <li><a href="/about">About Us</a></li>
-                <li><span class="divider">|</span></li>
-                <li><a href="/contact">Contact Us</a></li>
-                <li><a class="nc-login" href="/login">Log In</a></li>
-            </ul>
-        </nav>
-    </div>
-</header>
-
-
-<body>
+<!-- Popups -->
 <div th:if="${success != null}" id="success-popup" class="popup-message" th:text="${success}"></div>
 <div th:if="${error != null}" id="error-popup" class="popup-message error" th:text="${error}"></div>
 
@@ -55,37 +25,25 @@
     </div>
 
     <!-- Suchleiste -->
-    <form id="searchForm" class="nc-searchbar" th:action="@{/events/search}" method="get" role="search" aria-label="Event search">
+    <form id="searchForm" class="nc-searchbar" th:action="@{/events/search}" method="get" role="search">
         <input type="hidden" name="source" value="home" />
-
-        <!-- Search -->
         <label class="nc-field nc-icon-left">
             <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2" fill="none"/><line x1="16.5" y1="16.5" x2="21" y2="21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
             <input type="text" name="q" placeholder="Search events..." minlength="3" maxlength="75">
         </label>
-
-        <!-- Location -->
         <label class="nc-field nc-split">
             <span class="nc-label">Location</span>
             <div class="nc-input-select">
-                <input type="text" name="location" placeholder="Enter a location" list="locations" th:value="${param.location}">
-                <datalist id="locations">
-                    <option value="Vienna"/>
-                    <option value="Salzburg"/>
-                    <option value="Tirol"/>
-                </datalist>
+                <input type="text" name="location" placeholder="Enter a location" list="locations">
+                <datalist id="locations"><option value="Vienna"/><option value="Salzburg"/><option value="Tirol"/></datalist>
             </div>
         </label>
-
-        <!-- Date -->
         <label class="nc-field nc-split">
             <span class="nc-label">Date</span>
             <div class="nc-input-select">
-                <input type="date" name="startDate" id="startDate" lang="en" placeholder="MM/DD/YYYY" onfocus="(this.type='date')" onblur="if(!this.value)this.type='text'">
+                <input type="date" name="startDate" id="startDate">
             </div>
         </label>
-
-        <!-- Activity -->
         <label class="nc-field nc-split">
             <span class="nc-label">Activity</span>
             <div class="nc-input-select">
@@ -97,89 +55,20 @@
                     <option value="Climbing">Climbing</option>
                     <option value="Wildlife Tour">Wildlife Tour</option>
                 </select>
-                <svg class="nc-caret" viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M6 9l6 6 6-6" fill="currentColor"/>
-                </svg>
+                <svg class="nc-caret" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="currentColor"/></svg>
             </div>
         </label>
-
         <button type="submit" class="nc-find-btn">Find Events</button>
     </form>
 </section>
 
-<!-- Popup Style -->
-<style>
-    .popup-message {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #4caf50;
-        color: #fff;
-        padding: 14px 22px;
-        border-radius: 8px;
-        font-weight: 500;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        animation: fadeInOut 4s ease forwards;
-        z-index: 9999 !important;
-    }
-
-    .popup-message.error {
-        background: #e53935;
-        animation: shake 0.4s ease;
-    }
-
-    @keyframes fadeInOut {
-        0% { opacity: 0; transform: translateY(-10px); }
-        10%, 90% { opacity: 1; transform: translateY(0); }
-        100% { opacity: 0; transform: translateY(-10px); }
-    }
-
-    @keyframes shake {
-        0%, 100% { transform: translateX(0); }
-        20%, 60% { transform: translateX(-8px); }
-        40%, 80% { transform: translateX(8px); }
-    }
-
-    /*  kleines Popup für JS-Fehler */
-    #date-popup {
-        position: fixed;
-        top: 80px;
-        right: 20px;
-        background: #e53935;
-        color: white;
-        padding: 12px 20px;
-        border-radius: 8px;
-        display: none;
-        font-weight: 500;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        z-index: 9999;
-    }
-</style>
-
-<!--  Popup-Funktion & Date-Check -->
+<!-- Scripts -->
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const popup = document.getElementById("success-popup");
         const errorPopup = document.getElementById("error-popup");
         if (popup) setTimeout(() => popup.style.display = "none", 3000);
         if (errorPopup) setTimeout(() => errorPopup.style.display = "none", 3500);
-
-        const form = document.getElementById('searchForm');
-        const datePopup = document.createElement("div");
-        datePopup.id = "date-popup";
-        datePopup.textContent = "You cannot search for events in the past! ";
-        document.body.appendChild(datePopup);
-
-        form.addEventListener('submit', function(event) {
-            const startDate = document.getElementById('startDate').value;
-            const today = new Date().toISOString().split('T')[0];
-
-            if (startDate && startDate < today) {
-                event.preventDefault();
-                datePopup.style.display = "block";
-                setTimeout(() => datePopup.style.display = "none", 3000);
-            }
-        });
     });
 </script>
 

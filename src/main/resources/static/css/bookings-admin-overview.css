@@ -1,0 +1,236 @@
+/* PAGE BACKGROUND */
+body.bookings-admin-page {
+    background-image: url("../images/ManOnMountain.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-color: rgba(0, 0, 0, 0.7);
+    background-blend-mode: darken;
+}
+
+/* MAIN WRAPPER */
+.admin-booking-container {
+    width: 90%;
+    margin: 120px auto 80px;
+}
+
+/* TITLE */
+.admin-booking-container h1 {
+    text-align: center;
+    color: white;
+    margin-bottom: 30px;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+/* --- REAL NORMAL TABLE --- */
+
+.admin-booking-table {
+    width: 100%;
+    border-collapse: collapse; /* NORMAL TABLE */
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    table-layout: fixed;
+}
+
+/* HEADER */
+.admin-booking-table thead th {
+    background: #0d2847;
+    color: white;
+    padding: 14px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: left;
+}
+
+/* ROWS */
+.admin-booking-table tbody tr {
+    border-bottom: 1px solid #e5e7eb;
+    background: white;
+}
+
+.admin-booking-table tbody tr:nth-child(even) {
+    background: #fafafa; /* soft stripe */
+}
+
+/* CELLS */
+.admin-booking-table td {
+    padding: 14px 20px;
+    font-size: 15px;
+    color: #1f2937;
+    vertical-align: middle;
+}
+
+/* ACTIONS CELL */
+.actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* EDIT BUTTON */
+.btn-edit {
+    background: white;
+    color: #0b2545;
+    border: 1.5px solid #d1d5db;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: .2s;
+}
+
+.btn-edit:hover {
+    background: #f3f4f6;
+    border-color: #0b2545;
+}
+
+/* CANCEL BUTTON */
+.btn-cancel {
+    background: #dc2626;
+    color: white;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    transition: .2s;
+}
+
+.btn-cancel:hover {
+    background: #b91c1c;
+}
+
+/* DISABLED BADGE */
+.badge-disabled {
+    background: #d1d5db;
+    color: #4b5563;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* TOASTS (unchanged) */
+.toast-success, .toast-error {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 18px;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    font-size: 16px;
+    z-index: 2000;
+    animation: fadeout 4s forwards;
+}
+
+.toast-success {
+    background: #c5f7c5;
+    color: #0f5f0f;
+}
+
+.toast-error {
+    background: #fee2e2;
+    color: #7f1d1d;
+}
+
+@keyframes fadeout {
+    0% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.booking-controls {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 10px 0;
+}
+
+.booking-controls input,
+.booking-controls select {
+    padding: 8px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 15px;
+}
+
+.booking-controls input:focus,
+.booking-controls select:focus {
+    outline: none;
+    border-color: #0d2847;
+}
+
+
+.admin-booking-table td:nth-child(5) {
+    min-width: 220px;
+    white-space: nowrap;
+}
+
+.admin-booking-table td:nth-child(3),
+.admin-booking-table td:nth-child(4) {
+    white-space: nowrap;
+}
+
+.btn-reset {
+    background: #0b2545;
+    color: white;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    transition: .2s;
+}
+
+.btn-reset:hover {
+    background: #3b3767;
+}
+/* Make table compact + remove wasted width */
+.admin-booking-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;   /* forces column widths */
+}
+
+/* Column widths (now that Actions is gone!) */
+.admin-booking-table th:nth-child(1),
+.admin-booking-table td:nth-child(1) { width: 3%; }   /* Event */
+
+.admin-booking-table th:nth-child(2),
+.admin-booking-table td:nth-child(2) { width: 3%; }   /* ID */
+
+.admin-booking-table th:nth-child(3),
+.admin-booking-table td:nth-child(3) { width: 10%; }  /* First Name */
+
+.admin-booking-table th:nth-child(4),
+.admin-booking-table td:nth-child(4) { width: 10%; }  /* Last Name */
+
+/* EMAIL — schmäler + Text kürzen mit ... */
+.admin-booking-table th:nth-child(5),
+.admin-booking-table td:nth-child(5) {
+    width: 20%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.admin-booking-table th:nth-child(6),
+.admin-booking-table td:nth-child(6) { width: 10%; }  /* Date */
+
+.admin-booking-table th:nth-child(7),
+.admin-booking-table td:nth-child(7) { width: 8%; }   /* Time */
+
+.admin-booking-table th:nth-child(8),
+.admin-booking-table td:nth-child(8) { width: 8%; }   /* Participants */
+
+.admin-booking-table th:nth-child(9),
+.admin-booking-table td:nth-child(9) { width: 10%; }  /* Total */
+
+.admin-booking-table th:nth-child(10),
+.admin-booking-table td:nth-child(10) {
+    width: 14%; /* oder was du willst */
+}
+

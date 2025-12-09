@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Almost done</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/booking-info.css}">
+</head>
+
+<body class="booking-info-page">
+
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
+
+<div class="booking-info-wrapper">
+    <div class="booking-info-card">
+        <h1>You're almost there!</h1>
+
+        <p>
+            To complete your payment and confirm the booking, please log in or create an account.
+        </p>
+
+        <div style="margin-top: 25px;">
+            <a th:href="@{/login(redirect=${'/booking/' + eventId})}" class="login-btn">Log In</a>
+            <a th:href="@{/register(redirect='/booking/' + ${eventId})}" class="login-btn">Sign Up</a>
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

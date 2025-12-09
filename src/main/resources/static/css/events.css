@@ -1,12 +1,14 @@
-body {
+
+body.events-page {
+    background: #ffffff !important;
     font-family: 'Inter', sans-serif;
-    background-color: #fff;
-    margin: 0;
-    padding: 0;
 }
 
 
-/* Hauptcontainer für die gesamte EventEntity-Übersicht */
+/* ========================================================================== */
+/*  MAIN EVENT OVERVIEW WRAPPER                                               */
+/* ========================================================================== */
+
 .event-overview {
     width: 90%;
     max-width: 1000px;
@@ -16,7 +18,7 @@ body {
     border-radius: 16px;
 }
 
-/* Überschrift und Beschreibung */
+/* Headings */
 .event-overview h1 {
     font-size: 38px;
     font-weight: 700;
@@ -29,7 +31,12 @@ body {
     margin-bottom: 24px;
 }
 
-/* Search Bar */
+
+
+/* ========================================================================== */
+/*  SEARCH BAR                                                                 */
+/* ========================================================================== */
+
 .search-bar {
     position: relative;
     display: flex;
@@ -40,9 +47,7 @@ body {
     margin-bottom: 30px;
 }
 
-/* Such-Icon links im Input */
-.search-bar .search-icon,
-.search-bar svg.search-icon {
+.search-bar .search-icon {
     position: absolute;
     left: 14px;
     top: 50%;
@@ -50,14 +55,8 @@ body {
     width: 14px;
     height: 14px;
     color: #1e293b;
-    stroke: currentColor;
-    fill: none;
-    pointer-events: none;
-
 }
 
-/* Textfeld für die Suche */
-.search-bar input[type="text"],
 .search-bar input {
     flex: 1;
     border: none;
@@ -68,7 +67,12 @@ body {
     padding-left: 30px;
 }
 
-/* Category filter buttons */
+
+
+/* ========================================================================== */
+/*  CATEGORY BUTTONS                                                           */
+/* ========================================================================== */
+
 .category-bar {
     display: flex;
     flex-wrap: wrap;
@@ -76,7 +80,6 @@ body {
     margin-bottom: 40px;
 }
 
-/* Buttons (All, Camping, Hiking,...) */
 .category-bar button {
     background: #f3f4f6;
     border: none;
@@ -84,266 +87,29 @@ body {
     padding: 8px 16px;
     cursor: pointer;
     font-size: 14px;
-    transition: 0.2s;
     color: #111827;
+    transition: 0.2s;
 }
 
-/* Effekt */
 .category-bar button:hover {
     background: #e5e7eb;
 }
 
-/* Aktive Kategorie */
 .category-bar button.active {
-    background: #111827;
+    background-color: #0f2740;
     color: #fff;
-}
-
-/* EventEntity grid & cards */
-.event-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-    gap: 24px;
-}
-
-/* Einzelne Eventkarte */
-.event-card {
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    overflow: hidden;
-    transition: transform 0.2s;
-}
-
-/* Effekt für Karten */
-.event-card:hover {
-    transform: translateY(-4px);
-}
-
-/* Card image und category tags */
-.card-image {
-    position: relative;
-    height: 200px;
-    overflow: hidden;
-}
-
-/* Bilddarstellung */
-.card-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* Kategorie-Tag (oben rechts am Bild */
-.tag {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: #ffffff;
-    padding: 6px 12px;
-    border-radius: 999px;
-    font-size: 13px;
-    font-weight: 600;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-    text-transform: capitalize;
-}
-
-/* Farbvarianten für jede Kategorie */
-.tag-camping {
-    background: #dcfce7;
-    color: #166534;
-}
-
-.tag-kayaking {
-    background: #cffafe;
-    color: #164e63;
-}
-
-.tag-hiking {
-    background: #e0f2fe;
-    color: #075985;
-}
-
-.tag-wildlife-tour {
-    background: #fef9c3;
-    color: #854d0e;
+    border-color: #0f2740;
 }
 
 
-.tag-climbing {
-    background: #fee2e2;
-    color: #7f1d1d;
-}
 
+/* ========================================================================== */
+/*  FILTER PANEL — FIXED TEXT + COLORS                                         */
+/* ========================================================================== */
 
-.tag-general {
-    background: #f3f4f6;
-    color: #374151;
-}
-
-/* Card content */
-.card-content {
-    padding: 20px;
-}
-
-/* Header - Titel und Schwierigkeitsgrad */
-.card-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.card-header h3 {
-    font-size: 16px;
-    font-weight: 600;
-    color: #111827;
-}
-
-/* Difficulty Labels */
-.difficulty {
-    font-weight: 600;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 0.9em;
-    display: inline-block;
-    text-transform: capitalize;
-}
-
-/* Beginner */
-.beginner {
-    background-color: #C8F7C5;
-    color: #206B2F;
-}
-
-/* Intermediate */
-.intermediate {
-    background-color: #FFF5C2;
-    color: #8B7400;
-}
-
-/*  Advanced */
-.advanced {
-    background-color: #FFD1D1;
-    color: #9E1A1A;
-}
-
-/* Beschreibungstext */
-.card-content p {
-    color: #4b5563;
-    font-size: 14px;
-    margin-bottom: 16px;
-}
-
-/* EventEntity details */
-.details {
-    list-style: none;
-    padding: 0;
-    margin: 0 0 16px 0;
-    color: #4b5563;
-    font-size: 14px;
-}
-
-.details li {
-    margin-bottom: 4px;
-}
-
-/* Footer */
-.footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.price {
-    font-size: 18px;
-    font-weight: 700;
-    color: #111827;
-}
-
-/* View Button */
-.view-btn {
-    background: #111827;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 8px 16px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: 0.2s;
-}
-
-/* Edit Button */
-.edit-btn {
-    background: #f3f4f6;
-    color: #111827;
-    border: 1px solid #d1d5db;
-    border-radius: 8px;
-    padding: 8px 16px;
-    cursor: pointer;
-    font-size: 14px;
-    font-weight: 500;
-    transition: 0.2s;
-    text-decoration: none;
-}
-
-/* Edit Button Effekt */
-.edit-btn:hover {
-    background: #e5e7eb;
-}
-
-.view-btn:hover {
-    background: #1f2937;
-}
-
-.footer .buttons {
-    display: flex;
-    gap: 10px;
-}
-
-html, body {
-    background: #ffffff !important;
-    background-image: auto !important;
-    background-size: auto !important;
-    background-attachment: scroll !important;
-}
-
-html, body {
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    background: #ffffff !important;
-}
-
-
-.details svg {
-    width: 15px;
-    height: 15px;
-    display: inline-block;
-    vertical-align: middle;
-    margin-right: 8px;
-    color: #1e293b;
-    stroke: currentColor;
-    fill: none;
-}
-
-.details svg * {
-    stroke-width: 1.6 !important;
-}
-
-.details li {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-bottom: 6px;
-    color: #374151;
-    font-size: 14px;
-}
-
-.details li:hover svg {
-    color: #111827;
-    transform: scale(1.05);
-    transition: all 0.16s ease;
+.filter-panel,
+.filter-panel * {
+    color: #111827 !important;
 }
 
 .filter-panel {
@@ -359,7 +125,6 @@ html, body {
     padding: 32px 28px;
     display: flex;
     flex-direction: column;
-    font-family: 'Inter', sans-serif;
     overflow-y: auto;
 }
 
@@ -377,20 +142,17 @@ html, body {
 }
 
 .filter-header h3 {
+    margin: 0;
     font-size: 18px;
     font-weight: 600;
-    color: #111827;
-    margin: 0;
 }
 
 .close-btn {
     background: none;
     border: none;
     font-size: 22px;
-    line-height: 1;
     cursor: pointer;
     color: #6b7280;
-    transition: color 0.2s ease;
 }
 
 .close-btn:hover {
@@ -406,76 +168,76 @@ html, body {
 .filter-group label {
     font-size: 14px;
     font-weight: 500;
-    color: #111827;
     margin-bottom: 6px;
+    color: #111827 !important;
 }
 
-.filter-group input[type="text"],
-.filter-group input[list],
-.filter-group input[type="date"],
-.filter-group input[type="number"],
+.filter-group input,
 .filter-group select {
     width: 100%;
     border: 1px solid #d1d5db;
     border-radius: 8px;
     padding: 10px 12px;
     font-size: 14px;
-    font-family: 'Inter', sans-serif;
-    color: #374151;
-    background: #ffffff;
-    box-sizing: border-box;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    color: #111827 !important;
+    background: #ffffff !important;
 }
 
+/* dropdown options fix */
+.filter-group select option {
+    color: #111827 !important;
+    background: #ffffff !important;
+}
+
+/* price + date ranges */
+.price-range,
 .date-range {
     display: flex;
     align-items: center;
     gap: 8px;
 }
 
-.date-range input[type="date"] {
+.price-range input,
+.date-range input {
     flex: 1;
-    padding: 10px 12px;
-    font-family: 'Inter', sans-serif;
-    border-radius: 8px;
-    font-size: 14px;
-    color: #374151;
 }
 
+/* radio */
 .checkbox-group {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 6px 12px;
 }
 
-.checkbox-group input {
-    margin-right: 6px;
-}
-
+/* apply button */
 .apply-btn {
-    background: #111827;
-    color: #fff;
+    width: 100%;
+    background: #0b2545;
+    color: white;
     border: none;
     border-radius: 8px;
     padding: 10px 16px;
     cursor: pointer;
-    font-size: 14px;
-    transition: 0.2s;
-    width: 100%;
 }
 
 .apply-btn:hover {
     background: #1f2937;
 }
 
+/* overlay */
 .overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.3);
+    background: rgba(0,0,0,0.3);
     display: none;
     z-index: 1500;
 }
 
+.overlay.active {
+    display: block;
+}
+
+/* mobile filter button */
 .filter-btn-inline {
     display: inline-flex;
     align-items: center;
@@ -485,73 +247,14 @@ html, body {
     border: none;
     border-radius: 24px;
     padding: 8px 20px;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    letter-spacing: 0.2px;
-}
-
-.filter-btn-inline:hover {
-    background: #163968;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-}
-
-.filter-btn-inline:active {
-    transform: scale(0.97);
-    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
-}
-
-.filter-btn-inline .filter-icon {
-    width: 15px;
-    height: 15px;
-    stroke-width: 1.5;
-    opacity: 0.9;
-    transition: transform 0.2s ease;
-}
-
-.filter-btn-inline:hover .filter-icon {
-    transform: rotate(4deg);
-    opacity: 1;
-}
-
-.filter-group select {
-    border: 1px solid #d1d5db;
-    border-radius: 6px;
-    padding: 8px 10px;
-    font-size: 14px;
-    color: #374151;
-    background: #fff;
     cursor: pointer;
 }
 
-.filter-group select:focus {
-    outline: none;
-    border-color: #0b2545;
-}
 
-.price-range {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
 
-.price-range input[type="number"] {
-    flex: 1; /* statt max-width */
-    padding: 10px 12px;
-    font-family: 'Inter', sans-serif;
-    border-radius: 8px;
-    font-size: 14px;
-    color: #374151;
-    border: 1px solid #d1d5db;
-    box-sizing: border-box;
-}
-
-.price-range span {
-    color: #6b7280;
-    font-weight: 500;
-}
+/* ========================================================================== */
+/*  META BAR — SORT FIX                                                       */
+/* ========================================================================== */
 
 .event-meta-bar {
     display: flex;
@@ -560,389 +263,335 @@ html, body {
     margin-bottom: 28px;
     padding: 12px 18px;
     background: #ffffff;
-    border: none;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(17, 24, 39, 0.04); /* sehr feiner soft shadow */
-    transition: all 0.25s ease;
-}
-
-.event-meta-bar:hover {
-    box-shadow: 0 6px 18px rgba(17, 24, 39, 0.07);
-    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(17, 24, 39, 0.04);
 }
 
 .event-count span {
     font-size: 15px;
     font-weight: 500;
     color: #1f2937;
-    letter-spacing: 0.15px;
 }
 
-.sort-options {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    margin: 0.8rem 0 1.2rem 0;
-    font-family: 'Inter', sans-serif;
-}
-
-.sort-select-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.sort-select-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    font-size: 0.95rem;
-    color: #333;
-}
-
-.sort-select label {
-    font-weight: 600;
-    color: #444;
-}
-
-/* dropdown */
-.sort-select select {
-    all: unset;
-    display: inline-block;
-    font-family: 'Inter', sans-serif;
-    font-size: 14px;
-    color: #111827;
+/* FIX WHITE SORT DROPDOWN */
+.sort-select-wrapper select {
+    appearance: none !important;
     background-color: #ffffff;
     border: 1px solid #d1d5db;
     border-radius: 8px;
-    padding: 8px 34px 8px 12px;
+
+    padding: 8px 34px 8px 12px;        /* Platz für Pfeil rechts */
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #111827;
     cursor: pointer;
     min-width: 170px;
-    line-height: 1.4;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    transition: all 0.2s ease;
+
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path fill='none' stroke='%236b7280' stroke-width='1.5' d='M1 1l5 5 5-5'/></svg>");
     background-repeat: no-repeat;
     background-position: right 12px center;
     background-size: 12px;
 }
 
-.sort-select select:hover {
+.sort-select-wrapper select:hover {
     border-color: #cbd5e1;
     background-color: #f9fafb;
 }
 
-.sort-select select:focus {
+.sort-select-wrapper select:focus {
     outline: none;
     border-color: #0b2545;
     box-shadow: 0 0 0 3px rgba(11, 37, 69, 0.15);
 }
 
-.sort-select select option {
-    background-color: #ffffff;
-    color: #111827;
-    font-size: 14px;
-    padding: 8px;
+/* ========================================================================== */
+/*  EVENT GRID + CARDS                                                        */
+/* ========================================================================== */
+
+.event-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 24px;
 }
 
-.current-sort-inline {
-    margin-left: 0.6rem;
-    font-style: italic;
-    color: #6b7280;
-    font-size: 0.9rem;
-}
-
-.current-sort-inline::before {
-    content: "• ";
-    color: #9ca3af;
-}
-.back-container {
-    max-width: 1100px;
-    width: 85%;
-    margin: 120px auto 0 auto; /* Abstand unter dem Header */
+.event-card {
     display: flex;
-    justify-content: flex-start;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
 }
 
-
-
-.category-bar button.active {
-    background-color: #0f2740;
-    color: #fff;
-    border-color: #0f2740;
+.event-card:hover {
+    transform: translateY(-4px);
 }
 
-.category-bar button {
-    transition: all 0.2s ease;
-}
-
-.overlay.active {
-    display: block;
-}
-
-
-.event-overview {
-    margin-top: 50px;
-}
-
-/* fix body spacing  */
-html, body {
-    margin: 0 !important;
-    padding: 0 !important;
-    background: #ffffff;
-}
-
-/*  HEADER STYLING  */
-.nc-header {
-    background-color: #0b2545;
-    color: white;
-    width: 100%;
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 999;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    font-family: 'Inter', sans-serif;
-}
-
-/* --- OBERER TEIL: LOGO --- */
-.nc-top {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 14px 80px 6px 80px;
-}
-
-.nc-logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    text-decoration: none;
-    color: white;
-    font-size: 22px;
-    font-weight: 600;
-}
-
-.nc-logo img {
-    width: 42px;
-    height: 42px;
-}
-
-/* --- TRENNLINIE DIREKT UNTER LOGO --- */
-/* Homepage-style divider */
-.nc-divider {
-    height: 1px;
-    width: 100%;
-    background: #ffffff33; /* bright white with transparency */
-    margin: 0;
-    border: none;
+.card-image {
     position: relative;
-    z-index: 5;
+    height: 200px;
+    overflow: hidden;
+}
+
+.card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 
 
-/* --- NAVI TEIL UNTEN --- */
-.nc-bottom {
+/* ========================================================================== */
+/*  CATEGORY TAG COLORS                                                       */
+/* ========================================================================== */
+
+.tag {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    text-transform: capitalize;
+}
+
+.tag-camping { background: #dcfce7; color: #166534; }
+.tag-kayaking { background: #cffafe; color: #164e63; }
+.tag-hiking { background: #e0f2fe; color: #075985; }
+.tag-wildlife-tour { background: #fef9c3; color: #854d0e; }
+.tag-climbing { background: #fee2e2; color: #7f1d1d; }
+.tag-general { background: #f3f4f6; color: #374151; }
+
+
+
+/* ========================================================================== */
+/*  CARD CONTENT                                                              */
+/* ========================================================================== */
+
+.card-content {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex:1;
+}
+
+.card-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 12px 80px;
-    font-size: 16px;
 }
 
-.nc-left, .nc-right {
+.card-header h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.difficulty {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.9em;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+
+.beginner { background: #C8F7C5; color: #206B2F; }
+.intermediate { background: #FFF5C2; color: #8B7400; }
+.advanced { background: #FFD1D1; color: #9E1A1A; }
+
+.card-content p {
+    color: #4b5563;
+    font-size: 14px;
+    margin: 12px 0 16px;
+}
+
+
+
+/* ========================================================================== */
+/*  DETAILS LIST                                                               */
+/* ========================================================================== */
+
+.details {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 16px 0;
+}
+
+.details li {
     display: flex;
     align-items: center;
-    gap: 24px;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-.nc-left a, .nc-right a {
-    color: white;
-    text-decoration: none;
-    font-weight: 500;
-    transition: opacity 0.2s ease;
-}
-
-.nc-left a:hover, .nc-right a:hover {
-    opacity: 0.7;
-}
-
-.divider {
-    opacity: 0.4;
-}
-
-/* --- LOGIN BUTTON --- */
-.nc-login {
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    padding: 6px 14px;
-    border-radius: 20px;
-    transition: background 0.3s ease;
-}
-
-.nc-login:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-
-/* FULL WIDTH VIEW BUTTON */
-.view-full {
-    width: 100%;
-    display: block;
-    text-align: center;
-    padding: 12px 0;
-    background: #0b2545;
-    color: #fff;
-    border-radius: 10px;
-    font-weight: 600;
-    text-decoration: none;
-    font-size: 15px;
-    margin: 10px 0;
-}
-
-.view-full:hover {
-    background: #1e375d;
-}
-
-/* ROW FOR EDIT + CANCEL */
-.edit-cancel-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-/* EDIT SMALL */
-.edit-small {
-    background: #f3f4f6;
-    color: #111;
-    border-radius: 8px;
-    padding: 10px 0;
-    text-align: center;
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 14px;
-    border: 1px solid #d1d5db;
-}
-
-.edit-small:hover {
-    background: #e5e7eb;
-}
-
-/* CANCEL SMALL */
-.cancel-small {
-    width: 100%;
-    background: #ef4444;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 0;
-    cursor: pointer;
-    font-weight: 600;
+    gap: 6px;
+    margin-bottom: 6px;
+    color: #374151;
     font-size: 14px;
 }
 
-.cancel-small:hover {
-    background: #dc2626;
+.details svg {
+    width: 15px;
+    height: 15px;
 }
 
-/* Cancelled state */
-.cancel-status {
-    grid-column: span 2;
-    text-align: center;
-    color: #e53935;
-    font-weight: 600;
-    padding: 6px 0;
-}
+
+
+/* ========================================================================== */
+/*  FOOTER BUTTONS                                                             */
+/* ========================================================================== */
 
 .footer {
     display: flex;
-    align-items: flex-start;
-    gap: 20px;                  /* Abstand Preis <-> Buttons */
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
 }
 
-.button-area {
-    width: 100%;
-    max-width: 230px;
-    margin-left: 70px;
+.price {
+    font-size: 18px;
+    font-weight: 700;
 }
 
-/* Full width "View Details" button */
-.view-full {
-    width: 180px;      /* SCHMÄLER */
-    display: block;
-    text-align: center;
-    padding: 10px 0;
+.view-btn {
     background: #0b2545;
-    color: #fff;
-    border-radius: 10px;
-    font-weight: 600;
+    color: white;
+    border-radius: 8px;
+    padding: 8px 16px;
     text-decoration: none;
-    font-size: 14px;
-    margin-bottom: 10px;
+    transition: 0.2s;
 }
 
-
-.view-full:hover {
+.view-btn:hover {
     background: #1e375d;
 }
 
-.edit-cancel-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    width: 180px;     /* GLEICHE BREITE WIE VIEW BUTTON */
-}
-
-
-.edit-small {
-    width: 100%;
+.edit-btn {
     background: #f3f4f6;
-    color: #111;
-    border-radius: 8px;
-    padding: 8px 0;
-    text-align: center;
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 13px;
+    color: #111827;
     border: 1px solid #d1d5db;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 14px;
 }
 
-
-.edit-small:hover {
+.edit-btn:hover {
     background: #e5e7eb;
 }
 
-/* Cancel */
-.cancel-small {
-    width: 100%;
-    background: #ef4444;
+
+
+/* ========================================================================== */
+/*  CANCEL BUTTON                                                              */
+/* ========================================================================== */
+
+.cancel-btn {
+    background: #e53935;
     color: white;
     border: none;
     border-radius: 8px;
-    padding: 8px 0;
+    padding: 8px 16px;
     cursor: pointer;
-    font-weight: 600;
-    font-size: 13px;
+    font-size: 14px;
+}
+
+.cancel-btn:hover {
+    background: #c62828;
 }
 
 
-.cancel-small:hover {
-    background: #dc2626;
+
+/* ========================================================================== */
+/*  CANCELLED EVENT                                                           */
+/* ========================================================================== */
+
+.event-card.cancelled-event {
+    opacity: 0.65;
+    position: relative;
 }
 
-/* If cancelled */
-.cancel-status {
-    grid-column: span 2;
-    text-align: center;
-    color: #e53935;
-    font-weight: 600;
-    padding: 6px 0;
+.event-card.cancelled-event .card-image::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
 }
 
-/* Back-Link Button (❮ Home) */
+.cancelled-badge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #e53935;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+
+
+/* ========================================================================== */
+/*  EXPIRED EVENT                                                              */
+/* ========================================================================== */
+
+.event-card.expired-event .card-image::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.2);
+}
+
+.expired-badge {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #ea7a57;
+    color: white;
+    padding: 8px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+
+
+/* ========================================================================== */
+/*  POPUP MESSAGE                                                              */
+/* ========================================================================== */
+
+.popup-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #4caf50;
+    color: #fff;
+    padding: 14px 22px;
+    border-radius: 8px;
+    font-weight: 500;
+    animation: fadeInOut 4s ease forwards;
+    z-index: 9999;
+}
+
+.popup-message.error {
+    background: #e53935;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateY(-10px); }
+    10%, 90% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-10px); }
+}
+
+
+
+/* ========================================================================== */
+/*  BACK BUTTON                                                                */
+/* ========================================================================== */
+
 .back-link {
     display: inline-flex;
     align-items: center;
@@ -954,20 +603,34 @@ html, body {
     background-color: #f9fafb;
     border: 1px solid #e5e7eb;
     padding: 8px 14px;
+    margin-top: 0 !important;
     border-radius: 10px;
-    transition: all 0.25s ease;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-
-
-    margin-top: 45px !important;
+    transition: 0.25s;
 }
 
 .back-link:hover {
     background-color: #e9eef5;
-    color: #0b2545;
     transform: translateX(-2px);
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
 }
 
 
 
+/* ========================================================================== */
+/*  DISABLED BUTTONS (CANCELLED EVENTS)                                       */
+/* ========================================================================== */
+
+.event-card.cancelled-event .card-content,
+.event-card.expired-event .card-content {
+    opacity: 1; /* content stays normal */
+}
+
+/* FORCE apply button to stay white */
+.filter-panel .apply-btn {
+    color: #ffffff !important;
+    background: #0b2545 !important;
+    border: none !important;
+}
+.category-bar button.active {
+    background-color: #0f2740 !important;
+    color: #ffffff !important;
+}

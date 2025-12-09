@@ -1,11 +1,14 @@
 package at.fhv.Event.application.event;
 
 import at.fhv.Event.domain.model.event.EventRepository;
-import at.fhv.Event.rest.response.event.EventOverviewDTO;
+import at.fhv.Event.presentation.rest.response.event.EventOverviewDTO;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -13,10 +16,12 @@ public class FilterEventService {
 
     private final EventRepository eventRepository;
     private final EventMapperDTO mapper;
+    private final EventAccessService accessService;
 
-    public FilterEventService(EventRepository eventRepository, EventMapperDTO mapper) {
+    public FilterEventService(EventRepository eventRepository, EventMapperDTO mapper,  EventAccessService accessService) {
         this.eventRepository = eventRepository;
         this.mapper = mapper;
+        this.accessService = accessService;
     }
     public List<EventOverviewDTO> filter(String q,
                                          String category,
@@ -88,9 +93,18 @@ public class FilterEventService {
             }
         }
 
-        return events.stream()
-                .map(mapper::toOverview)
-                .toList();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        List<EventOverviewDTO> result = new ArrayList<>();
+        for (var event : events) {
+            String displayOrganizer = accessService.determineDisplayOrganizer(
+                    event.getOrganizer()
+            );
+
+            EventOverviewDTO dto = mapper.toOverviewDTO(event, displayOrganizer);
+            result.add(dto);
+        }
+        return result;
     }
 
     public List<EventOverviewDTO> filterExactDate(LocalDate date, String sort) {
@@ -108,9 +122,15 @@ public class FilterEventService {
             }
         }
 
-        return events.stream()
-                .map(mapper::toOverview)
-                .toList();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        List<EventOverviewDTO> result = new ArrayList<>();
+        for (var event : events) {
+            String displayOrganizer = accessService.determineDisplayOrganizer(event.getOrganizer());
+            EventOverviewDTO dto = mapper.toOverviewDTO(event, displayOrganizer);
+            result.add(dto);
+        }
+        return result;
     }
 
     private static <T extends Comparable<T>> int compareNullable(T a, T b) {

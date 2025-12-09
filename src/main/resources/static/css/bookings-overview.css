@@ -1,0 +1,200 @@
+body.bookings-page {
+    background-image: url("../images/ManOnMountain.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+
+    /* leichte Abdunklung */
+    background-color: rgba(0, 0, 0, 0.7);
+    background-blend-mode: darken;
+}
+
+/* MAIN CONTAINER */
+.booking-container {
+    width: 90%;
+    max-width: 1100px;
+    margin: 80px auto 80px;
+    padding: 20px;
+    text-align: center;
+}
+
+/* TITLE */
+.booking-container h1 {
+    color: white;
+    margin-bottom: 25px;
+    font-size: 32px;
+}
+
+.no-bookings {
+    color: white;
+    font-size: 18px;
+    margin-top: 20px;
+    text-align: center;
+    width: 100%;
+}
+
+/* TABLE WRAPPER */
+.booking-table {
+    width: 100%;
+    border-collapse: separate !important;
+    border-spacing: 0 10px;
+}
+
+/* HEADER */
+.booking-table thead tr {
+    display: grid;
+    grid-template-columns: 4fr 2fr 2fr 2fr 2fr;
+    background: #0d2847;
+    color: white;
+    padding: 14px 18px;
+    border-radius: 12px 12px 0 0;
+}
+
+.booking-table th {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+}
+
+/* BODY ROWS */
+.booking-table tbody tr {
+    display: grid;
+    grid-template-columns: 4fr 2fr 2fr 2fr 2fr;
+    align-items: center;
+    background: rgba(255,255,255,0.95);
+    padding: 14px 18px;
+}
+
+/* ALTERNATE ROWS */
+.booking-table tbody tr:nth-child(even) {
+    background: #fffaeb;
+}
+
+/* GENERAL CELL TEXT */
+.booking-table td,
+.event-info span {
+    color: #000 !important;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+}
+
+/* EVENT COLUMN */
+.event-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.event-info img {
+    width: 70px;
+    height: 55px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+/* ACTION BUTTON CELL */
+.booking-table td.actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* BUTTONS */
+/* EDIT Button wie auf der Events-Seite */
+/* EDIT Button (weiß) */
+.btn-edit {
+    background: #ffffff !important;
+    color: #0b2545 !important;
+    border: 1.5px solid #d1d5db !important;
+    padding: 6px 20px !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    cursor: pointer;
+    transition: 0.2s ease !important;
+    line-height: 1 !important;
+    box-shadow: none !important;
+}
+
+/* Cancel Button (rot) */
+.btn-cancel {
+    background: #dc2626 !important;
+    color: #ffffff !important;
+    padding: 6px 20px !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    border: none !important;             /* KILL the black border */
+    box-shadow: none !important;         /* Bootstrap shadow fix */
+    cursor: pointer;
+    transition: 0.2s ease !important;
+    line-height: 1 !important;
+}
+
+.btn-cancel:hover {
+    background: #b91c1c !important;
+    transform: translateY(-1px) !important;
+}
+
+.btn-edit:hover {
+    background: #f3f4f6;   /* leichtes Grau */
+    border-color: #0b2545; /* darker border on hover */
+    transform: translateY(-1px);
+}
+
+.btn-edit,
+.btn-cancel {
+    text-decoration: none !important;   /* entfernt Unterstreichen */
+}
+
+
+/* PRICE FIX */
+.price-euro {
+    display: flex;
+    align-items: center;
+}
+.booking-table tbody tr:last-child {
+    border-radius: 0 0 12px 12px;
+}
+
+.toast-success {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #c5f7c5;
+    color: #0f5f0f;
+    padding: 12px 18px;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    font-size: 16px;
+    z-index: 2000;
+
+    opacity: 1;
+    animation: fadeout 4s forwards;
+}
+
+@keyframes fadeout {
+    0% { opacity: 1; }
+    70% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.toast-error {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #fee2e2;      /* helles Rot */
+    color: #7f1d1d;           /* dunkles Rot für Text */
+    padding: 12px 18px;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    font-size: 16px;
+    z-index: 2000;
+
+    opacity: 1;
+    animation: fadeout 4s forwards;
+}
+

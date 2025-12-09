@@ -14,7 +14,9 @@ public interface BookingRepository {
     Optional<Booking> findById(Long id);
     List<Booking> findAll();
     List<Booking> findByEventId(Long eventId);
+    List<Booking> findByCustomerEmail(String email);
     int countSeatsForEvent(Long eventId);
     Event loadEventForBooking(Long eventId);
     Map<Long, EquipmentEntity> loadEquipmentMap(CreateBookingRequest request);
+    int countPaidSeatsForEvent(Long eventId);
 }
