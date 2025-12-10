@@ -12,8 +12,13 @@ import java.util.List;
 public interface BookingJpaRepository extends JpaRepository<BookingEntity, Long> {
     List<BookingEntity> findByEventId(Long eventId);
 
-    @Query("SELECT SUM(b.seats) FROM BookingEntity b WHERE b.eventId = :eventId AND b.status = 'CONFIRMED'")
-    Integer countConfirmedSeatsForEvent(Long eventId);
+    @Query("""
+    SELECT COALESCE(SUM(b.seats), 0)
+    FROM BookingEntity b
+    WHERE b.eventId = :eventId
+      AND b.status IN ('CONFIRMED', 'PAID')
+""")
+    int countOccupiedSeatsForEvent(@Param("eventId") Long eventId);
 
     List<BookingEntity> findByStatus(BookingStatus status);
 
