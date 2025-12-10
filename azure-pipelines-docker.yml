@@ -8,6 +8,11 @@ steps:
 - checkout: self
 
 - script: |
+    echo "PWD:"
+    pwd
+    echo "FILES:"
+    ls -la
+      displayName: Debug Sources
     cd $(Build.SourcesDirectory)
 
     docker build \
