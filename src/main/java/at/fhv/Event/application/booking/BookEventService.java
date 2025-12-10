@@ -29,7 +29,13 @@ public class BookEventService {
     private final BookingMapperDTO _bookingMapperDTO;
     private final BookingValidator _bookingValidator;
 
-    public BookEventService(BookingRepository bookingRepository, EquipmentRepository equipmentRepository, BookingRequestMapper bookingRequestMapper, BookingMapperDTO bookingMapperDTO, BookingValidator bookingValidator) {
+    public BookEventService(
+            BookingRepository bookingRepository,
+            EquipmentRepository equipmentRepository,
+            BookingRequestMapper bookingRequestMapper,
+            BookingMapperDTO bookingMapperDTO,
+            BookingValidator bookingValidator) {
+
         _bookingRepository = bookingRepository;
         _equipmentRepository = equipmentRepository;
         _bookingRequestMapper = bookingRequestMapper;
@@ -37,27 +43,33 @@ public class BookEventService {
         _bookingValidator = bookingValidator;
     }
 
+    // -----------------------------------------------------------------------
+    // BOOKING CREATION
+    // -----------------------------------------------------------------------
+
     @Transactional
     public BookingDTO bookEvent(CreateBookingRequest request) {
+
         Event event = loadEvent(request.getEventId());
         checkEventAvailability(event);
         checkEventCapacity(event, request.getSeats());
+
         Map<Long, Equipment> equipmentMap = loadEquipmentMap(request);
         validateBookingRequest(request, event, equipmentMap);
         normalizeVoucherCode(request);
 
         BigDecimal totalPrice = calculateTotalPrice(request, event, equipmentMap);
+
         Booking booking = createBooking(request, totalPrice);
-        List<BookingEquipment> equipment = processEquipmentBooking(request, equipmentMap);
-        booking.setEquipment(equipment);
+        booking.setEquipment(processEquipmentBooking(request, equipmentMap));
 
         Booking savedBooking = _bookingRepository.save(booking);
+
         return _bookingMapperDTO.toDTO(savedBooking);
     }
 
     public BookingDTO getDTOById(Long bookingId) {
-        Booking booking = findBookingById(bookingId);
-        return _bookingMapperDTO.toDTO(booking);
+        return _bookingMapperDTO.toDTO(findBookingById(bookingId));
     }
 
     public Booking getById(Long bookingId) {
@@ -69,9 +81,13 @@ public class BookEventService {
         checkEventAvailability(event);
     }
 
+    // -----------------------------------------------------------------------
+    // BOOKING UPDATE
+    // -----------------------------------------------------------------------
 
     @Transactional
     public BookingDTO updateBooking(Long bookingId, CreateBookingRequest request) {
+
         Booking booking = findBookingById(bookingId);
         Event event = loadEvent(request.getEventId());
 
@@ -83,7 +99,9 @@ public class BookEventService {
         int alreadyBooked = _bookingRepository.countOccupiedSeatsForEvent(event.getId());
         int alreadyBookedExcludingThis = Math.max(0, alreadyBooked - booking.getSeats());
 
-        List<ValidationError> errors = _bookingValidator.validate(request, event, equipmentMap, alreadyBookedExcludingThis);
+        List<ValidationError> errors =
+                _bookingValidator.validate(request, event, equipmentMap, alreadyBookedExcludingThis);
+
         if (!errors.isEmpty()) {
             throw new BookingValidationException(errors);
         }
@@ -103,87 +121,90 @@ public class BookEventService {
         booking.setDiscountAmount(discount.doubleValue());
         booking.setTotalPrice(totalPrice.doubleValue());
 
+        // Update participants
         List<BookingParticipant> participants = new ArrayList<>();
         if (request.getParticipants() != null) {
             for (ParticipantDTO p : request.getParticipants()) {
-                BookingParticipant bp = new BookingParticipant(
+                participants.add(new BookingParticipant(
                         p.getFirstName(),
                         p.getLastName(),
                         p.getAge()
-                );
-                participants.add(bp);
+                ));
             }
         }
         booking.setParticipants(participants);
 
-        List<BookingEquipment> newEquipmentList = new ArrayList<>();
-
+        // Update equipment
+        List<BookingEquipment> equipmentList = new ArrayList<>();
         if (request.getEquipment() != null) {
             for (var entry : request.getEquipment().entrySet()) {
-                Long equipmentId = entry.getKey();
-                EquipmentSelection selection = entry.getValue();
 
-                if (!selection.isSelected() || selection.getQuantity() <= 0) {
+                Long equipmentId = entry.getKey();
+                EquipmentSelection sel = entry.getValue();
+
+                if (!sel.isSelected() || sel.getQuantity() <= 0)
                     continue;
-                }
 
                 Equipment equipment = equipmentMap.get(equipmentId);
-                if (equipment == null) {
+                if (equipment == null)
                     continue;
-                }
 
-                BookingEquipment be = new BookingEquipment(
+                equipmentList.add(new BookingEquipment(
                         equipment.getId(),
-                        selection.getQuantity(),
+                        sel.getQuantity(),
                         equipment.getUnitPrice().doubleValue()
-                );
-                newEquipmentList.add(be);
+                ));
             }
         }
 
-        if (booking.getEquipment() != null) {
-            booking.getEquipment().clear();
-            booking.getEquipment().addAll(newEquipmentList);
-        } else {
-            booking.setEquipment(newEquipmentList);
-        }
-
+        booking.setEquipment(equipmentList);
 
         Booking savedBooking = _bookingRepository.save(booking);
         return _bookingMapperDTO.toDTO(savedBooking);
     }
 
+    // -----------------------------------------------------------------------
+    // BOOKING CANCELLATION
+    // -----------------------------------------------------------------------
+
+    // ⭐ WICHTIG – alte Signatur wiederhergestellt, um 500-Fehler zu vermeiden
     @Transactional
     public void cancelBooking(Long bookingId, String email) {
+        cancelBooking(bookingId, email, false);
+    }
+
+    @Transactional
+    public void cancelBooking(Long bookingId, String email, boolean isAdmin) {
+
         Booking booking = getById(bookingId);
 
-        // Customer ownership check
-        if (!booking.getBookerEmail().equalsIgnoreCase(email)) {
+        // Customer darf NUR eigene Buchungen stornieren
+        if (!isAdmin && !booking.getBookerEmail().equalsIgnoreCase(email)) {
             throw new IllegalStateException("You cannot cancel someone else's booking.");
         }
 
-        // Already cancelled
         if (booking.getStatus() == BookingStatus.CANCELLED) {
             throw new IllegalStateException("This booking is already cancelled.");
         }
 
-        // Check event time
         Event event = loadEvent(booking.getEventId());
         LocalDateTime eventStart = LocalDateTime.of(event.getDate(), event.getStartTime());
+
         if (eventStart.isBefore(LocalDateTime.now())) {
             throw new IllegalStateException("This event already started and cannot be cancelled.");
         }
 
-        // Apply cancellation
         booking.setStatus(BookingStatus.CANCELLED);
         _bookingRepository.save(booking);
     }
 
-
-
+    // -----------------------------------------------------------------------
+    // PAYMENT
+    // -----------------------------------------------------------------------
 
     @Transactional
     public BookingDTO updatePaymentMethod(Long bookingId, String paymentMethodName) {
+
         Booking booking = findBookingById(bookingId);
         PaymentMethod paymentMethod = parsePaymentMethod(bookingId, paymentMethodName);
 
@@ -191,9 +212,12 @@ public class BookEventService {
         booking.setPaymentStatus(PaymentStatus.PAID);
         booking.setStatus(BookingStatus.CONFIRMED);
 
-        Booking savedBooking = _bookingRepository.save(booking);
-        return _bookingMapperDTO.toDTO(savedBooking);
+        return _bookingMapperDTO.toDTO(_bookingRepository.save(booking));
     }
+
+    // -----------------------------------------------------------------------
+    // INTERNAL HELPERS
+    // -----------------------------------------------------------------------
 
     private Event loadEvent(Long eventId) {
         try {
@@ -214,173 +238,192 @@ public class BookEventService {
     }
 
     private void checkEventCapacity(Event event, int requestedSeats) {
+
         int max = event.getMaxParticipants();
         int min = event.getMinParticipants() == null ? 0 : event.getMinParticipants();
 
-        int confirmedSeats = _bookingRepository.countOccupiedSeatsForEvent(event.getId());
-        int remainingSeats = (max - min) - confirmedSeats;
+        int confirmed = _bookingRepository.countOccupiedSeatsForEvent(event.getId());
 
-        if (remainingSeats <= 0) {
+        int remaining = (max - min) - confirmed;
+
+        if (remaining <= 0)
             throw new EventFullyBookedException(event.getId(), requestedSeats, 0);
-        }
 
-        if (requestedSeats > remainingSeats) {
-            throw new EventFullyBookedException(event.getId(), requestedSeats, remainingSeats);
-        }
+        if (requestedSeats > remaining)
+            throw new EventFullyBookedException(event.getId(), requestedSeats, remaining);
     }
 
-    private void checkEventCapacityForUpdate(Event event, Booking existingBooking, int newSeats) {
-        int confirmedSeats = _bookingRepository.countOccupiedSeatsForEvent(event.getId());
-        int confirmedSeatsExcludingThis = confirmedSeats - existingBooking.getSeats();
-        if (confirmedSeatsExcludingThis < 0) {
-            confirmedSeatsExcludingThis = 0;
-        }
+    private void checkEventCapacityForUpdate(Event event, Booking booking, int newSeats) {
 
-        int availableSeats = event.getMaxParticipants() - event.getMinParticipants();
-        int remainingSeats = availableSeats - confirmedSeatsExcludingThis;
+        int confirmed = _bookingRepository.countOccupiedSeatsForEvent(event.getId());
+        int excludingThis = Math.max(0, confirmed - booking.getSeats());
 
-        if (remainingSeats <= 0) {
+        int available = event.getMaxParticipants() - event.getMinParticipants();
+        int remaining = available - excludingThis;
+
+        if (remaining <= 0)
             throw new EventFullyBookedException(event.getId(), newSeats, 0);
-        }
-        if (newSeats > remainingSeats) {
-            throw new EventFullyBookedException(event.getId(), newSeats, remainingSeats);
-        }
-    }
 
+        if (newSeats > remaining)
+            throw new EventFullyBookedException(event.getId(), newSeats, remaining);
+    }
 
     private Map<Long, Equipment> loadEquipmentMap(CreateBookingRequest request) {
-        if (request.getEquipment() == null || request.getEquipment().isEmpty()) {
+        if (request.getEquipment() == null || request.getEquipment().isEmpty())
             return Map.of();
-        }
 
-        List<Long> equipmentIds = new ArrayList<>(request.getEquipment().keySet());
-        return _equipmentRepository.findByIds(equipmentIds);
+        List<Long> ids = new ArrayList<>(request.getEquipment().keySet());
+        return _equipmentRepository.findByIds(ids);
     }
 
+    private void validateBookingRequest(CreateBookingRequest request,
+                                        Event event,
+                                        Map<Long, Equipment> equipmentMap) {
 
-    private void validateBookingRequest(CreateBookingRequest request, Event event, Map<Long, Equipment> equipmentMap) {
-        int alreadyBooked = _bookingRepository.countOccupiedSeatsForEvent(event.getId());
-        List<ValidationError> errors = _bookingValidator.validate(request, event, equipmentMap, alreadyBooked);
-        if (!errors.isEmpty()) {
+        int booked = _bookingRepository.countOccupiedSeatsForEvent(event.getId());
+        List<ValidationError> errors =
+                _bookingValidator.validate(request, event, equipmentMap, booked);
+
+        if (!errors.isEmpty())
             throw new BookingValidationException(errors);
-        }
     }
 
-    private void normalizeVoucherCode(CreateBookingRequest request) {
-        if (request.getVoucherCode() != null && request.getVoucherCode().isBlank()) {
-            request.setVoucherCode(null);
-        }
+    private void normalizeVoucherCode(CreateBookingRequest req) {
+        if (req.getVoucherCode() != null && req.getVoucherCode().isBlank())
+            req.setVoucherCode(null);
     }
 
-    private BigDecimal calculateTotalPrice(CreateBookingRequest request, Event event, Map<Long, Equipment> equipmentMap) {
-        BigDecimal basePrice = calculateBasePrice(event, request.getSeats());
+    private BigDecimal calculateTotalPrice(CreateBookingRequest request,
+                                           Event event,
+                                           Map<Long, Equipment> equipmentMap) {
+
+        BigDecimal base = event.getPrice()
+                .multiply(BigDecimal.valueOf(request.getSeats()));
+
         BigDecimal equipmentPrice = calculateEquipmentPrice(request, equipmentMap);
-        BigDecimal subtotal = basePrice.add(equipmentPrice);
-        BigDecimal discount = calculateDiscount(subtotal, request);
-        return subtotal.subtract(discount);
+        BigDecimal subtotal = base.add(equipmentPrice);
+
+        return subtotal.subtract(calculateDiscount(subtotal, request));
     }
 
-    private BigDecimal calculateBasePrice(Event event, int seats) {
-        return event.getPrice().multiply(BigDecimal.valueOf(seats));
-    }
+    private BigDecimal calculateEquipmentPrice(CreateBookingRequest req,
+                                               Map<Long, Equipment> map) {
 
-    private BigDecimal calculateEquipmentPrice(CreateBookingRequest request, Map<Long, Equipment> equipmentMap) {
         BigDecimal total = BigDecimal.ZERO;
-        for (var entry : request.getEquipment().entrySet()) {
-            EquipmentSelection selection = entry.getValue();
 
-            if (!selection.isSelected()) {
-                continue;
-            }
-            Equipment equipment = equipmentMap.get(entry.getKey());
-            if (equipment == null) {
-                continue;
-            }
+        for (var entry : req.getEquipment().entrySet()) {
+            EquipmentSelection sel = entry.getValue();
 
-            BigDecimal itemTotal = equipment.getUnitPrice().multiply(BigDecimal.valueOf(selection.getQuantity()));
-            total = total.add(itemTotal);
+            if (!sel.isSelected())
+                continue;
+
+            Equipment equipment = map.get(entry.getKey());
+            if (equipment == null)
+                continue;
+
+            total = total.add(
+                    equipment.getUnitPrice()
+                            .multiply(BigDecimal.valueOf(sel.getQuantity()))
+            );
         }
         return total;
     }
 
-    private BigDecimal calculateDiscount(BigDecimal subtotal, CreateBookingRequest request) {
-        if (request.getDiscountPercent() == null) {
+    private BigDecimal calculateDiscount(BigDecimal subtotal,
+                                         CreateBookingRequest req) {
+
+        if (req.getDiscountPercent() == null)
             return BigDecimal.ZERO;
-        }
-        BigDecimal discountRate = BigDecimal.valueOf(request.getDiscountPercent()).divide(BigDecimal.valueOf(100));
-        return subtotal.multiply(discountRate);
+
+        BigDecimal rate =
+                BigDecimal.valueOf(req.getDiscountPercent()).divide(BigDecimal.valueOf(100));
+
+        return subtotal.multiply(rate);
     }
 
-    private Booking createBooking(CreateBookingRequest request, BigDecimal totalPrice) {
-        Booking booking = _bookingRequestMapper.toDomain(request, totalPrice.doubleValue());
-        BigDecimal discount = calculateDiscount(totalPrice, request);
+    private Booking createBooking(CreateBookingRequest req, BigDecimal totalPrice) {
+
+        Booking booking = _bookingRequestMapper.toDomain(req, totalPrice.doubleValue());
+
+        BigDecimal discount = calculateDiscount(totalPrice, req);
+
         booking.setDiscountAmount(discount.doubleValue());
         booking.setTotalPrice(totalPrice.doubleValue());
+
         return booking;
     }
 
-    private List<BookingEquipment> processEquipmentBooking(CreateBookingRequest request, Map<Long, Equipment> equipmentMap) {
-        List<BookingEquipment> bookingEquipmentList = new ArrayList<>();
+    private List<BookingEquipment> processEquipmentBooking(
+            CreateBookingRequest req,
+            Map<Long, Equipment> map) {
 
-        for (var entry : request.getEquipment().entrySet()) {
-            EquipmentSelection selection = entry.getValue();
-            if (!selection.isSelected() || selection.getQuantity() <= 0) {
+        List<BookingEquipment> list = new ArrayList<>();
+
+        for (var entry : req.getEquipment().entrySet()) {
+
+            EquipmentSelection sel = entry.getValue();
+
+            if (!sel.isSelected() || sel.getQuantity() <= 0)
                 continue;
-            }
 
-            Equipment equipment = equipmentMap.get(entry.getKey());
-            if (equipment == null) {
+            Equipment equipment = map.get(entry.getKey());
+            if (equipment == null)
                 continue;
-            }
 
-            reduceEquipmentStock(equipment, selection.getQuantity());
-            BookingEquipment bookingEquipment = new BookingEquipment(
+            reduceEquipmentStock(equipment, sel.getQuantity());
+
+            list.add(new BookingEquipment(
                     equipment.getId(),
-                    selection.getQuantity(),
+                    sel.getQuantity(),
                     equipment.getUnitPrice().doubleValue()
-            );
-            bookingEquipmentList.add(bookingEquipment);
+            ));
         }
-        return bookingEquipmentList;
+        return list;
     }
 
-    void reduceEquipmentStock(Equipment equipment, int quantity) {
-        if (!equipment.hasEnoughStock(quantity)) {
+    private void reduceEquipmentStock(Equipment equipment, int qty) {
+
+        if (!equipment.hasEnoughStock(qty)) {
             throw new InsufficientStockException(
                     equipment.getId(),
                     equipment.getName(),
-                    quantity,
+                    qty,
                     equipment.getStock()
             );
         }
-        equipment.reduceStock(quantity);
+
+        equipment.reduceStock(qty);
         _equipmentRepository.save(equipment);
     }
 
-    private Booking findBookingById(long bookingId) {
-        return _bookingRepository.findById(bookingId).orElseThrow(() -> new BookingNotFoundException(bookingId));
+    private Booking findBookingById(long id) {
+        return _bookingRepository.findById(id)
+                .orElseThrow(() -> new BookingNotFoundException(id));
     }
 
-    private PaymentMethod parsePaymentMethod(Long bookingId, String paymentMethodName) {
+    private PaymentMethod parsePaymentMethod(Long bookingId, String name) {
+
         try {
-            return PaymentMethod.valueOf(paymentMethodName);
+            return PaymentMethod.valueOf(name);
         } catch (IllegalArgumentException e) {
             throw new PaymentProcessingException(
                     bookingId,
-                    paymentMethodName,
-                    "Invalid payment method: " + paymentMethodName
+                    name,
+                    "Invalid payment method: " + name
             );
         }
     }
 
     public int getAvailableSeats(Long eventId) {
+
         Event event = loadEvent(eventId);
+        int confirmed = _bookingRepository.countOccupiedSeatsForEvent(eventId);
 
-        int confirmedSeats = _bookingRepository.countOccupiedSeatsForEvent(eventId);
-        int availableSeats = event.getMaxParticipants() - event.getMinParticipants() - confirmedSeats;
-        return Math.max(0, availableSeats);
+        int available =
+                event.getMaxParticipants() - event.getMinParticipants() - confirmed;
+
+        return Math.max(0, available);
     }
-
 
     @Transactional
     public void markAsPaid(Long bookingId) {

@@ -380,18 +380,30 @@ public class BookingController {
     @PostMapping("/{id}/cancel")
     @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
     public String cancelBooking(@PathVariable Long id,
+                                Authentication auth,
                                 Principal principal,
                                 RedirectAttributes redirectAttributes) {
 
         try {
-            _bookEventService.cancelBooking(id, principal.getName());
+            boolean isAdmin = auth.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+            _bookEventService.cancelBooking(id, principal.getName(), isAdmin);
+
             redirectAttributes.addFlashAttribute("success", "Booking cancelled successfully.");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
 
+        // Admin zurück zur Admin-Ansicht
+        if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return "redirect:/bookings";
+        }
+
+        // Kunde → zu eigenen Buchungen
         return "redirect:/bookings";
     }
+
 
 
 
