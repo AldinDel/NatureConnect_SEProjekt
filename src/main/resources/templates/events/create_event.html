@@ -47,6 +47,29 @@
         .remove-equipment { background: none; border: none; color: #dc2626; font-weight: bold; cursor: pointer; font-size: 16px; }
 
         .time-inputs { display: flex; gap: 10px; align-items: center; }
+
+        .popup-message {
+            position: fixed;
+            top: 90px;
+            right: 20px;
+            background: #2ecc71; /* Grün für Erfolg */
+            color: white;
+            padding: 14px 22px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            font-size: 15px;
+            font-weight: 600;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.8s ease-out;
+        }
+
+        .popup-message.error {
+            background: #e74c3c;
+        }
+        .popup-hide {
+            opacity: 0;
+        }
     </style>
 </head>
 
@@ -54,6 +77,10 @@
 
 <!-- HIER WIRD DIE GLOBALE NAVBAR GELADEN -->
 <div th:replace="~{events/fragments/navbar :: navbar}"></div>
+
+<div th:if="${success != null}" id="success-popup" class="popup-message" th:text="${success}"></div>
+<div th:if="${error != null}" id="error-popup" class="popup-message error" th:text="${error}"></div>
+
 
 <main class="event-form-wrap">
     <h1 class="event-form-title" th:text="${isEdit} ? 'Edit Event' : 'Create Event'">Create Event</h1>

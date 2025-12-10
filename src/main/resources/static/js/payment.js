@@ -1,5 +1,9 @@
-const MAIN_BASE = "http://10.0.40.198:8080";
-const PAYMENT_BASE = "http://10.0.40.198:9090";
+const host = window.location.hostname;
+const protocol = window.location.protocol;
+
+const MAIN_BASE = `${protocol}//${host}:8080`;
+const PAYMENT_BASE = `${protocol}//${host}:9090`;
+
 
 function selectPayment(method, el) {
     document.querySelectorAll('.payment-option').forEach(opt => {
@@ -60,7 +64,7 @@ async function openPayment() {
         return;
     }
     try {
-        await fetch(`${MAIN_BASE}/booking/payment/${bookingId}`, {
+        await fetch(`/booking/payment/${bookingId}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
