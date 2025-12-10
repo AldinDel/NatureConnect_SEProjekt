@@ -1,0 +1,21 @@
+trigger:
+  - master
+
+pool:
+  name: fhv-linux-pool
+
+steps:
+- checkout: self
+
+- script: |
+    docker build \
+      -f $(Build.SourcesDirectory)/Dockerfile \
+      -t localhost:5000/natureconnect:latest \
+      $(Build.SourcesDirectory)
+    docker push localhost:5000/natureconnect:latest
+  displayName: Build & Push Docker Image
+
+- script: |
+    docker compose down || true
+    docker compose up -d
+  displayName: Deploy with Docker Compose
