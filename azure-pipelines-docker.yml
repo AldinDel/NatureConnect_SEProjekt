@@ -1,5 +1,7 @@
 trigger:
-  - master
+  branches:
+    include:
+      - sprint-4
 
 pool:
   name: fhv-linux-pool
