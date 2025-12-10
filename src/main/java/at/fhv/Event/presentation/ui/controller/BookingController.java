@@ -378,7 +378,7 @@ public class BookingController {
     }
 
     @PostMapping("/{id}/cancel")
-    @PreAuthorize("hasRole('CUSTOMER')")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
     public String cancelBooking(@PathVariable Long id,
                                 Principal principal,
                                 RedirectAttributes redirectAttributes) {

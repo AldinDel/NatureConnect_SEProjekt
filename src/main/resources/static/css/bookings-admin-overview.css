@@ -234,3 +234,55 @@ body.bookings-admin-page {
     width: 14%; /* oder was du willst */
 }
 
+.row-cancelled {
+    background: rgba(200, 200, 200, 0.75) !important;
+    opacity: 0.6;
+    filter: grayscale(35%);
+    border-radius: 8px;
+    position: relative;
+}
+
+/* Tooltip für deaktivierte Rows – zentriert in der Zeile */
+.row-cancelled::after {
+    content: "This booking is cancelled.";
+    position: absolute;
+    top: 50%;                 /* mittig der Zeile */
+    left: 50%;                /* horizontal zentriert */
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.75);
+    color: white;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 14px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    white-space: nowrap;
+    z-index: 5;
+}
+
+.row-cancelled:hover::after {
+    opacity: 1;
+}
+
+/* Disabled state for buttons inside cancelled rows */
+.row-cancelled .btn-edit,
+.row-cancelled .btn-cancel {
+    pointer-events: none !important;
+    opacity: 0.55 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
+/* Ensure disabled cancel button keeps RED styling */
+.btn-cancel[disabled] {
+    background: #dc2626 !important;
+    color: white !important;
+}
+
+/* Ensure disabled edit button keeps original white style */
+.btn-edit[disabled] {
+    background: white !important;
+    color: #0b2545 !important;
+    border: 1.5px solid #d1d5db !important;
+}

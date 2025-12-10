@@ -76,8 +76,9 @@
         </thead>
 
         <tbody>
-        <tr th:each="b : ${bookings}">
-            <td th:text="${b.eventId}"></td>
+        <tr th:each="b : ${bookings}"
+            th:classappend="${b.cancelled} ? 'row-cancelled'">
+        <td th:text="${b.eventId}"></td>
             <td th:text="'#' + ${b.id}"></td>
             <td th:text="${b.bookerFirstName}"></td>
             <td th:text="${b.bookerLastName}"></td>
@@ -88,21 +89,29 @@
             <td>
                 € <span th:text="${b.totalPrice}"></span>
             </td>
-            <td sec:authorize="hasAnyRole('ADMIN','CUSTOMER')">
-                <div class="actions">
+            <td class="actions" sec:authorize="hasRole('ADMIN')">
 
-                    <a th:if="${b.editable}"
-                       th:href="@{/booking/{id}/edit(id=${b.id})}"
-                       class="btn-edit">
-                        Edit
-                    </a>
+                <!-- EDIT BUTTON -->
+                <a th:href="@{/booking/{id}/edit(id=${b.id})}"
+                   class="btn-edit action-btn"
+                   th:data-warning="${b.cancelled} ? 'This booking is cancelled.'">
+                    Edit
+                </a>
 
-                    <span th:if="${!b.editable}" class="badge-disabled">Not editable</span>
+                <!-- CANCEL BUTTON stays ALWAYS visible but disabled when cancelled -->
+                <form th:action="@{/booking/{id}/cancel(id=${b.id})}"
+                      method="post"
+                      style="display:inline;">
+                    <button class="btn-small btn-cancel action-btn"
+                            type="submit"
+                            th:disabled="${b.cancelled}"
+                            th:data-warning="${b.cancelled} ? 'This booking is cancelled.'">
+                        Cancel
+                    </button>
+                </form>
 
-
-                    <button class="btn-cancel">Cancel</button>
-                </div>
             </td>
+
 
         </tr>
         </tbody>
