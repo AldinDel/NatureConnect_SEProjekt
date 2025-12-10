@@ -8,7 +8,7 @@ steps:
 - checkout: self
 
 - script: |
-    docker build -t localhost:5000/natureconnect:latest .
+    docker build -t localhost:5000/natureconnect:latest -f Dockerfile .
     docker push localhost:5000/natureconnect:latest
   displayName: Build & Push Docker Image
 
