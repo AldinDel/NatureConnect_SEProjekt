@@ -17,16 +17,41 @@ public class CloudinaryService {
         this.cloudinary = cloudinary;
     }
 
-    public String uploadImage(MultipartFile file) throws IOException {
-        if (file == null || file.isEmpty()) {
+    public String uploadImage(MultipartFile file) {
+        System.out.println("=== CloudinaryService.uploadImage START ===");
+
+        if (file == null) {
+            System.out.println("File is NULL");
             return null;
         }
 
-        Map uploadResult = cloudinary.uploader().upload(
-                file.getBytes(),
-                ObjectUtils.asMap("folder", "events")
-        );
+        if (file.isEmpty()) {
+            System.out.println("File is empty (file.isEmpty == true)");
+            System.out.println("Filename: " + file.getOriginalFilename());
+            System.out.println("Size: " + file.getSize());
+            return null;
+        }
 
-        return (String) uploadResult.get("secure_url");
+        System.out.println("Filename: " + file.getOriginalFilename());
+        System.out.println("Size: " + file.getSize());
+
+        try {
+            Map uploadResult = cloudinary.uploader().upload(
+                    file.getBytes(),
+                    ObjectUtils.asMap("folder", "events")
+            );
+
+            System.out.println("UploadResult: " + uploadResult);
+            System.out.println("=== CloudinaryService.uploadImage END ===");
+
+            return (String) uploadResult.get("secure_url");
+        } catch (Exception e) {
+            System.out.println("Error during Cloudinary upload:");
+            e.printStackTrace();
+            return null;
+        }
     }
+
+
+
 }

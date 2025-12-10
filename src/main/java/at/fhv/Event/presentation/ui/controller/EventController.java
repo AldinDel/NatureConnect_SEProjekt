@@ -83,19 +83,22 @@ public class EventController {
             req.setOrganizer(organizerName);
         }
 
-        try {
-            String imageUrl = cloudinaryService.uploadImage(photo);
-            if (imageUrl != null) {
-                req.setImageUrl(imageUrl);
-            }
-        } catch (Exception e) {
+        String imageUrl = cloudinaryService.uploadImage(photo);
+
+        if (imageUrl == null && photo != null && !photo.isEmpty()) {
+            // Upload wurde versucht, aber ist fehlgeschlagen
             redirect.addFlashAttribute("error", "Image upload failed.");
             return "redirect:/events/new";
+        }
+
+        if (imageUrl != null) {
+            req.setImageUrl(imageUrl);
         }
 
         createService.createEvent(req);
         redirect.addFlashAttribute("success", "Event created successfully!");
         return "redirect:/events";
+
     }
 
     @GetMapping("/{id}/edit")
@@ -142,21 +145,21 @@ public class EventController {
             return "redirect:/events/" + id + "/edit";
         }
 
-        try {
-            if (photo != null && !photo.isEmpty()) {
-                String imageUrl = cloudinaryService.uploadImage(photo);
-                if (imageUrl != null) {
-                    req.setImageUrl(imageUrl);
-                }
+        if (photo != null && !photo.isEmpty()) {
+            String imageUrl = cloudinaryService.uploadImage(photo);
+
+            if (imageUrl == null) {
+                redirect.addFlashAttribute("error", "Image upload failed.");
+                return "redirect:/events/" + id + "/edit";
             }
-        } catch (Exception e) {
-            redirect.addFlashAttribute("error", "Image upload failed.");
-            return "redirect:/events/" + id + "/edit";
+
+            req.setImageUrl(imageUrl);
         }
 
         updateService.updateEvent(id, req);
         redirect.addFlashAttribute("success", "Event updated successfully!");
         return "redirect:/events";
+
     }
 
     @GetMapping
