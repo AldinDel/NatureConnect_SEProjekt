@@ -6,6 +6,7 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/bookings-overview.css}">
 </head>
+
 <body class="bookings-page">
 
 <div th:if="${success}" class="toast-success">
@@ -38,7 +39,10 @@
         </thead>
 
         <tbody>
-        <tr th:each="dto : ${bookings}">
+        <tr th:each="dto : ${bookings}"
+            th:classappend="${dto.cancelled} ? 'row-cancelled'">
+
+            <!-- EVENT INFO -->
             <td class="event-col">
                 <div class="event-info">
                     <img th:src="${dto.event.imageUrl}" alt="thumbnail">
@@ -46,26 +50,39 @@
                 </div>
             </td>
 
+            <!-- DATE -->
             <td th:text="${dto.event.date}"></td>
-            <td th:text="${dto.seats}"></td>
-            <td><span th:text="${#numbers.formatDecimal(dto.totalPrice, 1, 2, 'COMMA')} + ' €'"></span></td>
 
+            <!-- PARTICIPANTS -->
+            <td th:text="${dto.seats}"></td>
+
+            <!-- TOTAL PRICE -->
+            <td>
+                <span th:text="${#numbers.formatDecimal(dto.totalPrice, 1, 2, 'COMMA')} + ' €'"></span>
+            </td>
+
+            <!-- ACTIONS -->
             <td class="actions">
 
-                <a th:if="${!dto.event.cancelled and dto.event.date >= T(java.time.LocalDate).now()}"
-                   th:href="@{/booking/{id}/edit(id=${dto.id})}"
-                   class="btn-edit">
+                <!-- EDIT BUTTON (immer sichtbar) -->
+                <a th:href="@{/booking/{id}/edit(id=${dto.id})}"
+                   class="btn-edit action-btn"
+                   th:data-warning="${dto.cancelled} ? 'This booking is cancelled.'">
                     Edit
                 </a>
 
-                <span th:if="${dto.event.cancelled or dto.event.date < T(java.time.LocalDate).now()}"
-                      class="badge-disabled">
-                    Not editable
-                </span>
+                <!-- CANCEL BUTTON (immer sichtbar) -->
+                <form th:action="@{/booking/{id}/cancel(id=${dto.id})}"
+                      method="post"
+                      style="display:inline;">
+                    <button class="btn-small btn-cancel action-btn"
+                            type="submit"
+                            th:data-warning="${dto.cancelled} ? 'This booking is cancelled.'">
+                        Cancel
+                    </button>
+                </form>
 
-                <button class="btn-small btn-cancel">Cancel</button>
             </td>
-
 
         </tr>
         </tbody>

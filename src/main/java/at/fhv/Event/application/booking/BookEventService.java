@@ -153,6 +153,33 @@ public class BookEventService {
         return _bookingMapperDTO.toDTO(savedBooking);
     }
 
+    @Transactional
+    public void cancelBooking(Long bookingId, String email) {
+        Booking booking = getById(bookingId);
+
+        // Customer ownership check
+        if (!booking.getBookerEmail().equalsIgnoreCase(email)) {
+            throw new IllegalStateException("You cannot cancel someone else's booking.");
+        }
+
+        // Already cancelled
+        if (booking.getStatus() == BookingStatus.CANCELLED) {
+            throw new IllegalStateException("This booking is already cancelled.");
+        }
+
+        // Check event time
+        Event event = loadEvent(booking.getEventId());
+        LocalDateTime eventStart = LocalDateTime.of(event.getDate(), event.getStartTime());
+        if (eventStart.isBefore(LocalDateTime.now())) {
+            throw new IllegalStateException("This event already started and cannot be cancelled.");
+        }
+
+        // Apply cancellation
+        booking.setStatus(BookingStatus.CANCELLED);
+        _bookingRepository.save(booking);
+    }
+
+
 
 
     @Transactional

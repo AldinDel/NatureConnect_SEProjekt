@@ -1,6 +1,7 @@
 package at.fhv.Event.presentation.rest.response.booking;
 
 import at.fhv.Event.domain.model.booking.Booking;
+import at.fhv.Event.domain.model.booking.BookingStatus;
 import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
 
 public class BookingWithEventDTO {
@@ -38,5 +39,9 @@ public class BookingWithEventDTO {
 
     public Booking getBooking() {
         return booking;
+    }
+
+    public Boolean getCancelled() {
+        return booking.getStatus() == BookingStatus.CANCELLED;
     }
 }

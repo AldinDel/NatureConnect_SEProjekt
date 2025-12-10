@@ -377,6 +377,23 @@ public class BookingController {
         }
     }
 
+    @PostMapping("/{id}/cancel")
+    @PreAuthorize("hasRole('CUSTOMER')")
+    public String cancelBooking(@PathVariable Long id,
+                                Principal principal,
+                                RedirectAttributes redirectAttributes) {
+
+        try {
+            _bookEventService.cancelBooking(id, principal.getName());
+            redirectAttributes.addFlashAttribute("success", "Booking cancelled successfully.");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+
+        return "redirect:/bookings";
+    }
+
+
 
 
     private CreateBookingRequest mapBookingToCreateBookingRequest(Booking booking) {

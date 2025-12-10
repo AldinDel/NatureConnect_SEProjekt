@@ -118,4 +118,9 @@ public class BookingDTO {
         this.editable = editable;
     }
 
+    public boolean isCancelled() {
+        return status == BookingStatus.CANCELLED;
+    }
+
+
 }
