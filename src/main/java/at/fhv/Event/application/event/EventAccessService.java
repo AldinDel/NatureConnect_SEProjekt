@@ -52,7 +52,7 @@ public class EventAccessService {
     }
 
     public int calculateRemainingSpots(Long eventId, int minParticipants, int maxParticipants) {
-        int confirmed = _bookingRepository.countPaidSeatsForEvent(eventId);
+        int confirmed = _bookingRepository.countOccupiedSeatsForEvent(eventId);
         int baseSlots = maxParticipants - minParticipants;
         int remaining = baseSlots - confirmed;
 

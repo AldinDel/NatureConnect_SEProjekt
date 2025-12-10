@@ -18,5 +18,5 @@ public interface BookingRepository {
     int countSeatsForEvent(Long eventId);
     Event loadEventForBooking(Long eventId);
     Map<Long, EquipmentEntity> loadEquipmentMap(CreateBookingRequest request);
-    int countPaidSeatsForEvent(Long eventId);
+    int countOccupiedSeatsForEvent(Long eventId);
 }
