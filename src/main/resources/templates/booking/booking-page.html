@@ -1,5 +1,8 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -35,6 +38,7 @@
         <input type="hidden" id="eventMinParticipants" th:value="${event.minParticipants}">
         <input type="hidden" id="eventMaxParticipants" th:value="${event.maxParticipants}">
         <input type="hidden" id="guestMode" name="guestMode" value="false">
+        <input type="hidden" id="changePayment" name="changePayment" value="false"/>
 
         <div class="grid">
             <div class="left-column">
@@ -215,26 +219,26 @@
                     <input type="hidden" th:field="*{voucherCode}" id="voucherCodeField">
                     <input type="hidden" th:field="*{discountPercent}" id="discountPercentField"/>
 
+                    <div th:if="${isEdit}">
+                        <button
+                                id="updateBookingBtn"
+                                type="button"
+                                class="btn-primary"
+                                th:text="'Update Booking'"
+                                onclick="document.getElementById('changePayment').value='false'; this.form.submit();">
+                            Update Booking
+                        </button>
 
-                    <!-- Create-Mode: wie bisher, JS übernimmt -->
-                    <button th:if="${!isEdit}"
-                            id="confirmBtn"
-                            type="submit"
-                            class="btn-primary"
-                            th:text="'Confirm Booking'">
-                        Confirm Booking
-                    </button>
-
-                    <!-- Edit-Mode: direkte Form-Submission, kein JS dazwischen -->
-                    <button th:if="${isEdit}"
-                            id="confirmBtn"
-                            type="button"
-                            class="btn-primary"
-                            th:text="'Update Booking'"
-                            onclick="this.form.submit();">
-                        Update Booking
-                    </button>
-
+                        <button
+                                id="updateBookingChangePaymentBtn"
+                                type="button"
+                                class="btn-primary"
+                                sec:authorize="hasRole('ADMIN')"
+                                th:utext="'Update Booking <br> & Payment'"
+                                onclick="document.getElementById('changePayment').value='true'; this.form.submit();">
+                            Update Booking and change payment method
+                        </button>
+                    </div>
 
                     <p id="errorBox" class="hidden text-red"></p>
                 </div>

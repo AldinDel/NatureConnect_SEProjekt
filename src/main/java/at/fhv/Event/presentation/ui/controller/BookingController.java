@@ -112,6 +112,11 @@ public class BookingController {
             model.addAttribute("amount", booking.getTotalPrice());
             model.addAttribute("paymentMethod", booking.getPaymentMethod());
 
+            String paymentMethod = booking.getPaymentMethod() != null
+                    ? booking.getPaymentMethod().name()
+                    : null;
+            model.addAttribute("paymentMethod", paymentMethod);
+
             return "booking/payment";
         } catch (Exception exception) {
             redirectAttributes.addFlashAttribute("error", "Booking not found");
@@ -334,6 +339,7 @@ public class BookingController {
     @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER', 'FRONT', 'ORGANIZER')")
     public String updateBooking(@PathVariable("id") Long id,
                                 @ModelAttribute("booking") CreateBookingRequest request,
+                                @RequestParam(name = "changePayment", required = false, defaultValue = "false") boolean changePayment,
                                 Model model,
                                 RedirectAttributes redirectAttributes,
                                 Authentication auth) {
@@ -347,6 +353,14 @@ public class BookingController {
             request.setEventId(existingBooking.getEventId());
 
             _bookEventService.updateBooking(id, request);
+
+            boolean isAdmin = auth != null &&
+                    auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+            if (changePayment && isAdmin) {
+                redirectAttributes.addFlashAttribute("success", "Booking updated. You can now change the payment method.");
+                return "redirect:/booking/payment/" + id;
+            }
 
             redirectAttributes.addFlashAttribute("success", "Booking updated successfully.");
             return "redirect:/bookings";
@@ -362,6 +376,7 @@ public class BookingController {
             return handleEditUnexpectedError(id, exception, request, model);
         }
     }
+
 
 
     private CreateBookingRequest mapBookingToCreateBookingRequest(Booking booking) {

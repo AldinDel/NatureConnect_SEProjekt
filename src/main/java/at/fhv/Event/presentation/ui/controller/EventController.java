@@ -33,6 +33,8 @@ public class EventController {
     private final CancelEventService cancelService;
     private final UserPermissionService userPermissionService;
     private final EventAccessService accessService;
+    private final CloudinaryService cloudinaryService;
+
 
     public EventController(CreateEventService createService,
                            UpdateEventService updateService,
@@ -41,7 +43,8 @@ public class EventController {
                            GetAllEquipmentService equipmentService,
                            CancelEventService cancelService,
                            UserPermissionService  userPermissionService,
-                           EventAccessService accessService) {
+                           EventAccessService accessService,
+                           CloudinaryService cloudinaryService) {
 
         this.createService = createService;
         this.updateService = updateService;
@@ -51,6 +54,7 @@ public class EventController {
         this.cancelService = cancelService;
         this.userPermissionService = userPermissionService;
         this.accessService = accessService;
+        this.cloudinaryService = cloudinaryService;
     }
 
     @GetMapping("/new")
@@ -65,7 +69,8 @@ public class EventController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ORGANIZER')")
-    public String create(@ModelAttribute("event") CreateEventRequest req, @RequestParam("photo") MultipartFile photo,
+    public String create(@ModelAttribute("event") CreateEventRequest req,
+                         @RequestParam("photo") MultipartFile photo,
                          RedirectAttributes redirect,
                          Authentication auth) {
         if (req.getDate() != null && req.getDate().isBefore(LocalDate.now())) {
@@ -78,9 +83,22 @@ public class EventController {
             req.setOrganizer(organizerName);
         }
 
+        String imageUrl = cloudinaryService.uploadImage(photo);
+
+        if (imageUrl == null && photo != null && !photo.isEmpty()) {
+            // Upload wurde versucht, aber ist fehlgeschlagen
+            redirect.addFlashAttribute("error", "Image upload failed.");
+            return "redirect:/events/new";
+        }
+
+        if (imageUrl != null) {
+            req.setImageUrl(imageUrl);
+        }
+
         createService.createEvent(req);
         redirect.addFlashAttribute("success", "Event created successfully!");
         return "redirect:/events";
+
     }
 
     @GetMapping("/{id}/edit")
@@ -118,6 +136,7 @@ public class EventController {
     @PreAuthorize("hasAnyRole('ADMIN', 'FRONT', 'ORGANIZER')")
     public String update(@PathVariable("id") Long id,
                          @ModelAttribute("event") UpdateEventRequest req,
+                         @RequestParam(value = "photo", required = false) MultipartFile photo,
                          RedirectAttributes redirect,
                          Authentication auth) {
 
@@ -126,9 +145,21 @@ public class EventController {
             return "redirect:/events/" + id + "/edit";
         }
 
+        if (photo != null && !photo.isEmpty()) {
+            String imageUrl = cloudinaryService.uploadImage(photo);
+
+            if (imageUrl == null) {
+                redirect.addFlashAttribute("error", "Image upload failed.");
+                return "redirect:/events/" + id + "/edit";
+            }
+
+            req.setImageUrl(imageUrl);
+        }
+
         updateService.updateEvent(id, req);
         redirect.addFlashAttribute("success", "Event updated successfully!");
         return "redirect:/events";
+
     }
 
     @GetMapping
