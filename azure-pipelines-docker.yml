@@ -1,5 +1,5 @@
 trigger:
-  - master
+  - sprint-4
 
 pool:
   name: fhv-linux-pool
