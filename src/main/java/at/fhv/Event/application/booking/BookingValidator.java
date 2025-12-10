@@ -132,25 +132,6 @@ public class BookingValidator {
                     "At least 1 participant required",
                     String.valueOf(requestedSeats)
             ));
-            return;
-        }
-        int maxParticipants = event.getMaxParticipants();
-        int remainingSeats = maxParticipants - alreadyBookedSeats;
-        if (requestedSeats > remainingSeats) {
-            errors.add(new ValidationError(
-                    ValidationErrorType.CAPACITY_EXCEEDED,
-                    "seats",
-                    String.format("Only %d spot(s) remaining for this event", remainingSeats),
-                    String.valueOf(requestedSeats)
-            ));
-        }
-        if (requestedSeats > maxParticipants) {
-            errors.add(new ValidationError(
-                    ValidationErrorType.BUSINESS_RULE_VIOLATION,
-                    "seats",
-                    "Participants exceed maximum participants allowed for this event",
-                    String.valueOf(requestedSeats)
-            ));
         }
     }
     private void validateParticipants(CreateBookingRequest request, List<ValidationError> errors) {

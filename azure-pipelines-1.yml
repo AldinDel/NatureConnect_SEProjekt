@@ -1,0 +1,39 @@
+# Gradle
+# Build your Java project and run tests with Gradle using a Gradle wrapper script.
+
+trigger:
+- master
+
+pool:
+  name: fhv-linux-pool
+
+steps:
+- checkout: self
+
+- script: |
+    sudo apt-get update
+    sudo apt-get install -y openjdk-17-jdk
+    java -version
+  displayName: 'Install Java 17'
+
+- script: |
+    chmod +x ./gradlew
+    ./gradlew build --no-daemon
+  displayName: 'Build & Test with Gradle'
+  env:
+    JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
+
+- task: PublishTestResults@2
+  condition: always()
+  inputs:
+    testResultsFormat: 'JUnit'
+    testResultsFiles: '**/build/test-results/test/*.xml'
+    failTaskOnFailedTests: true
+    testRunTitle: 'Test Results'
+
+- task: PublishCodeCoverageResults@1
+  condition: always()
+  inputs:
+    codeCoverageTool: 'JaCoCo'
+    summaryFileLocation: '**/build/reports/jacoco/test/*.xml'
+    reportDirectory: '**/build/reports/jacoco/test/html'

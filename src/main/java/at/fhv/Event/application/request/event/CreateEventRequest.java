@@ -25,7 +25,6 @@ public class CreateEventRequest {
 
     public CreateEventRequest() {}
 
-    /* getters and setters */
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
     public String getDescription() { return description; }
