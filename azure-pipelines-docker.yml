@@ -1,5 +1,7 @@
 trigger:
-  - sprint-4
+  branches:
+    include:
+      - sprint-4
 
 pool:
   name: fhv-linux-pool
@@ -8,10 +10,7 @@ steps:
 - checkout: self
 
 - script: |
-    docker build \
-      -f $(Build.SourcesDirectory)/Dockerfile \
-      -t localhost:5000/natureconnect:latest \
-      $(Build.SourcesDirectory)
+    docker build -t localhost:5000/natureconnect:latest .
     docker push localhost:5000/natureconnect:latest
   displayName: Build & Push Docker Image
 
