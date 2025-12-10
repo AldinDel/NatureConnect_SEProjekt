@@ -411,3 +411,12 @@ body {
     top: 8px;
 }
 
+.btn-primary {
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* vertikal zentriert */
+    align-items: center;     /* horizontal zentriert */
+    text-align: center;      /* falls nötig */
+}
+
+
