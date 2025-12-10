@@ -1,7 +1,6 @@
-package at.fhv.Event.presentation.rest.mapper;
+package at.fhv.Event.presentation.rest.response.equipment;
 
 import at.fhv.Event.domain.model.equipment.Equipment;
-import at.fhv.Event.presentation.rest.response.equipment.EquipmentDTO;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

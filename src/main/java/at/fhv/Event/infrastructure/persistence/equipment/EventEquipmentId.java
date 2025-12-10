@@ -20,6 +20,14 @@ public class EventEquipmentId implements Serializable {
     public Long getEventId() { return eventId; }
     public Long getEquipmentId() { return equipmentId; }
 
+    public void setEventId(Long eventId) {
+        this.eventId = eventId;
+    }
+
+    public void setEquipmentId(Long equipmentId) {
+        this.equipmentId = equipmentId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

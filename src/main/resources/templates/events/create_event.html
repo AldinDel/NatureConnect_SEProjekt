@@ -50,7 +50,7 @@
     </style>
 </head>
 
-<body>
+<body class="create-event-page">
 
 <!-- HIER WIRD DIE GLOBALE NAVBAR GELADEN -->
 <div th:replace="~{events/fragments/navbar :: navbar}"></div>
@@ -198,8 +198,8 @@
                 <input type="text" name="equipments[${index}].name" class="form-input" placeholder="Name" value="${eq.name || ''}" required style="flex:2">
                 <input type="number" name="equipments[${index}].unitPrice" class="form-input" placeholder="Price" step="0.01" value="${eq.unitPrice || ''}" style="flex:1">
                 <input type="number" name="equipments[${index}].stock" class="form-input" placeholder="Stock" value="${eq.stock || ''}" style="flex:1">
-                <label style="font-size:13px"><input type="checkbox" name="equipments[${index}].rentable" value="true" ${isRentable ? 'checked' : ''}> Rentable</label>
-                <label style="font-size:13px"><input type="checkbox" name="equipments[${index}].required" value="true" ${isRequired ? 'checked' : ''}> Required</label>
+                <label style="font-size:13px; color: black" ><input type="checkbox" name="equipments[${index}].rentable" value="true" ${isRentable ? 'checked' : ''}> Rentable</label>
+                <label style="font-size:13px; color: black"><input type="checkbox" name="equipments[${index}].required" value="true" ${isRequired ? 'checked' : ''}> Required</label>
                 <button type="button" class="remove-equipment">✕</button>
             `;
             return item;

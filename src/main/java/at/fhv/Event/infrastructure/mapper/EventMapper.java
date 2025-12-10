@@ -22,7 +22,9 @@ public class EventMapper {
     }
 
     public Event toDomain(EventEntity e) {
-        if (e == null) return null;
+        if (e == null) {
+            return null;
+        }
 
         var equipments = e.getEventEquipments().stream()
                 .map(ee -> {
@@ -49,13 +51,11 @@ public class EventMapper {
                 e.getMaxParticipants(),
                 e.getPrice(),
                 e.getImageUrl(),
-                e.getAudience() != null ? e.getAudience().toString() : null,
+                e.getAudience(),
                 equipments
         );
 
-        // db is_cancelled wert wird korrekt übernommen und bleibt nicht nur auf default false
-        event.setCancelled(e.getCancelled());
-
+        event.setCancelled(e.getCancelled() != null ? e.getCancelled() : false);
         return event;
     }
 
@@ -79,16 +79,7 @@ public class EventMapper {
         e.setPrice(domain.getPrice());
         e.setImageUrl(domain.getImageUrl());
         e.setCancelled(domain.getCancelled());
-
-        if (domain.getAudience() != null && !domain.getAudience().isBlank()) {
-            try {
-                e.setAudience(at.fhv.Event.domain.model.event.EventAudience.valueOf(
-                        domain.getAudience().toUpperCase().replace(" ", "_")
-                ));
-            } catch (IllegalArgumentException ex) {
-                e.setAudience(at.fhv.Event.domain.model.event.EventAudience.INDIVIDUALS_GROUPS_COMPANIES);
-            }
-        }
+        e.setAudience(domain.getAudience());
 
         var eeEntities = domain.getEventEquipments().stream()
                 .map(domEE -> {

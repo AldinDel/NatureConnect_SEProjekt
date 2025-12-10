@@ -5,60 +5,52 @@ import at.fhv.Event.application.event.*;
 import at.fhv.Event.application.request.event.CreateEventRequest;
 import at.fhv.Event.application.request.event.EventEquipmentUpdateRequest;
 import at.fhv.Event.application.request.event.UpdateEventRequest;
-import at.fhv.Event.application.user.UserPermissionService; // <--- NEU
-import at.fhv.Event.domain.model.booking.BookingRepository;
+import at.fhv.Event.application.user.UserPermissionService;
 import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
 import at.fhv.Event.presentation.rest.response.event.EventOverviewDTO;
-import at.fhv.Event.infrastructure.persistence.user.UserAccountJpaRepository;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
 @RequestMapping("/events")
 public class EventController {
-
     private final CreateEventService createService;
     private final UpdateEventService updateService;
     private final GetEventDetailsService detailsService;
-    private final SearchEventService searchService;
     private final FilterEventService filterService;
     private final GetAllEquipmentService equipmentService;
     private final CancelEventService cancelService;
-    private final BookingRepository bookingRepository;
-    private final UserAccountJpaRepository userRepo;
-    private final UserPermissionService permissionService; // <--- NEU
+    private final UserPermissionService userPermissionService;
+    private final EventAccessService accessService;
 
     public EventController(CreateEventService createService,
                            UpdateEventService updateService,
                            GetEventDetailsService detailsService,
-                           SearchEventService searchService,
                            FilterEventService filterService,
                            GetAllEquipmentService equipmentService,
                            CancelEventService cancelService,
-                           BookingRepository bookingRepository,
-                           UserAccountJpaRepository userRepo,
-                           UserPermissionService permissionService) { // <--- Im Konstruktor hinzufügen
+                           UserPermissionService  userPermissionService,
+                           EventAccessService accessService) {
 
         this.createService = createService;
         this.updateService = updateService;
         this.detailsService = detailsService;
-        this.searchService = searchService;
         this.filterService = filterService;
         this.equipmentService = equipmentService;
         this.cancelService = cancelService;
-        this.bookingRepository = bookingRepository;
-        this.userRepo = userRepo;
-        this.permissionService = permissionService; // <--- Zuweisen
+        this.userPermissionService = userPermissionService;
+        this.accessService = accessService;
     }
 
     @GetMapping("/new")
@@ -66,14 +58,14 @@ public class EventController {
     public String showCreateForm(Model model) {
         model.addAttribute("event", new CreateEventRequest());
         model.addAttribute("equipments", equipmentService.getAll());
-        model.addAttribute("eventEquipments", List.of());
+        model.addAttribute("eventEquipments", new ArrayList<>());
         model.addAttribute("isEdit", false);
         return "events/create_event";
     }
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ORGANIZER')")
-    public String create(@ModelAttribute("event") CreateEventRequest req,
+    public String create(@ModelAttribute("event") CreateEventRequest req, @RequestParam("photo") MultipartFile photo,
                          RedirectAttributes redirect,
                          Authentication auth) {
         if (req.getDate() != null && req.getDate().isBefore(LocalDate.now())) {
@@ -81,26 +73,14 @@ public class EventController {
             return "redirect:/events/new";
         }
 
-        if (auth != null) {
-            userRepo.findByEmailIgnoreCase(auth.getName()).ifPresent(u -> {
-                req.setOrganizer(u.getFirstName() + " " + u.getLastName());
-            });
+        String organizerName = accessService.getCurrentUserFullName(auth);
+        if (organizerName != null) {
+            req.setOrganizer(organizerName);
         }
 
         createService.createEvent(req);
         redirect.addFlashAttribute("success", "Event created successfully!");
         return "redirect:/events";
-    }
-
-    private String mapAudienceLabelToEnumName(String label) {
-        if (label == null) return null;
-        return switch (label) {
-            case "Individuals, Groups, Companies" -> "INDIVIDUALS_GROUPS_COMPANIES";
-            case "Groups, Companies"            -> "GROUPS_COMPANIES";
-            case "Individuals only"             -> "INDIVIDUALS_ONLY";
-            case "Companies only"               -> "COMPANIES_ONLY";
-            default -> label;
-        };
     }
 
     @GetMapping("/{id}/edit")
@@ -109,66 +89,29 @@ public class EventController {
                                Model model,
                                RedirectAttributes redirect,
                                Authentication auth) {
-        try {
-            EventDetailDTO detail = detailsService.getEventDetails(id);
-            boolean expired = detail.date().isBefore(LocalDate.now());
-
-            if (!permissionService.canEdit(auth, detail)) {
-                redirect.addFlashAttribute("error", "You are not allowed to edit this event.");
-                return "redirect:/events/" + id;
-            }
-
-            if (Boolean.TRUE.equals(detail.cancelled())) {
-                redirect.addFlashAttribute("error", "Event is already cancelled, you can't edit it anymore.");
-                return "redirect:/events/" + id;
-            }
-
-            if (expired) {
-                redirect.addFlashAttribute("error", "Event is already expired, you can't edit it anymore.");
-                return "redirect:/events/" + id;
-            }
-
-            UpdateEventRequest req = new UpdateEventRequest();
-            req.setTitle(detail.title());
-            req.setDescription(detail.description());
-            req.setOrganizer(detail.organizer());
-            req.setCategory(detail.category());
-            req.setDate(detail.date());
-            req.setStartTime(detail.startTime());
-            req.setEndTime(detail.endTime());
-            req.setLocation(detail.location());
-            req.setDifficulty(detail.difficulty());
-            req.setMinParticipants(detail.minParticipants());
-            req.setMaxParticipants(detail.maxParticipants());
-            req.setPrice(detail.price());
-            req.setImageUrl(detail.imageUrl());
-            req.setAudience(mapAudienceLabelToEnumName(detail.audience()));
-
-            List<EventEquipmentUpdateRequest> eqReqs = detail.equipments().stream().map(eq -> {
-                EventEquipmentUpdateRequest r = new EventEquipmentUpdateRequest();
-                r.setId(eq.id());
-                r.setName(eq.name());
-                r.setUnitPrice(eq.unitPrice());
-                r.setRentable(eq.rentable());
-                r.setRequired(eq.required());
-                r.setStock(eq.stock());
-                return r;
-            }).toList();
-
-            req.setEquipments(eqReqs);
-
-            model.addAttribute("event", req);
-            model.addAttribute("eventEquipments", eqReqs);
-            model.addAttribute("isEdit", true);
-            model.addAttribute("id", id);
-
-            return "events/create_event";
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            redirect.addFlashAttribute("error", "Event not found: " + e.getMessage());
-            return "redirect:/events";
+        EventDetailDTO detail = detailsService.getEventDetails(id);
+        if (!userPermissionService.canEdit(auth, detail)) {
+            redirect.addFlashAttribute("error", "You are not allowed to edit this event.");
+            return "redirect:/events/" + id;
         }
+
+        if (Boolean.TRUE.equals(detail.cancelled())) {
+            redirect.addFlashAttribute("error", "Event is already cancelled, you can't edit it anymore.");
+            return "redirect:/events/" + id;
+        }
+
+        if (accessService.isEventExpired(detail.date(), detail.startTime())) {
+            redirect.addFlashAttribute("error", "Event is already expired, you can't edit it anymore.");
+            return "redirect:/events/" + id;
+        }
+
+        UpdateEventRequest req = buildUpdateRequest(detail);
+        model.addAttribute("event", req);
+        model.addAttribute("eventEquipments", req.getEquipments());
+        model.addAttribute("isEdit", true);
+        model.addAttribute("id", id);
+
+        return "events/create_event";
     }
 
     @PostMapping("/{id}")
@@ -191,20 +134,14 @@ public class EventController {
     @GetMapping
     public String list(Model model, Authentication auth) {
         List<EventOverviewDTO> events = filterService.filter(
-                null, null, null, null,
-                null, null,
-                null, null,
-                null
+                null, null, null, null, null, null, null, null, null
         );
 
-        // NEU: Sichtbarkeit nach Rolle und Status filtern
-        events = applyVisibilityFilter(events, auth);
-
-        enrichEventsWithPermissions(model, auth);
+        events = accessService.filterVisibleEvents(events, auth);
+        addUserContextToModel(model, auth);
         model.addAttribute("events", events);
         return "events/list";
     }
-
 
     @GetMapping("/search")
     public String searchEvents(
@@ -234,12 +171,128 @@ public class EventController {
             events = filterService.filter(q, category, location, difficulty, minPrice, maxPrice, startDate, endDate, sort);
         }
 
-        events = applyVisibilityFilter(events, auth);
+        events = accessService.filterVisibleEvents(events, auth);
 
-        enrichEventsWithPermissions(model, auth);
-
+        addUserContextToModel(model, auth);
         model.addAttribute("events", events);
-        model.addAttribute("param", new Object() {
+        model.addAttribute("param", createSearchParams(q, category, location, difficulty, minPrice, maxPrice, startDate, endDate));
+        model.addAttribute("sort", sort);
+        model.addAttribute("now", LocalDate.now());
+        return "events/list";
+    }
+
+    @GetMapping("/{id}")
+    public String details(@PathVariable("id") Long id, Model model, RedirectAttributes redirect, Authentication auth) {
+        EventDetailDTO event = detailsService.getEventDetails(id);
+        model.addAttribute("event", event);
+        model.addAttribute("canEdit", userPermissionService.canEdit(auth, event));
+        model.addAttribute("canCancel", userPermissionService.canCancel(auth, event));
+        int remaining = accessService.calculateRemainingSpots(event.id(), event.minParticipants(), event.maxParticipants());
+        model.addAttribute("remainingSpots", remaining);
+
+        boolean expired = accessService.isEventExpired(event.date(), event.startTime());
+        model.addAttribute("expired", expired);
+
+        return "events/event_detail";
+    }
+
+    @PostMapping("/{id}/cancel")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ORGANIZER')")
+    public String cancelEvent(@PathVariable("id") Long id, RedirectAttributes redirect, Authentication auth) {
+        EventDetailDTO detail = detailsService.getEventDetails(id);
+        if (!userPermissionService.canCancel(auth, detail)) {
+            redirect.addFlashAttribute("error", "You are not allowed to cancel this event.");
+            return "redirect:/events/" + id;
+        }
+
+        if (Boolean.TRUE.equals(detail.cancelled())) {
+            redirect.addFlashAttribute("error", "Event is already cancelled.");
+            return "redirect:/events/" + id;
+        }
+
+        if (accessService.isEventExpired(detail.date(), detail.startTime())) {
+            redirect.addFlashAttribute("error", "Expired events cannot be cancelled.");
+            return "redirect:/events/" + id;
+        }
+
+        cancelService.cancel(id);
+        redirect.addFlashAttribute("success", "Event cancelled successfully!");
+        return "redirect:/events/" + id;
+
+    }
+
+    private UpdateEventRequest buildUpdateRequest(EventDetailDTO detail) {
+        UpdateEventRequest req = new UpdateEventRequest();
+        req.setTitle(detail.title());
+        req.setDescription(detail.description());
+        req.setOrganizer(detail.organizer());
+        req.setCategory(detail.category());
+        req.setDate(detail.date());
+        req.setStartTime(detail.startTime());
+        req.setEndTime(detail.endTime());
+        req.setLocation(detail.location());
+        req.setDifficulty(detail.difficulty());
+        req.setMinParticipants(detail.minParticipants());
+        req.setMaxParticipants(detail.maxParticipants());
+        req.setPrice(detail.price());
+        req.setImageUrl(detail.imageUrl());
+        req.setAudience(mapAudienceLabelToEnumName(detail.audience()));
+
+        List<EventEquipmentUpdateRequest> eqReqs = new ArrayList<>();
+        for (var eq : detail.equipments()) {
+            EventEquipmentUpdateRequest r = new EventEquipmentUpdateRequest();
+            r.setId(eq.id());
+            r.setName(eq.name());
+            r.setUnitPrice(eq.unitPrice());
+            r.setRentable(eq.rentable());
+            r.setRequired(eq.required());
+            r.setStock(eq.stock());
+            eqReqs.add(r);
+        }
+        req.setEquipments(eqReqs);
+        return req;
+    }
+
+    private String mapAudienceLabelToEnumName(String label) {
+        if (label == null) {
+            return null;
+        }
+
+        if (label.equals("Individuals, Groups, Companies")) {
+            return "INDIVIDUALS_GROUPS_COMPANIES";
+        }
+        if (label.equals("Groups, Companies")) {
+            return "GROUPS_COMPANIES";
+        }
+        if (label.equals("Individuals only")) {
+            return "INDIVIDUALS_ONLY";
+        }
+        if (label.equals("Companies only")) {
+            return "COMPANIES_ONLY";
+        }
+
+        return label;
+    }
+
+    private void addUserContextToModel(Model model, Authentication auth) {
+        String userName = accessService.getCurrentUserFullName(auth);
+        if (userName != null) {
+            model.addAttribute("currentUserName", userName);
+        }
+    }
+
+    private String redirectBack(String source) {
+        if ("home".equals(source)) {
+            return "redirect:/";
+        }
+        return "redirect:/events";
+    }
+
+    private Object createSearchParams(String q, String category, String location,
+                                      String difficulty, BigDecimal minPrice,
+                                      BigDecimal maxPrice, LocalDate startDate,
+                                      LocalDate endDate) {
+        return new Object() {
             public final String qv = q;
             public final String categoryv = category;
             public final String locationv = location;
@@ -248,138 +301,6 @@ public class EventController {
             public final BigDecimal maxPricev = maxPrice;
             public final LocalDate startDatev = startDate;
             public final LocalDate endDatev = endDate;
-        });
-        model.addAttribute("sort", sort);
-        model.addAttribute("now", LocalDateTime.now());
-        return "events/list";
-    }
-
-    private String redirectBack(String source) {
-        if ("home".equals(source)) return "redirect:/";
-        return "redirect:/events";
-    }
-
-    @GetMapping("/{id}")
-    public String details(@PathVariable("id") Long id, Model model, RedirectAttributes redirect, Authentication auth) {
-        try {
-            var event = detailsService.getEventDetails(id);
-            LocalDateTime start = LocalDateTime.of(event.date(), event.startTime());
-            boolean expired = start.isBefore(LocalDateTime.now());
-
-            model.addAttribute("event", event);
-
-            // --- ÄNDERUNG: NUTZUNG DES SERVICES ---
-            model.addAttribute("canEdit", permissionService.canEdit(auth, event));
-            model.addAttribute("canCancel", permissionService.canCancel(auth, event));
-
-            int confirmed = bookingRepository.countSeatsForEvent(event.id());
-            int baseSlots = event.maxParticipants() - event.minParticipants();
-            int remaining = baseSlots - confirmed;
-            if (remaining < 0) remaining = 0;
-
-            model.addAttribute("remainingSpots", remaining);
-
-            model.addAttribute("expired", expired);
-
-            return "events/event_detail";
-
-        } catch (Exception e) {
-            redirect.addFlashAttribute("error", "Event not found.");
-            return "redirect:/events";
-        }
-    }
-
-    @PostMapping("/{id}/cancel")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ORGANIZER')")
-    public String cancelEvent(@PathVariable("id") Long id, RedirectAttributes redirect, Authentication auth) {
-        try {
-            EventDetailDTO detail = detailsService.getEventDetails(id);
-
-            // --- ÄNDERUNG: NUTZUNG DES SERVICES ---
-            if (!permissionService.canCancel(auth, detail)) {
-                redirect.addFlashAttribute("error", "You are not allowed to cancel this event.");
-                return "redirect:/events/" + id;
-            }
-
-            if (Boolean.TRUE.equals(detail.cancelled())) {
-                redirect.addFlashAttribute("error", "Event is already cancelled.");
-                return "redirect:/events/" + id;
-            }
-
-            LocalDateTime start = LocalDateTime.of(detail.date(), detail.startTime());
-            if (start.isBefore(LocalDateTime.now())) {
-                redirect.addFlashAttribute("error", "Expired events cannot be cancelled.");
-                return "redirect:/events/" + id;
-            }
-
-            cancelService.cancel(id);
-            redirect.addFlashAttribute("success", "Event cancelled successfully!");
-            return "redirect:/events/" + id;
-
-        } catch (Exception e) {
-            redirect.addFlashAttribute("error", "Could not cancel event: " + e.getMessage());
-            return "redirect:/events";
-        }
-    }
-
-    private List<EventOverviewDTO> applyVisibilityFilter(List<EventOverviewDTO> events, Authentication auth) {
-        LocalDate today = LocalDate.now();
-
-        boolean isAdminOrFront = false;
-        boolean isOrganizer = false;
-        String organizerName = null;
-
-        if (auth != null) {
-            var authorities = auth.getAuthorities();
-
-            isAdminOrFront = authorities.stream().anyMatch(a ->
-                    "ROLE_ADMIN".equals(a.getAuthority()) ||
-                            "ROLE_FRONT".equals(a.getAuthority())
-            );
-
-            isOrganizer = authorities.stream().anyMatch(a ->
-                    "ROLE_ORGANIZER".equals(a.getAuthority())
-            );
-
-            if (isOrganizer) {
-                organizerName = userRepo.findByEmailIgnoreCase(auth.getName())
-                        .map(u -> u.getFirstName() + " " + u.getLastName())
-                        .orElse(null);
-            }
-        }
-
-        String finalOrganizerName = organizerName;
-        boolean finalIsAdminOrFront = isAdminOrFront;
-        boolean finalIsOrganizer = isOrganizer;
-
-        return events.stream()
-                .filter(e -> {
-                    boolean cancelled = Boolean.TRUE.equals(e.cancelled());
-                    boolean expired = e.date() != null && e.date().isBefore(today);
-
-                    if (!cancelled && !expired) {
-                        return true;
-                    }
-
-                    if (finalIsAdminOrFront) {
-                        return true;
-                    }
-
-                    if (finalIsOrganizer && finalOrganizerName != null) {
-                        return finalOrganizerName.equalsIgnoreCase(e.organizer());
-                    }
-
-                    return false;
-                })
-                .toList();
-    }
-
-
-    private void enrichEventsWithPermissions(Model model, Authentication auth) {
-        if (auth != null) {
-            userRepo.findByEmailIgnoreCase(auth.getName()).ifPresent(u ->
-                    model.addAttribute("currentUserName", u.getFirstName() + " " + u.getLastName())
-            );
-        }
+        };
     }
 }

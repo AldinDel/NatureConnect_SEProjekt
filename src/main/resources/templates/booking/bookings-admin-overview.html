@@ -24,66 +24,186 @@
 <div class="admin-booking-container">
     <h1>All Bookings</h1>
 
+    <div class="booking-controls">
+
+        <!-- SEARCH -->
+        <input type="text"
+               placeholder="Search bookings..."
+               id="bookingSearch"
+               onkeyup="filterBookings()">
+
+        <!-- FILTER -->
+        <select id="bookingFilter" onchange="filterBookings()">
+            <option value="all">All dates</option>
+            <option value="today">Today</option>
+            <option value="future">Future</option>
+            <option value="past">Past</option>
+        </select>
+
+        <!-- SORT -->
+        <select id="bookingSort" onchange="sortBookings()">
+            <option value="date_desc">Newest first</option>
+            <option value="date_asc">Oldest first</option>
+            <option value="price_asc">Price ↑</option>
+            <option value="price_desc">Price ↓</option>
+            <option value="event_asc">Event ↑</option>
+            <option value="event_desc">Event ↓</option>
+            <option value="first_asc">First name ↑</option>
+            <option value="first_desc">First name ↓</option>
+            <option value="last_asc">Last name ↑</option>
+            <option value="last_desc">Last name ↓</option>
+        </select>
+
+        <button class="btn-reset" onclick="resetFilters()">Reset</button>
+    </div>
+
+
     <table class="admin-booking-table">
         <thead>
         <tr>
             <th>Event</th>
-            <th>Booking ID</th>
-            <th>User</th>
+            <th>ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>E-Mail</th>
             <th>Date</th>
             <th>Time</th>
             <th>Participants</th>
             <th>Total</th>
-            <th>Actions</th>
+            <th sec:authorize="hasAnyRole('ADMIN','CUSTOMER')">Actions</th>
+
         </tr>
         </thead>
 
         <tbody>
         <tr th:each="b : ${bookings}">
-
-            <td class="event-info">
-                <span th:text="${b.eventId}"></span>
-            </td>
-
+            <td th:text="${b.eventId}"></td>
             <td th:text="'#' + ${b.id}"></td>
-
+            <td th:text="${b.bookerFirstName}"></td>
+            <td th:text="${b.bookerLastName}"></td>
             <td th:text="${b.bookerEmail}"></td>
-
             <td th:text="${#dates.format(b.createdAt, 'yyyy-MM-dd')}"></td>
-
             <td th:text="${#dates.format(b.createdAt, 'HH:mm')}"></td>
-
             <td th:text="${b.seats}"></td>
-
-            <td>€ <span th:text="${b.totalPrice}"></span></td>
-
-            <td class="actions">
-
-                <a th:if="${b.editable}"
-                   th:href="@{/booking/{id}/edit(id=${b.id})}"
-                   class="btn-edit"
-                   sec:authorize="hasAnyRole('ADMIN','CUSTOMER')">
-                    Edit
-                </a>
-
-
-                <span th:if="${!b.editable}" class="badge-disabled">
-                    Not editable
-                </span>
-
-                <button class="btn-small btn-cancel"
-                        sec:authorize="hasAnyRole('ADMIN','CUSTOMER')">
-                    Cancel
-                </button>
+            <td>
+                € <span th:text="${b.totalPrice}"></span>
             </td>
+            <td sec:authorize="hasAnyRole('ADMIN','CUSTOMER')">
+                <div class="actions">
+
+                    <a th:if="${b.editable}"
+                       th:href="@{/booking/{id}/edit(id=${b.id})}"
+                       class="btn-edit">
+                        Edit
+                    </a>
+
+                    <span th:if="${!b.editable}" class="badge-disabled">Not editable</span>
 
 
+                    <button class="btn-cancel">Cancel</button>
+                </div>
+            </td>
 
         </tr>
         </tbody>
-
     </table>
 </div>
+<script>
+    function filterBookings() {
+        const search = document.getElementById("bookingSearch").value.toLowerCase();
+        const filter = document.getElementById("bookingFilter").value;
+        const rows = document.querySelectorAll(".admin-booking-table tbody tr");
+
+        const today = new Date().toISOString().slice(0, 10);
+
+        rows.forEach(row => {
+            const event = row.children[0].textContent.toLowerCase();
+            const id = row.children[1].textContent.toLowerCase();
+            const first = row.children[2].textContent.toLowerCase();
+            const last = row.children[3].textContent.toLowerCase();
+            const email = row.children[4].textContent.toLowerCase();
+            const date = row.children[5].textContent;
+
+            let show = true;
+
+            // SEARCH now checks name + email + event + ID
+            if (!(event.includes(search)
+                || id.includes(search)
+                || first.includes(search)
+                || last.includes(search)
+                || email.includes(search))) {
+                show = false;
+            }
+
+            // DATE FILTER
+            if (filter === "today" && date !== today) show = false;
+            if (filter === "future" && date <= today) show = false;
+            if (filter === "past" && date >= today) show = false;
+
+            row.style.display = show ? "" : "none";
+        });
+
+    }
+
+    function sortBookings() {
+        const sort = document.getElementById("bookingSort").value;
+        const tbody = document.querySelector(".admin-booking-table tbody");
+        const rows = Array.from(tbody.querySelectorAll("tr"));
+
+        rows.sort((a, b) => {
+            const eventA = a.children[0].textContent.trim();
+            const eventB = b.children[0].textContent.trim();
+            const idA = a.children[1].textContent.trim();
+            const idB = b.children[1].textContent.trim();
+            const firstA = a.children[2].textContent.trim().toLowerCase();
+            const firstB = b.children[2].textContent.trim().toLowerCase();
+            const lastA = a.children[3].textContent.trim().toLowerCase();
+            const lastB = b.children[3].textContent.trim().toLowerCase();
+            const dateA = a.children[5].textContent;
+            const dateB = b.children[5].textContent;
+            const priceA = parseFloat(a.children[8].innerText.replace("€", "").trim());
+            const priceB = parseFloat(b.children[8].innerText.replace("€", "").trim());
+
+            switch (sort) {
+                case "date_desc": return dateB.localeCompare(dateA);
+                case "date_asc": return dateA.localeCompare(dateB);
+
+                case "price_asc": return priceA - priceB;
+                case "price_desc": return priceB - priceA;
+
+                case "event_asc": return eventA.localeCompare(eventB);
+                case "event_desc": return eventB.localeCompare(eventA);
+
+                case "first_asc": return firstA.localeCompare(firstB);
+                case "first_desc": return firstB.localeCompare(firstA);
+
+                case "last_asc": return lastA.localeCompare(lastB);
+                case "last_desc": return lastB.localeCompare(lastA);
+            }
+        });
+
+        rows.forEach(r => tbody.appendChild(r));
+    }
+
+    function resetFilters() {
+        // Reset search
+        document.getElementById("bookingSearch").value = "";
+
+        // Reset filter
+        document.getElementById("bookingFilter").value = "all";
+
+        // Reset sorting
+        document.getElementById("bookingSort").value = "date_desc";
+
+        // Show all rows again
+        const rows = document.querySelectorAll(".admin-booking-table tbody tr");
+        rows.forEach(row => row.style.display = "");
+
+        // Re-sort
+        sortBookings();
+    }
+
+</script>
 
 </body>
 </html>

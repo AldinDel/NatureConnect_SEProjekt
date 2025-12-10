@@ -46,11 +46,6 @@ public class EventEntity {
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EventEquipmentEntity> eventEquipments = new ArrayList<>();
 
-
-    public void removeEquipment(EventEquipmentEntity ee) {
-        eventEquipments.remove(ee);
-        ee.setEvent(null);
-    }
     @Column(name = "is_cancelled")
     private Boolean cancelled = false;
 

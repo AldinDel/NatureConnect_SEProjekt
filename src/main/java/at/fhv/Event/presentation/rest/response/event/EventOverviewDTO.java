@@ -8,6 +8,7 @@ public record EventOverviewDTO(
         Long id,
         String title,
         String description,
+        String displayOrganizer,
         String organizer,
         String category,
         LocalDate date,

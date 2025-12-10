@@ -35,8 +35,9 @@ public class EventRepositoryJPAImpl implements EventRepository {
     }
 
     @Override
-    public void save(Event event) {
+    public Event save(Event event) {
         var entity = mapper.toEntity(event);
         var saved = jpa.save(entity);
+        return mapper.toDomain(saved);
     }
 }
