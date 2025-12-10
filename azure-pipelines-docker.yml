@@ -15,6 +15,9 @@ steps:
   displayName: Build & Push Docker Image
 
 - script: |
-    docker compose down || true
-    docker compose up -d
-  displayName: Deploy with Docker Compose
+    docker rm -f natureconnect || true
+    docker run -d \
+      --name natureconnect \
+      -p 8081:8080 \
+      localhost:5000/natureconnect:latest
+  displayName: Deploy (clean & stable)
