@@ -29,16 +29,16 @@ public interface BookingJpaRepository extends JpaRepository<BookingEntity, Long>
     @Query("DELETE FROM BookingEquipmentEntity e WHERE e.booking.id = :bookingId")
     void deleteEquipmentByBookingId(@Param("bookingId") Long bookingId);
 
-    @Query("""
-        SELECT COALESCE(SUM(b.seats), 0)
-        FROM BookingEntity b
-        WHERE b.eventId = :eventId AND b.status = :status
-    """)
-    int sumSeatsByEventIdAndStatus(@Param("eventId") Long eventId,
-                                   @Param("status") BookingStatus status);
-
-    // ⭐ NEW: safe status update
     @Modifying
     @Query("UPDATE BookingEntity b SET b.status = :status WHERE b.id = :id")
     void updateStatus(@Param("id") Long id, @Param("status") BookingStatus status);
+
+    @Modifying
+    @Query("""
+        UPDATE BookingEntity b 
+        SET b.status = 'EXPIRED'
+        WHERE b.eventId = :eventId
+          AND b.status NOT IN ('CANCELLED', 'EXPIRED')
+    """)
+    void markExpiredForEvent(@Param("eventId") Long eventId);
 }

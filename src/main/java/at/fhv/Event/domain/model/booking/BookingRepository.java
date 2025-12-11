@@ -20,6 +20,7 @@ public interface BookingRepository {
     Map<Long, EquipmentEntity> loadEquipmentMap(CreateBookingRequest request);
     int countOccupiedSeatsForEvent(Long eventId);
 
-    // ⭐ REQUIRED FOR EVENT CANCELLATION
     void updateStatus(Long bookingId, BookingStatus status);
+
+    void markExpiredForEvent(Long eventId);
 }

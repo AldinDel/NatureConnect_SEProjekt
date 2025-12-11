@@ -44,4 +44,14 @@ public class BookingWithEventDTO {
     public Boolean getCancelled() {
         return booking.getStatus() == BookingStatus.CANCELLED;
     }
+
+
+    public Boolean getExpired() {
+        return booking.getStatus() == BookingStatus.EXPIRED;
+    }
+
+
+    public Boolean getInactive() {
+        return getCancelled() || getExpired();
+    }
 }

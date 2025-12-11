@@ -1,9 +1,7 @@
 package at.fhv.Event.infrastructure.persistence.booking;
 
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
-import at.fhv.Event.domain.model.booking.Booking;
-import at.fhv.Event.domain.model.booking.BookingRepository;
-import at.fhv.Event.domain.model.booking.BookingStatus;
+import at.fhv.Event.domain.model.booking.*;
 import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.infrastructure.mapper.BookingMapper;
 import at.fhv.Event.infrastructure.mapper.EventMapper;
@@ -14,6 +12,8 @@ import at.fhv.Event.infrastructure.persistence.event.EventJpaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -50,25 +50,75 @@ public class BookingRepositoryImpl implements BookingRepository {
         return mapper.toDomain(saved);
     }
 
+    // ---------------- EXPIRATION LOGIC ----------------
+
+    private void syncExpiredIfNeeded(Booking booking) {
+
+        Event event = loadEventForBooking(booking.getEventId());
+        if (event == null) return;
+
+        LocalDateTime eventStart = LocalDateTime.of(event.getDate(), event.getStartTime());
+        boolean eventInPast = eventStart.isBefore(LocalDateTime.now());
+
+        if (eventInPast &&
+                booking.getStatus() != BookingStatus.CANCELLED &&
+                booking.getStatus() != BookingStatus.EXPIRED) {
+
+            // update DB
+            jpa.updateStatus(booking.getId(), BookingStatus.EXPIRED);
+
+            // update returned domain object
+            booking.setStatus(BookingStatus.EXPIRED);
+        }
+    }
+
+
+    private Booking withExpirationSync(Booking booking) {
+        syncExpiredIfNeeded(booking);
+        return booking;
+    }
+
+    // ---------------- FIND METHODS ----------------
+
     @Override
     public Optional<Booking> findById(Long id) {
-        return jpa.findById(id).map(mapper::toDomain);
+        return jpa.findById(id)
+                .map(mapper::toDomain)
+                .map(this::withExpirationSync);
     }
 
     @Override
     public List<Booking> findAll() {
-        return jpa.findAll().stream().map(mapper::toDomain).toList();
+        return jpa.findAll().stream()
+                .map(mapper::toDomain)
+                .map(this::withExpirationSync)
+                .toList();
     }
 
     @Override
     public List<Booking> findByEventId(Long eventId) {
-        return jpa.findByEventId(eventId).stream().map(mapper::toDomain).toList();
+        return jpa.findByEventId(eventId).stream()
+                .map(mapper::toDomain)
+                .map(this::withExpirationSync)
+                .toList();
     }
 
     @Override
     public List<Booking> findByCustomerEmail(String email) {
-        return jpa.findByBookerEmail(email).stream().map(mapper::toDomain).toList();
+        return jpa.findByBookerEmail(email).stream()
+                .map(mapper::toDomain)
+                .map(this::withExpirationSync)
+                .toList();
     }
+
+    // ---------------- EXPIRED MASS UPDATE ----------------
+
+    @Override
+    public void markExpiredForEvent(Long eventId) {
+        jpa.markExpiredForEvent(eventId);
+    }
+
+    // ---------------- OTHER METHODS ----------------
 
     @Override
     public int countSeatsForEvent(Long eventId) {
@@ -77,7 +127,9 @@ public class BookingRepositoryImpl implements BookingRepository {
 
     @Override
     public Event loadEventForBooking(Long eventId) {
-        return eventJpa.findById(eventId).map(eventMapper::toDomain).orElse(null);
+        return eventJpa.findById(eventId)
+                .map(eventMapper::toDomain)
+                .orElse(null);
     }
 
     @Override

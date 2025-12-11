@@ -198,7 +198,7 @@ body.bookings-page {
     animation: fadeout 4s forwards;
 }
 
-.row-cancelled {
+.row-inactive {
     background: rgba(200, 200, 200, 0.75) !important;
     opacity: 0.6;
     filter: grayscale(35%);
@@ -206,12 +206,11 @@ body.bookings-page {
     position: relative;
 }
 
-/* Tooltip für deaktivierte Rows – zentriert in der Zeile */
-.row-cancelled::after {
-    content: "This booking is cancelled.";
+/* Tooltip base */
+.row-inactive::after {
     position: absolute;
-    top: 50%;                 /* mittig der Zeile */
-    left: 50%;                /* horizontal zentriert */
+    top: 50%;
+    left: 50%;
     transform: translate(-50%, -50%);
     background: rgba(0,0,0,0.75);
     color: white;
@@ -225,42 +224,68 @@ body.bookings-page {
     z-index: 5;
 }
 
-.row-cancelled:hover::after {
+.row-inactive:hover::after {
     opacity: 1;
 }
 
-/* Buttons in cancelled rows deaktivieren */
-.row-cancelled .btn-edit,
-.row-cancelled .btn-cancel {
-    pointer-events: none !important;
-    opacity: 0.7;
-    cursor: not-allowed !important;
-    transform: none !important;
+/* Cancelled message */
+.row-inactive.cancelled::after {
+    content: "This booking is cancelled.";
 }
 
-.toggle-cancelled-btn {
-    background: #0b2545;      /* Blau wie Reset */
+/* Expired message */
+.row-inactive.expired::after {
+    content: "This booking is expired.";
+}
+
+/* Disable buttons */
+.row-inactive .btn-edit,
+.row-inactive .btn-cancel {
+    pointer-events: none !important;
+    opacity: 0.55 !important;
+    cursor: not-allowed !important;
+}
+
+/* Ensure disabled cancel button keeps RED styling */
+.btn-cancel[disabled] {
+    background: #dc2626 !important;
+    color: white !important;
+}
+
+/* Ensure disabled edit button keeps original white style */
+.btn-edit[disabled] {
+    background: white !important;
+    color: #0b2545 !important;
+    border: 1.5px solid #d1d5db !important;
+}
+
+/* ---------------------------------------------------
+   TOGGLE CANCELLED BUTTON (ADMIN)
+   --------------------------------------------------- */
+
+.toggle-cancelled-btn,
+.btn-toggle-cancelled {
+    background: #0b2545;
     color: white;
     padding: 8px 16px;
     border-radius: 6px;
     border: none;
     cursor: pointer;
-    font-size: 14px;
     font-weight: 600;
     transition: 0.2s ease;
-    margin-bottom: 20px;
 }
 
-.toggle-cancelled-btn:hover {
-    background: #3b3767;      /* dunkleres Blau */
+.toggle-cancelled-btn:hover,
+.btn-toggle-cancelled:hover {
+    background: #3b3767;
 }
 
-/* wenn aktiv → ROT */
-.toggle-cancelled-btn.active {
+.toggle-cancelled-btn.active,
+.btn-toggle-cancelled.active {
     background-color: #d9534f;
-    color: white;
 }
 
-.toggle-cancelled-btn.active:hover {
+.toggle-cancelled-btn.active:hover,
+.btn-toggle-cancelled.active:hover {
     background-color: #c64743;
 }

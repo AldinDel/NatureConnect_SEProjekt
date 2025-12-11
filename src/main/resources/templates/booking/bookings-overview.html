@@ -9,6 +9,8 @@
 
 <body class="bookings-page">
 
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
+
 <div th:if="${success}" class="toast-success">
     <span th:text="${success}"></span>
 </div>
@@ -16,8 +18,6 @@
 <div th:if="${error}" class="toast-error">
     <span th:text="${error}"></span>
 </div>
-
-<div th:replace="~{events/fragments/navbar :: navbar}"></div>
 
 <div class="booking-container">
 
@@ -27,8 +27,8 @@
         You don't have any bookings yet
     </p>
 
-    <button class="toggle-cancelled-btn" onclick="toggleCancelled()">
-        Show Cancelled
+    <button class="toggle-cancelled-btn" onclick="toggleInactive()">
+        Show Inactive
     </button>
 
     <table th:if="${bookings.size() > 0}" class="booking-table">
@@ -44,9 +44,10 @@
 
         <tbody>
         <tr th:each="dto : ${bookings}"
-            th:classappend="${dto.cancelled} ? 'row-cancelled'">
+            th:classappend="
+                ${dto.cancelled} ? 'row-inactive cancelled' :
+                (${dto.expired} ? 'row-inactive expired' : '')">
 
-            <!-- EVENT INFO -->
             <td class="event-col">
                 <div class="event-info">
                     <img th:src="${dto.event.imageUrl}" alt="thumbnail">
@@ -54,38 +55,23 @@
                 </div>
             </td>
 
-            <!-- DATE -->
             <td th:text="${dto.event.date}"></td>
-
-            <!-- PARTICIPANTS -->
             <td th:text="${dto.seats}"></td>
 
-            <!-- TOTAL PRICE -->
             <td>
                 <span th:text="${#numbers.formatDecimal(dto.totalPrice, 1, 2, 'COMMA')} + ' €'"></span>
             </td>
 
-            <!-- ACTIONS -->
             <td class="actions">
-
-                <!-- EDIT BUTTON (immer sichtbar) -->
                 <a th:href="@{/booking/{id}/edit(id=${dto.id})}"
-                   class="btn-edit action-btn"
-                   th:data-warning="${dto.cancelled} ? 'This booking is cancelled.'">
-                    Edit
-                </a>
+                   class="btn-edit action-btn">Edit</a>
 
-                <!-- CANCEL BUTTON (immer sichtbar) -->
                 <form th:action="@{/booking/{id}/cancel(id=${dto.id})}"
-                      method="post"
-                      style="display:inline;">
-                    <button class="btn-small btn-cancel action-btn"
-                            type="submit"
-                            th:data-warning="${dto.cancelled} ? 'This booking is cancelled.'">
+                      method="post" style="display:inline;">
+                    <button class="btn-small btn-cancel action-btn" type="submit">
                         Cancel
                     </button>
                 </form>
-
             </td>
 
         </tr>
@@ -93,26 +79,25 @@
     </table>
 
 </div>
-<script>
-    let cancelledVisible = false;
 
-    function toggleCancelled() {
+<script>
+    let inactiveVisible = false;
+
+    function toggleInactive() {
         const rows = document.querySelectorAll("tbody tr");
 
-        cancelledVisible = !cancelledVisible;
+        inactiveVisible = !inactiveVisible;
 
         rows.forEach(r => {
-            const isCancelled = r.classList.contains("row-cancelled");
-            if (isCancelled) {
-                r.style.display = cancelledVisible ? "" : "none";
+            const isInactive = r.classList.contains("row-inactive");
+            if (isInactive) {
+                r.style.display = inactiveVisible ? "" : "none";
             }
         });
 
         const btn = document.querySelector(".toggle-cancelled-btn");
-        btn.innerText = cancelledVisible ? "Hide Cancelled" : "Show Cancelled";
-
-        // --> NEU: Button bekommt active class
-        btn.classList.toggle("active", cancelledVisible);
+        btn.innerText = inactiveVisible ? "Hide Inactive" : "Show Inactive";
+        btn.classList.toggle("active", inactiveVisible);
     }
 </script>
 

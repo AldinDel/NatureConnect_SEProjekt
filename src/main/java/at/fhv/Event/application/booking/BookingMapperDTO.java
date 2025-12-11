@@ -1,6 +1,7 @@
 package at.fhv.Event.application.booking;
 
 import at.fhv.Event.domain.model.booking.Booking;
+import at.fhv.Event.domain.model.booking.BookingStatus;
 import at.fhv.Event.presentation.rest.response.booking.BookingDTO;
 import org.springframework.stereotype.Component;
 
@@ -8,6 +9,9 @@ import org.springframework.stereotype.Component;
 public class BookingMapperDTO {
 
     public BookingDTO toDTO(Booking b) {
+
+        boolean expired = b.getStatus() == BookingStatus.EXPIRED;
+
         return new BookingDTO(
                 b.getId(),
                 b.getEventId(),
@@ -17,7 +21,8 @@ public class BookingMapperDTO {
                 b.getSeats(),
                 b.getTotalPrice(),
                 b.getStatus(),
-                b.getCreatedAt()
+                b.getCreatedAt(),
+                expired
         );
     }
 }
