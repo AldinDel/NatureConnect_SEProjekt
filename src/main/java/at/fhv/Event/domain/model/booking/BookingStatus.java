@@ -7,5 +7,5 @@ public enum BookingStatus {
     EXPIRED,
     RESERVED,
     PAID,
-    PAYMENT_FAILED
+    PAYMENT_FAILED,
 }

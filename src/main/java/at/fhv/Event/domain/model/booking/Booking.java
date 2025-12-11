@@ -24,6 +24,7 @@ public class Booking {
     private Instant createdAt;
     private List<BookingParticipant> participants;
     private List<BookingEquipment> equipment;
+    private String cancellationReason;
 
     public Booking() {}
     public Booking(
@@ -225,6 +226,11 @@ public class Booking {
 
     public void setEquipment(List<BookingEquipment> equipment) {
         this.equipment = equipment;
+    }
+
+    public void cancel(String reason) {
+        this.status = BookingStatus.CANCELLED;
+        this.cancellationReason = reason;
     }
 
 }
