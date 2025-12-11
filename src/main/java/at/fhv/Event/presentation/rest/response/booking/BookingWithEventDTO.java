@@ -4,6 +4,8 @@ import at.fhv.Event.domain.model.booking.Booking;
 import at.fhv.Event.domain.model.booking.BookingStatus;
 import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
 
+import java.time.LocalDate;
+
 public class BookingWithEventDTO {
 
     private final Long id;
@@ -47,7 +49,9 @@ public class BookingWithEventDTO {
 
 
     public Boolean getExpired() {
-        return booking.getStatus() == BookingStatus.EXPIRED;
+        LocalDate eventDate = event.date(); // Record getter
+        LocalDate today = LocalDate.now();
+        return !eventDate.isAfter(today);
     }
 
 
