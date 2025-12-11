@@ -53,24 +53,28 @@ public class BookingRepositoryImpl implements BookingRepository {
     // ---------------- EXPIRATION LOGIC ----------------
 
     private void syncExpiredIfNeeded(Booking booking) {
+        try {
+            Event event = loadEventForBooking(booking.getEventId());
+            if (event == null) return;
 
-        Event event = loadEventForBooking(booking.getEventId());
-        if (event == null) return;
+            if (event.getDate() == null) return; // wichtig!
 
-        LocalDateTime eventStart = LocalDateTime.of(event.getDate(), event.getStartTime());
-        boolean eventInPast = eventStart.isBefore(LocalDateTime.now());
+            boolean eventInPast = event.getDate().isBefore(LocalDate.now());
 
-        if (eventInPast &&
-                booking.getStatus() != BookingStatus.CANCELLED &&
-                booking.getStatus() != BookingStatus.EXPIRED) {
+            if (eventInPast &&
+                    booking.getStatus() != BookingStatus.CANCELLED &&
+                    booking.getStatus() != BookingStatus.EXPIRED) {
 
-            // update DB
-            jpa.updateStatus(booking.getId(), BookingStatus.EXPIRED);
+                jpa.updateStatus(booking.getId(), BookingStatus.EXPIRED);
+                booking.setStatus(BookingStatus.EXPIRED);
+            }
 
-            // update returned domain object
-            booking.setStatus(BookingStatus.EXPIRED);
+        } catch (Exception ex) {
+            // verhindert komplette /bookings 500 error
+            System.err.println("Expired sync skipped for booking " + booking.getId() + ": " + ex);
         }
     }
+
 
 
     private Booking withExpirationSync(Booking booking) {
