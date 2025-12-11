@@ -55,6 +55,7 @@
         </select>
 
         <button class="btn-reset" onclick="resetFilters()">Reset</button>
+        <button class="btn-toggle-cancelled" onclick="toggleAdminCancelled()">Show Cancelled</button>
     </div>
 
 
@@ -211,6 +212,28 @@
         // Re-sort
         sortBookings();
     }
+
+    let adminCancelledVisible = false;
+
+    function toggleAdminCancelled() {
+        const rows = document.querySelectorAll(".admin-booking-table tbody tr");
+
+        adminCancelledVisible = !adminCancelledVisible;
+
+        rows.forEach(r => {
+            const isCancelled = r.classList.contains("row-cancelled");
+            if (isCancelled) {
+                r.style.display = adminCancelledVisible ? "" : "none";
+            }
+        });
+
+        const btn = document.querySelector(".btn-toggle-cancelled");
+        btn.innerText = adminCancelledVisible ? "Hide Cancelled" : "Show Cancelled";
+        btn.classList.toggle("active", adminCancelledVisible);
+    }
+
+    // automatisch gecancelte ausblenden beim Laden
+    window.onload = () => toggleAdminCancelled();
 
 </script>
 

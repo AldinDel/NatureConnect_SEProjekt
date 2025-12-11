@@ -286,3 +286,34 @@ body.bookings-admin-page {
     color: #0b2545 !important;
     border: 1.5px solid #d1d5db !important;
 }
+
+/* ---------------------------------------------------
+   TOGGLE CANCELLED BUTTON (ADMIN)
+   --------------------------------------------------- */
+
+.btn-toggle-cancelled {
+    background: #0b2545;
+    color: white;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    transition: .2s;
+    margin-left: 10px;
+}
+
+.btn-toggle-cancelled:hover {
+    background: #3b3767;
+}
+
+/* Wenn gecancelte sichtbar sind → Button soll wie "active" aussehen */
+.btn-toggle-cancelled.active {
+    background-color: #d9534f;
+    color: white;
+}
+
+.btn-toggle-cancelled.active:hover {
+    background-color: #c64743;
+}
+

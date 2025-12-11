@@ -27,6 +27,10 @@
         You don't have any bookings yet
     </p>
 
+    <button class="toggle-cancelled-btn" onclick="toggleCancelled()">
+        Show Cancelled
+    </button>
+
     <table th:if="${bookings.size() > 0}" class="booking-table">
         <thead>
         <tr>
@@ -89,6 +93,28 @@
     </table>
 
 </div>
+<script>
+    let cancelledVisible = false;
+
+    function toggleCancelled() {
+        const rows = document.querySelectorAll("tbody tr");
+
+        cancelledVisible = !cancelledVisible;
+
+        rows.forEach(r => {
+            const isCancelled = r.classList.contains("row-cancelled");
+            if (isCancelled) {
+                r.style.display = cancelledVisible ? "" : "none";
+            }
+        });
+
+        const btn = document.querySelector(".toggle-cancelled-btn");
+        btn.innerText = cancelledVisible ? "Hide Cancelled" : "Show Cancelled";
+
+        // --> NEU: Button bekommt active class
+        btn.classList.toggle("active", cancelledVisible);
+    }
+</script>
 
 </body>
 </html>
