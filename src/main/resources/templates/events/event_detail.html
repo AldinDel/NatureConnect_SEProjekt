@@ -68,7 +68,6 @@
     </div>
 </section>
 
-<!-- 4. MAIN CONTENT (Details, Equipment, Sidebar) -->
 <main class="page">
     <!-- Linke Spalte -->
     <section class="left">
@@ -102,7 +101,6 @@
 
                 <div class="detail-item">
                     <h4>Duration</h4>
-                    <!-- Falls du eine duration() Methode im DTO hast, sonst berechnen -->
                     <p th:text="${event.startTime} + ' - ' + ${event.endTime}">Time</p>
                 </div>
 
@@ -115,6 +113,39 @@
                 </div>
             </div>
         </div>
+
+        <div class="box" id="hiking-route-box" th:if="${isHikingEvent}">
+            <h3>Hiking Routes</h3>
+
+            <p id="no-hike-info">
+                No hiking route available for this event.
+            </p>
+
+            <div id="hike-route-content" style="display:none;">
+
+                <div class="hike-route-header">
+                    <div>
+                        <label for="hike-route-select">Route:</label>
+                        <select id="hike-route-select"></select>
+                    </div>
+
+                    <div id="hike-route-meta" class="hike-meta-badge"></div>
+                </div>
+
+
+            </div>
+
+            <ul id="hike-waypoint-list"></ul>
+
+            <svg id="hike-route-graph" width="100%" height="200"></svg>
+
+            <div id="hike-segment-info" style="margin-top:10px; font-size:0.9rem; color:#333;">
+                Click on a segment to see details.
+            </div>
+        </div>
+
+        </div>
+
 
         <div class="box">
             <h3>Equipment Add-ons</h3>
@@ -187,7 +218,8 @@
             <div style="display: flex; gap: 10px; flex-direction: column;">
                 <a th:if="${canEdit}"
                    th:href="@{/events/{id}/edit(id=${event.id})}"
-                   class="edit-btn" style="text-align: center; background: #f3f4f6; padding: 10px; border-radius: 8px; text-decoration: none; color: #333;">
+                   class="edit-btn"
+                   style="text-align: center; background: #f3f4f6; padding: 10px; border-radius: 8px; text-decoration: none; color: #333;">
                     ✎ Edit Event
                 </a>
 
@@ -245,6 +277,201 @@
     }
     /*]]>*/
 </script>
+
+<!-- JS für Hiking Route (Neo4j, multiple routes) -->
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", function () {
+        const hikeBox = document.getElementById("hiking-route-box");
+        if (!hikeBox) return;
+
+        const eventId = /*[[${event.id}]]*/ 0;
+        const category = /*[[${event.category}]]*/ '';
+
+        if (!category || !category.toLowerCase().includes('hiking')) {
+            return;
+        }
+
+        const noInfo = document.getElementById("no-hike-info");
+        const content = document.getElementById("hike-route-content");
+        const listEl = document.getElementById("hike-waypoint-list");
+        const svgEl = document.getElementById("hike-route-graph");
+        const infoEl = document.getElementById("hike-segment-info");
+        const selectEl = document.getElementById("hike-route-select");
+        const metaEl = document.getElementById("hike-route-meta");
+
+        fetch(`/api/hiking/event/${eventId}`)
+            .then(resp => {
+                if (!resp.ok) {
+                    throw new Error("HTTP " + resp.status);
+                }
+                return resp.json();
+            })
+            .then(routes => {
+                if (!Array.isArray(routes) || routes.length === 0) {
+                    return;
+                }
+
+                noInfo.style.display = "none";
+                content.style.display = "block";
+
+                // Dropdown mit Routen füllen
+                routes.forEach((route, idx) => {
+                    const opt = document.createElement("option");
+                    let label = route.name || `Route ${idx + 1}`;
+                    if (route.difficulty) {
+                        label += ` (${route.difficulty})`;
+                    }
+                    opt.value = String(idx);
+                    opt.textContent = label;
+                    selectEl.appendChild(opt);
+                });
+
+                function renderRoute(index) {
+                    const idx = Number(index);
+                    const route = routes[idx];
+                    if (!route) return;
+
+                    const parts = [];
+                    if (route.difficulty) {
+                        parts.push(`Difficulty: ${route.difficulty}`);
+                    }
+                    if (route.lengthKm != null) {
+                        parts.push(`Length: ${route.lengthKm} km`);
+                    }
+                    if (route.durationMinutes != null) {
+                        parts.push(`Duration: ${route.durationMinutes} min`);
+                    }
+                    metaEl.textContent = parts.join(" · ");
+
+                    const wps = Array.isArray(route.waypoints) ? [...route.waypoints] : [];
+                    wps.sort((a, b) => a.sequence - b.sequence);
+
+                    listEl.innerHTML = "";
+                    wps.forEach(wp => {
+                        const li = document.createElement("li");
+                        const altText = wp.altitude != null ? ` (${wp.altitude} m)` : "";
+                        li.textContent = `${wp.sequence} – ${wp.name}${altText}`;
+                        listEl.appendChild(li);
+                    });
+
+                    drawRouteGraph(wps);
+                }
+
+                function drawRouteGraph(waypoints) {
+                    const NS = "http://www.w3.org/2000/svg";
+                    svgEl.setAttribute("viewBox", "0 0 500 160");
+                    svgEl.innerHTML = "";
+                    infoEl.textContent = "Click on a segment to see details.";
+
+                    const wps = waypoints.filter(Boolean);
+                    const n = wps.length;
+                    if (n < 2) return;
+
+                    const marginX = 30;
+                    const marginY = 25;
+                    const width = 500 - marginX * 2;
+                    const height = 160 - marginY * 2;
+
+                    const altitudes = wps.map(w => w.altitude).filter(a => a != null);
+                    const hasAlt = altitudes.length >= 2;
+
+                    const minAlt = hasAlt ? Math.min(...altitudes) : 0;
+                    const maxAlt = hasAlt ? Math.max(...altitudes) : 1;
+                    const altRange = Math.max(1, maxAlt - minAlt);
+
+                    const points = wps.map((wp, idx) => {
+                        const x = marginX + (width / (n - 1)) * idx;
+
+                        let y;
+                        if (hasAlt && wp.altitude != null) {
+                            const t = (wp.altitude - minAlt) / altRange;
+                            y = marginY + (height * (1 - t));
+                        } else {
+                            const wave = Math.sin(idx * 0.9) * 12;
+                            y = marginY + height / 2 + wave;
+                        }
+
+                        return {x, y, wp};
+                    });
+
+                    // Sichtbare Route als Path
+                    const path = document.createElementNS(NS, "path");
+                    const d = points.map((p, i) => (i === 0 ? `M ${p.x} ${p.y}` : `L ${p.x} ${p.y}`)).join(" ");
+                    path.setAttribute("d", d);
+                    path.setAttribute("fill", "none");
+                    path.setAttribute("stroke", "#2563eb");
+                    path.setAttribute("stroke-width", "4");
+                    path.setAttribute("stroke-linecap", "round");
+                    path.setAttribute("stroke-linejoin", "round");
+                    svgEl.appendChild(path);
+
+                    // Klickbare Segmente (unsichtbare dicke Linie)
+                    for (let i = 0; i < points.length - 1; i++) {
+                        const p1 = points[i];
+                        const p2 = points[i + 1];
+
+                        const hit = document.createElementNS(NS, "line");
+                        hit.setAttribute("x1", p1.x);
+                        hit.setAttribute("y1", p1.y);
+                        hit.setAttribute("x2", p2.x);
+                        hit.setAttribute("y2", p2.y);
+                        hit.setAttribute("stroke", "transparent");
+                        hit.setAttribute("stroke-width", "14");
+                        hit.style.cursor = "pointer";
+
+                        hit.addEventListener("click", () => {
+                            let text = `Segment: ${p1.wp.name} → ${p2.wp.name}`;
+                            if (p1.wp.altitude != null && p2.wp.altitude != null) {
+                                text += ` (altitude: ${p1.wp.altitude} m → ${p2.wp.altitude} m)`;
+                            }
+                            infoEl.textContent = text;
+                        });
+
+                        svgEl.appendChild(hit);
+                    }
+
+                    // Alle Waypoint-Dots zeichnen
+                    points.forEach((point, idx) => {
+                        const dot = document.createElementNS(NS, "circle");
+                        dot.setAttribute("cx", point.x);
+                        dot.setAttribute("cy", point.y);
+
+                        // Start = grün, Ende = schwarz, Rest = weiß mit blauem Rand
+                        if (idx === 0) {
+                            dot.setAttribute("fill", "#10b981");
+                            dot.setAttribute("stroke", "#059669");
+                            dot.setAttribute("stroke-width", "2");
+                            dot.setAttribute("r", "6");
+                        } else if (idx === n - 1) {
+                            dot.setAttribute("fill", "#111827");
+                            dot.setAttribute("stroke", "#374151");
+                            dot.setAttribute("stroke-width", "2");
+                            dot.setAttribute("r", "6");
+                        } else {
+                            dot.setAttribute("fill", "white");
+                            dot.setAttribute("stroke", "#2563eb");
+                            dot.setAttribute("stroke-width", "2");
+                            dot.setAttribute("r", "4");
+                        }
+
+                        svgEl.appendChild(dot);
+                    });
+                }
+
+                renderRoute(0);
+                selectEl.value = "0";
+
+                selectEl.addEventListener("change", (e) => {
+                    renderRoute(e.target.value);
+                });
+            })
+            .catch(err => {
+                console.error("Failed to load hike routes", err);
+            });
+    });
+
+</script>
+
 
 </body>
 </html>

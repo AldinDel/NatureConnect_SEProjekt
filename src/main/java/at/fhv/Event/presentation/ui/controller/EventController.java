@@ -224,6 +224,9 @@ public class EventController {
         boolean expired = accessService.isEventExpired(event.date(), event.startTime());
         model.addAttribute("expired", expired);
 
+        boolean isHiking = event.category() != null && event.category().toLowerCase().contains("hiking");
+        model.addAttribute("isHikingEvent", isHiking);
+
         return "events/event_detail";
     }
 

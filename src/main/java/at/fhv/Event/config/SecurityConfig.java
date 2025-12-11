@@ -48,6 +48,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/webhooks/payment").permitAll()
                         .requestMatchers("/booking/payment/**").authenticated()
                         .requestMatchers("/booking/confirmation/**").permitAll()
+                        .requestMatchers("/neo4j-test").permitAll()
+                        .requestMatchers("/api/hiking/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
