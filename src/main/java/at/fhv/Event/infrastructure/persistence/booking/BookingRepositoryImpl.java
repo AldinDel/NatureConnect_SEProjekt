@@ -3,6 +3,7 @@ package at.fhv.Event.infrastructure.persistence.booking;
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
 import at.fhv.Event.domain.model.booking.Booking;
 import at.fhv.Event.domain.model.booking.BookingRepository;
+import at.fhv.Event.domain.model.booking.BookingStatus;
 import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.infrastructure.mapper.BookingMapper;
 import at.fhv.Event.infrastructure.mapper.EventMapper;
@@ -29,7 +30,8 @@ public class BookingRepositoryImpl implements BookingRepository {
     @Autowired
     private EquipmentJpaRepository equipmentJpa;
 
-    public BookingRepositoryImpl(BookingJpaRepository jpa, BookingMapper mapper, EventJpaRepository eventJpa, EventMapper eventMapper) {
+    public BookingRepositoryImpl(BookingJpaRepository jpa, BookingMapper mapper,
+                                 EventJpaRepository eventJpa, EventMapper eventMapper) {
         this.jpa = jpa;
         this.mapper = mapper;
         this.eventJpa = eventJpa;
@@ -48,34 +50,25 @@ public class BookingRepositoryImpl implements BookingRepository {
         return mapper.toDomain(saved);
     }
 
-
     @Override
     public Optional<Booking> findById(Long id) {
-        return jpa.findById(id)
-                .map(mapper::toDomain);
+        return jpa.findById(id).map(mapper::toDomain);
     }
 
     @Override
     public List<Booking> findAll() {
-        return jpa.findAll().stream()
-                .map(mapper::toDomain)
-                .toList();
+        return jpa.findAll().stream().map(mapper::toDomain).toList();
     }
 
     @Override
     public List<Booking> findByEventId(Long eventId) {
-        return jpa.findByEventId(eventId).stream()
-                .map(mapper::toDomain)
-                .toList();
+        return jpa.findByEventId(eventId).stream().map(mapper::toDomain).toList();
     }
 
     @Override
     public List<Booking> findByCustomerEmail(String email) {
-        return jpa.findByBookerEmail(email).stream()
-                .map(mapper::toDomain)
-                .toList();
+        return jpa.findByBookerEmail(email).stream().map(mapper::toDomain).toList();
     }
-
 
     @Override
     public int countSeatsForEvent(Long eventId) {
@@ -84,9 +77,7 @@ public class BookingRepositoryImpl implements BookingRepository {
 
     @Override
     public Event loadEventForBooking(Long eventId) {
-        return eventJpa.findById(eventId)
-                .map(eventMapper::toDomain)
-                .orElse(null);
+        return eventJpa.findById(eventId).map(eventMapper::toDomain).orElse(null);
     }
 
     @Override
@@ -98,20 +89,18 @@ public class BookingRepositoryImpl implements BookingRepository {
                 .map(ee -> ee.getEquipment().getId())
                 .toList();
 
-        List<EquipmentEntity> rentableEquipment = equipmentJpa.findAllById(allowedIds)
-                .stream()
+        return equipmentJpa.findAllById(allowedIds).stream()
                 .filter(eq -> eq.getStock() > 0)
-                .toList();
-
-        return rentableEquipment.stream()
-                .collect(Collectors.toMap(
-                        EquipmentEntity::getId,
-                        e -> e
-                ));
+                .collect(Collectors.toMap(EquipmentEntity::getId, e -> e));
     }
 
     @Override
     public int countOccupiedSeatsForEvent(Long eventId) {
         return jpa.countOccupiedSeatsForEvent(eventId);
+    }
+
+    @Override
+    public void updateStatus(Long id, BookingStatus status) {
+        jpa.updateStatus(id, status);
     }
 }

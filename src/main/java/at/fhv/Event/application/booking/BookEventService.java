@@ -167,7 +167,7 @@ public class BookEventService {
     // BOOKING CANCELLATION
     // -----------------------------------------------------------------------
 
-    // ⭐ WICHTIG – alte Signatur wiederhergestellt, um 500-Fehler zu vermeiden
+    // WICHTIG – alte Signatur wiederhergestellt, um 500-Fehler zu vermeiden
     @Transactional
     public void cancelBooking(Long bookingId, String email) {
         cancelBooking(bookingId, email, false);
