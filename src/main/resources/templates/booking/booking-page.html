@@ -219,6 +219,15 @@
                     <input type="hidden" th:field="*{voucherCode}" id="voucherCodeField">
                     <input type="hidden" th:field="*{discountPercent}" id="discountPercentField"/>
 
+                    <button th:if="${!isEdit}"
+                            id="confirmBtn"
+                            type="submit"
+                            class="btn-primary"
+                            th:text="'Confirm Booking'">
+                        Confirm Booking
+                    </button>
+
+
                     <div th:if="${isEdit}">
                         <button
                                 id="updateBookingBtn"
