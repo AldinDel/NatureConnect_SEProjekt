@@ -1,5 +1,7 @@
 package at.fhv.Event.application.booking;
 
+import at.fhv.Event.EventApplication;
+import at.fhv.Event.TestSecurityBeansConfig;
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
 import at.fhv.Event.domain.model.booking.AudienceType;
 import at.fhv.Event.domain.model.booking.BookingStatus;
@@ -11,13 +13,17 @@ import at.fhv.Event.infrastructure.persistence.booking.BookingJpaRepository;
 import at.fhv.Event.infrastructure.persistence.equipment.EquipmentEntity;
 import at.fhv.Event.infrastructure.persistence.equipment.EquipmentJpaRepository;
 import at.fhv.Event.infrastructure.persistence.equipment.EventEquipmentEntity;
-import at.fhv.Event.infrastructure.persistence.equipment.EventEquipmentJpaRepository;
 import at.fhv.Event.infrastructure.persistence.event.EventEntity;
 import at.fhv.Event.infrastructure.persistence.event.EventJpaRepository;
+import at.fhv.Event.infrastructure.persistence.user.UserAccountEntity;
+import at.fhv.Event.infrastructure.persistence.user.UserAccountJpaRepository;
 import at.fhv.Event.presentation.rest.response.booking.BookingDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,11 +36,20 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SpringBootTest
+@SpringBootTest(classes = {EventApplication.class, TestSecurityBeansConfig.class})
 @ActiveProfiles("test")
 @Transactional
 @Rollback
+
 public class BookingIntegrationTest {
+
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Autowired
+    private UserAccountJpaRepository userAccountJpaRepository;
 
     @Autowired
     private BookEventService bookEventService;
@@ -48,9 +63,16 @@ public class BookingIntegrationTest {
     @Autowired
     private EquipmentJpaRepository equipmentJpaRepository;
 
-    @Autowired
-    private EventEquipmentJpaRepository eventEquipmentJpaRepository;
 
+    private void ensureUser(String email, String first, String last) {
+        UserAccountEntity u = new UserAccountEntity();
+        u.setEmail(email);
+        u.setFirstName(first);
+        u.setLastName(last);
+        u.setActive(true);
+        u.setPasswordHash("test-hash");
+        userAccountJpaRepository.saveAndFlush(u);
+    }
 
 
     // 1) Happy Path: booking mit Equipment und Lagerbestandsreduzierung
@@ -103,6 +125,7 @@ public class BookingIntegrationTest {
         event = eventJpaRepository.save(event);
         eventJpaRepository.flush();
 
+        ensureUser("max@example.com", "Max", "Mustermann");
 
         // WHEN: bookEvent über den echten Service
         BookingDTO bookingDTO = bookEventService.bookEvent(request);
@@ -175,6 +198,7 @@ public class BookingIntegrationTest {
 
         int originalStock = tent.getStock();
 
+        ensureUser("lisa@example.com", "Lisa", "Musterfrau");
 
         // WHEN + THEN: Erwarte BookingValidationException
         BookingValidationException exception = assertThrows(
@@ -245,6 +269,9 @@ public class BookingIntegrationTest {
         request.setAudience(AudienceType.INDIVIDUAL);
         request.setEquipment(Map.of());
         request.setParticipants(List.of());
+
+        ensureUser("first@test.at", "First", "Booker");
+        ensureUser("second@test.at", "Second", "Booker");
 
         // WHEN + THEN: Der Service sollte EventFullyBookedException werfen
         EventFullyBookedException exception = assertThrows(
