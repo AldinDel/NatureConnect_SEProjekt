@@ -11,7 +11,7 @@ description = 'Demo project for Publication Organizer Application'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(21)
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 
