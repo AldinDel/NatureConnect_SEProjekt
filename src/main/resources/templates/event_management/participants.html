@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Participants</title>
+
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/participants.css}">
+</head>
+
+<body class="participants-page">
+
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
+
+<div class="page-header">
+    <h1>Event Participants</h1>
+    <p th:text="'Event ID: ' + ${eventId}"></p>
+</div>
+
+<div class="fo-tabs">
+    <a th:href="@{/event_management/participants(eventId=${eventId})}"
+       class="fo-tab"
+       th:classappend="${activeTab} == 'checkin' ? ' active' : ''">
+        Check-In
+    </a>
+
+    <a th:href="@{/event_management/checkout(eventId=${eventId})}"
+       class="fo-tab"
+       th:classappend="${activeTab} == 'checkout' ? ' active' : ''">
+        Check-Out
+    </a>
+
+    <a th:href="@{/event_management/invoices(eventId=${eventId})}"
+       class="fo-tab"
+       th:classappend="${activeTab} == 'invoices' ? ' active' : ''">
+        Invoices
+    </a>
+</div>
+
+
+
+
+<div class="stats-container">
+    <div class="stat-card">
+        <span class="stat-title">Total</span>
+        <span class="stat-value total" data-stat="total" th:text="${totalCount}"></span>
+    </div>
+
+    <div class="stat-card">
+        <span class="stat-title">Arrived</span>
+        <span class="stat-value arrived" data-stat="arrived" th:text="${arrivedCount}"></span>
+    </div>
+
+    <div class="stat-card">
+        <span class="stat-title">Not Arrived</span>
+        <span class="stat-value not-arrived" data-stat="notArrived" th:text="${notArrivedCount}"></span>
+
+    </div>
+
+    <div class="stat-card">
+        <span class="stat-title">Registered</span>
+        <span class="stat-value registered" data-stat="registered" th:text="${registeredCount}"></span>
+    </div>
+
+</div>
+
+
+
+<div class="search-container">
+    <input type="text" class="search-input" placeholder="Search participant or booking…">
+</div>
+
+
+<div class="table-wrapper">
+    <table class="participants-table">
+        <thead>
+        <tr>
+            <th>Booking ID</th>
+            <th>Booker</th>
+            <th>Participant</th>
+            <th>Age</th>
+            <th>Booking Status</th>
+            <th>Payment</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="p : ${participants}"
+            th:data-participant-id="${p.participantId}"
+            th:data-booking-id="${p.bookingId}">
+
+
+            <td th:text="${p.bookingId}"></td>
+
+
+            <td th:text="${p.bookerName}"></td>
+
+
+            <td th:text="${p.participantName}"></td>
+
+
+            <td th:text="${p.participantAge}"></td>
+
+
+            <td>
+                <span th:text="${p.bookingStatus}"
+                      th:class="'status-badge ' + ${p.bookingStatus.toLowerCase()}">
+                </span>
+            </td>
+
+
+            <td>
+                <span th:text="${p.paymentStatus}"
+                      th:class="'status-badge payment ' + ${p.paymentStatus.toLowerCase()}">
+                </span>
+            </td>
+
+            <td>
+                <button class="btn success checkin-btn"
+                        th:classappend="${p.checkInStatus.name() == 'CHECKED_IN'} ? ' active' : ''">
+                    ✔
+                </button>
+
+                <button class="btn danger notarrived-btn"
+                        th:classappend="${p.checkInStatus.name() == 'NOT_ARRIVED'} ? ' active' : ''">
+                    ✖
+                </button>
+            </td>
+
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const eventId = /*[[${eventId}]]*/ 0;
+
+    function updateStats() {
+        const rows = document.querySelectorAll("tr[data-participant-id]");
+
+        const total = rows.length;
+        const arrived = document.querySelectorAll(".checkin-btn.active").length;
+        const notArrived = document.querySelectorAll(".notarrived-btn.active").length;
+
+        const registered = total - arrived - notArrived;
+
+        document.querySelector("[data-stat='total']").textContent = total;
+        document.querySelector("[data-stat='arrived']").textContent = arrived;
+        document.querySelector("[data-stat='notArrived']").textContent = notArrived;
+        document.querySelector("[data-stat='registered']").textContent = registered;
+    }
+
+    document.querySelectorAll("tr[data-participant-id]").forEach(row => {
+
+        const participantId = row.dataset.participantId;
+        const checkInBtn = row.querySelector(".checkin-btn");
+        const notArrivedBtn = row.querySelector(".notarrived-btn");
+
+
+        checkInBtn.addEventListener("click", () => {
+
+            if (checkInBtn.classList.contains("active")) {
+
+                fetch(`/api/events/${eventId}/participants/${participantId}/reset`, {
+                    method: "POST"
+                }).then(() => {
+                    checkInBtn.classList.remove("active");
+                    notArrivedBtn.classList.remove("active");
+                    updateStats();
+                });
+                return;
+            }
+
+
+            fetch(`/api/events/${eventId}/participants/${participantId}/checkin`, {
+                method: "POST"
+            }).then(() => {
+                checkInBtn.classList.add("active");
+                notArrivedBtn.classList.remove("active");
+                updateStats();
+            });
+        });
+
+        notArrivedBtn.addEventListener("click", () => {
+
+            if (notArrivedBtn.classList.contains("active")) {
+
+                fetch(`/api/events/${eventId}/participants/${participantId}/reset`, {
+                    method: "POST"
+                }).then(() => {
+                    checkInBtn.classList.remove("active");
+                    notArrivedBtn.classList.remove("active");
+                    updateStats();
+                });
+                return;
+            }
+
+            fetch(`/api/events/${eventId}/participants/${participantId}/notarrived`, {
+                method: "POST"
+            }).then(() => {
+                notArrivedBtn.classList.add("active");
+                checkInBtn.classList.remove("active");
+                updateStats();
+            });
+        });
+
+    });
+
+    const searchInput = document.querySelector(".search-input");
+
+    searchInput.addEventListener("input", () => {
+        const query = searchInput.value.toLowerCase();
+        const rows = document.querySelectorAll("tbody tr");
+
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            row.style.display = text.includes(query) ? "" : "none";
+        });
+
+        updateStats();
+    });
+
+
+</script>
+
+
+</body>
+</html>
