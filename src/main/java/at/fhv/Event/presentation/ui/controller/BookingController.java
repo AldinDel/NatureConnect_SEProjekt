@@ -391,16 +391,20 @@ public class BookingController {
             _bookEventService.cancelBooking(id, principal.getName(), isAdmin);
 
             redirectAttributes.addFlashAttribute("success", "Booking cancelled successfully.");
+
+            redirectAttributes.addFlashAttribute(
+                    "info",
+                    "Refund email has been sent to the customer."
+            );
+
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
 
-        // Admin zurück zur Admin-Ansicht
         if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             return "redirect:/bookings";
         }
 
-        // Kunde → zu eigenen Buchungen
         return "redirect:/bookings";
     }
 

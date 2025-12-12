@@ -136,6 +136,21 @@ body.bookings-admin-page {
     color: #7f1d1d;
 }
 
+.toast-info {
+    position: fixed;
+    top: 70px; /* etwas unter dem success toast */
+    right: 20px;
+    padding: 12px 18px;
+    border-radius: 6px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    font-size: 16px;
+    z-index: 2000;
+    background: #dbeafe;     /* schönes hellblau */
+    color: #1e3a8a;          /* navy-blau */
+    animation: fadeout 4s forwards;
+}
+
+
 @keyframes fadeout {
     0% { opacity: 1; }
     70% { opacity: 1; }

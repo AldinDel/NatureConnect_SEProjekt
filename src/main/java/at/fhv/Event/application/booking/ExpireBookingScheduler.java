@@ -21,8 +21,9 @@ public class ExpireBookingScheduler {
     }
 
     @Transactional
-    @Scheduled(fixedRate = 10000) // alle 10 Sekunden – nur zum Testen
-    // für Production dann: @Scheduled(cron = "0 0 0 * * *")
+    //läuft täglich um 00:00 Uhr
+    @Scheduled(cron = "0 0 0 * * *")
+    //@Scheduled(fixedRate = 10000) --> alle 10 Sekunden – nur zum Testen
     public void expireBookings() {
 
         var today = LocalDate.now();

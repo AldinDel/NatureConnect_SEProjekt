@@ -1,5 +1,6 @@
 package at.fhv.Event.application.booking;
 
+import at.fhv.Event.application.email.FakeEmailService;
 import at.fhv.Event.application.request.booking.BookingRequestMapper;
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
 import at.fhv.Event.application.request.booking.ParticipantDTO;
@@ -28,19 +29,22 @@ public class BookEventService {
     private final BookingRequestMapper _bookingRequestMapper;
     private final BookingMapperDTO _bookingMapperDTO;
     private final BookingValidator _bookingValidator;
+    private final FakeEmailService fakeEmailService;
 
     public BookEventService(
             BookingRepository bookingRepository,
             EquipmentRepository equipmentRepository,
             BookingRequestMapper bookingRequestMapper,
             BookingMapperDTO bookingMapperDTO,
-            BookingValidator bookingValidator) {
+            BookingValidator bookingValidator,
+            FakeEmailService fakeEmailService) {
 
         _bookingRepository = bookingRepository;
         _equipmentRepository = equipmentRepository;
         _bookingRequestMapper = bookingRequestMapper;
         _bookingMapperDTO = bookingMapperDTO;
         _bookingValidator = bookingValidator;
+        this.fakeEmailService = fakeEmailService;
     }
 
     // -----------------------------------------------------------------------
@@ -196,6 +200,12 @@ public class BookEventService {
 
         booking.setStatus(BookingStatus.CANCELLED);
         _bookingRepository.save(booking);
+
+        // ---- FAKE EMAIL TRIGGER ----
+        fakeEmailService.sendRefundEmail(
+                booking.getBookerEmail(),
+                booking.getId()
+        );
     }
 
     // -----------------------------------------------------------------------

@@ -17,6 +17,10 @@
     <span th:text="${success}"></span>
 </div>
 
+<div th:if="${info}" class="toast-info">
+    <span th:text="${info}"></span>
+</div>
+
 <div th:if="${error}" class="toast-error">
     <span th:text="${error}"></span>
 </div>
