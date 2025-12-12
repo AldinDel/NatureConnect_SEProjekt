@@ -2,11 +2,14 @@ package at.fhv.Event.application.hiking;
 
 import org.springframework.data.neo4j.core.Neo4jClient;
 import org.springframework.stereotype.Service;
+import org.springframework.context.annotation.Profile;
 
 import java.util.ArrayList;
 import java.util.List;
 
+
 @Service
+@Profile("!test")
 public class GetHikeRoutesForEventService {
 
     private final Neo4jClient neo4jClient;
@@ -82,6 +85,57 @@ public class GetHikeRoutesForEventService {
         }
 
         return result;
+    }
+
+    public HikeRouteDTO getBestRouteForEvent(Integer eventId, String filter) {
+
+        List<HikeRouteDTO> routes = getRoutesForEvent(eventId);
+
+        if (routes == null || routes.isEmpty()) {
+            return null;
+        }
+
+        String f = filter == null ? "" : filter.toLowerCase();
+
+        return switch (f) {
+
+            case "shortest" -> routes.stream()
+                    .filter(r -> r.getLengthKm() != null)
+                    .min((a, b) -> Integer.compare(a.getLengthKm(), b.getLengthKm()))
+                    .orElse(routes.get(0));
+
+            case "longest" -> routes.stream()
+                    .filter(r -> r.getLengthKm() != null)
+                    .max((a, b) -> Integer.compare(a.getLengthKm(), b.getLengthKm()))
+                    .orElse(routes.get(0));
+
+            case "easiest" -> routes.stream()
+                    .min((a, b) -> Integer.compare(
+                            difficultyRank(a.getDifficulty()),
+                            difficultyRank(b.getDifficulty())
+                    ))
+                    .orElse(routes.get(0));
+
+            case "hardest" -> routes.stream()
+                    .max((a, b) -> Integer.compare(
+                            difficultyRank(a.getDifficulty()),
+                            difficultyRank(b.getDifficulty())
+                    ))
+                    .orElse(routes.get(0));
+
+            default -> routes.get(0);
+        };
+    }
+
+    private int difficultyRank(String difficulty) {
+        if (difficulty == null) return 99;
+
+        return switch (difficulty.toUpperCase()) {
+            case "EASY" -> 1;
+            case "INTERMEDIATE" -> 2;
+            case "HARD" -> 3;
+            default -> 99;
+        };
     }
 
     private static class HikeMeta {

@@ -129,6 +129,18 @@
                         <select id="hike-route-select"></select>
                     </div>
 
+                    <div>
+                        <label for="hike-filter-select">Filter:</label>
+                        <select id="hike-filter-select">
+                            <option value="shortest">Shortest</option>
+                            <option value="longest">Longest</option>
+                            <option value="easiest">Easiest</option>
+                            <option value="hardest">Hardest</option>
+                            <option value=" "></option>
+                        </select>
+                    </div>
+
+
                     <div id="hike-route-meta" class="hike-meta-badge"></div>
                 </div>
 
@@ -291,6 +303,7 @@
             return;
         }
 
+        const filterEl = document.getElementById("hike-filter-select");
         const noInfo = document.getElementById("no-hike-info");
         const content = document.getElementById("hike-route-content");
         const listEl = document.getElementById("hike-waypoint-list");
@@ -325,6 +338,57 @@
                     opt.textContent = label;
                     selectEl.appendChild(opt);
                 });
+
+                // default: shortest anzeigen
+                if (filterEl) {
+                    filterEl.value = "shortest";
+                    loadBestRoute("shortest");
+
+                    filterEl.addEventListener("change", (e) => {
+                        const val = e.target.value;
+                        if (val === " ") return;
+                        loadBestRoute(val);
+                    });
+                }
+
+                function loadBestRoute(filter) {
+                    fetch(`/api/hiking/event/${eventId}/best?filter=${encodeURIComponent(filter)}`)
+                        .then(resp => {
+                            if (!resp.ok) throw new Error("HTTP " + resp.status);
+                            return resp.json();
+                        })
+
+                        .then(route => {
+                            if (!route) return;
+
+                            const bestIndex = routes.findIndex(r => r.name === route.name);
+                            if (bestIndex >= 0) {
+                                selectEl.value = String(bestIndex);
+                            }
+
+                            // Meta
+                            const parts = [];
+                            if (route.difficulty) parts.push(`Difficulty: ${route.difficulty}`);
+                            if (route.lengthKm != null) parts.push(`Length: ${route.lengthKm} km`);
+                            if (route.durationMinutes != null) parts.push(`Duration: ${route.durationMinutes} min`);
+                            metaEl.textContent = parts.join("\n"); // falls du Zeilen willst, sonst join(" · ")
+
+                            // Waypoints
+                            const wps = Array.isArray(route.waypoints) ? [...route.waypoints] : [];
+                            wps.sort((a, b) => a.sequence - b.sequence);
+
+                            listEl.innerHTML = "";
+                            wps.forEach(wp => {
+                                const li = document.createElement("li");
+                                const altText = wp.altitude != null ? ` (${wp.altitude} m)` : "";
+                                li.textContent = `${wp.sequence} – ${wp.name}${altText}`;
+                                listEl.appendChild(li);
+                            });
+
+                            drawRouteGraph(wps);
+                        })
+                        .catch(err => console.error("Failed to load best route", err));
+                }
 
                 function renderRoute(index) {
                     const idx = Number(index);
@@ -462,6 +526,7 @@
                 selectEl.value = "0";
 
                 selectEl.addEventListener("change", (e) => {
+                    if (filterEl) filterEl.value = " ";
                     renderRoute(e.target.value);
                 });
             })
