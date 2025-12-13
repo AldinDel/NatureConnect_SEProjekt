@@ -59,6 +59,16 @@ public class EventMapper {
         return event;
     }
 
+    public java.util.List<Event> toDomainList(java.util.List<EventEntity> entities) {
+        if (entities == null) {
+            return java.util.Collections.emptyList();
+        }
+
+        return entities.stream()
+                .map(this::toDomain)
+                .collect(java.util.stream.Collectors.toList());
+    }
+
 
     public EventEntity toEntity(Event domain) {
         if (domain == null) return null;

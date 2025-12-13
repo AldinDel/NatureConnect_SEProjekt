@@ -1,18 +1,46 @@
 package at.fhv.Event.domain.model.booking;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "booking_participant")
 public class BookingParticipant {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "first_name")
     private String firstName;
+
+    @Column(name = "last_name")
     private String lastName;
+
     private int age;
 
-    public BookingParticipant() {}
+    @Column(name = "booking_id")
+    private Long bookingId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "check_in_status")
+    private ParticipantStatus checkInStatus;
 
     public BookingParticipant(String firstName, String lastName, int age) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.age = age;
+        this.checkInStatus = ParticipantStatus.REGISTERED;
+    }
+
+
+    public BookingParticipant() {}
+
+    public BookingParticipant(String firstName, String lastName, int age, Long bookingId) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.age = age;
+        this.bookingId = bookingId;
+        this.checkInStatus = ParticipantStatus.REGISTERED;
     }
 
     public String getFullName() {
@@ -25,10 +53,6 @@ public class BookingParticipant {
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getFirstName() {
@@ -53,5 +77,21 @@ public class BookingParticipant {
 
     public void setAge(int age) {
         this.age = age;
+    }
+
+    public Long getBookingId() {
+        return bookingId;
+    }
+
+    public void setBookingId(Long bookingId) {
+        this.bookingId = bookingId;
+    }
+
+    public ParticipantStatus getCheckInStatus() {
+        return checkInStatus;
+    }
+
+    public void setCheckInStatus(ParticipantStatus checkInStatus) {
+        this.checkInStatus = checkInStatus;
     }
 }

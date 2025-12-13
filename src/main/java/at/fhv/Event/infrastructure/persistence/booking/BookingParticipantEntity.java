@@ -1,5 +1,6 @@
 package at.fhv.Event.infrastructure.persistence.booking;
 
+import at.fhv.Event.domain.model.booking.ParticipantStatus;
 import jakarta.persistence.*;
 
 @Entity
@@ -22,6 +23,10 @@ public class BookingParticipantEntity {
 
     @Column(name = "age", nullable = false)
     private int age;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "check_in_status", nullable = false)
+    private ParticipantStatus checkInStatus = ParticipantStatus.REGISTERED;
 
     public Long getId() {
         return id;
@@ -61,5 +66,13 @@ public class BookingParticipantEntity {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public void setCheckInStatus(ParticipantStatus checkInStatus) {
+        this.checkInStatus = checkInStatus;
+    }
+
+    public ParticipantStatus getCheckInStatus() {
+        return checkInStatus;
     }
 }
