@@ -6,7 +6,10 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/bookings-overview.css}">
 </head>
+
 <body class="bookings-page">
+
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
 
 <div th:if="${success}" class="toast-success">
     <span th:text="${success}"></span>
@@ -16,8 +19,6 @@
     <span th:text="${error}"></span>
 </div>
 
-<div th:replace="~{events/fragments/navbar :: navbar}"></div>
-
 <div class="booking-container">
 
     <h1>Your Bookings</h1>
@@ -25,6 +26,10 @@
     <p th:if="${bookings.size() == 0}" class="no-bookings">
         You don't have any bookings yet
     </p>
+
+    <button class="toggle-cancelled-btn" onclick="toggleInactive()">
+        Show Inactive
+    </button>
 
     <table th:if="${bookings.size() > 0}" class="booking-table">
         <thead>
@@ -38,7 +43,11 @@
         </thead>
 
         <tbody>
-        <tr th:each="dto : ${bookings}">
+        <tr th:each="dto : ${bookings}"
+            th:classappend="
+                ${dto.cancelled} ? 'row-inactive cancelled' :
+                (${dto.expired} ? 'row-inactive expired' : '')">
+
             <td class="event-col">
                 <div class="event-info">
                     <img th:src="${dto.event.imageUrl}" alt="thumbnail">
@@ -48,30 +57,49 @@
 
             <td th:text="${dto.event.date}"></td>
             <td th:text="${dto.seats}"></td>
-            <td><span th:text="${#numbers.formatDecimal(dto.totalPrice, 1, 2, 'COMMA')} + ' €'"></span></td>
 
-            <td class="actions">
-
-                <a th:if="${!dto.event.cancelled and dto.event.date >= T(java.time.LocalDate).now()}"
-                   th:href="@{/booking/{id}/edit(id=${dto.id})}"
-                   class="btn-edit">
-                    Edit
-                </a>
-
-                <span th:if="${dto.event.cancelled or dto.event.date < T(java.time.LocalDate).now()}"
-                      class="badge-disabled">
-                    Not editable
-                </span>
-
-                <button class="btn-small btn-cancel">Cancel</button>
+            <td>
+                <span th:text="${#numbers.formatDecimal(dto.totalPrice, 1, 2, 'COMMA')} + ' €'"></span>
             </td>
 
+            <td class="actions">
+                <a th:href="@{/booking/{id}/edit(id=${dto.id})}"
+                   class="btn-edit action-btn">Edit</a>
+
+                <form th:action="@{/booking/{id}/cancel(id=${dto.id})}"
+                      method="post" style="display:inline;">
+                    <button class="btn-small btn-cancel action-btn" type="submit">
+                        Cancel
+                    </button>
+                </form>
+            </td>
 
         </tr>
         </tbody>
     </table>
 
 </div>
+
+<script>
+    let inactiveVisible = false;
+
+    function toggleInactive() {
+        const rows = document.querySelectorAll("tbody tr");
+
+        inactiveVisible = !inactiveVisible;
+
+        rows.forEach(r => {
+            const isInactive = r.classList.contains("row-inactive");
+            if (isInactive) {
+                r.style.display = inactiveVisible ? "" : "none";
+            }
+        });
+
+        const btn = document.querySelector(".toggle-cancelled-btn");
+        btn.innerText = inactiveVisible ? "Hide Inactive Bookings" : "Show Inactive Bookings";
+        btn.classList.toggle("active", inactiveVisible);
+    }
+</script>
 
 </body>
 </html>

@@ -19,4 +19,8 @@ public interface BookingRepository {
     Event loadEventForBooking(Long eventId);
     Map<Long, EquipmentEntity> loadEquipmentMap(CreateBookingRequest request);
     int countOccupiedSeatsForEvent(Long eventId);
+
+    void updateStatus(Long bookingId, BookingStatus status);
+
+    void markExpiredForEvent(Long eventId);
 }

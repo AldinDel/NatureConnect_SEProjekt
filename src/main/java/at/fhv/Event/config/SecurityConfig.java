@@ -3,6 +3,7 @@ package at.fhv.Event.config;
 import at.fhv.Event.application.user.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -15,6 +16,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+@Profile("!test")
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -48,6 +50,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/webhooks/payment").permitAll()
                         .requestMatchers("/booking/payment/**").authenticated()
                         .requestMatchers("/booking/confirmation/**").permitAll()
+                        .requestMatchers("/api/hiking/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

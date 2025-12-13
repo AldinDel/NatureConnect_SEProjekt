@@ -377,6 +377,39 @@ public class BookingController {
         }
     }
 
+    @PostMapping("/{id}/cancel")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
+    public String cancelBooking(@PathVariable Long id,
+                                Authentication auth,
+                                Principal principal,
+                                RedirectAttributes redirectAttributes) {
+
+        try {
+            boolean isAdmin = auth.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+            _bookEventService.cancelBooking(id, principal.getName(), isAdmin);
+
+            redirectAttributes.addFlashAttribute("success", "Booking cancelled successfully.");
+
+            redirectAttributes.addFlashAttribute(
+                    "info",
+                    "Refund email has been sent to the customer."
+            );
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+
+        if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return "redirect:/bookings";
+        }
+
+        return "redirect:/bookings";
+    }
+
+
+
 
 
     private CreateBookingRequest mapBookingToCreateBookingRequest(Booking booking) {
