@@ -6,52 +6,59 @@ public class BookingParticipant {
     private String firstName;
     private String lastName;
     private int age;
+    private ParticipantStatus checkInStatus;
 
-    public BookingParticipant() {}
-
-    public BookingParticipant(String firstName, String lastName, int age) {
+    public BookingParticipant(
+            Long id,
+            String firstName,
+            String lastName,
+            int age,
+            ParticipantStatus checkInStatus
+    ) {
+        this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.age = age;
+        this.checkInStatus = checkInStatus;
     }
+
+
+    public Long getId() { return id; }
 
     public String getFullName() {
         return firstName + " " + lastName;
     }
 
-    public boolean isAdult() {
-        return age >= 18;
+    public int getAge() { return age; }
+
+    public ParticipantStatus getCheckInStatus() {
+        return checkInStatus;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+    public void setCheckInStatus(ParticipantStatus status) {
+        this.checkInStatus = status;
     }
 
     public String getFirstName() {
         return firstName;
     }
 
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
     public String getLastName() {
         return lastName;
     }
 
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public static BookingParticipant createNew(
+            String firstName,
+            String lastName,
+            int age
+    ) {
+        return new BookingParticipant(
+                null,
+                firstName,
+                lastName,
+                age,
+                ParticipantStatus.REGISTERED
+        );
     }
 
-    public int getAge() {
-        return age;
-    }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
 }

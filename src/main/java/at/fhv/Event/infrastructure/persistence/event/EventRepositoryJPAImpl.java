@@ -5,6 +5,7 @@ import at.fhv.Event.domain.model.event.EventRepository;
 import at.fhv.Event.infrastructure.mapper.EventMapper;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -40,4 +41,10 @@ public class EventRepositoryJPAImpl implements EventRepository {
         var saved = jpa.save(entity);
         return mapper.toDomain(saved);
     }
+    @Override
+    public List<Event> findByDate(LocalDate date) {
+        return mapper.toDomainList(jpa.findByDate(date));
+    }
+
+
 }

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Event Management</title>
+
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/event-management-front.css}">
+</head>
+
+<body class="event_management">
+
+
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
+
+
+<div class="checkin-container">
+
+    <div class="event-container">
+
+        <h1 class="checkin-title">Overview</h1>
+        <h2 class="checkin-subtitle">Today’s scheduled events</h2>
+
+        <div class="empty-state" th:if="${events.size() == 0}">
+            <p>No events scheduled for today 🌿</p>
+            <p class="small-note">Please check again later.</p>
+        </div>
+
+        <div class="events-wrapper" th:if="${events.size() > 0}">
+            <div class="event-card" th:each="e : ${events}">
+                <div class="event-info">
+                    <h3 class="event-title" th:text="${e.title}"></h3>
+
+                    <div class="event-meta">
+                        <div class="meta-item">
+                            <span class="meta-icon">🕒</span>
+                            <span th:text="${e.startTime}">Time</span>
+                        </div>
+
+                        <div class="meta-item">
+                            <span class="meta-icon">📍</span>
+                            <span th:text="${e.location}">Location</span>
+                        </div>
+                    </div>
+                </div>
+
+                <a class="checkin-btn"
+                   th:href="@{|/event_management/participants?eventId=${e.id}|}">
+                    View Participants
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>
