@@ -17,6 +17,10 @@
     <span th:text="${success}"></span>
 </div>
 
+<div th:if="${info}" class="toast-info">
+    <span th:text="${info}"></span>
+</div>
+
 <div th:if="${error}" class="toast-error">
     <span th:text="${error}"></span>
 </div>
@@ -55,8 +59,11 @@
         </select>
 
         <button class="btn-reset" onclick="resetFilters()">Reset</button>
-    </div>
 
+        <button class="btn-toggle-cancelled" onclick="toggleAdminInactive()">
+            Show Inactive
+        </button>
+    </div>
 
     <table class="admin-booking-table">
         <thead>
@@ -71,12 +78,15 @@
             <th>Participants</th>
             <th>Total</th>
             <th sec:authorize="hasAnyRole('ADMIN','CUSTOMER')">Actions</th>
-
         </tr>
         </thead>
 
         <tbody>
-        <tr th:each="b : ${bookings}">
+        <tr th:each="b : ${bookings}"
+            th:classappend="
+                ${b.cancelled} ? 'row-inactive cancelled' :
+                (${b.expired} ? 'row-inactive expired' : '')">
+
             <td th:text="${b.eventId}"></td>
             <td th:text="'#' + ${b.id}"></td>
             <td th:text="${b.bookerFirstName}"></td>
@@ -85,29 +95,30 @@
             <td th:text="${#dates.format(b.createdAt, 'yyyy-MM-dd')}"></td>
             <td th:text="${#dates.format(b.createdAt, 'HH:mm')}"></td>
             <td th:text="${b.seats}"></td>
-            <td>
-                € <span th:text="${b.totalPrice}"></span>
+
+            <td>€ <span th:text="${b.totalPrice}"></span></td>
+
+            <td class="actions" sec:authorize="hasRole('ADMIN')">
+                <!-- Edit -->
+                <a th:href="@{/booking/{id}/edit(id=${b.id})}"
+                   class="btn-edit action-btn">
+                    Edit
+                </a>
+
+                <!-- Cancel -->
+                <form th:action="@{/booking/{id}/cancel(id=${b.id})}"
+                      method="post" style="display:inline;">
+                    <button class="btn-small btn-cancel action-btn"
+                            type="submit">
+                        Cancel
+                    </button>
+                </form>
             </td>
-            <td sec:authorize="hasAnyRole('ADMIN','CUSTOMER')">
-                <div class="actions">
-
-                    <a th:if="${b.editable}"
-                       th:href="@{/booking/{id}/edit(id=${b.id})}"
-                       class="btn-edit">
-                        Edit
-                    </a>
-
-                    <span th:if="${!b.editable}" class="badge-disabled">Not editable</span>
-
-
-                    <button class="btn-cancel">Cancel</button>
-                </div>
-            </td>
-
         </tr>
         </tbody>
     </table>
 </div>
+
 <script>
     function filterBookings() {
         const search = document.getElementById("bookingSearch").value.toLowerCase();
@@ -126,7 +137,6 @@
 
             let show = true;
 
-            // SEARCH now checks name + email + event + ID
             if (!(event.includes(search)
                 || id.includes(search)
                 || first.includes(search)
@@ -135,14 +145,12 @@
                 show = false;
             }
 
-            // DATE FILTER
             if (filter === "today" && date !== today) show = false;
             if (filter === "future" && date <= today) show = false;
             if (filter === "past" && date >= today) show = false;
 
             row.style.display = show ? "" : "none";
         });
-
     }
 
     function sortBookings() {
@@ -167,16 +175,12 @@
             switch (sort) {
                 case "date_desc": return dateB.localeCompare(dateA);
                 case "date_asc": return dateA.localeCompare(dateB);
-
                 case "price_asc": return priceA - priceB;
                 case "price_desc": return priceB - priceA;
-
                 case "event_asc": return eventA.localeCompare(eventB);
                 case "event_desc": return eventB.localeCompare(eventA);
-
                 case "first_asc": return firstA.localeCompare(firstB);
                 case "first_desc": return firstB.localeCompare(firstA);
-
                 case "last_asc": return lastA.localeCompare(lastB);
                 case "last_desc": return lastB.localeCompare(lastA);
             }
@@ -186,23 +190,36 @@
     }
 
     function resetFilters() {
-        // Reset search
         document.getElementById("bookingSearch").value = "";
-
-        // Reset filter
         document.getElementById("bookingFilter").value = "all";
-
-        // Reset sorting
         document.getElementById("bookingSort").value = "date_desc";
 
-        // Show all rows again
         const rows = document.querySelectorAll(".admin-booking-table tbody tr");
-        rows.forEach(row => row.style.display = "");
+        rows.forEach(r => r.style.display = "");
 
-        // Re-sort
         sortBookings();
     }
 
+    let adminInactiveVisible = false;
+
+    function toggleAdminInactive() {
+        const rows = document.querySelectorAll(".admin-booking-table tbody tr");
+
+        adminInactiveVisible = !adminInactiveVisible;
+
+        rows.forEach(r => {
+            const isInactive = r.classList.contains("row-inactive");
+            if (isInactive) {
+                r.style.display = adminInactiveVisible ? "" : "none";
+            }
+        });
+
+        const btn = document.querySelector(".btn-toggle-cancelled");
+        btn.innerText = adminInactiveVisible ? "Hide Inactive Bookings" : "Show Inactive Bookings";
+        btn.classList.toggle("active", adminInactiveVisible);
+    }
+
+    window.onload = () => toggleAdminInactive();
 </script>
 
 </body>
