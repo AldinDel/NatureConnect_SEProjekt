@@ -106,11 +106,13 @@ public class BookEventService {
         List<BookingParticipant> participants = new ArrayList<>();
         if (request.getParticipants() != null) {
             for (ParticipantDTO p : request.getParticipants()) {
-                BookingParticipant bp = new BookingParticipant(
+                BookingParticipant bp = BookingParticipant.createNew(
                         p.getFirstName(),
                         p.getLastName(),
                         p.getAge()
                 );
+
+
                 participants.add(bp);
             }
         }

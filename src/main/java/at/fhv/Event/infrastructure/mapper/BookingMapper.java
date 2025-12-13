@@ -115,13 +115,12 @@ public class BookingMapper {
 
     private BookingParticipant toParticipantDomain(BookingParticipantEntity e) {
         BookingParticipant domain = new BookingParticipant(
+                e.getId(),
                 e.getFirstName(),
                 e.getLastName(),
                 e.getAge(),
-                e.getBooking().getId()
+                e.getCheckInStatus()
         );
-
-        domain.setCheckInStatus(e.getCheckInStatus());
 
         return domain;
     }
