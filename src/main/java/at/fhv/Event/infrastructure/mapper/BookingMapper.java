@@ -4,6 +4,7 @@ import at.fhv.Event.domain.model.booking.*;
 import at.fhv.Event.infrastructure.persistence.booking.*;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 @Component
@@ -24,13 +25,14 @@ public class BookingMapper {
         entity.setVoucherCode(domain.getVoucherCode());
         entity.setDiscountAmount(domain.getDiscountAmount());
         entity.setTotalPrice(domain.getTotalPrice());
+        entity.setPaidAmount(domain.getPaidAmount());
         entity.setSpecialNotes(domain.getSpecialNotes());
         entity.setCreatedAt(domain.getCreatedAt() != null ? domain.getCreatedAt() : java.time.Instant.now());
 
         if (domain.getParticipants() != null) {
             var participantEntities = domain.getParticipants().stream()
                     .map(p -> toParticipantEntity(p, entity))
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toCollection(HashSet::new));
 
             entity.setParticipants(participantEntities);
         }
@@ -38,7 +40,7 @@ public class BookingMapper {
         if (domain.getEquipment() != null) {
             var equipmentEntities = domain.getEquipment().stream()
                     .map(eq -> toEquipmentEntity(eq, entity))
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toCollection(HashSet::new));
 
             entity.setEquipment(equipmentEntities);
         }
@@ -92,6 +94,7 @@ public class BookingMapper {
 
         domain.setId(entity.getId());
         domain.setCreatedAt(entity.getCreatedAt());
+        domain.setPaidAmount(entity.getPaidAmount() == null ? 0.0 : entity.getPaidAmount());
 
 
         if (entity.getParticipants() != null) {

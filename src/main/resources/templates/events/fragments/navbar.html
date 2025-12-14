@@ -90,7 +90,14 @@
                                 </div>
                             </li>
 
-
+                            <li sec:authorize="hasRole('CUSTOMER')" class="dropdown nested-dropdown">
+                                <a href="#" class="menu-link">My Profile ▸</a>
+                                <ul class="dropdown-content nested-content">
+                                    <li>
+                                        <a th:href="@{/invoices}" class="menu-link">My Invoices</a>
+                                    </li>
+                                </ul>
+                            </li>
 
                             <li>
                                 <form th:action="@{/logout}" method="post" style="margin:0">

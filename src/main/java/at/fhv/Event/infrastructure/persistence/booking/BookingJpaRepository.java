@@ -22,7 +22,7 @@ public interface BookingJpaRepository extends JpaRepository<BookingEntity, Long>
 
     List<BookingEntity> findByStatus(BookingStatus status);
 
-    @Query("SELECT b FROM BookingEntity b WHERE b.bookerEmail = :email")
+    @Query("SELECT DISTINCT b FROM BookingEntity b LEFT JOIN FETCH b.participants WHERE b.bookerEmail = :email")
     List<BookingEntity> findByBookerEmail(@Param("email") String email);
 
     @Modifying(clearAutomatically = true)

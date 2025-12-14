@@ -3,6 +3,7 @@ package at.fhv.Event.application.booking;
 import at.fhv.Event.domain.model.booking.Booking;
 import at.fhv.Event.domain.model.booking.BookingRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -14,8 +15,15 @@ public class GetUserBookingsService {
         this.bookingRepository = bookingRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<Booking> getBookingsByUserEmail(String email) {
-        return bookingRepository.findByCustomerEmail(email);
+        List<Booking> bookings = bookingRepository.findByCustomerEmail(email);
+        // Force lazy loading while in transaction
+        bookings.forEach(b -> {
+            b.getEquipment().size();
+            b.getParticipants().size();
+        });
+        return bookings;
     }
 
 

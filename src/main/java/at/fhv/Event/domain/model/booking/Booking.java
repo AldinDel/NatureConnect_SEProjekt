@@ -20,12 +20,15 @@ public class Booking {
     private String voucherCode;
     private double discountAmount;
     private double totalPrice;
+    private double paidAmount;
     private String specialNotes;
     private Instant createdAt;
     private List<BookingParticipant> participants;
     private List<BookingEquipment> equipment;
 
-    public Booking() {}
+    public Booking() {
+        this.paidAmount = 0.0;
+    }
     public Booking(
             Long eventId,
             String bookerFirstName,
@@ -55,6 +58,7 @@ public class Booking {
         this.voucherCode = voucherCode;
         this.discountAmount = discountAmount;
         this.totalPrice = totalPrice;
+        this.paidAmount = 0.0;
         this.specialNotes = specialNotes;
         this.createdAt = Instant.now();
         this.participants = participants;
@@ -121,6 +125,57 @@ public class Booking {
 
     public boolean isPaid() {
         return paymentStatus == PaymentStatus.PAID;
+    }
+
+    public boolean isPartiallyPaid() {
+        return paymentStatus == PaymentStatus.PARTIALLY_PAID;
+    }
+
+    public double getRemainingAmount() {
+        return Math.max(0, totalPrice - paidAmount);
+    }
+
+    public void makePartialPayment(double amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Payment amount must be positive");
+        }
+
+        double remaining = getRemainingAmount();
+        if (amount > remaining) {
+            throw new IllegalArgumentException("Payment amount exceeds remaining balance");
+        }
+
+        this.paidAmount += amount;
+
+        if (this.paidAmount >= this.totalPrice) {
+            this.paymentStatus = PaymentStatus.PAID;
+        } else if (this.paidAmount > 0) {
+            this.paymentStatus = PaymentStatus.PARTIALLY_PAID;
+        }
+    }
+
+    public void payFiftyPercent() {
+        double halfAmount = totalPrice * 0.5;
+        double remainingToHalf = halfAmount - paidAmount;
+
+        if (remainingToHalf <= 0) {
+            throw new IllegalStateException("50% or more has already been paid");
+        }
+
+        makePartialPayment(remainingToHalf);
+    }
+
+    public void payEquipmentItems(List<Long> equipmentIds) {
+        if (equipment == null || equipmentIds == null) return;
+
+        double equipmentTotal = equipment.stream()
+                .filter(e -> equipmentIds.contains(e.getEquipmentId()))
+                .mapToDouble(BookingEquipment::getTotalPrice)
+                .sum();
+
+        if (equipmentTotal > 0 && equipmentTotal <= getRemainingAmount()) {
+            makePartialPayment(equipmentTotal);
+        }
     }
 
 
@@ -194,6 +249,14 @@ public class Booking {
 
     public void setTotalPrice(double totalPrice) {
         this.totalPrice = totalPrice;
+    }
+
+    public double getPaidAmount() {
+        return paidAmount;
+    }
+
+    public void setPaidAmount(double paidAmount) {
+        this.paidAmount = paidAmount;
     }
 
     public String getSpecialNotes() {
