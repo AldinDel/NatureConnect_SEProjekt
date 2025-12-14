@@ -40,15 +40,24 @@ public class BookingRepositoryImpl implements BookingRepository {
 
     @Override
     public Booking save(Booking booking) {
+        BookingEntity entity;
 
         if (booking.getId() != null) {
-            jpa.deleteEquipmentByBookingId(booking.getId());
+
+            entity = jpa.findById(booking.getId())
+                    .orElseThrow(() -> new IllegalStateException("Booking not found"));
+
+
+            mapper.updateEntity(entity, booking);
+
+        } else {
+
+            entity = mapper.toEntity(booking);
         }
 
-        var entity = mapper.toEntity(booking);
-        var saved = jpa.save(entity);
-        return mapper.toDomain(saved);
+        return mapper.toDomain(jpa.save(entity));
     }
+
 
     // ---------------- EXPIRATION LOGIC ----------------
 

@@ -1,4 +1,7 @@
 package at.fhv.Event.domain.model.booking;
+import java.lang.Long;
+import java.lang.String;
+
 
 public class BookingParticipant {
 
