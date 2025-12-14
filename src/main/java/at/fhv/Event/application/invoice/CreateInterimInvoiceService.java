@@ -1,12 +1,12 @@
 package at.fhv.Event.application.invoice;
 
+import at.fhv.Event.domain.model.booking.Booking;
+import at.fhv.Event.domain.model.booking.BookingRepository;
 import at.fhv.Event.domain.model.equipment.Equipment;
 import at.fhv.Event.domain.model.equipment.EquipmentRepository;
 import at.fhv.Event.domain.model.invoice.Invoice;
 import at.fhv.Event.domain.model.invoice.InvoiceLine;
 import at.fhv.Event.domain.model.invoice.InvoiceRepository;
-import at.fhv.Event.domain.model.booking.Booking;
-import at.fhv.Event.domain.model.booking.BookingRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,6 +30,10 @@ public class CreateInterimInvoiceService {
 
     public Invoice createInterimInvoice(Long eventId, List<Long> equipmentIds) {
 
+        if (equipmentIds == null || equipmentIds.isEmpty()) {
+            throw new RuntimeException("At least one service must be selected");
+        }
+
         Booking booking = bookingRepository.findByEventId(eventId)
                 .stream()
                 .findFirst()
@@ -51,12 +55,13 @@ public class CreateInterimInvoiceService {
                 ))
                 .toList();
 
-        // TODO später aktivieren
-        // if (booking.isCheckedOut()) {
-        //     throw new RuntimeException("Cannot create interim invoice after final checkout");
-        // }
+        Invoice invoice = Invoice.createInterim(
+                eventId,
+                booking.getId(),
+                lines
+        );
 
-        Invoice invoice = Invoice.createInterim(booking.getId(), lines);
         return invoiceRepository.save(invoice);
     }
+
 }

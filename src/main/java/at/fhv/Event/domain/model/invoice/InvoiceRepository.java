@@ -12,4 +12,7 @@ public interface InvoiceRepository {
     List<Invoice> findByBookingId(Long bookingId);
 
     List<Invoice> findAll();
+
+    List<Invoice> findByEventId(Long eventId);
+
 }

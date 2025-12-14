@@ -21,13 +21,13 @@ public class InvoiceRepositoryImpl implements InvoiceRepository {
     @Override
     public Invoice save(Invoice invoice) {
         InvoiceJpaEntity entity = new InvoiceJpaEntity();
+        entity.setEventId(invoice.getEventId());
         entity.setBookingId(invoice.getBookingId());
         entity.setStatus(invoice.getStatus().name());
         entity.setTotal(invoice.getTotal());
         entity.setCreatedAt(invoice.getCreatedAt());
 
         InvoiceJpaEntity saved = jpa.save(entity);
-
         return mapToDomain(saved);
     }
 
@@ -41,7 +41,15 @@ public class InvoiceRepositoryImpl implements InvoiceRepository {
         return jpa.findByBookingId(bookingId)
                 .stream()
                 .map(this::mapToDomain)
-                .collect(Collectors.toList());
+                .toList();
+    }
+
+    @Override
+    public List<Invoice> findByEventId(Long eventId) {
+        return jpa.findByEventId(eventId)
+                .stream()
+                .map(this::mapToDomain)
+                .toList();
     }
 
     @Override
@@ -49,17 +57,16 @@ public class InvoiceRepositoryImpl implements InvoiceRepository {
         return jpa.findAll()
                 .stream()
                 .map(this::mapToDomain)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private Invoice mapToDomain(InvoiceJpaEntity entity) {
-        Invoice invoice = Invoice.createInterim(
+        return Invoice.rehydrate(
+                entity.getEventId(),
                 entity.getBookingId(),
-                List.of() // Lines kommen später
+                InvoiceStatus.valueOf(entity.getStatus()),
+                entity.getTotal(),
+                entity.getCreatedAt()
         );
-
-        invoice.setStatus(InvoiceStatus.valueOf(entity.getStatus()));
-
-        return invoice;
     }
 }

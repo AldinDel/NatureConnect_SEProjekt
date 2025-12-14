@@ -154,3 +154,12 @@
 .invoice-summary {
     color: #333; /* Fix für helle Schrift */
 }
+
+.success-message {
+    background: #e6f4ea;
+    color: #1f7a4f;
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.2rem;
+    font-weight: 500;
+}

@@ -14,6 +14,8 @@ public class InvoiceJpaEntity {
 
     private Long bookingId;
 
+    private Long eventId;
+
     private String status;
 
     private BigDecimal total;
@@ -54,5 +56,13 @@ public class InvoiceJpaEntity {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Long getEventId() {
+        return eventId;
+    }
+
+    public void setEventId(Long eventId) {
+        this.eventId = eventId;
     }
 }

@@ -6,4 +6,7 @@ import java.util.List;
 public interface InvoiceJpaRepository extends JpaRepository<InvoiceJpaEntity, Long> {
 
     List<InvoiceJpaEntity> findByBookingId(Long bookingId);
+
+    List<InvoiceJpaEntity> findByEventId(Long eventId);
 }
+

@@ -15,6 +15,10 @@
 <div class="invoices-container">
 
     <div class="header">
+        <div th:if="${successMessage}" class="success-message">
+            <span th:text="${successMessage}"></span>
+        </div>
+
         <h1>Invoices</h1>
     </div>
 
@@ -102,7 +106,10 @@
             </div>
         </div>
 
-        <button class="btn primary" type="submit">
+        <button class="btn primary"
+                type="submit"
+                id="createInvoiceBtn"
+                disabled>
             Create Interim Invoice
         </button>
     </form>
@@ -116,13 +123,16 @@
     const subtotalEl = document.getElementById("subtotal");
     const taxEl = document.getElementById("tax");
     const totalEl = document.getElementById("total");
+    const submitBtn = document.getElementById("createInvoiceBtn");
 
     function recalculate() {
         let subtotal = 0;
+        let anyChecked = false;
 
         checkboxes.forEach(cb => {
             if (cb.checked) {
                 subtotal += parseFloat(cb.dataset.price);
+                anyChecked = true;
             }
         });
 
@@ -132,6 +142,8 @@
         subtotalEl.textContent = subtotal.toFixed(2) + " €";
         taxEl.textContent = tax.toFixed(2) + " €";
         totalEl.textContent = total.toFixed(2) + " €";
+
+        submitBtn.disabled = !anyChecked;
     }
 
     checkboxes.forEach(cb =>

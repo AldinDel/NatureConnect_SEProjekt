@@ -35,17 +35,24 @@ public class InvoicesController {
     @GetMapping("/event_management/invoices")
     public String showInvoices(
             @RequestParam("eventId") Long eventId,
+            @RequestParam(value = "created", required = false) Boolean created,
             Model model
     ) {
         model.addAttribute("eventId", eventId);
         model.addAttribute("activeTab", "invoices");
-        model.addAttribute("invoices", invoiceRepository.findAll());
+        model.addAttribute(
+                "invoices",
+                invoiceRepository.findByEventId(eventId)
+        );
+        model.addAttribute("services", getRentableEquipmentService.getRentableEquipment());
 
-        List<EquipmentDTO> services = getRentableEquipmentService.getRentableEquipment();
-        model.addAttribute("services", services);
+        if (Boolean.TRUE.equals(created)) {
+            model.addAttribute("successMessage", "Interim invoice created successfully.");
+        }
 
         return "event_management/invoices";
     }
+
 
     @PostMapping("/event_management/invoices/interim")
     public String createInterimInvoice(
@@ -57,7 +64,8 @@ public class InvoicesController {
                 equipmentIds
         );
 
-        return "redirect:/event_management/invoices?eventId=" + eventId;
+        return "redirect:/event_management/invoices?eventId="
+                + eventId + "&created=true";
     }
 
 }
