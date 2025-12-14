@@ -19,12 +19,24 @@
 
         <!-- Create Interim Invoice -->
         <form th:action="@{/event_management/invoices/interim}" method="post">
-            <!-- TODO: bookingId später aus Participants -->
-            <input type="hidden" name="bookingId" value="1"/>
             <input type="hidden" name="eventId" th:value="${eventId}"/>
 
+            <h3>Billable services</h3>
+
+            <div th:each="service : ${services}" class="service-item">
+                <label>
+                    <input type="checkbox"
+                           name="equipmentIds"
+                           th:value="${service.id}"/>
+
+                    <span th:text="${service.name}"></span>
+                    –
+                    <span th:text="${service.unitPrice} + ' €'"></span>
+                </label>
+            </div>
+
             <button class="btn primary" type="submit">
-                + Create Interim Invoice
+                Create Interim Invoice
             </button>
         </form>
     </div>

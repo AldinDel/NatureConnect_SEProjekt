@@ -81,3 +81,18 @@
     padding: 3rem;
     color: #666;
 }
+
+.interim-form {
+    margin-bottom: 2rem;
+}
+
+.interim-form h3 {
+    margin-bottom: 0.5rem;
+}
+
+.service-item {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.95rem;
+}
+

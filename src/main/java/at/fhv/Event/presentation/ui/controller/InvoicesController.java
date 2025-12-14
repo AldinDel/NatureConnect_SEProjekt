@@ -7,21 +7,29 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import at.fhv.Event.application.equipment.GetRentableEquipmentService;
+import at.fhv.Event.presentation.rest.response.equipment.EquipmentDTO;
 
+
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 @Controller
 public class InvoicesController {
 
     private final CreateInterimInvoiceService createInterimInvoiceService;
     private final InvoiceRepository invoiceRepository;
+    private final GetRentableEquipmentService getRentableEquipmentService;
 
     public InvoicesController(
             CreateInterimInvoiceService createInterimInvoiceService,
-            InvoiceRepository invoiceRepository
+            InvoiceRepository invoiceRepository,
+            GetRentableEquipmentService getRentableEquipmentService
     ) {
         this.createInterimInvoiceService = createInterimInvoiceService;
         this.invoiceRepository = invoiceRepository;
+        this.getRentableEquipmentService = getRentableEquipmentService;
     }
 
     @GetMapping("/event_management/invoices")
@@ -33,19 +41,23 @@ public class InvoicesController {
         model.addAttribute("activeTab", "invoices");
         model.addAttribute("invoices", invoiceRepository.findAll());
 
+        List<EquipmentDTO> services = getRentableEquipmentService.getRentableEquipment();
+        model.addAttribute("services", services);
+
         return "event_management/invoices";
     }
 
     @PostMapping("/event_management/invoices/interim")
     public String createInterimInvoice(
-            @RequestParam("bookingId") Long bookingId,
-            @RequestParam("eventId") Long eventId
+            @RequestParam("eventId") Long eventId,
+            @RequestParam(value = "equipmentIds", required = false) List<Long> equipmentIds
     ) {
         createInterimInvoiceService.createInterimInvoice(
-                bookingId,
-                List.of() // Services kommen später
+                eventId,
+                equipmentIds
         );
 
         return "redirect:/event_management/invoices?eventId=" + eventId;
     }
+
 }
