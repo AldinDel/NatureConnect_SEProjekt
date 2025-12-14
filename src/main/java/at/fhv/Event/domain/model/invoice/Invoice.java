@@ -36,4 +36,26 @@ public class Invoice {
                 .map(InvoiceLine::getTotal)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
+
+    public Long getBookingId() {
+        return bookingId;
+    }
+
+    public InvoiceStatus getStatus() {
+        return status;
+    }
+
+    public BigDecimal getTotal() {
+        return total;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setStatus(InvoiceStatus status) {
+        this.status = status;
+    }
+
+
 }
