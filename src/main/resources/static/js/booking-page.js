@@ -396,6 +396,81 @@ document.addEventListener("DOMContentLoaded", () => {
     const errorBox = document.getElementById("errorBox");
     const confirmBtn = document.getElementById("confirmBtn");
 
+    if (form && !isEditMode) {
+        form.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            confirmBtn.disabled = true;
+            confirmBtn.textContent = "Validating...";
+
+            const formData = new FormData(form);
+            const json = {};
+            const equipment = {};
+            const participants = [];
+
+            formData.forEach((value, key) => json[key] = value);
+            Object.keys(json).forEach(key => {
+                const m = key.match(/^equipment\[(\d+)]\.(\w+)$/);
+                if (!m) return;
+
+                const id = Number(m[1]);
+                const field = m[2];
+                equipment[id] ??= {};
+                equipment[id][field] = json[key];
+                delete json[key];
+            });
+
+            Object.keys(json).forEach(key => {
+                const m = key.match(/^participants\[(\d+)]\.(\w+)$/);
+                if (!m) return;
+
+                const index = Number(m[1]);
+                const field = m[2];
+                participants[index] ??= {};
+                participants[index][field] = json[key];
+                delete json[key];
+            });
+
+            json.equipment = equipment;
+            json.participants = participants;
+            json.discountPercent = currentDiscount;
+
+            const res = await fetch("/api/bookings", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(json)
+            });
+
+            if (!res.ok) {
+                let body;
+
+                try {
+                    body = await res.json();
+                } catch (e) {
+                    showPopupError("Request rejected (likely CSRF / security error)");
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = "Confirm Booking";
+                    return;
+                }
+                if (body.details && Array.isArray(body.details)) {
+                    body.details.forEach(err => showPopupError(err.message));
+                } else if (body.message) {
+                    showPopupError(body.message);
+                } else {
+                    showPopupError("An unknown error occurred");
+                }
+
+                confirmBtn.disabled = false;
+                confirmBtn.textContent = "Confirm Booking";
+                return;
+            }
+
+
+            const booking = await res.json();
+            window.location.href = "/booking/payment/" + booking.id;
+        });
+    }
+
     if (!isEditMode) {
         generateParticipants(1);
         numParticipantsInput.value = 1;

@@ -22,11 +22,7 @@
 </div>
 
 <div class="container">
-    <div th:if="${errors}" class="popup-message">
-        <ul>
-            <li th:each="error : ${errors}" th:text="${error}"></li>
-        </ul>
-    </div>
+    <div id="errorPop"></div>
     <form th:action="${isEdit} ? @{/booking/{id}(id=${bookingId})} : @{/booking}"
           th:object="${booking}"
           method="post">
