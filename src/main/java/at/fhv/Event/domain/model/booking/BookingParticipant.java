@@ -1,4 +1,7 @@
 package at.fhv.Event.domain.model.booking;
+import java.lang.Long;
+import java.lang.String;
+
 
 public class BookingParticipant {
 
@@ -50,7 +53,10 @@ public class BookingParticipant {
     public static BookingParticipant createNew(
             String firstName,
             String lastName,
-            int age
+            int age,
+            ParticipantStatus checkInStatus,
+            Long id
+
     ) {
         return new BookingParticipant(
                 null,

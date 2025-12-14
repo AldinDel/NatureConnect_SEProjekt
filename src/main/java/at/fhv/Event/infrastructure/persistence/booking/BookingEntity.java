@@ -7,8 +7,9 @@ import at.fhv.Event.domain.model.payment.PaymentStatus;
 import jakarta.persistence.*;
 
 import java.time.Instant;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "booking", schema = "nature_connect")
@@ -58,17 +59,20 @@ public class BookingEntity {
     @Column(name = "total_price", nullable = false)
     private Double totalPrice;
 
+    @Column(name = "paid_amount")
+    private Double paidAmount;
+
     @Column(name = "special_notes")
     private String specialNotes;
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
-    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BookingParticipantEntity> participants = new ArrayList<>();
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<BookingParticipantEntity> participants = new HashSet<>();
 
-    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BookingEquipmentEntity> equipment = new ArrayList<>();
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<BookingEquipmentEntity> equipment = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -174,6 +178,14 @@ public class BookingEntity {
         this.totalPrice = totalPrice;
     }
 
+    public Double getPaidAmount() {
+        return paidAmount;
+    }
+
+    public void setPaidAmount(Double paidAmount) {
+        this.paidAmount = paidAmount;
+    }
+
     public String getSpecialNotes() {
         return specialNotes;
     }
@@ -190,19 +202,19 @@ public class BookingEntity {
         this.createdAt = createdAt;
     }
 
-    public List<BookingParticipantEntity> getParticipants() {
+    public Set<BookingParticipantEntity> getParticipants() {
         return participants;
     }
 
-    public void setParticipants(List<BookingParticipantEntity> participants) {
+    public void setParticipants(Set<BookingParticipantEntity> participants) {
         this.participants = participants;
     }
 
-    public List<BookingEquipmentEntity> getEquipment() {
+    public Set<BookingEquipmentEntity> getEquipment() {
         return equipment;
     }
 
-    public void setEquipment(List<BookingEquipmentEntity> equipment) {
+    public void setEquipment(Set<BookingEquipmentEntity> equipment) {
         this.equipment = equipment;
     }
 
