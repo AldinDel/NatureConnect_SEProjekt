@@ -4,6 +4,9 @@ import at.fhv.Event.domain.model.booking.*;
 import at.fhv.Event.infrastructure.persistence.booking.*;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Component
@@ -137,4 +140,62 @@ public class BookingMapper {
         domain.setTotalPrice(e.getTotalPrice());
         return domain;
     }
+
+    public void updateEntity(BookingEntity entity, Booking domain) {
+
+        entity.setSeats(domain.getSeats());
+        entity.setAudience(domain.getAudience());
+        entity.setStatus(domain.getStatus());
+        entity.setPaymentStatus(domain.getPaymentStatus());
+        entity.setPaymentMethod(domain.getPaymentMethod());
+        entity.setVoucherCode(domain.getVoucherCode());
+        entity.setDiscountAmount(domain.getDiscountAmount());
+        entity.setTotalPrice(domain.getTotalPrice());
+        entity.setSpecialNotes(domain.getSpecialNotes());
+
+        entity.getParticipants().clear();
+        if (domain.getParticipants() != null) {
+            domain.getParticipants().forEach(p -> {
+                BookingParticipantEntity pe = new BookingParticipantEntity();
+                pe.setFirstName(p.getFirstName());
+                pe.setLastName(p.getLastName());
+                pe.setAge(p.getAge());
+                pe.setCheckInStatus(p.getCheckInStatus());
+                pe.setBooking(entity);
+                entity.getParticipants().add(pe);
+            });
+        }
+
+        Map<Long, BookingEquipmentEntity> existingEquipment =
+                entity.getEquipment().stream()
+                        .collect(Collectors.toMap(
+                                BookingEquipmentEntity::getEquipmentId,
+                                e -> e
+                        ));
+
+        List<BookingEquipmentEntity> updatedEquipment = new ArrayList<>();
+
+        if (domain.getEquipment() != null) {
+            for (BookingEquipment eq : domain.getEquipment()) {
+                BookingEquipmentEntity ee = existingEquipment.remove(eq.getEquipmentId());
+
+                if (ee == null) {
+                    ee = new BookingEquipmentEntity();
+                    ee.setEquipmentId(eq.getEquipmentId());
+                    ee.setBooking(entity);
+                }
+
+                ee.setQuantity(eq.getQuantity());
+                ee.setUnitPrice(eq.getUnitPrice());
+                ee.setTotalPrice(eq.getTotalPrice());
+
+                updatedEquipment.add(ee);
+            }
+        }
+
+        entity.getEquipment().clear();
+        entity.getEquipment().addAll(updatedEquipment);
+    }
+
+
 }
