@@ -2,7 +2,7 @@ package at.fhv.Event.presentation.ui.controller;
 
 import at.fhv.Event.application.booking.BookEventService;
 import at.fhv.Event.application.booking.BookingPermissionService;
-import at.fhv.Event.application.equipment.GetRentableEquipmentService;
+import at.fhv.Event.application.booking.BookingPrefillService;
 import at.fhv.Event.application.event.GetEventDetailsService;
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
 import at.fhv.Event.application.request.booking.ParticipantDTO;
@@ -36,17 +36,17 @@ public class BookingController {
 
     private final BookEventService _bookEventService;
     private final GetEventDetailsService _eventDetailsService;
-    private final GetRentableEquipmentService _rentableEquipmentService;
     private final BookingPermissionService _bookingPermissionService;
+    private final BookingPrefillService _bookingPrefillService;
 
     public BookingController(BookEventService bookEventService,
                              GetEventDetailsService eventDetailsService,
-                             GetRentableEquipmentService rentableEquipmentService,
-                             BookingPermissionService bookingPermissionService) {
+                             BookingPermissionService bookingPermissionService,
+                             BookingPrefillService bookingPrefillService) {
         _bookEventService = bookEventService;
         _eventDetailsService = eventDetailsService;
-        _rentableEquipmentService = rentableEquipmentService;
         _bookingPermissionService = bookingPermissionService;
+        _bookingPrefillService = bookingPrefillService;
     }
 
     @GetMapping("/{eventId}")
@@ -63,13 +63,17 @@ public class BookingController {
             return "redirect:/events/" + eventId;
         }
 
-        CreateBookingRequest bookingRequest = createInitialBookingRequest(eventId);
+        CreateBookingRequest bookingRequest =
+                _bookingPrefillService.prepareCreateRequestForLoggedInUser(
+                        principal.getName(),
+                        eventId
+                );
         List<EquipmentDTO> availableEquipment = event.equipments();
 
         model.addAttribute("event", event);
         model.addAttribute("booking", bookingRequest);
         model.addAttribute("addons", availableEquipment);
-        model.addAttribute("availableSeats", Math.max(0, availableSeats)); // Add this line
+        model.addAttribute("availableSeats", Math.max(0, availableSeats));
         model.addAttribute("isEdit", false);
         model.addAttribute("bookingId", null);
 

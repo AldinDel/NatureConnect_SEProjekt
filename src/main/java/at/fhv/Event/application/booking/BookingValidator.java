@@ -18,14 +18,14 @@ import java.util.Map;
 
 @Component
 public class BookingValidator {
-    private static final String name_regex = "^[A-Za-zÄÖÜäöüß\\- ]+$";
-    private static final String email_regex = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
-    private static final int max_name_length = 50;
-    private static final int max_email_length = 100;
-    private static final int max_voucher_length = 50;
-    private static final int max_notes_length = 250;
-    private static final int min_age = 1;
-    private static final int max_age = 120;
+    private static final String NAME_REGEX = "^[A-Za-zÄÖÜäöüß\\- ]+$";
+    private static final String EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
+    private static final int MAX_NAME_LENGTH = 50;
+    private static final int MAX_EMAIL_LENGTH = 100;
+    private static final int MAX_VOUCHER_LENGTH = 50;
+    private static final int MAX_NOTES_LENGTH = 250;
+    private static final int MIN_AGE = 1;
+    private static final int MAX_AGE = 120;
     private static final Logger log = LoggerFactory.getLogger(BookingValidator.class);
 
     public List<ValidationError> validate(CreateBookingRequest request, Event event, Map<Long, Equipment> equipmentMap, int alreadyBookedSeats) {
@@ -51,7 +51,7 @@ public class BookingValidator {
                     _firstName
             ));
         } else {
-            if (_firstName.length() > max_name_length) {
+            if (_firstName.length() > MAX_NAME_LENGTH) {
                 errors.add(new ValidationError(
                         ValidationErrorType.INVALID_INPUT,
                         "bookerFirstName",
@@ -59,7 +59,7 @@ public class BookingValidator {
                         _firstName
                 ));
             }
-            if (!_firstName.matches(name_regex)) {
+            if (!_firstName.matches(NAME_REGEX)) {
                 errors.add(new ValidationError(
                         ValidationErrorType.INVALID_INPUT,
                         "bookerFirstName",
@@ -76,7 +76,7 @@ public class BookingValidator {
                     _lastName
             ));
         } else {
-            if (_lastName.length() > max_name_length) {
+            if (_lastName.length() > MAX_NAME_LENGTH) {
                 errors.add(new ValidationError(
                         ValidationErrorType.INVALID_INPUT,
                         "bookerLastName",
@@ -84,7 +84,7 @@ public class BookingValidator {
                         _lastName
                 ));
             }
-            if (!_lastName.matches(name_regex)) {
+            if (!_lastName.matches(NAME_REGEX)) {
                 errors.add(new ValidationError(
                         ValidationErrorType.INVALID_INPUT,
                         "bookerLastName",
@@ -105,7 +105,7 @@ public class BookingValidator {
             ));
             return;
         }
-        if (!_email.matches(email_regex)) {
+        if (!_email.matches(EMAIL_REGEX)) {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     "bookerEmail",
@@ -113,7 +113,7 @@ public class BookingValidator {
                     _email
             ));
         }
-        if (_email.length() > max_email_length) {
+        if (_email.length() > MAX_EMAIL_LENGTH) {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     "bookerEmail",
@@ -160,7 +160,7 @@ public class BookingValidator {
                     String.format("Participant %d: %s name is required", participantNumber, nameType),
                     name
             ));
-        } else if (name.length() > max_name_length) {
+        } else if (name.length() > MAX_NAME_LENGTH) {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     field,
@@ -171,7 +171,7 @@ public class BookingValidator {
     }
 
     private void validateParticipantAge(int age, String field, int participantNumber, List<ValidationError> errors) {
-        if (age < min_age || age > max_age) {
+        if (age < MIN_AGE || age > MAX_AGE) {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     field,
@@ -182,7 +182,7 @@ public class BookingValidator {
     }
     private void validateSpecialNotes(CreateBookingRequest request, List<ValidationError> errors) {
         String notes = request.getSpecialNotes();
-        if (notes != null && notes.length() > max_notes_length) {
+        if (notes != null && notes.length() > MAX_NOTES_LENGTH) {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     "specialNotes",
@@ -193,7 +193,7 @@ public class BookingValidator {
     }
     private void validateVoucherCode(CreateBookingRequest request, List<ValidationError> errors) {
         String voucherCode = request.getVoucherCode();
-        if (voucherCode != null && voucherCode.length() > max_voucher_length) {
+        if (voucherCode != null && voucherCode.length() > MAX_VOUCHER_LENGTH ) {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     "voucherCode",

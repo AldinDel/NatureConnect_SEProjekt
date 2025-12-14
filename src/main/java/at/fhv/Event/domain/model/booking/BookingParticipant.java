@@ -5,14 +5,14 @@ public class BookingParticipant {
     private Long id;
     private String firstName;
     private String lastName;
-    private int age;
+    private Integer age;
     private ParticipantStatus checkInStatus;
 
     public BookingParticipant(
             Long id,
             String firstName,
             String lastName,
-            int age,
+            Integer age,
             ParticipantStatus checkInStatus
     ) {
         this.id = id;
@@ -29,7 +29,7 @@ public class BookingParticipant {
         return firstName + " " + lastName;
     }
 
-    public int getAge() { return age; }
+    public Integer getAge() { return age; }
 
     public ParticipantStatus getCheckInStatus() {
         return checkInStatus;
@@ -50,7 +50,7 @@ public class BookingParticipant {
     public static BookingParticipant createNew(
             String firstName,
             String lastName,
-            int age
+            Integer age
     ) {
         return new BookingParticipant(
                 null,
