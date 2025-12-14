@@ -1,0 +1,83 @@
+.invoices-container {
+    max-width: 1000px;
+    margin: 2.5rem auto;
+    padding: 0 1rem;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.header h1 {
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+/* Buttons */
+.btn.primary {
+    background-color: #1f7a4f;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.btn.primary:hover {
+    background-color: #186341;
+}
+
+/* Table */
+.invoice-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.invoice-table thead {
+    background-color: #f4f6f8;
+}
+
+.invoice-table th,
+.invoice-table td {
+    padding: 0.9rem;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.invoice-table th {
+    font-weight: 600;
+    color: #333;
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-badge.interim {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.status-badge.final {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+}
