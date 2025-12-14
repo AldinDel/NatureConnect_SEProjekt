@@ -15,6 +15,19 @@ const discountRow = document.getElementById("summaryDiscountRow");
 const discountText = document.getElementById("summaryDiscountText");
 const discountAmount = document.getElementById("summaryDiscountAmount");
 
+function showPopupError(message) {
+    const popup = document.createElement("div");
+    popup.className = "popup-message error";
+    popup.textContent = message;
+
+    document.body.appendChild(popup);
+
+    setTimeout(() => {
+        popup.classList.add("popup-hide");
+        setTimeout(() => popup.remove(), 800);
+    }, 2500);
+}
+
 
 if (removeDiscountBtn) {
     removeDiscountBtn.addEventListener("click", () => {
@@ -46,7 +59,9 @@ function generateParticipants(num) {
     participantsContainer.innerHTML = "";
 
     const existingDataContainer = document.getElementById("existingParticipantsData");
-    const existing = existingDataContainer ? existingDataContainer.querySelectorAll("div[data-index]") : [];
+    const existing = existingDataContainer
+        ? existingDataContainer.querySelectorAll("div[data-index]")
+        : [];
 
     for (let i = 0; i < num; i++) {
         const section = document.createElement("div");
@@ -54,39 +69,26 @@ function generateParticipants(num) {
 
         section.innerHTML = `
             <h3 class="participant-title">Participant ${i + 1}</h3>
-            <div class="form-group">
-                <label>First Name</label>
-                <input class="form-input" type="text" name="participants[${i}].firstName" maxlength="50"/>
-            </div>
-            <div class="form-group">
-                <label>Last Name</label>
-                <input class="form-input" type="text" name="participants[${i}].lastName" maxlength="50"/>
-            </div>
-            <div class="form-group">
-                <label>Age</label>
-                <input class="form-input" type="number" name="participants[${i}].age" min="1" max="120"/>
-            </div>
+            <label>First Name</label>
+            <input class="form-input" name="participants[${i}].firstName">
+
+            <label>Last Name</label>
+            <input class="form-input" name="participants[${i}].lastName">
+
+            <label>Age</label>
+            <input class="form-input" type="number" name="participants[${i}].age" min="1" max="120">
         `;
 
-        if (isEditMode && existing.length > 0) {
-            const row = Array.from(existing).find(el => parseInt(el.dataset.index, 10) === i);
-            if (row) {
-                section.querySelector(`input[name="participants[${i}].firstName"]`).value = row.dataset.firstname || "";
-                section.querySelector(`input[name="participants[${i}].lastName"]`).value = row.dataset.lastname || "";
-                section.querySelector(`input[name="participants[${i}].age"]`).value = row.dataset.age || "";
-            }
+        const row = Array.from(existing).find(el => Number(el.dataset.index) === i);
+        if (row) {
+            section.querySelector(`[name="participants[${i}].firstName"]`).value = row.dataset.firstname || "";
+            section.querySelector(`[name="participants[${i}].lastName"]`).value = row.dataset.lastname || "";
+            section.querySelector(`[name="participants[${i}].age"]`).value = row.dataset.age || "";
         }
-
-        const ageInput = section.querySelector(`input[name="participants[${i}].age"]`);
-        ageInput.addEventListener("input", () => {
-            let value = parseInt(ageInput.value, 10);
-            if (value > 120) ageInput.value = 120;
-            if (value < 1) ageInput.value = 1;
-        });
-
         participantsContainer.appendChild(section);
     }
 }
+
 
 function syncSeatsFormField(value) {
     const seatsField = document.querySelector('[name="seats"]');
@@ -342,6 +344,18 @@ if (numParticipantsInput) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    const popup = document.getElementById("error-popup");
+    if (popup) {
+        setTimeout(() => {
+            popup.classList.add("popup-hide");
+            setTimeout(() => popup.remove(), 800);
+        }, 2000);
+    }
+});
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
     const isEditMode = document.getElementById("isEdit").value === "true";
 
     if (isEditMode) {
@@ -386,26 +400,23 @@ document.addEventListener("DOMContentLoaded", () => {
         form.addEventListener("submit", async (event) => {
             event.preventDefault();
 
-            errorBox.classList.add("hidden");
-            errorBox.innerHTML = "";
             confirmBtn.disabled = true;
             confirmBtn.textContent = "Validating...";
 
             const formData = new FormData(form);
             const json = {};
-            const equipmentData = {};
+            const equipment = {};
             const participants = [];
 
             formData.forEach((value, key) => json[key] = value);
-
             Object.keys(json).forEach(key => {
                 const m = key.match(/^equipment\[(\d+)]\.(\w+)$/);
                 if (!m) return;
 
-                const id = parseInt(m[1]);
+                const id = Number(m[1]);
                 const field = m[2];
-                equipmentData[id] ??= {};
-                equipmentData[id][field] = json[key];
+                equipment[id] ??= {};
+                equipment[id][field] = json[key];
                 delete json[key];
             });
 
@@ -413,31 +424,47 @@ document.addEventListener("DOMContentLoaded", () => {
                 const m = key.match(/^participants\[(\d+)]\.(\w+)$/);
                 if (!m) return;
 
-                const index = parseInt(m[1]);
+                const index = Number(m[1]);
                 const field = m[2];
                 participants[index] ??= {};
                 participants[index][field] = json[key];
                 delete json[key];
             });
 
-            json.equipment = equipmentData;
+            json.equipment = equipment;
             json.participants = participants;
             json.discountPercent = currentDiscount;
 
             const res = await fetch("/api/bookings", {
                 method: "POST",
-                headers: {"Content-Type": "application/json"},
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(json)
             });
 
             if (!res.ok) {
-                const body = await res.json();
-                if (Array.isArray(body)) body.forEach(msg => showError(msg));
-                else if (body.message) body.message.split("|").forEach(m => showError(m.trim()));
+                let body;
+
+                try {
+                    body = await res.json();
+                } catch (e) {
+                    showPopupError("Request rejected (likely CSRF / security error)");
+                    confirmBtn.disabled = false;
+                    confirmBtn.textContent = "Confirm Booking";
+                    return;
+                }
+                if (body.details && Array.isArray(body.details)) {
+                    body.details.forEach(err => showPopupError(err.message));
+                } else if (body.message) {
+                    showPopupError(body.message);
+                } else {
+                    showPopupError("An unknown error occurred");
+                }
+
                 confirmBtn.disabled = false;
                 confirmBtn.textContent = "Confirm Booking";
                 return;
             }
+
 
             const booking = await res.json();
             window.location.href = "/booking/payment/" + booking.id;
@@ -461,3 +488,4 @@ document.addEventListener("DOMContentLoaded", () => {
 
     updatePriceSummary();
 });
+

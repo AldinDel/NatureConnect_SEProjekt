@@ -3,43 +3,43 @@ package at.fhv.Event.presentation.rest.exception;
 import java.time.LocalDateTime;
 
 public class ErrorResponse {
-    private final LocalDateTime _timestamp;
-    private final int _status;
-    private final String _error;
-    private final String _message;
-    private final String _path;
-    private final Object _details;
+    private final LocalDateTime timestamp;
+    private final int status;
+    private final String error;
+    private final String message;
+    private final String path;
+    private final Object details;
 
     public ErrorResponse(LocalDateTime timestamp, int status, String error, String message, String path, Object details) {
-        _timestamp = timestamp;
-        _status = status;
-        _error = error;
-        _message = message;
-        _path = path;
-        _details = details;
+        this.timestamp = timestamp;
+        this.status = status;
+        this.error = error;
+        this.message = message;
+        this.path = path;
+        this.details = details;
     }
 
-    public LocalDateTime get_timestamp() {
-        return _timestamp;
+    public LocalDateTime getTimestamp() {
+        return timestamp;
     }
 
-    public int get_status() {
-        return _status;
+    public int getStatus() {
+        return status;
     }
 
-    public String get_error() {
-        return _error;
+    public String getError() {
+        return error;
     }
 
-    public String get_message() {
-        return _message;
+    public String getMessage() {
+        return message;
     }
 
-    public String get_path() {
-        return _path;
+    public String getPath() {
+        return path;
     }
 
-    public Object get_details() {
-        return _details;
+    public Object getDetails() {
+        return details;
     }
 }

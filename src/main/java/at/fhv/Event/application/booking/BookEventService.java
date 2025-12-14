@@ -47,10 +47,6 @@ public class BookEventService {
         this.refundService = refundService;
     }
 
-    // -----------------------------------------------------------------------
-    // BOOKING CREATION
-    // -----------------------------------------------------------------------
-
     @Transactional
     public BookingDTO bookEvent(CreateBookingRequest request) {
 
@@ -84,10 +80,6 @@ public class BookEventService {
         Event event = loadEvent(booking.getEventId());
         checkEventAvailability(event);
     }
-
-    // -----------------------------------------------------------------------
-    // BOOKING UPDATE
-    // -----------------------------------------------------------------------
 
     @Transactional
     public BookingDTO updateBooking(Long bookingId, CreateBookingRequest request) {
@@ -125,7 +117,6 @@ public class BookEventService {
         booking.setDiscountAmount(discount.doubleValue());
         booking.setTotalPrice(totalPrice.doubleValue());
 
-        // Update participants
         List<BookingParticipant> participants = new ArrayList<>();
         if (request.getParticipants() != null) {
             for (ParticipantDTO p : request.getParticipants()) {
@@ -141,7 +132,6 @@ public class BookEventService {
         }
         booking.setParticipants(participants);
 
-        // Update equipment
         List<BookingEquipment> equipmentList = new ArrayList<>();
         if (request.getEquipment() != null) {
             for (var entry : request.getEquipment().entrySet()) {
@@ -170,22 +160,11 @@ public class BookEventService {
         return _bookingMapperDTO.toDTO(savedBooking);
     }
 
-    // -----------------------------------------------------------------------
-    // BOOKING CANCELLATION
-    // -----------------------------------------------------------------------
-
-    // WICHTIG – alte Signatur wiederhergestellt, um 500-Fehler zu vermeiden
-    @Transactional
-    public void cancelBooking(Long bookingId, String email) {
-        cancelBooking(bookingId, email, false);
-    }
-
     @Transactional
     public void cancelBooking(Long bookingId, String email, boolean isAdmin) {
 
         Booking booking = getById(bookingId);
 
-        // Customer darf NUR eigene Buchungen stornieren
         if (!isAdmin && !booking.getBookerEmail().equalsIgnoreCase(email)) {
             throw new IllegalStateException("You cannot cancel someone else's booking.");
         }
@@ -211,10 +190,6 @@ public class BookEventService {
         );
     }
 
-    // -----------------------------------------------------------------------
-    // PAYMENT
-    // -----------------------------------------------------------------------
-
     @Transactional
     public BookingDTO updatePaymentMethod(Long bookingId, String paymentMethodName) {
 
@@ -227,10 +202,6 @@ public class BookEventService {
 
         return _bookingMapperDTO.toDTO(_bookingRepository.save(booking));
     }
-
-    // -----------------------------------------------------------------------
-    // INTERNAL HELPERS
-    // -----------------------------------------------------------------------
 
     private Event loadEvent(Long eventId) {
         try {
