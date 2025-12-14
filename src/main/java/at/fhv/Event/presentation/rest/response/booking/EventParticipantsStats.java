@@ -7,7 +7,7 @@ public class EventParticipantsStats {
     private long notArrived;
     private long registered;
 
-    public EventParticipantsStats(long total, long arrived, long notArrived, long paid) {
+    public EventParticipantsStats(long total, long arrived, long notArrived, long registered) {
         this.total = total;
         this.arrived = arrived;
         this.notArrived = notArrived;
@@ -17,7 +17,7 @@ public class EventParticipantsStats {
     public long getTotal() { return total; }
     public long getArrived() { return arrived; }
     public long getNotArrived() { return notArrived; }
-    public long getRegistered() {
-        return registered;
-    }
+    public long getRegistered() { return registered; }
 }
+
+

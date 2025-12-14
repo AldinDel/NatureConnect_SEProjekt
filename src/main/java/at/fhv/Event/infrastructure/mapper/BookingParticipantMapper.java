@@ -18,11 +18,4 @@ public class BookingParticipantMapper {
     }
 
 
-    public BookingParticipantEntity toEntityForStatusUpdate(BookingParticipant d) {
-        BookingParticipantEntity e = new BookingParticipantEntity();
-        e.setId(d.getId());
-        e.setCheckInStatus(d.getCheckInStatus());
-        return e;
-    }
-
 }
