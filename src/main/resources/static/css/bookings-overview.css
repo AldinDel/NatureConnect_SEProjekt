@@ -198,94 +198,41 @@ body.bookings-page {
     animation: fadeout 4s forwards;
 }
 
-.row-inactive {
-    background: rgba(200, 200, 200, 0.75) !important;
-    opacity: 0.6;
-    filter: grayscale(35%);
-    border-radius: 8px;
-    position: relative;
+.booking-controls {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 10px 0;
 }
 
-/* Tooltip base */
-.row-inactive::after {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(0,0,0,0.75);
-    color: white;
+.booking-controls input,
+.booking-controls select {
     padding: 8px 14px;
+    border: 1px solid #d1d5db;
     border-radius: 6px;
-    font-size: 14px;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    white-space: nowrap;
-    z-index: 5;
+    font-size: 15px;
 }
 
-.row-inactive:hover::after {
-    opacity: 1;
+.booking-controls input:focus,
+.booking-controls select:focus {
+    outline: none;
+    border-color: #0d2847;
 }
 
-/* Cancelled message */
-.row-inactive.cancelled::after {
-    content: "This booking is cancelled.";
-}
 
-/* Expired message */
-.row-inactive.expired::after {
-    content: "This booking is expired.";
-}
-
-/* Disable buttons */
-.row-inactive .btn-edit,
-.row-inactive .btn-cancel {
-    pointer-events: none !important;
-    opacity: 0.55 !important;
-    cursor: not-allowed !important;
-}
-
-/* Ensure disabled cancel button keeps RED styling */
-.btn-cancel[disabled] {
-    background: #dc2626 !important;
-    color: white !important;
-}
-
-/* Ensure disabled edit button keeps original white style */
-.btn-edit[disabled] {
-    background: white !important;
-    color: #0b2545 !important;
-    border: 1.5px solid #d1d5db !important;
-}
-
-/* ---------------------------------------------------
-   TOGGLE CANCELLED BUTTON (ADMIN)
-   --------------------------------------------------- */
-
-.toggle-cancelled-btn,
-.btn-toggle-cancelled {
+.btn-reset {
     background: #0b2545;
     color: white;
-    padding: 8px 16px;
+    padding: 6px 16px;
     border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
     border: none;
     cursor: pointer;
-    font-weight: 600;
-    transition: 0.2s ease;
+    transition: .2s;
 }
 
-.toggle-cancelled-btn:hover,
-.btn-toggle-cancelled:hover {
+.btn-reset:hover {
     background: #3b3767;
 }
 
-.toggle-cancelled-btn.active,
-.btn-toggle-cancelled.active {
-    background-color: #d9534f;
-}
-
-.toggle-cancelled-btn.active:hover,
-.btn-toggle-cancelled.active:hover {
-    background-color: #c64743;
-}
