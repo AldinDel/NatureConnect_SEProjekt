@@ -34,7 +34,8 @@
                 <th>Booking ID</th>
                 <th>Status</th>
                 <th>Total</th>
-                <th>Created</th>
+                <th>Date</th>
+                <th>Time</th>
             </tr>
             </thead>
             <tbody>
@@ -49,8 +50,9 @@
                 </td>
 
                 <td th:text="${invoice.total} + ' €'">0.00 €</td>
-                <td th:text="${#temporals.format(invoice.createdAt, 'dd.MM.yyyy HH:mm')}">
-                    14.12.2025
+                <td th:text="${#temporals.format(invoice.createdAt, 'dd.MM.yyyy')}">
+                </td>
+                <td th:text="${#temporals.format(invoice.createdAt, 'HH:mm')}">
                 </td>
             </tr>
             </tbody>

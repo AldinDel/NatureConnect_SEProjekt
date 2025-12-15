@@ -1,3 +1,15 @@
+.event_management {
+    color: #333;
+}
+
+.header h1,
+.interim-form h3,
+.service-name,
+.invoice-table th,
+.invoice-table td {
+    color: #333;
+}
+
 .invoices-container {
     max-width: 1000px;
     margin: 2.5rem auto;
@@ -59,6 +71,7 @@
     align-items: center;
     gap: 0.6rem;
     cursor: pointer;
+    color: #333;
 }
 
 .service-name {
