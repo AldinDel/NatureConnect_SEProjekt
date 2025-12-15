@@ -2,12 +2,16 @@ package at.fhv.Event.presentation.ui.controller;
 
 import at.fhv.Event.application.event.GetParticipantsForEventService;
 import at.fhv.Event.application.event.GetEventsForTodayService;
+import at.fhv.Event.domain.model.booking.ParticipantStatus;
+import at.fhv.Event.presentation.rest.response.booking.EventParticipantsStats;
+import at.fhv.Event.presentation.rest.response.booking.ParticipantDTO;
 import at.fhv.Event.presentation.rest.response.event.EventOverviewDTO;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -43,4 +47,8 @@ public class EventManagementController {
 
         return "event_management/participants";
     }
+
+
+
+
 }

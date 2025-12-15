@@ -3,6 +3,8 @@ package at.fhv.Event.infrastructure.persistence.booking;
 import at.fhv.Event.domain.model.booking.ParticipantStatus;
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "booking_participant", schema = "nature_connect")
 public class BookingParticipantEntity {
@@ -75,4 +77,29 @@ public class BookingParticipantEntity {
     public ParticipantStatus getCheckInStatus() {
         return checkInStatus;
     }
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "check_out_status")
+    private ParticipantStatus checkOutStatus;
+
+    @Column(name = "check_out_time")
+    private LocalDateTime checkOutTime;
+
+    public ParticipantStatus getCheckOutStatus() {
+        return checkOutStatus;
+    }
+
+    public void setCheckOutStatus(ParticipantStatus checkOutStatus) {
+        this.checkOutStatus = checkOutStatus;
+    }
+
+    public LocalDateTime getCheckOutTime() {
+        return checkOutTime;
+    }
+
+    public void setCheckOutTime(LocalDateTime checkOutTime) {
+        this.checkOutTime = checkOutTime;
+    }
+
+
 }

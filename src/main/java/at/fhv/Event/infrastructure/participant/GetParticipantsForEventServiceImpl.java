@@ -65,7 +65,12 @@ public class GetParticipantsForEventServiceImpl implements GetParticipantsForEve
                 .count();
 
 
-        return new EventParticipantsStats(total, arrived, notArrived, registered);
+        boolean billingReady = bookings.stream()
+                .anyMatch(Booking::isBillingReady);
+
+
+
+        return new EventParticipantsStats(total, arrived, notArrived, registered, billingReady);
     }
 
 }

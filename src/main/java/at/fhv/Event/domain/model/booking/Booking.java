@@ -25,6 +25,8 @@ public class Booking {
     private Instant createdAt;
     private List<BookingParticipant> participants;
     private List<BookingEquipment> equipment;
+    private boolean billingReady;
+
 
     public Booking() {
         this.paidAmount = 0.0;
@@ -289,5 +291,14 @@ public class Booking {
     public void setEquipment(List<BookingEquipment> equipment) {
         this.equipment = equipment;
     }
+
+    public boolean isBillingReady() {
+        return billingReady;
+    }
+
+    public void setBillingReady(boolean billingReady) {
+        this.billingReady = billingReady;
+    }
+
 
 }
