@@ -13,9 +13,14 @@ import java.util.stream.Collectors;
 public class InvoiceRepositoryImpl implements InvoiceRepository {
 
     private final InvoiceJpaRepository jpa;
+    private final InvoiceItemJpaRepository itemJpa;
 
-    public InvoiceRepositoryImpl(InvoiceJpaRepository jpa) {
+    public InvoiceRepositoryImpl(
+            InvoiceJpaRepository jpa,
+            InvoiceItemJpaRepository itemJpa
+    ) {
         this.jpa = jpa;
+        this.itemJpa = itemJpa;
     }
 
     @Override
@@ -28,6 +33,18 @@ public class InvoiceRepositoryImpl implements InvoiceRepository {
         entity.setCreatedAt(invoice.getCreatedAt());
 
         InvoiceJpaEntity saved = jpa.save(entity);
+
+        invoice.getLines().forEach(line -> {
+            InvoiceItemEntity item = new InvoiceItemEntity();
+            item.setInvoice(saved);
+            item.setEquipmentId(line.getEquipmentId());
+            item.setQuantity(line.getQuantity());
+            item.setUnitPrice(line.getUnitPrice());
+            item.setTotalPrice(line.getTotal());
+
+            itemJpa.save(item);
+        });
+
         return mapToDomain(saved);
     }
 

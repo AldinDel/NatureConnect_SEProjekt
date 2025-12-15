@@ -1,5 +1,6 @@
 package at.fhv.Event.presentation.ui.controller;
 
+import at.fhv.Event.application.booking.GetBookingEquipmentForInvoiceService;
 import at.fhv.Event.application.equipment.GetRentableEquipmentService;
 import at.fhv.Event.application.invoice.CreateInterimInvoiceService;
 import at.fhv.Event.application.event.GetParticipantsForEventService;
@@ -18,25 +19,21 @@ public class InvoicesController {
 
     private final CreateInterimInvoiceService createInterimInvoiceService;
     private final InvoiceRepository invoiceRepository;
-    private final GetRentableEquipmentService getRentableEquipmentService;
+    private final GetBookingEquipmentForInvoiceService bookingEquipmentService;
     private final GetParticipantsForEventService participantsService;
 
     public InvoicesController(
             CreateInterimInvoiceService createInterimInvoiceService,
             InvoiceRepository invoiceRepository,
-            GetRentableEquipmentService getRentableEquipmentService,
+            GetBookingEquipmentForInvoiceService bookingEquipmentService,
             GetParticipantsForEventService participantsService
     ) {
         this.createInterimInvoiceService = createInterimInvoiceService;
         this.invoiceRepository = invoiceRepository;
-        this.getRentableEquipmentService = getRentableEquipmentService;
+        this.bookingEquipmentService = bookingEquipmentService;
         this.participantsService = participantsService;
     }
 
-    /* =========================================================
-       1) INVOICES TAB → Teilnehmerliste mit
-          "Issue interim invoice"-Button
-       ========================================================= */
     @GetMapping("/event_management/invoices")
     public String showIssueInvoicePage(
             @RequestParam("eventId") Long eventId,
@@ -52,9 +49,6 @@ public class InvoicesController {
         return "event_management/issue_invoice";
     }
 
-    /* =========================================================
-       2) DETAILSEITE → Rechnungen + Equipment-Auswahl
-       ========================================================= */
     @GetMapping("/event_management/invoices/issue")
     public String showInvoicesForBooking(
             @RequestParam("bookingId") Long bookingId,
@@ -71,7 +65,7 @@ public class InvoicesController {
 
         model.addAttribute(
                 "services",
-                getRentableEquipmentService.getRentableEquipment()
+                bookingEquipmentService.getEquipmentUsedSoFar(bookingId)
         );
 
         if (Boolean.TRUE.equals(created)) {
@@ -84,9 +78,6 @@ public class InvoicesController {
         return "event_management/invoices";
     }
 
-    /* =========================================================
-       3) CREATE INTERIM INVOICE
-       ========================================================= */
     @PostMapping("/event_management/invoices/interim")
     public String createInterimInvoice(
             @RequestParam("bookingId") Long bookingId,
