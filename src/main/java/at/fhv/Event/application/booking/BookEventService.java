@@ -161,6 +161,11 @@ public class BookEventService {
     }
 
     @Transactional
+    public void cancelBooking(Long bookingId, String email) {
+        cancelBooking(bookingId, email, false);
+    }
+
+    @Transactional
     public void cancelBooking(Long bookingId, String email, boolean isAdmin) {
 
         Booking booking = getById(bookingId);
