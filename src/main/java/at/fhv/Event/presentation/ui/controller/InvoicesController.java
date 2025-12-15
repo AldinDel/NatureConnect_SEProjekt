@@ -1,9 +1,12 @@
 package at.fhv.Event.presentation.ui.controller;
 
 import at.fhv.Event.application.booking.GetBookingEquipmentForInvoiceService;
-import at.fhv.Event.application.equipment.GetRentableEquipmentService;
 import at.fhv.Event.application.invoice.CreateInterimInvoiceService;
 import at.fhv.Event.application.event.GetParticipantsForEventService;
+import at.fhv.Event.domain.model.booking.Booking;
+import at.fhv.Event.domain.model.booking.BookingRepository;
+import at.fhv.Event.domain.model.event.Event;
+import at.fhv.Event.domain.model.event.EventRepository;
 import at.fhv.Event.domain.model.invoice.InvoiceRepository;
 import at.fhv.Event.presentation.rest.response.booking.ParticipantDTO;
 import org.springframework.stereotype.Controller;
@@ -21,17 +24,23 @@ public class InvoicesController {
     private final InvoiceRepository invoiceRepository;
     private final GetBookingEquipmentForInvoiceService bookingEquipmentService;
     private final GetParticipantsForEventService participantsService;
+    private final BookingRepository bookingRepository;
+    private final EventRepository eventRepository;
 
     public InvoicesController(
             CreateInterimInvoiceService createInterimInvoiceService,
             InvoiceRepository invoiceRepository,
             GetBookingEquipmentForInvoiceService bookingEquipmentService,
-            GetParticipantsForEventService participantsService
+            GetParticipantsForEventService participantsService,
+            BookingRepository bookingRepository,
+            EventRepository eventRepository
     ) {
         this.createInterimInvoiceService = createInterimInvoiceService;
         this.invoiceRepository = invoiceRepository;
         this.bookingEquipmentService = bookingEquipmentService;
         this.participantsService = participantsService;
+        this.bookingRepository = bookingRepository;
+        this.eventRepository = eventRepository;
     }
 
     @GetMapping("/event_management/invoices")
@@ -55,8 +64,19 @@ public class InvoicesController {
             @RequestParam(value = "created", required = false) Boolean created,
             Model model
     ) {
+        Booking booking = bookingRepository.findById(bookingId)
+                .orElseThrow();
+
+        boolean eventPriceAlreadyInvoiced =
+                invoiceRepository.existsEventPriceForBooking(bookingId);
+
+        Event event = eventRepository.findById(booking.getEventId())
+                .orElseThrow();
+
         model.addAttribute("bookingId", bookingId);
         model.addAttribute("activeTab", "invoices");
+        model.addAttribute("eventPrice", event.getPrice());
+        model.addAttribute("includeEventPrice", !eventPriceAlreadyInvoiced);
 
         model.addAttribute(
                 "invoices",
@@ -82,11 +102,14 @@ public class InvoicesController {
     public String createInterimInvoice(
             @RequestParam("bookingId") Long bookingId,
             @RequestParam(value = "equipmentIds", required = false)
-            List<Long> equipmentIds
+            List<Long> equipmentIds,
+            @RequestParam(value = "includeEventPrice", required = false)
+            Boolean includeEventPrice
     ) {
         createInterimInvoiceService.createInterimInvoice(
                 bookingId,
-                equipmentIds
+                equipmentIds,
+                Boolean.TRUE.equals(includeEventPrice)
         );
 
         return "redirect:/event_management/invoices/issue?bookingId="

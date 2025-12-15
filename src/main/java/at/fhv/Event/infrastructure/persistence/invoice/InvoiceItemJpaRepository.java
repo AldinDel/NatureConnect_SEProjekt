@@ -13,4 +13,6 @@ public interface InvoiceItemJpaRepository
             Long equipmentId,
             Long bookingId
     );
+
+    boolean existsByInvoice_BookingIdAndEquipmentIdIsNull(Long bookingId);
 }

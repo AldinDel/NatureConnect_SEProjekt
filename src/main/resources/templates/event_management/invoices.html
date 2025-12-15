@@ -23,7 +23,7 @@
     </div>
 
     <!-- ===================== -->
-    <!-- INVOICE LIST (OBEN) -->
+    <!-- INVOICE LIST -->
     <!-- ===================== -->
     <div class="invoice-list"
          th:if="${invoices != null && !invoices.isEmpty()}">
@@ -50,10 +50,8 @@
                 </td>
 
                 <td th:text="${invoice.total} + ' €'">0.00 €</td>
-                <td th:text="${#temporals.format(invoice.createdAt, 'dd.MM.yyyy')}">
-                </td>
-                <td th:text="${#temporals.format(invoice.createdAt, 'HH:mm')}">
-                </td>
+                <td th:text="${#temporals.format(invoice.createdAt, 'dd.MM.yyyy')}"></td>
+                <td th:text="${#temporals.format(invoice.createdAt, 'HH:mm')}"></td>
             </tr>
             </tbody>
         </table>
@@ -76,6 +74,24 @@
         <h3>Create Interim Invoice</h3>
 
         <div class="services-list">
+
+            <!-- Event base price -->
+            <div th:if="${includeEventPrice}" class="service-item">
+                <label>
+                    <input type="checkbox"
+                           class="service-checkbox event-price-checkbox"
+                           name="includeEventPrice"
+                           value="true"
+                           checked
+                           th:data-price="${eventPrice}"/>
+
+                    <span class="service-name">Event base price</span>
+                    <span class="service-price"
+                          th:text="${eventPrice} + ' €'"></span>
+                </label>
+            </div>
+
+            <!-- Equipment / services -->
             <div th:each="service : ${services}" class="service-item">
                 <label>
                     <input type="checkbox"
@@ -89,6 +105,7 @@
                           th:text="${service.unitPrice} + ' €'"></span>
                 </label>
             </div>
+
         </div>
 
         <div class="invoice-summary">
@@ -151,6 +168,8 @@
     checkboxes.forEach(cb =>
         cb.addEventListener("change", recalculate)
     );
+
+    recalculate();
 </script>
 
 </body>

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -35,11 +36,11 @@ public class CreateInterimInvoiceService {
         this.eventRepository = eventRepository;
     }
 
-    public Invoice createInterimInvoice(Long bookingId, List<Long> equipmentIds) {
-
-        if (equipmentIds == null || equipmentIds.isEmpty()) {
-            throw new RuntimeException("At least one service must be selected");
-        }
+    public Invoice createInterimInvoice(
+            Long bookingId,
+            List<Long> equipmentIds,
+            boolean includeEventPrice
+    ) {
 
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() ->
@@ -57,24 +58,48 @@ public class CreateInterimInvoiceService {
             );
         }
 
-        List<BookingEquipmentEntity> bookingEquipments =
-                bookingEquipmentRepository.findNotYetInvoicedByBookingId(bookingId)
-                        .stream()
-                        .filter(be -> equipmentIds.contains(be.getEquipmentId()))
-                        .toList();
+        List<InvoiceLine> lines = new ArrayList<>();
 
-        if (bookingEquipments.isEmpty()) {
-            throw new RuntimeException("Selected services are not valid");
+        if (includeEventPrice) {
+            boolean alreadyInvoiced =
+                    invoiceRepository.existsEventPriceForBooking(bookingId);
+
+            if (alreadyInvoiced) {
+                throw new RuntimeException("Event base price already invoiced");
+            }
+
+            lines.add(
+                    new InvoiceLine(
+                            null,
+                            "Event base price",
+                            1,
+                            event.getPrice()
+                    )
+            );
         }
 
-        List<InvoiceLine> lines = bookingEquipments.stream()
-                .map(be -> new InvoiceLine(
-                        be.getEquipmentId(),
-                        "Equipment " + be.getEquipmentId(),
-                        be.getQuantity(),
-                        BigDecimal.valueOf(be.getUnitPrice())
-                ))
-                .toList();
+        if (equipmentIds != null && !equipmentIds.isEmpty()) {
+            List<BookingEquipmentEntity> bookingEquipments =
+                    bookingEquipmentRepository.findNotYetInvoicedByBookingId(bookingId)
+                            .stream()
+                            .filter(be -> equipmentIds.contains(be.getEquipmentId()))
+                            .toList();
+
+            bookingEquipments.forEach(be ->
+                    lines.add(
+                            new InvoiceLine(
+                                    be.getEquipmentId(),
+                                    "Equipment " + be.getEquipmentId(),
+                                    be.getQuantity(),
+                                    BigDecimal.valueOf(be.getUnitPrice())
+                            )
+                    )
+            );
+        }
+
+        if (lines.isEmpty()) {
+            throw new RuntimeException("At least one service must be selected");
+        }
 
         Invoice invoice = Invoice.createInterim(
                 event.getId(),

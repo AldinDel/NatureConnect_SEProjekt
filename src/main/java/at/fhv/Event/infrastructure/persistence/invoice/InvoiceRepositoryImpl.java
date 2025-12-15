@@ -86,4 +86,10 @@ public class InvoiceRepositoryImpl implements InvoiceRepository {
                 entity.getCreatedAt()
         );
     }
+
+    @Override
+    public boolean existsEventPriceForBooking(Long bookingId) {
+        return itemJpa.existsByInvoice_BookingIdAndEquipmentIdIsNull(bookingId);
+    }
+
 }
