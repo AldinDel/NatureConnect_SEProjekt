@@ -43,6 +43,7 @@ public class SecurityConfig {
                         .requestMatchers("/bookings").permitAll()
                         .requestMatchers("/booking/guest-info/**").permitAll()
                         .requestMatchers("/booking/*").permitAll()
+                        .requestMatchers("/admin/users/**").hasRole("ADMIN")
                         .requestMatchers("/bookings/all").hasAnyRole("ADMIN", "FRONT", "ORGANIZER")
                         .requestMatchers("/events/new", "/events/backoffice").hasAnyRole("ADMIN", "ORGANIZER")
                         .requestMatchers("/api/bookings").permitAll()
