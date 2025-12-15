@@ -47,18 +47,6 @@ public class CreateInterimInvoiceService {
             boolean includeEventPrice
     ) {
 
-        boolean checkedOut =
-                bookingParticipantRepository.existsByBooking_IdAndCheckOutStatus(
-                        bookingId,
-                        ParticipantStatus.CHECKED_OUT
-                );
-
-        if (checkedOut) {
-            throw new RuntimeException(
-                    "Interim invoices cannot be issued after checkout"
-            );
-        }
-
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() ->
                         new RuntimeException("Booking not found: " + bookingId)

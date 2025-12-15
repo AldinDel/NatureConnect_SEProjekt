@@ -8,7 +8,7 @@
     <link rel="stylesheet" th:href="@{/css/event-management-invoices.css}">
 </head>
 
-<body class="event_management">
+<body class="invoices">
 
 <div th:replace="~{events/fragments/navbar :: navbar}"></div>
 
@@ -76,7 +76,7 @@
         <div class="services-list">
 
             <!-- Event base price -->
-            <div th:if="${includeEventPrice}" class="service-item">
+            <div th:if="${includeEventPrice}" class="service-item event-base">
                 <label>
                     <input type="checkbox"
                            class="service-checkbox event-price-checkbox"
@@ -91,9 +91,11 @@
                 </label>
             </div>
 
-            <!-- Equipment / services -->
+            <hr class="service-divider"/>
+
+            <!-- Equipment -->
             <div th:each="service : ${services}" class="service-item">
-                <label>
+            <label>
                     <input type="checkbox"
                            class="service-checkbox"
                            name="equipmentIds"
@@ -170,6 +172,14 @@
     );
 
     recalculate();
+
+    setTimeout(() => {
+        const msg = document.querySelector('.success-message');
+        if (msg) {
+            msg.style.opacity = '0';
+            setTimeout(() => msg.remove(), 300);
+        }
+    }, 3000);
 </script>
 
 </body>

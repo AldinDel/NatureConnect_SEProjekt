@@ -15,7 +15,7 @@ public class InvoiceItemEntity {
     @JoinColumn(name = "invoice_id", nullable = false)
     private InvoiceJpaEntity invoice;
 
-    @Column(name = "equipment_id", nullable = false)
+    @Column(name = "equipment_id")
     private Long equipmentId;
 
     @Column(nullable = false)
