@@ -1,7 +1,8 @@
 package at.fhv.Event.presentation.ui.controller;
 
 import at.fhv.Event.application.event.GetParticipantsForEventService;
-import at.fhv.Event.domain.model.booking.ParticipantStatus;
+import at.fhv.Event.domain.model.booking.ParticipantCheckInStatus;
+import at.fhv.Event.presentation.rest.response.booking.EventCheckoutStats;
 import at.fhv.Event.presentation.rest.response.booking.ParticipantDTO;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,10 +16,10 @@ import java.util.List;
 @RequestMapping("/event_management/checkout")
 public class CheckOutController {
 
-    private final GetParticipantsForEventService getParticipantsForEventService;
+    private final GetParticipantsForEventService participantsService;
 
-    public CheckOutController(GetParticipantsForEventService service) {
-        this.getParticipantsForEventService = service;
+    public CheckOutController(GetParticipantsForEventService participantsService) {
+        this.participantsService = participantsService;
     }
 
     @GetMapping
@@ -30,19 +31,25 @@ public class CheckOutController {
         model.addAttribute("activeTab", "checkout");
 
         List<ParticipantDTO> participants =
-                getParticipantsForEventService.getParticipants(eventId)
-                        .stream()
-                        .filter(p -> p.getCheckInStatus() == ParticipantStatus.CHECKED_IN)
+                participantsService.getParticipants(eventId).stream()
+                        .filter(p -> p.getCheckInStatus() == ParticipantCheckInStatus.CHECKED_IN)
                         .toList();
 
         long total = participants.size();
 
+        long checkedOut = participants.stream()
+                .filter(ParticipantDTO::isCheckedOut)
+                .count();
+
+        long remaining = total - checkedOut;
+
         model.addAttribute("participants", participants);
         model.addAttribute("totalCount", total);
-        model.addAttribute("checkedOutCount", 0);
-        model.addAttribute("remainingCount", total);
+        model.addAttribute("checkedOutCount", checkedOut);
+        model.addAttribute("remainingCount", remaining);
+
 
         return "event_management/checkout";
     }
-}
 
+}

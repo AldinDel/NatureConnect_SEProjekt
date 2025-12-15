@@ -1,12 +1,15 @@
 package at.fhv.Event.application.checkout;
 
-import at.fhv.Event.domain.model.booking.ParticipantStatus;
+import at.fhv.Event.domain.model.booking.ParticipantCheckInStatus;
+import at.fhv.Event.domain.model.booking.ParticipantCheckOutStatus;
 import at.fhv.Event.infrastructure.persistence.booking.BookingEntity;
 import at.fhv.Event.infrastructure.persistence.booking.BookingJpaRepository;
 import at.fhv.Event.infrastructure.persistence.booking.BookingParticipantEntity;
 import at.fhv.Event.infrastructure.persistence.booking.JpaBookingParticipantRepository;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 
@@ -28,31 +31,27 @@ public class CheckOutService {
     public void checkOut(Long participantId) {
 
         BookingParticipantEntity participant = participantRepo.findById(participantId)
-                .orElseThrow(() -> new RuntimeException("Participant not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-
-        if (participant.getCheckInStatus() != ParticipantStatus.CHECKED_IN) {
-            throw new IllegalStateException("Participant must be checked in first");
+        if (participant.getCheckInStatus() != ParticipantCheckInStatus.CHECKED_IN) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
 
-        if (participant.getCheckOutStatus() == ParticipantStatus.CHECKED_OUT) {
-            throw new IllegalStateException("Participant already checked out");
+        if (participant.getCheckOutStatus() == ParticipantCheckOutStatus.CHECKED_OUT) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Participant already checked out");
         }
 
-        participant.setCheckOutStatus(ParticipantStatus.CHECKED_OUT);
+        participant.setCheckOutStatus(ParticipantCheckOutStatus.CHECKED_OUT);
         participant.setCheckOutTime(LocalDateTime.now());
         participantRepo.save(participant);
 
         Long bookingId = participant.getBooking().getId();
 
         boolean allCheckedOut = participantRepo.findByBookingId(bookingId).stream()
-                .allMatch(p -> p.getCheckOutStatus() == ParticipantStatus.CHECKED_OUT);
-
+                .allMatch(p -> p.getCheckOutStatus() == ParticipantCheckOutStatus.CHECKED_OUT);
 
         if (allCheckedOut) {
-            BookingEntity booking = bookingRepo.findById(bookingId)
-                    .orElseThrow();
-
+            BookingEntity booking = bookingRepo.findById(bookingId).orElseThrow();
             booking.setBillingReady(true);
             bookingRepo.save(booking);
         }

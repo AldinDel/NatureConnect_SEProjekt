@@ -1,7 +1,4 @@
 package at.fhv.Event.domain.model.booking;
-import java.lang.Long;
-import java.lang.String;
-
 
 public class BookingParticipant {
 
@@ -9,37 +6,27 @@ public class BookingParticipant {
     private String firstName;
     private String lastName;
     private Integer age;
-    private ParticipantStatus checkInStatus;
+    private ParticipantCheckInStatus checkInStatus;
+    private ParticipantCheckOutStatus checkOutStatus;
 
     public BookingParticipant(
             Long id,
             String firstName,
             String lastName,
             Integer age,
-            ParticipantStatus checkInStatus
+            ParticipantCheckInStatus checkInStatus,
+            ParticipantCheckOutStatus checkOutStatus
     ) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.age = age;
         this.checkInStatus = checkInStatus;
+        this.checkOutStatus = checkOutStatus;
     }
 
-
-    public Long getId() { return id; }
-
-    public String getFullName() {
-        return firstName + " " + lastName;
-    }
-
-    public Integer getAge() { return age; }
-
-    public ParticipantStatus getCheckInStatus() {
-        return checkInStatus;
-    }
-
-    public void setCheckInStatus(ParticipantStatus status) {
-        this.checkInStatus = status;
+    public Long getId() {
+        return id;
     }
 
     public String getFirstName() {
@@ -48,6 +35,30 @@ public class BookingParticipant {
 
     public String getLastName() {
         return lastName;
+    }
+
+    public String getFullName() {
+        return firstName + " " + lastName;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public ParticipantCheckInStatus getCheckInStatus() {
+        return checkInStatus;
+    }
+
+    public void setCheckInStatus(ParticipantCheckInStatus checkInStatus) {
+        this.checkInStatus = checkInStatus;
+    }
+
+    public ParticipantCheckOutStatus getCheckOutStatus() {
+        return checkOutStatus;
+    }
+
+    public void setCheckOutStatus(ParticipantCheckOutStatus checkOutStatus) {
+        this.checkOutStatus = checkOutStatus;
     }
 
     public static BookingParticipant createNew(
@@ -60,8 +71,8 @@ public class BookingParticipant {
                 firstName,
                 lastName,
                 age,
-                ParticipantStatus.REGISTERED
+                ParticipantCheckInStatus.REGISTERED,
+                ParticipantCheckOutStatus.NOT_CHECKED_OUT
         );
     }
-
 }

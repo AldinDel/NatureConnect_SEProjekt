@@ -305,3 +305,40 @@ body.participants-page {
     color: #8a4700;
 }
 
+.toast {
+    position: fixed;
+    top: 90px;
+    right: 30px;
+    background: #1f7a4d;
+    color: white;
+    padding: 14px 22px;
+    border-radius: 12px;
+    font-weight: 500;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+    z-index: 9999;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+tr.checked-out {
+    opacity: 0.5;
+}
+
+tr.checked-out .status-badge {
+    background-color: #999;
+}
+
+.participants-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.participants-table tbody tr:last-child td {
+    border-bottom: none;
+}
+

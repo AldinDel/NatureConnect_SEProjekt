@@ -1,6 +1,7 @@
 package at.fhv.Event.infrastructure.persistence.booking;
 
-import at.fhv.Event.domain.model.booking.ParticipantStatus;
+import at.fhv.Event.domain.model.booking.ParticipantCheckInStatus;
+import at.fhv.Event.domain.model.booking.ParticipantCheckOutStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -28,7 +29,14 @@ public class BookingParticipantEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "check_in_status", nullable = false)
-    private ParticipantStatus checkInStatus = ParticipantStatus.REGISTERED;
+    private ParticipantCheckInStatus checkInStatus = ParticipantCheckInStatus.REGISTERED;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "check_out_status", nullable = false)
+    private ParticipantCheckOutStatus checkOutStatus = ParticipantCheckOutStatus.NOT_CHECKED_OUT;
+
+    @Column(name = "check_out_time")
+    private LocalDateTime checkOutTime;
 
     public Long getId() {
         return id;
@@ -66,30 +74,19 @@ public class BookingParticipantEntity {
         this.age = age;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setCheckInStatus(ParticipantStatus checkInStatus) {
-        this.checkInStatus = checkInStatus;
-    }
-
-    public ParticipantStatus getCheckInStatus() {
+    public ParticipantCheckInStatus getCheckInStatus() {
         return checkInStatus;
     }
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "check_out_status")
-    private ParticipantStatus checkOutStatus;
+    public void setCheckInStatus(ParticipantCheckInStatus checkInStatus) {
+        this.checkInStatus = checkInStatus;
+    }
 
-    @Column(name = "check_out_time")
-    private LocalDateTime checkOutTime;
-
-    public ParticipantStatus getCheckOutStatus() {
+    public ParticipantCheckOutStatus getCheckOutStatus() {
         return checkOutStatus;
     }
 
-    public void setCheckOutStatus(ParticipantStatus checkOutStatus) {
+    public void setCheckOutStatus(ParticipantCheckOutStatus checkOutStatus) {
         this.checkOutStatus = checkOutStatus;
     }
 
@@ -100,6 +97,4 @@ public class BookingParticipantEntity {
     public void setCheckOutTime(LocalDateTime checkOutTime) {
         this.checkOutTime = checkOutTime;
     }
-
-
 }
