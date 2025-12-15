@@ -198,3 +198,41 @@ body.bookings-page {
     animation: fadeout 4s forwards;
 }
 
+.booking-controls {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 10px 0;
+}
+
+.booking-controls input,
+.booking-controls select {
+    padding: 8px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 15px;
+}
+
+.booking-controls input:focus,
+.booking-controls select:focus {
+    outline: none;
+    border-color: #0d2847;
+}
+
+
+.btn-reset {
+    background: #0b2545;
+    color: white;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.btn-reset:hover {
+    background: #3b3767;
+}
+

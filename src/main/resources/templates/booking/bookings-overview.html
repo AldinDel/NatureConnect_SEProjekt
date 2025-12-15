@@ -6,7 +6,9 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/bookings-overview.css}">
 </head>
+
 <body class="bookings-page">
+
 
 <div th:if="${success}" class="toast-success">
     <span th:text="${success}"></span>
@@ -22,9 +24,36 @@
 
     <h1>Your Bookings</h1>
 
+    <div class="booking-controls" th:if="${bookings.size() > 0}">
+        <input type="text"
+               id="bookingSearch"
+               placeholder="Search your bookings..."
+               onkeyup="filterBookings()">
+
+        <select id="bookingFilter" onchange="filterBookings()">
+            <option value="all">All dates</option>
+            <option value="today">Today</option>
+            <option value="future">Future</option>
+            <option value="past">Past</option>
+        </select>
+
+        <select id="bookingSort" onchange="sortBookings()">
+            <option value="date_desc">Latest first</option>
+            <option value="date_asc">Earliest first</option>
+            <option value="price_asc">Price ↑</option>
+            <option value="price_desc">Price ↓</option>
+            <option value="event_asc">Event ↑</option>
+            <option value="event_desc">Event ↓</option>
+        </select>
+
+        <button class="btn-reset" onclick="resetFilters()">Reset</button>
+    </div>
+
+
     <p th:if="${bookings.size() == 0}" class="no-bookings">
         You don't have any bookings yet
     </p>
+
 
     <table th:if="${bookings.size() > 0}" class="booking-table">
         <thead>
@@ -39,16 +68,24 @@
 
         <tbody>
         <tr th:each="dto : ${bookings}">
-            <td class="event-col">
+            <td>
                 <div class="event-info">
                     <img th:src="${dto.event.imageUrl}" alt="thumbnail">
                     <span th:text="${dto.event.title}"></span>
                 </div>
             </td>
 
+            <!-- DATE -->
             <td th:text="${dto.event.date}"></td>
+
+
             <td th:text="${dto.seats}"></td>
-            <td><span th:text="${#numbers.formatDecimal(dto.totalPrice, 1, 2, 'COMMA')} + ' €'"></span></td>
+
+
+            <td>
+                <span th:text="${#numbers.formatDecimal(dto.totalPrice, 1, 2, 'COMMA')} + ' €'"></span>
+            </td>
+
 
             <td class="actions">
 
@@ -63,15 +100,73 @@
                     Not editable
                 </span>
 
-                <button class="btn-small btn-cancel">Cancel</button>
+                <button class="btn-cancel">Cancel</button>
             </td>
-
-
         </tr>
         </tbody>
     </table>
-
 </div>
+
+
+<script>
+    function filterBookings() {
+        const search = document.getElementById("bookingSearch").value.toLowerCase();
+        const filter = document.getElementById("bookingFilter").value;
+        const rows = document.querySelectorAll(".booking-table tbody tr");
+        const today = new Date().toISOString().slice(0, 10);
+
+        rows.forEach(row => {
+            const event = row.children[0].innerText.toLowerCase();
+            const date = row.children[1].innerText;
+            const price = row.children[3].innerText.toLowerCase();
+
+            let show = event.includes(search) || price.includes(search);
+
+            if (filter === "today" && date !== today) show = false;
+            if (filter === "future" && date < today) show = false;
+            if (filter === "past" && date > today) show = false;
+
+            row.style.display = show ? "" : "none";
+        });
+    }
+
+    function sortBookings() {
+        const sort = document.getElementById("bookingSort").value;
+        const tbody = document.querySelector(".booking-table tbody");
+        const rows = Array.from(tbody.querySelectorAll("tr"));
+
+        rows.sort((a, b) => {
+            const eventA = a.children[0].innerText.trim();
+            const eventB = b.children[0].innerText.trim();
+            const dateA = a.children[1].innerText;
+            const dateB = b.children[1].innerText;
+            const priceA = parseFloat(a.children[3].innerText.replace("€", "").replace(",", "."));
+            const priceB = parseFloat(b.children[3].innerText.replace("€", "").replace(",", "."));
+
+            switch (sort) {
+                case "date_desc": return dateB.localeCompare(dateA);
+                case "date_asc": return dateA.localeCompare(dateB);
+                case "price_asc": return priceA - priceB;
+                case "price_desc": return priceB - priceA;
+                case "event_asc": return eventA.localeCompare(eventB);
+                case "event_desc": return eventB.localeCompare(eventA);
+            }
+        });
+
+        rows.forEach(r => tbody.appendChild(r));
+    }
+
+    function resetFilters() {
+        document.getElementById("bookingSearch").value = "";
+        document.getElementById("bookingFilter").value = "all";
+        document.getElementById("bookingSort").value = "date_desc";
+
+        document.querySelectorAll(".booking-table tbody tr")
+            .forEach(row => row.style.display = "");
+
+        sortBookings();
+    }
+</script>
 
 </body>
 </html>
