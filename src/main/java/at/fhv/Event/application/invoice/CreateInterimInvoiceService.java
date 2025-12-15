@@ -2,6 +2,7 @@ package at.fhv.Event.application.invoice;
 
 import at.fhv.Event.domain.model.booking.Booking;
 import at.fhv.Event.domain.model.booking.BookingRepository;
+import at.fhv.Event.domain.model.booking.ParticipantStatus;
 import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.domain.model.event.EventRepository;
 import at.fhv.Event.domain.model.invoice.Invoice;
@@ -9,6 +10,7 @@ import at.fhv.Event.domain.model.invoice.InvoiceLine;
 import at.fhv.Event.domain.model.invoice.InvoiceRepository;
 import at.fhv.Event.infrastructure.persistence.booking.BookingEquipmentEntity;
 import at.fhv.Event.infrastructure.persistence.booking.BookingEquipmentRepository;
+import at.fhv.Event.infrastructure.persistence.booking.JpaBookingParticipantRepository;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -23,17 +25,20 @@ public class CreateInterimInvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final BookingEquipmentRepository bookingEquipmentRepository;
     private final EventRepository eventRepository;
+    private final JpaBookingParticipantRepository bookingParticipantRepository;
 
     public CreateInterimInvoiceService(
             BookingRepository bookingRepository,
             InvoiceRepository invoiceRepository,
             BookingEquipmentRepository bookingEquipmentRepository,
-            EventRepository eventRepository
+            EventRepository eventRepository,
+            JpaBookingParticipantRepository bookingParticipantRepository
     ) {
         this.bookingRepository = bookingRepository;
         this.invoiceRepository = invoiceRepository;
         this.bookingEquipmentRepository = bookingEquipmentRepository;
         this.eventRepository = eventRepository;
+        this.bookingParticipantRepository = bookingParticipantRepository;
     }
 
     public Invoice createInterimInvoice(
@@ -41,6 +46,18 @@ public class CreateInterimInvoiceService {
             List<Long> equipmentIds,
             boolean includeEventPrice
     ) {
+
+        boolean checkedOut =
+                bookingParticipantRepository.existsByBooking_IdAndCheckOutStatus(
+                        bookingId,
+                        ParticipantStatus.CHECKED_OUT
+                );
+
+        if (checkedOut) {
+            throw new RuntimeException(
+                    "Interim invoices cannot be issued after checkout"
+            );
+        }
 
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() ->
