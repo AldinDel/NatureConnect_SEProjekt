@@ -43,6 +43,7 @@ public class SecurityConfig {
                         .requestMatchers("/bookings").permitAll()
                         .requestMatchers("/booking/guest-info/**").permitAll()
                         .requestMatchers("/booking/*").permitAll()
+                        .requestMatchers("/admin/users/**").hasRole("ADMIN")
                         .requestMatchers("/bookings/all").hasAnyRole("ADMIN", "FRONT", "ORGANIZER")
                         .requestMatchers("/events/new", "/events/backoffice").hasAnyRole("ADMIN", "ORGANIZER")
                         .requestMatchers("/api/bookings").permitAll()
@@ -51,6 +52,8 @@ public class SecurityConfig {
                         .requestMatchers("/booking/payment/**").authenticated()
                         .requestMatchers("/booking/confirmation/**").permitAll()
                         .requestMatchers("/api/hiking/**").permitAll()
+                        .requestMatchers("/api/events/**").hasAnyRole("ADMIN", "FRONT", "ORGANIZER")
+
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form

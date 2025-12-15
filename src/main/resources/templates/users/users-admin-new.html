@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Add User</title>
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/users-admin-edit.css}">
+</head>
+
+<body class="users-admin-page">
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
+
+<div class="admin-user-edit-container">
+    <h1>Add User</h1>
+
+    <div class="toast-container">
+        <div th:if="${successMessage}" class="toast toast-success" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="toast toast-error" th:text="${errorMessage}"></div>
+    </div>
+
+    <form class="edit-form" th:action="@{/admin/users/new}" method="post" autocomplete="off">
+        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+        <div class="grid">
+
+            <div class="field">
+                <label>Role</label>
+                <select name="roleCode" required>
+                    <option th:each="r : ${roles}" th:value="${r}" th:text="${r}"></option>
+                </select>
+            </div>
+
+            <div class="field">
+                <label>Active</label>
+                <div class="checkbox-row">
+                    <input type="checkbox" name="active" th:checked="${activeDefault}">
+                    <span>Enabled</span>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>First name</label>
+                <input type="text" name="firstName" required>
+            </div>
+
+            <div class="field">
+                <label>Last name</label>
+                <input type="text" name="lastName" required>
+            </div>
+
+            <div class="field full">
+                <label>Email</label>
+                <input type="email" name="newEmail" autocomplete="new-email" required>
+            </div>
+
+            <div class="field full">
+                <label>Password</label>
+                <input type="password" name="newPassword" autocomplete="new-password" required>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn-save" type="submit">Create</button>
+            <a class="btn-cancel" th:href="@{/admin/users}">Cancel</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>
