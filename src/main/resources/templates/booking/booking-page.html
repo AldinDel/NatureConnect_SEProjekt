@@ -6,7 +6,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title th:text="${event.title}">Booking</title>
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
@@ -24,8 +23,6 @@
 
 <div class="container">
     <div id="errorPop"></div>
-
-
     <form th:action="${isEdit} ? @{/booking/{id}(id=${bookingId})} : @{/booking}"
           th:object="${booking}"
           method="post">
@@ -55,26 +52,6 @@
                         <span th:text="${event.startTime}"></span> -
                         <span th:text="${event.endTime}"></span>
                     </p>
-                </div>
-
-                <div class="card account-card" th:if="${!isEdit}">
-                    <div class="account-prompt">
-                        <p class="account-prompt-text">Already have an account?</p>
-                        <div class="account-buttons">
-                            <a href="/login" class="btn-account btn-login">Log In</a>
-                            <button type="button" class="btn-account btn-guest active">Continue as Guest</button>
-                        </div>
-                        <script>
-                            document.addEventListener("DOMContentLoaded", () => {
-                                const guestBtn = document.querySelector(".btn-guest");
-                                guestBtn.addEventListener("click", () => {
-                                    document.getElementById("guestMode").value = "true";
-                                    console.log("Guest Mode activated ✔️");
-                                });
-                            });
-                        </script>
-
-                    </div>
                 </div>
                 <div class="card">
                     <h2 class="card-title">Your Information</h2>
@@ -120,6 +97,7 @@
                                 th:text="${i}">
                         </option>
                     </select>
+
 
                     <div id="existingParticipantsData" style="display:none;"
                          th:if="${booking.participants != null}">

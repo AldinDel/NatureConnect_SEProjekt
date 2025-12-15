@@ -2,6 +2,7 @@ package at.fhv.Event.domain.model.booking;
 
 import at.fhv.Event.domain.model.payment.PaymentMethod;
 import at.fhv.Event.domain.model.payment.PaymentStatus;
+import at.fhv.Event.domain.model.user.CustomerProfile;
 
 import java.time.Instant;
 import java.util.List;
@@ -86,6 +87,23 @@ public class Booking {
         }
 
         this.totalPrice = Math.max(0, basePrice - discountAmount);
+    }
+
+    public void prefillFromCustomer(CustomerProfile customer) {
+        this.bookerFirstName = customer.get_firstName();
+        this.bookerLastName  = customer.get_lastName();
+        this.bookerEmail     = customer.get_email();
+
+        BookingParticipant p1 = new BookingParticipant(
+                null,
+                customer.get_firstName(),
+                customer.get_lastName(),
+                null,
+                ParticipantStatus.REGISTERED
+        );
+
+        this.setParticipants(List.of(p1));
+        this.setSeats(1);
     }
 
 

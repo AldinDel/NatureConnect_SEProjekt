@@ -1,31 +1,31 @@
 package at.fhv.Event.presentation.rest.exception;
 
 public  class FieldError {
-    private final String _field;
-    private final String _message;
-    private final String _type;
-    private final Object _rejectedValue;
+    private final String field;
+    private final String message;
+    private final String type;
+    private final Object rejectedValue;
 
     public FieldError(String field, String message, String type, Object rejectedValue) {
-        _field = field;
-        _message = message;
-        _type = type;
-        _rejectedValue = rejectedValue;
+        this.field = field;
+        this.message = message;
+        this.type = type;
+        this.rejectedValue = rejectedValue;
     }
 
-    public String get_field() {
-        return _field;
+    public String getField() {
+        return field;
     }
 
-    public String get_message() {
-        return _message;
+    public String getMessage() {
+        return message;
     }
 
-    public String get_type() {
-        return _type;
+    public String getType() {
+        return type;
     }
 
-    public Object get_rejectedValue() {
-        return _rejectedValue;
+    public Object getRejectedValue() {
+        return rejectedValue;
     }
 }
