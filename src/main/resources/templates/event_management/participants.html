@@ -37,9 +37,7 @@
     </a>
 </div>
 
-
-
-
+<!-- STATS -->
 <div class="stats-container">
     <div class="stat-card">
         <span class="stat-title">Total</span>
@@ -54,22 +52,18 @@
     <div class="stat-card">
         <span class="stat-title">Not Arrived</span>
         <span class="stat-value not-arrived" data-stat="notArrived" th:text="${notArrivedCount}"></span>
-
     </div>
 
     <div class="stat-card">
         <span class="stat-title">Registered</span>
+        <!-- kommt IMMER vom Backend -->
         <span class="stat-value registered" data-stat="registered" th:text="${registeredCount}"></span>
     </div>
-
 </div>
-
-
 
 <div class="search-container">
     <input type="text" class="search-input" placeholder="Search participant or booking…">
 </div>
-
 
 <div class="table-wrapper">
     <table class="participants-table">
@@ -87,33 +81,21 @@
 
         <tbody>
         <tr th:each="p : ${participants}"
-            th:data-participant-id="${p.participantId}"
-            th:data-booking-id="${p.bookingId}">
-
+            th:data-participant-id="${p.participantId}">
 
             <td th:text="${p.bookingId}"></td>
-
-
             <td th:text="${p.bookerName}"></td>
-
-
             <td th:text="${p.participantName}"></td>
-
-
             <td th:text="${p.participantAge}"></td>
-
 
             <td>
                 <span th:text="${p.bookingStatus}"
-                      th:class="'status-badge ' + ${p.bookingStatus.toLowerCase()}">
-                </span>
+                      th:class="'status-badge ' + ${p.bookingStatus.toLowerCase()}"></span>
             </td>
-
 
             <td>
                 <span th:text="${p.paymentStatus}"
-                      th:class="'status-badge payment ' + ${p.paymentStatus.toLowerCase()}">
-                </span>
+                      th:class="'status-badge payment ' + ${p.paymentStatus.toLowerCase()}"></span>
             </td>
 
             <td>
@@ -127,103 +109,80 @@
                     ✖
                 </button>
             </td>
-
         </tr>
         </tbody>
     </table>
 </div>
 
-<script>
-    const eventId = /*[[${eventId}]]*/ 0;
+<script th:inline="javascript">
+
+    const eventId = [[${eventId}]];
+
 
     function updateStats() {
         const rows = document.querySelectorAll("tr[data-participant-id]");
-
         const total = rows.length;
         const arrived = document.querySelectorAll(".checkin-btn.active").length;
         const notArrived = document.querySelectorAll(".notarrived-btn.active").length;
 
-        const registered = total - arrived - notArrived;
-
         document.querySelector("[data-stat='total']").textContent = total;
         document.querySelector("[data-stat='arrived']").textContent = arrived;
         document.querySelector("[data-stat='notArrived']").textContent = notArrived;
-        document.querySelector("[data-stat='registered']").textContent = registered;
+    }
+
+
+    function reloadStats() {
+        fetch(`/api/events/${eventId}/participants/stats`)
+            .then(res => res.json())
+            .then(stats => {
+                document.querySelector("[data-stat='total']").textContent = stats.total;
+                document.querySelector("[data-stat='arrived']").textContent = stats.arrived;
+                document.querySelector("[data-stat='notArrived']").textContent = stats.notArrived;
+                document.querySelector("[data-stat='registered']").textContent = stats.registered;
+            });
     }
 
     document.querySelectorAll("tr[data-participant-id]").forEach(row => {
-
         const participantId = row.dataset.participantId;
         const checkInBtn = row.querySelector(".checkin-btn");
         const notArrivedBtn = row.querySelector(".notarrived-btn");
 
-
         checkInBtn.addEventListener("click", () => {
+            const url = checkInBtn.classList.contains("active")
+                ? `/api/events/${eventId}/participants/${participantId}/reset`
+                : `/api/events/${eventId}/participants/${participantId}/checkin`;
 
-            if (checkInBtn.classList.contains("active")) {
-
-                fetch(`/api/events/${eventId}/participants/${participantId}/reset`, {
-                    method: "POST"
-                }).then(() => {
-                    checkInBtn.classList.remove("active");
-                    notArrivedBtn.classList.remove("active");
-                    updateStats();
-                });
-                return;
-            }
-
-
-            fetch(`/api/events/${eventId}/participants/${participantId}/checkin`, {
-                method: "POST"
-            }).then(() => {
-                checkInBtn.classList.add("active");
+            fetch(url, { method: "POST" }).then(() => {
+                checkInBtn.classList.toggle("active");
                 notArrivedBtn.classList.remove("active");
                 updateStats();
+                reloadStats();
             });
         });
 
         notArrivedBtn.addEventListener("click", () => {
+            const url = notArrivedBtn.classList.contains("active")
+                ? `/api/events/${eventId}/participants/${participantId}/reset`
+                : `/api/events/${eventId}/participants/${participantId}/not-arrived`;
 
-            if (notArrivedBtn.classList.contains("active")) {
-
-                fetch(`/api/events/${eventId}/participants/${participantId}/reset`, {
-                    method: "POST"
-                }).then(() => {
-                    checkInBtn.classList.remove("active");
-                    notArrivedBtn.classList.remove("active");
-                    updateStats();
-                });
-                return;
-            }
-
-            fetch(`/api/events/${eventId}/participants/${participantId}/notarrived`, {
-                method: "POST"
-            }).then(() => {
-                notArrivedBtn.classList.add("active");
+            fetch(url, { method: "POST" }).then(() => {
+                notArrivedBtn.classList.toggle("active");
                 checkInBtn.classList.remove("active");
                 updateStats();
+                reloadStats();
             });
         });
-
     });
 
     const searchInput = document.querySelector(".search-input");
-
     searchInput.addEventListener("input", () => {
         const query = searchInput.value.toLowerCase();
-        const rows = document.querySelectorAll("tbody tr");
-
-        rows.forEach(row => {
-            const text = row.innerText.toLowerCase();
-            row.style.display = text.includes(query) ? "" : "none";
+        document.querySelectorAll("tbody tr").forEach(row => {
+            row.style.display = row.innerText.toLowerCase().includes(query) ? "" : "none";
         });
-
         updateStats();
     });
-
-
 </script>
-
 
 </body>
 </html>

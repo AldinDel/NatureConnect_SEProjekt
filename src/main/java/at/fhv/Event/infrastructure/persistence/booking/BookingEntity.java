@@ -218,4 +218,16 @@ public class BookingEntity {
         this.equipment = equipment;
     }
 
+    @Column(name = "billing_ready", nullable = false)
+    private boolean billingReady = false;
+
+    public boolean isBillingReady() {
+        return billingReady;
+    }
+
+    public void setBillingReady(boolean billingReady) {
+        this.billingReady = billingReady;
+    }
+
+
 }

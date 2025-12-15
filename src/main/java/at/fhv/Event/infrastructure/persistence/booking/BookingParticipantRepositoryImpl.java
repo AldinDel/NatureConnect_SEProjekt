@@ -37,10 +37,15 @@ public class BookingParticipantRepositoryImpl
 
     @Override
     public BookingParticipant save(BookingParticipant participant) {
-        return mapper.toDomain(
-                jpaRepo.save(mapper.toEntityForStatusUpdate(participant))
-        );
+
+        BookingParticipantEntity entity = jpaRepo.findById(participant.getId())
+                .orElseThrow(() -> new RuntimeException("Participant not found"));
+
+        entity.setCheckInStatus(participant.getCheckInStatus());
+
+        return mapper.toDomain(entity);
     }
+
 
 }
 
