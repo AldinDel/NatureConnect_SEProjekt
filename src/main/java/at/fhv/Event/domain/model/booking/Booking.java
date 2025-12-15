@@ -99,7 +99,8 @@ public class Booking {
                 customer.get_firstName(),
                 customer.get_lastName(),
                 null,
-                ParticipantStatus.REGISTERED
+                ParticipantCheckInStatus.REGISTERED,
+                ParticipantCheckOutStatus.NOT_CHECKED_OUT
         );
 
         this.setParticipants(List.of(p1));

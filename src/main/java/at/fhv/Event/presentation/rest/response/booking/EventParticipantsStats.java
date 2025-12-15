@@ -8,8 +8,13 @@ public class EventParticipantsStats {
     private long registered;
     private boolean billingReady;
 
-
-    public EventParticipantsStats(long total, long arrived, long notArrived, long registered, boolean billingReady) {
+    public EventParticipantsStats(
+            long total,
+            long arrived,
+            long notArrived,
+            long registered,
+            boolean billingReady
+    ) {
         this.total = total;
         this.arrived = arrived;
         this.notArrived = notArrived;
@@ -17,13 +22,23 @@ public class EventParticipantsStats {
         this.billingReady = billingReady;
     }
 
-    public long getTotal() { return total; }
-    public long getArrived() { return arrived; }
-    public long getNotArrived() { return notArrived; }
-    public long getRegistered() { return registered; }
+    public long getTotal() {
+        return total;
+    }
+
+    public long getArrived() {
+        return arrived;
+    }
+
+    public long getNotArrived() {
+        return notArrived;
+    }
+
+    public long getRegistered() {
+        return registered;
+    }
+
     public boolean isBillingReady() {
         return billingReady;
     }
 }
-
-

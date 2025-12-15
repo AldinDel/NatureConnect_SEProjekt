@@ -53,7 +53,6 @@ public class BookingMapper {
     private BookingParticipantEntity toParticipantEntity(BookingParticipant p, BookingEntity booking) {
         BookingParticipantEntity entity = new BookingParticipantEntity();
 
-        entity.setId(p.getId());
         entity.setFirstName(p.getFirstName());
         entity.setLastName(p.getLastName());
         entity.setAge(p.getAge());
@@ -125,7 +124,8 @@ public class BookingMapper {
                 e.getFirstName(),
                 e.getLastName(),
                 e.getAge(),
-                e.getCheckInStatus()
+                e.getCheckInStatus(),
+                e.getCheckOutStatus()
         );
 
         return domain;

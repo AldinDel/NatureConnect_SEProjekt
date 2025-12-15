@@ -125,7 +125,8 @@ public class BookEventService {
                         p.getFirstName(),
                         p.getLastName(),
                         p.getAge(),
-                        ParticipantStatus.CHECKED_IN
+                        ParticipantCheckInStatus.CHECKED_IN,
+                        ParticipantCheckOutStatus.NOT_CHECKED_OUT
                 );
                 participants.add(bp);
             }

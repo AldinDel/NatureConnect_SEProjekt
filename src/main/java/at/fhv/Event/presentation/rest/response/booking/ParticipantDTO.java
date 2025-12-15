@@ -1,6 +1,6 @@
 package at.fhv.Event.presentation.rest.response.booking;
 
-import at.fhv.Event.domain.model.booking.ParticipantStatus;
+import at.fhv.Event.domain.model.booking.ParticipantCheckInStatus;
 
 public class ParticipantDTO {
 
@@ -11,11 +11,20 @@ public class ParticipantDTO {
     private int participantAge;
     private String bookingStatus;
     private String paymentStatus;
-    private ParticipantStatus checkInStatus;
+    private ParticipantCheckInStatus checkInStatus;
+    private boolean checkedOut;
 
-    public ParticipantDTO(Long participantId, Long bookingId, String bookerName, String participantName,
-                          int participantAge, String bookingStatus, String paymentStatus,
-                          ParticipantStatus checkInStatus) {
+    public ParticipantDTO(
+            Long participantId,
+            Long bookingId,
+            String bookerName,
+            String participantName,
+            int participantAge,
+            String bookingStatus,
+            String paymentStatus,
+            ParticipantCheckInStatus checkInStatus,
+            boolean checkedOut
+    ) {
         this.participantId = participantId;
         this.bookingId = bookingId;
         this.bookerName = bookerName;
@@ -24,6 +33,7 @@ public class ParticipantDTO {
         this.bookingStatus = bookingStatus;
         this.paymentStatus = paymentStatus;
         this.checkInStatus = checkInStatus;
+        this.checkedOut = checkedOut;
     }
 
     public Long getParticipantId() {
@@ -54,7 +64,11 @@ public class ParticipantDTO {
         return paymentStatus;
     }
 
-    public ParticipantStatus getCheckInStatus() {
+    public ParticipantCheckInStatus getCheckInStatus() {
         return checkInStatus;
+    }
+
+    public boolean isCheckedOut() {
+        return checkedOut;
     }
 }

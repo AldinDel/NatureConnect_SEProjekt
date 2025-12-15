@@ -17,22 +17,18 @@
     <p th:text="'Event ID: ' + ${eventId}"></p>
 </div>
 
-<!-- TABS -->
 <div class="fo-tabs">
     <a th:href="@{/event_management/participants(eventId=${eventId})}" class="fo-tab">
         Check-In
     </a>
-
     <a th:href="@{/event_management/checkout(eventId=${eventId})}" class="fo-tab active">
         Check-Out
     </a>
-
     <a th:href="@{/event_management/invoices(eventId=${eventId})}" class="fo-tab">
         Invoices
     </a>
 </div>
 
-<!-- STATS -->
 <div class="stats-container">
     <div class="stat-card">
         <span class="stat-title">Total</span>
@@ -54,7 +50,6 @@
     <input type="text" class="search-input" placeholder="Search participant or booking…">
 </div>
 
-<!-- TABLE -->
 <div class="table-wrapper">
     <table class="participants-table">
         <thead>
@@ -63,14 +58,15 @@
             <th>Booker</th>
             <th>Participant</th>
             <th>Age</th>
-            <th>Check-In</th>
+            <th>Participant Status</th>
             <th>Actions</th>
         </tr>
         </thead>
 
         <tbody>
         <tr th:each="p : ${participants}"
-            th:data-participant-id="${p.participantId}">
+            th:data-participant-id="${p.participantId}"
+            th:classappend="${p.checkedOut} ? 'checked-out' : ''">
 
             <td th:text="${p.bookingId}"></td>
             <td th:text="${p.bookerName}"></td>
@@ -78,11 +74,15 @@
             <td th:text="${p.participantAge}"></td>
 
             <td>
-                <span class="status-badge paid">CHECKED IN</span>
+                <span class="status-badge"
+                      th:classappend="${p.checkedOut} ? 'expired' : 'paid'"
+                      th:text="${p.checkedOut} ? 'CHECKED OUT' : 'CHECKED IN'">
+                </span>
             </td>
 
             <td>
-                <button class="btn success checkout-btn">
+                <button th:if="${!p.checkedOut}"
+                        class="btn success checkout-btn">
                     Check out
                 </button>
             </td>
@@ -91,7 +91,55 @@
     </table>
 </div>
 
-<script>
+<div id="toast" class="toast"></div>
+
+<script th:inline="javascript">
+    const eventId = [[${eventId}]];
+    const toast = document.getElementById("toast");
+
+    function showToast(message, error = false) {
+        toast.textContent = message;
+        toast.style.background = error ? "#b42318" : "#1f7a4d";
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 2500);
+    }
+
+    document.querySelectorAll(".checkout-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+            const row = btn.closest("tr");
+            const participantId = row.dataset.participantId;
+
+            const res = await fetch(
+                `/api/events/${eventId}/participants/${participantId}/checkout`,
+                { method: "POST" }
+            );
+
+            const text = await res.text();
+
+            if (!res.ok) {
+                showToast(text || "Checkout failed", true);
+                return;
+            }
+
+            row.classList.add("checked-out");
+
+            const badge = row.querySelector(".status-badge");
+            badge.textContent = "CHECKED OUT";
+            badge.classList.remove("paid");
+            badge.classList.add("expired");
+
+            btn.remove();
+
+            const checkedOutEl = document.querySelector(".stat-value.arrived");
+            const remainingEl = document.querySelector(".stat-value.not-arrived");
+
+            checkedOutEl.textContent = Number(checkedOutEl.textContent) + 1;
+            remainingEl.textContent = Number(remainingEl.textContent) - 1;
+
+            showToast("Participant checked out");
+        });
+    });
+
     const searchInput = document.querySelector(".search-input");
     searchInput.addEventListener("input", () => {
         const query = searchInput.value.toLowerCase();

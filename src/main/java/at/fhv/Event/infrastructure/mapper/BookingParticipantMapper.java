@@ -13,7 +13,8 @@ public class BookingParticipantMapper {
                 e.getFirstName(),
                 e.getLastName(),
                 e.getAge(),
-                e.getCheckInStatus()
+                e.getCheckInStatus(),
+                e.getCheckOutStatus()
         );
     }
 
