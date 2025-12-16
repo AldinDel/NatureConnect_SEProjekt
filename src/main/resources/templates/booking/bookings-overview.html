@@ -23,6 +23,7 @@
 
     <h1>Your Bookings</h1>
 
+    <!-- 🔍 CONTROLS -->
     <div class="booking-controls">
 
         <input type="text"
@@ -38,16 +39,16 @@
         </select>
 
         <button class="btn-reset" onclick="resetFilters()">Reset</button>
-    </div>
 
+        <!-- ✅ MOVED HERE -->
+        <button class="toggle-cancelled-btn" onclick="toggleInactive()">
+            Show active bookings
+        </button>
+    </div>
 
     <p th:if="${bookings.size() == 0}" class="no-bookings">
         You don't have any bookings yet
     </p>
-
-    <button class="toggle-cancelled-btn" onclick="toggleInactive()">
-        Show Inactive
-    </button>
 
     <table th:if="${bookings.size() > 0}" class="booking-table">
         <thead>
@@ -135,7 +136,6 @@
             if (filter === "future" && date < today) show = false;
             if (filter === "past" && date > today) show = false;
 
-            // respect inactive toggle
             if (!inactiveVisible && row.classList.contains("row-inactive")) {
                 show = false;
             }
