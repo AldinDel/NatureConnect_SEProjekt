@@ -46,3 +46,24 @@
     font-weight: 600;
     color: #1f7a4f;
 }
+
+.invoice-lines tbody {
+    color: #333;
+}
+
+.invoice-lines tbody tr {
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.invoice-lines tbody tr:nth-child(even) {
+    background: #fafafa;
+}
+
+.invoice-lines tbody td {
+    color: #1f2937;
+    font-size: 15px;
+    vertical-align: middle;
+}
+
+

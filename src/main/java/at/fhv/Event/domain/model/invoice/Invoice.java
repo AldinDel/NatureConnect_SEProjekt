@@ -37,7 +37,8 @@ public class Invoice {
             Long bookingId,
             InvoiceStatus status,
             BigDecimal total,
-            LocalDateTime createdAt
+            LocalDateTime createdAt,
+            List<InvoiceLine> lines
     ) {
         Invoice invoice = new Invoice();
         invoice.id = id;
@@ -46,7 +47,7 @@ public class Invoice {
         invoice.status = status;
         invoice.total = total;
         invoice.createdAt = createdAt;
-        invoice.lines = List.of();
+        invoice.lines = lines;
         return invoice;
     }
 
