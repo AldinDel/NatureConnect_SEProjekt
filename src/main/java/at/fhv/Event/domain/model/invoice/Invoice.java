@@ -32,19 +32,22 @@ public class Invoice {
     }
 
     public static Invoice rehydrate(
+            InvoiceId id,
             Long eventId,
             Long bookingId,
             InvoiceStatus status,
             BigDecimal total,
-            LocalDateTime createdAt
+            LocalDateTime createdAt,
+            List<InvoiceLine> lines
     ) {
         Invoice invoice = new Invoice();
+        invoice.id = id;
         invoice.eventId = eventId;
         invoice.bookingId = bookingId;
         invoice.status = status;
         invoice.total = total;
         invoice.createdAt = createdAt;
-        invoice.lines = List.of();
+        invoice.lines = lines;
         return invoice;
     }
 
@@ -87,4 +90,7 @@ public class Invoice {
         return lines;
     }
 
+    public Long getId() {
+        return id != null ? id.getValue() : null;
+    }
 }

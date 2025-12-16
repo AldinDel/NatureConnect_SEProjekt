@@ -67,6 +67,8 @@ public class InvoicesController {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow();
 
+        model.addAttribute("billingReady", booking.isBillingReady());
+
         boolean eventPriceAlreadyInvoiced =
                 invoiceRepository.existsEventPriceForBooking(bookingId);
 
@@ -96,6 +98,20 @@ public class InvoicesController {
         }
 
         return "event_management/invoices";
+    }
+
+    @GetMapping("/event_management/invoices/view")
+    public String viewInvoice(
+            @RequestParam("invoiceId") Long invoiceId,
+            Model model
+    ) {
+        var invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() ->
+                        new RuntimeException("Invoice not found: " + invoiceId)
+                );
+
+        model.addAttribute("invoice", invoice);
+        return "event_management/invoice_view";
     }
 
     @PostMapping("/event_management/invoices/interim")
