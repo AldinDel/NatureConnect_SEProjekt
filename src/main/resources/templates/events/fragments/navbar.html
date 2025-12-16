@@ -32,7 +32,7 @@
                     </li>
                     <li><a th:href="@{/bookings}" href="/bookings">Bookings</a></li>
 
-                    <li class="nav-item" sec:authorize="hasRole('FRONT')">
+                    <li class="nav-item" sec:authorize="hasAnyRole('FRONT', 'ADMIN')">
                         <a class="nav-link" th:href="@{/event_management}">Event Management</a>
                     </li>
                 </ul>

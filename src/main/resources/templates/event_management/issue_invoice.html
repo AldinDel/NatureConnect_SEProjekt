@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Participants</title>
+
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/issue_invoice.css}">
+</head>
+
+<body class="issue-invoice-page">
+
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
+
+<div class="page-header">
+    <h1>Issue Interim Invoice</h1>
+    <p th:text="'Event ID: ' + ${eventId}"></p>
+</div>
+
+<div class="fo-tabs">
+    <a th:href="@{/event_management/participants(eventId=${eventId})}" class="fo-tab">
+        Check-In
+    </a>
+
+    <a th:href="@{/event_management/checkout(eventId=${eventId})}" class="fo-tab">
+        Check-Out
+    </a>
+
+    <a th:href="@{/event_management/invoices(eventId=${eventId})}"
+       class="fo-tab active">
+        Invoices
+    </a>
+</div>
+
+<div class="table-wrapper">
+    <table class="participants-table">
+        <thead>
+        <tr>
+            <th>Booking ID</th>
+            <th>Booker</th>
+            <th>Participant</th>
+            <th>Age</th>
+            <th>Interim Invoice</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="p : ${participants}">
+            <td th:text="${p.bookingId}"></td>
+            <td th:text="${p.bookerName}"></td>
+            <td th:text="${p.participantName}"></td>
+            <td th:text="${p.participantAge}"></td>
+
+            <td>
+                <a class="btn invoice-btn"
+                   th:href="@{/event_management/invoices/issue(bookingId=${p.bookingId})}">
+                    Issue interim invoice
+                </a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>

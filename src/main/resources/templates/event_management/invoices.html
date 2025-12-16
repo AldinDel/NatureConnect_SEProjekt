@@ -8,7 +8,7 @@
     <link rel="stylesheet" th:href="@{/css/event-management-invoices.css}">
 </head>
 
-<body class="event_management">
+<body class="invoices">
 
 <div th:replace="~{events/fragments/navbar :: navbar}"></div>
 
@@ -23,7 +23,7 @@
     </div>
 
     <!-- ===================== -->
-    <!-- INVOICE LIST (OBEN) -->
+    <!-- INVOICE LIST -->
     <!-- ===================== -->
     <div class="invoice-list"
          th:if="${invoices != null && !invoices.isEmpty()}">
@@ -50,10 +50,8 @@
                 </td>
 
                 <td th:text="${invoice.total} + ' €'">0.00 €</td>
-                <td th:text="${#temporals.format(invoice.createdAt, 'dd.MM.yyyy')}">
-                </td>
-                <td th:text="${#temporals.format(invoice.createdAt, 'HH:mm')}">
-                </td>
+                <td th:text="${#temporals.format(invoice.createdAt, 'dd.MM.yyyy')}"></td>
+                <td th:text="${#temporals.format(invoice.createdAt, 'HH:mm')}"></td>
             </tr>
             </tbody>
         </table>
@@ -71,13 +69,33 @@
           th:action="@{/event_management/invoices/interim}"
           method="post">
 
-        <input type="hidden" name="eventId" th:value="${eventId}"/>
+        <input type="hidden" name="bookingId" th:value="${bookingId}"/>
 
         <h3>Create Interim Invoice</h3>
 
         <div class="services-list">
-            <div th:each="service : ${services}" class="service-item">
+
+            <!-- Event base price -->
+            <div th:if="${includeEventPrice}" class="service-item event-base">
                 <label>
+                    <input type="checkbox"
+                           class="service-checkbox event-price-checkbox"
+                           name="includeEventPrice"
+                           value="true"
+                           checked
+                           th:data-price="${eventPrice}"/>
+
+                    <span class="service-name">Event base price</span>
+                    <span class="service-price"
+                          th:text="${eventPrice} + ' €'"></span>
+                </label>
+            </div>
+
+            <hr class="service-divider"/>
+
+            <!-- Equipment -->
+            <div th:each="service : ${services}" class="service-item">
+            <label>
                     <input type="checkbox"
                            class="service-checkbox"
                            name="equipmentIds"
@@ -89,6 +107,7 @@
                           th:text="${service.unitPrice} + ' €'"></span>
                 </label>
             </div>
+
         </div>
 
         <div class="invoice-summary">
@@ -151,6 +170,16 @@
     checkboxes.forEach(cb =>
         cb.addEventListener("change", recalculate)
     );
+
+    recalculate();
+
+    setTimeout(() => {
+        const msg = document.querySelector('.success-message');
+        if (msg) {
+            msg.style.opacity = '0';
+            setTimeout(() => msg.remove(), 300);
+        }
+    }, 3000);
 </script>
 
 </body>
