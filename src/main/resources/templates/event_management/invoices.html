@@ -18,12 +18,11 @@
         <div th:if="${successMessage}" class="success-message">
             <span th:text="${successMessage}"></span>
         </div>
-
         <h1>Invoices</h1>
     </div>
 
     <!-- ===================== -->
-    <!-- INVOICE LIST -->
+    <!-- INVOICE LIST (RESTORED) -->
     <!-- ===================== -->
     <div class="invoice-list"
          th:if="${invoices != null && !invoices.isEmpty()}">
@@ -41,7 +40,7 @@
             </thead>
             <tbody>
             <tr th:each="invoice : ${invoices}">
-                <td th:text="${invoice.bookingId}">1</td>
+                <td th:text="${invoice.bookingId}"></td>
 
                 <td>
                     <span class="status-badge"
@@ -50,7 +49,7 @@
                     </span>
                 </td>
 
-                <td th:text="${invoice.total} + ' €'">0.00 €</td>
+                <td th:text="${invoice.total} + ' €'"></td>
                 <td th:text="${#temporals.format(invoice.createdAt, 'dd.MM.yyyy')}"></td>
                 <td th:text="${#temporals.format(invoice.createdAt, 'HH:mm')}"></td>
 
@@ -75,11 +74,24 @@
     <!-- ===================== -->
     <form class="interim-form"
           th:action="@{/event_management/invoices/interim}"
-          method="post">
+          method="post"
+          id="invoiceForm">
 
         <input type="hidden" name="bookingId" th:value="${bookingId}"/>
 
         <h3>Create Interim Invoice</h3>
+
+        <!-- Billing not ready -->
+        <div class="info-box warning"
+             th:if="${!billingReady}">
+            Billing is not ready yet. Checkout must be completed first.
+        </div>
+
+        <!-- Nothing left to invoice -->
+        <div class="info-box info"
+             th:if="${billingReady && services.isEmpty() && !includeEventPrice}">
+            All services have already been invoiced.
+        </div>
 
         <div class="services-list">
 
@@ -87,7 +99,7 @@
             <div th:if="${includeEventPrice}" class="service-item event-base">
                 <label>
                     <input type="checkbox"
-                           class="service-checkbox event-price-checkbox"
+                           class="service-checkbox"
                            name="includeEventPrice"
                            value="true"
                            checked
@@ -103,7 +115,7 @@
 
             <!-- Equipment -->
             <div th:each="service : ${services}" class="service-item">
-            <label>
+                <label>
                     <input type="checkbox"
                            class="service-checkbox"
                            name="equipmentIds"
@@ -115,7 +127,6 @@
                           th:text="${service.unitPrice} + ' €'"></span>
                 </label>
             </div>
-
         </div>
 
         <div class="invoice-summary">
@@ -123,61 +134,69 @@
                 <span>Subtotal</span>
                 <span id="subtotal">0.00 €</span>
             </div>
-
             <div class="summary-row">
                 <span>Tax (20%)</span>
                 <span id="tax">0.00 €</span>
             </div>
-
             <div class="summary-row total">
                 <span>Total</span>
                 <span id="total">0.00 €</span>
             </div>
         </div>
 
+        <!-- Button logic -->
         <button class="btn primary"
                 type="submit"
                 id="createInvoiceBtn"
-                disabled>
+                th:disabled="${services.isEmpty() && !includeEventPrice}"
+                th:title="${services.isEmpty() && !includeEventPrice
+                   ? 'All services have already been invoiced'
+                   : ''}">
             Create Interim Invoice
         </button>
     </form>
 
 </div>
 
-<script>
+<!-- ===================== -->
+<!-- ERROR TOAST -->
+<!-- ===================== -->
+<div id="errorToast" class="error-toast" style="display:none;">
+    This booking is not ready for billing. Please complete checkout first.
+</div>
+
+<script th:inline="javascript">
     const TAX_RATE = 0.20;
+    const BILLING_READY = [[${billingReady}]];
 
     const checkboxes = document.querySelectorAll(".service-checkbox");
     const subtotalEl = document.getElementById("subtotal");
     const taxEl = document.getElementById("tax");
     const totalEl = document.getElementById("total");
-    const submitBtn = document.getElementById("createInvoiceBtn");
+    const form = document.getElementById("invoiceForm");
+    const toast = document.getElementById("errorToast");
 
     function recalculate() {
         let subtotal = 0;
-        let anyChecked = false;
-
         checkboxes.forEach(cb => {
-            if (cb.checked) {
-                subtotal += parseFloat(cb.dataset.price);
-                anyChecked = true;
-            }
+            if (cb.checked) subtotal += parseFloat(cb.dataset.price);
         });
 
         const tax = subtotal * TAX_RATE;
-        const total = subtotal + tax;
-
         subtotalEl.textContent = subtotal.toFixed(2) + " €";
         taxEl.textContent = tax.toFixed(2) + " €";
-        totalEl.textContent = total.toFixed(2) + " €";
-
-        submitBtn.disabled = !anyChecked;
+        totalEl.textContent = (subtotal + tax).toFixed(2) + " €";
     }
 
-    checkboxes.forEach(cb =>
-        cb.addEventListener("change", recalculate)
-    );
+    checkboxes.forEach(cb => cb.addEventListener("change", recalculate));
+
+    form.addEventListener("submit", e => {
+        if (!BILLING_READY) {
+            e.preventDefault();
+            toast.style.display = "block";
+            setTimeout(() => toast.style.display = "none", 3500);
+        }
+    });
 
     recalculate();
 
@@ -185,7 +204,8 @@
         const msg = document.querySelector('.success-message');
         if (msg) {
             msg.style.opacity = '0';
-            setTimeout(() => msg.remove(), 300);
+            msg.style.transition = 'opacity 0.4s ease';
+            setTimeout(() => msg.remove(), 400);
         }
     }, 3000);
 </script>

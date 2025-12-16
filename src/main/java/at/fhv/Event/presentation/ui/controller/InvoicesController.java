@@ -67,6 +67,8 @@ public class InvoicesController {
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow();
 
+        model.addAttribute("billingReady", booking.isBillingReady());
+
         boolean eventPriceAlreadyInvoiced =
                 invoiceRepository.existsEventPriceForBooking(bookingId);
 

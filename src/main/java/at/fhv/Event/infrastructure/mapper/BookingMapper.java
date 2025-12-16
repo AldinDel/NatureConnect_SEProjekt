@@ -31,6 +31,7 @@ public class BookingMapper {
         entity.setPaidAmount(domain.getPaidAmount());
         entity.setSpecialNotes(domain.getSpecialNotes());
         entity.setCreatedAt(domain.getCreatedAt() != null ? domain.getCreatedAt() : java.time.Instant.now());
+        entity.setBillingReady(domain.isBillingReady());
 
         if (domain.getParticipants() != null) {
             var participantEntities = domain.getParticipants().stream()
@@ -97,6 +98,7 @@ public class BookingMapper {
         domain.setId(entity.getId());
         domain.setCreatedAt(entity.getCreatedAt());
         domain.setPaidAmount(entity.getPaidAmount() == null ? 0.0 : entity.getPaidAmount());
+        domain.setBillingReady(entity.isBillingReady());
 
 
         if (entity.getParticipants() != null) {
@@ -155,6 +157,7 @@ public class BookingMapper {
         entity.setDiscountAmount(domain.getDiscountAmount());
         entity.setTotalPrice(domain.getTotalPrice());
         entity.setSpecialNotes(domain.getSpecialNotes());
+        entity.setBillingReady(domain.isBillingReady());
 
         entity.getParticipants().clear();
         if (domain.getParticipants() != null) {
