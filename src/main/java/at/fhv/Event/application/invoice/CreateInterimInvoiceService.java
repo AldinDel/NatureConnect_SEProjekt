@@ -2,7 +2,6 @@ package at.fhv.Event.application.invoice;
 
 import at.fhv.Event.domain.model.booking.Booking;
 import at.fhv.Event.domain.model.booking.BookingRepository;
-import at.fhv.Event.domain.model.booking.ParticipantStatus;
 import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.domain.model.event.EventRepository;
 import at.fhv.Event.domain.model.invoice.Invoice;
