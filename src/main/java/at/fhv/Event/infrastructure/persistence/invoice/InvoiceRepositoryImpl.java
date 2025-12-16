@@ -1,6 +1,7 @@
 package at.fhv.Event.infrastructure.persistence.invoice;
 
 import at.fhv.Event.domain.model.invoice.Invoice;
+import at.fhv.Event.domain.model.invoice.InvoiceId;
 import at.fhv.Event.domain.model.invoice.InvoiceRepository;
 import at.fhv.Event.domain.model.invoice.InvoiceStatus;
 import org.springframework.stereotype.Repository;
@@ -79,6 +80,7 @@ public class InvoiceRepositoryImpl implements InvoiceRepository {
 
     private Invoice mapToDomain(InvoiceJpaEntity entity) {
         return Invoice.rehydrate(
+                InvoiceId.of(entity.getId()),
                 entity.getEventId(),
                 entity.getBookingId(),
                 InvoiceStatus.valueOf(entity.getStatus()),

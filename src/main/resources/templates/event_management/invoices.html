@@ -36,6 +36,7 @@
                 <th>Total</th>
                 <th>Date</th>
                 <th>Time</th>
+                <th>Action</th>
             </tr>
             </thead>
             <tbody>
@@ -52,6 +53,13 @@
                 <td th:text="${invoice.total} + ' €'">0.00 €</td>
                 <td th:text="${#temporals.format(invoice.createdAt, 'dd.MM.yyyy')}"></td>
                 <td th:text="${#temporals.format(invoice.createdAt, 'HH:mm')}"></td>
+
+                <td>
+                    <a class="invoice-link"
+                       th:href="@{/event_management/invoices/view(invoiceId=${invoice.id})}">
+                        View invoice
+                    </a>
+                </td>
             </tr>
             </tbody>
         </table>

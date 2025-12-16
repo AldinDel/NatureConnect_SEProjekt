@@ -195,3 +195,14 @@
     margin: 0.8rem 0;
 }
 
+.invoice-link {
+    color: #0b2545;
+    font-weight: 500;
+    text-decoration: underline;
+}
+
+.invoice-link:hover {
+    color: #1f7a4f;
+}
+
+
