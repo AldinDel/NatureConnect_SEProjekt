@@ -15,4 +15,5 @@ public interface InvoiceRepository {
 
     List<Invoice> findByEventId(Long eventId);
 
+    boolean existsEventPriceForBooking(Long bookingId);
 }

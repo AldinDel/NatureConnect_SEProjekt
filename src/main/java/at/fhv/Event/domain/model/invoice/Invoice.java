@@ -82,4 +82,9 @@ public class Invoice {
     public void setStatus(InvoiceStatus status) {
         this.status = status;
     }
+
+    public List<InvoiceLine> getLines() {
+        return lines;
+    }
+
 }
