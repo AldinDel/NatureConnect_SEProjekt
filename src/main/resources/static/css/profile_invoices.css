@@ -1,0 +1,138 @@
+/* =========================================================
+   INVOICES – FINAL FIX (TABLE + LAYOUT)
+========================================================= */
+
+/* ---------- Force correct text color ---------- */
+body.profile-page {
+    color: #111827;
+}
+
+/* ---------- Scope ---------- */
+.invoices-scope {
+    margin-top: 16px;
+}
+
+/* ---------- WHITE BADGE (EXAKT wie Personal Info) ---------- */
+.invoice-card {
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow: 0 16px 40px rgba(0,0,0,0.08);
+
+    max-width: 900px;
+    margin: 0 auto;              /* 🔥 DAS FEHLTE */
+    padding: 32px;
+}
+
+/* ---------- TABLE RESET (kills profile.css shit) ---------- */
+.invoice-card table {
+    width: 100% !important;
+    border-collapse: separate !important;
+    border-spacing: 0 !important;
+    background: transparent !important;
+}
+
+/* ---------- HEADER (FORCED) ---------- */
+.invoice-card thead th {
+    background: #0b2545 !important;
+    color: #ffffff !important;
+
+    padding: 14px 16px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    text-align: left;
+}
+
+/* Rounded header */
+.invoice-card thead th:first-child {
+    border-top-left-radius: 12px;
+}
+.invoice-card thead th:last-child {
+    border-top-right-radius: 12px;
+}
+
+/* ---------- ROWS ---------- */
+.invoice-card tbody tr {
+    background: #ffffff !important;
+}
+
+.invoice-card tbody tr:nth-child(even) {
+    background: #f9fafb !important;
+}
+
+.invoice-card tbody tr:hover {
+    background: #f1f5f9 !important;
+}
+
+/* ---------- CELLS ---------- */
+.invoice-card td {
+    padding: 14px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: middle;
+    font-weight: 500;
+}
+
+.invoice-card tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ---------- TEXT ---------- */
+.event-title {
+    font-weight: 600;
+}
+
+.price {
+    font-weight: 600;
+}
+
+.remaining {
+    color: #dc2626;
+    font-weight: 600;
+}
+
+/* ---------- STATUS BADGES ---------- */
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.badge.paid {
+    background: #e7f8ee;
+    color: #15803d;
+}
+
+.badge.partial {
+    background: #fff7ed;
+    color: #b45309;
+}
+
+.badge.unpaid {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* ---------- ACTION BUTTON ---------- */
+.primary-btn {
+    background: #2563eb;
+    color: #ffffff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 999px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.primary-btn:hover {
+    background: #1d4ed8;
+}
+
+/* ---------- PAID TEXT ---------- */
+.paid-check {
+    color: #15803d;
+    font-weight: 600;
+}

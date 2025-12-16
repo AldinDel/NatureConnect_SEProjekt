@@ -14,7 +14,7 @@ import java.security.Principal;
 import java.util.List;
 
 @Controller
-@RequestMapping("/invoices")
+@RequestMapping("/profile/invoices")
 public class InvoiceController {
 
     private final GetUserBookingsService userBookingsService;
@@ -48,12 +48,12 @@ public class InvoiceController {
                     .toList();
 
             model.addAttribute("bookings", bookingDTOs);
-            return "invoice/my_invoices";
+            return "profile/my_invoices";
         } catch (Exception e) {
             e.printStackTrace();
             model.addAttribute("error", "Error loading invoices: " + e.getMessage());
             model.addAttribute("bookings", List.of());
-            return "invoice/my_invoices";
+            return "profile/my_invoices";
         }
     }
 
@@ -64,7 +64,8 @@ public class InvoiceController {
             RedirectAttributes redirectAttributes) {
 
         if (principal == null) {
-            return "redirect:/login";
+            return "redirect:/profile/invoices";
+
         }
 
         try {
@@ -74,7 +75,8 @@ public class InvoiceController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
 
-        return "redirect:/invoices";
+        return "redirect:/profile/invoices";
+
     }
 
     @PostMapping("/{bookingId}/split/equipment")
@@ -91,7 +93,8 @@ public class InvoiceController {
         try {
             if (equipmentIds == null || equipmentIds.isEmpty()) {
                 redirectAttributes.addFlashAttribute("error", "Please select at least one item to pay");
-                return "redirect:/invoices";
+                return "redirect:/profile/invoices";
+
             }
 
             splitInvoiceService.paySelectedEquipment(bookingId, principal.getName(), equipmentIds);
@@ -100,7 +103,8 @@ public class InvoiceController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
 
-        return "redirect:/invoices";
+        return "redirect:/profile/invoices";
+
     }
 
     @PostMapping("/{bookingId}/pay-remaining")
@@ -120,6 +124,7 @@ public class InvoiceController {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
 
-        return "redirect:/invoices";
+        return "redirect:/profile/invoices";
+
     }
 }
