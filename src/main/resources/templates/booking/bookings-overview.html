@@ -23,6 +23,24 @@
 
     <h1>Your Bookings</h1>
 
+    <div class="booking-controls">
+
+        <input type="text"
+               id="bookingSearch"
+               placeholder="Search your bookings..."
+               onkeyup="filterBookings()">
+
+        <select id="bookingFilter" onchange="filterBookings()">
+            <option value="all">All dates</option>
+            <option value="today">Today</option>
+            <option value="future">Future</option>
+            <option value="past">Past</option>
+        </select>
+
+        <button class="btn-reset" onclick="resetFilters()">Reset</button>
+    </div>
+
+
     <p th:if="${bookings.size() == 0}" class="no-bookings">
         You don't have any bookings yet
     </p>
@@ -96,8 +114,48 @@
         });
 
         const btn = document.querySelector(".toggle-cancelled-btn");
-        btn.innerText = inactiveVisible ? "Hide Inactive Bookings" : "Show Inactive Bookings";
+        btn.innerText = inactiveVisible ? "Hide inactive bookings" : "Show active bookings";
         btn.classList.toggle("active", inactiveVisible);
+    }
+
+    function filterBookings() {
+        const search = document.getElementById("bookingSearch").value.toLowerCase();
+        const filter = document.getElementById("bookingFilter").value;
+        const rows = document.querySelectorAll(".booking-table tbody tr");
+
+        const today = new Date().toISOString().slice(0, 10);
+
+        rows.forEach(row => {
+            const event = row.children[0].innerText.toLowerCase();
+            const date = row.children[1].innerText;
+
+            let show = event.includes(search);
+
+            if (filter === "today" && date !== today) show = false;
+            if (filter === "future" && date < today) show = false;
+            if (filter === "past" && date > today) show = false;
+
+            // respect inactive toggle
+            if (!inactiveVisible && row.classList.contains("row-inactive")) {
+                show = false;
+            }
+
+            row.style.display = show ? "" : "none";
+        });
+    }
+
+    function resetFilters() {
+        document.getElementById("bookingSearch").value = "";
+        document.getElementById("bookingFilter").value = "all";
+
+        const rows = document.querySelectorAll(".booking-table tbody tr");
+        rows.forEach(row => {
+            if (!inactiveVisible && row.classList.contains("row-inactive")) {
+                row.style.display = "none";
+            } else {
+                row.style.display = "";
+            }
+        });
     }
 </script>
 

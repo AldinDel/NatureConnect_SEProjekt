@@ -46,8 +46,8 @@
 
         <!-- SORT -->
         <select id="bookingSort" onchange="sortBookings()">
-            <option value="date_desc">Newest first</option>
-            <option value="date_asc">Oldest first</option>
+            <option value="date_desc">Latest first</option>
+            <option value="date_asc">Earliest first</option>
             <option value="price_asc">Price ↑</option>
             <option value="price_desc">Price ↓</option>
             <option value="event_asc">Event ↑</option>
@@ -96,7 +96,9 @@
             <td th:text="${#dates.format(b.createdAt, 'HH:mm')}"></td>
             <td th:text="${b.seats}"></td>
 
-            <td>€ <span th:text="${b.totalPrice}"></span></td>
+            <td>
+                <span th:text="${#numbers.formatDecimal(b.totalPrice, 1, 2, 'COMMA')} + ' €'"></span>
+            </td>
 
             <td class="actions" sec:authorize="hasRole('ADMIN')">
                 <!-- Edit -->
@@ -215,7 +217,7 @@
         });
 
         const btn = document.querySelector(".btn-toggle-cancelled");
-        btn.innerText = adminInactiveVisible ? "Hide Inactive Bookings" : "Show Inactive Bookings";
+        btn.innerText = adminInactiveVisible ? "Hide inactive bookings" : "Show active bookings";
         btn.classList.toggle("active", adminInactiveVisible);
     }
 
