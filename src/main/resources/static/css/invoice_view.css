@@ -1,0 +1,69 @@
+.invoice-view-container {
+    max-width: 900px;
+    margin: 2.5rem auto;
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+}
+
+.invoice-view-container h1 {
+    color: #0b2545;
+    margin-bottom: 1rem;
+}
+
+.invoice-meta {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1.5rem;
+    color: #333;
+}
+
+.invoice-lines {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+}
+
+.invoice-lines thead {
+    background-color: #0b2545;
+}
+
+.invoice-lines thead th {
+    color: white;
+    padding: 0.8rem;
+    text-align: left;
+}
+
+.invoice-lines td {
+    padding: 0.8rem;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.invoice-total {
+    text-align: right;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: #1f7a4f;
+}
+
+.invoice-lines tbody {
+    color: #333;
+}
+
+.invoice-lines tbody tr {
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.invoice-lines tbody tr:nth-child(even) {
+    background: #fafafa;
+}
+
+.invoice-lines tbody td {
+    color: #1f2937;
+    font-size: 15px;
+    vertical-align: middle;
+}
+
+

@@ -1,9 +1,11 @@
 package at.fhv.Event.infrastructure.persistence.invoice;
 
 import at.fhv.Event.domain.model.invoice.Invoice;
+import at.fhv.Event.domain.model.invoice.InvoiceId;
 import at.fhv.Event.domain.model.invoice.InvoiceRepository;
 import at.fhv.Event.domain.model.invoice.InvoiceStatus;
 import org.springframework.stereotype.Repository;
+import at.fhv.Event.domain.model.invoice.InvoiceLine;
 
 import java.util.List;
 import java.util.Optional;
@@ -78,12 +80,28 @@ public class InvoiceRepositoryImpl implements InvoiceRepository {
     }
 
     private Invoice mapToDomain(InvoiceJpaEntity entity) {
+
+        List<InvoiceLine> lines =
+                itemJpa.findByInvoice_Id(entity.getId())
+                        .stream()
+                        .map(item -> new InvoiceLine(
+                                item.getEquipmentId(),
+                                item.getEquipmentId() == null
+                                        ? "Event base price"
+                                        : "Equipment " + item.getEquipmentId(),
+                                item.getQuantity(),
+                                item.getUnitPrice()
+                        ))
+                        .toList();
+
         return Invoice.rehydrate(
+                InvoiceId.of(entity.getId()),
                 entity.getEventId(),
                 entity.getBookingId(),
                 InvoiceStatus.valueOf(entity.getStatus()),
                 entity.getTotal(),
-                entity.getCreatedAt()
+                entity.getCreatedAt(),
+                lines
         );
     }
 
