@@ -51,6 +51,12 @@ public class CreateInterimInvoiceService {
                         new RuntimeException("Booking not found: " + bookingId)
                 );
 
+        if (!booking.isBillingReady()) {
+            throw new RuntimeException(
+                    "Billing is not allowed before checkout is completed"
+            );
+        }
+
         Event event = eventRepository.findById(booking.getEventId())
                 .orElseThrow(() ->
                         new RuntimeException("Event not found: " + booking.getEventId())

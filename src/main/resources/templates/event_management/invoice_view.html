@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Invoices</title>
+    <title>Invoice</title>
 
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
@@ -9,3 +9,64 @@
 </head>
 
 <body class="invoice_view">
+
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
+
+<div class="invoice-view-container">
+
+    <h1 th:text="'Invoice #' + ${invoice.id}"></h1>
+
+    <div class="invoice-meta">
+        <p>
+            <strong>Status:</strong>
+            <span th:text="${invoice.status}"></span>
+        </p>
+
+        <p>
+            <strong>Date:</strong>
+            <span th:text="${#temporals.format(invoice.createdAt, 'dd.MM.yyyy')}"></span>
+        </p>
+
+        <p>
+            <strong>Time:</strong>
+            <span th:text="${#temporals.format(invoice.createdAt, 'HH:mm')}"></span>
+        </p>
+    </div>
+
+    <table class="invoice-lines">
+        <thead>
+        <tr>
+            <th>Description</th>
+            <th>Quantity</th>
+            <th>Unit price</th>
+            <th>Total</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <!-- Fallback wenn noch keine Lines geladen sind -->
+        <tr th:if="${invoice.lines == null || invoice.lines.isEmpty()}">
+            <td colspan="4" style="text-align:center; opacity:0.6;">
+                No invoice items available
+            </td>
+        </tr>
+
+        <!-- Invoice Lines -->
+        <tr th:each="line : ${invoice.lines}">
+            <td th:text="${line.description}"></td>
+            <td th:text="${line.quantity}"></td>
+            <td th:text="${line.unitPrice} + ' €'"></td>
+            <td th:text="${line.total} + ' €'"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="invoice-total">
+        <strong>Total:</strong>
+        <span th:text="${invoice.total} + ' €'"></span>
+    </div>
+
+</div>
+
+</body>
+</html>
