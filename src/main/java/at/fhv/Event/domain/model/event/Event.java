@@ -1,6 +1,7 @@
 package at.fhv.Event.domain.model.event;
 
 import at.fhv.Event.domain.model.equipment.EventEquipment;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -23,9 +24,10 @@ public class Event {
     private BigDecimal price;
     private String imageUrl;
     private EventAudience audience;
-
     private Boolean cancelled = false;
     private List<EventEquipment> eventEquipments;
+    private List<String> hikeRouteKeys;
+
 
     public Event(Long id,
                  String title,
@@ -42,7 +44,8 @@ public class Event {
                  BigDecimal price,
                  String imageUrl,
                  EventAudience audience,
-                 List<EventEquipment> eventEquipments) {
+                 List<EventEquipment> eventEquipments,
+                 List<String> hikeRouteKeys) {
 
         this.id = id;
         this.title = title;
@@ -59,6 +62,7 @@ public class Event {
         this.price = price;
         this.imageUrl = imageUrl;
         this.eventEquipments = eventEquipments;
+        this.hikeRouteKeys = (hikeRouteKeys == null) ? List.of() : hikeRouteKeys;
         this.cancelled = false;
         this.audience = audience;
     }
@@ -198,4 +202,13 @@ public class Event {
     public void setEventEquipments(List<EventEquipment> eventEquipments) {
         this.eventEquipments = eventEquipments;
     }
+
+    public List<String> getHikeRouteKeys() {
+        return hikeRouteKeys;
+    }
+
+    public void setHikeRouteKeys(List<String> hikeRouteKeys) {
+        this.hikeRouteKeys = (hikeRouteKeys == null) ? List.of() : hikeRouteKeys;
+    }
+
 }

@@ -86,7 +86,8 @@ public class CreateEventService {
                 req.getPrice(),
                 req.getImageUrl(),
                 EventAudience.valueOf(req.getAudience()),
-                ees
+                ees,
+                req.getHikeRouteKeys()
         );
 
         eventRepository.save(domain);

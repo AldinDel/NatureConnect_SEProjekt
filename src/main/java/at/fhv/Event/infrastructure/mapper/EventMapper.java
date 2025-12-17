@@ -52,7 +52,8 @@ public class EventMapper {
                 e.getPrice(),
                 e.getImageUrl(),
                 e.getAudience(),
-                equipments
+                equipments,
+                e.getHikeRouteKeys()
         );
 
         event.setCancelled(e.getCancelled() != null ? e.getCancelled() : false);
@@ -90,6 +91,9 @@ public class EventMapper {
         e.setImageUrl(domain.getImageUrl());
         e.setCancelled(domain.getCancelled());
         e.setAudience(domain.getAudience());
+        e.getHikeRouteKeys().clear();
+        if (domain.getHikeRouteKeys() != null) {
+            e.getHikeRouteKeys().addAll(domain.getHikeRouteKeys());}
 
         var eeEntities = domain.getEventEquipments().stream()
                 .map(domEE -> {

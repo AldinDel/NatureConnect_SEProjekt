@@ -18,35 +18,155 @@
             padding: 0 16px;
             margin-top: 120px; /* Abstand für die Navbar */
         }
-        .event-form-title { font-size: 28px; font-weight: 700; color: #fff; margin: 0 0 18px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-        .event-form-hr { height: 1px; background: rgba(255,255,255,0.3); border: 0; margin: 0 0 28px; }
 
-        .event-form {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 24px 40px;
-            background: rgba(255,255,255,0.95);
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        .event-form-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #fff;
+            margin: 0 0 18px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
         }
 
-        .form-group { display: flex; flex-direction: column; gap: 8px; }
-        .form-label { font-size: 14px; color: #1c2a3a; font-weight: 600; }
-        .form-input, .form-select, .form-textarea { width: 100%; background: #fff; border: 1px solid #d7dbe2; border-radius: 8px; padding: 10px 12px; font-size: 14px; color: #1b1b1b; outline: none; }
-        .form-textarea { min-height: 110px; resize: vertical; }
-        .form-span-2 { grid-column: 1 / -1; }
+        .event-form-hr {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.3);
+            border: 0;
+            margin: 0 0 28px;
+        }
 
-        .photo-card { background: #f4f5f7; border: 1px solid #d7dbe2; border-radius: 10px; min-height: 180px; display: flex; align-items: center; justify-content: center; color: #9aa4b2; overflow: hidden; position: relative; padding: 12px; }
-        .photo-card img { max-width: 100%; max-height: 300px; object-fit: contain; border-radius: 6px; }
+        .event-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px 40px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
 
-        .upload-btn { margin-top: 12px; padding: 8px 14px; border-radius: 999px; background: #0f2740; color: #fff; border: none; cursor: pointer; width: 100%; }
-        .upload-btn:hover { background: #1a3a5c; }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
 
-        .form-actions { grid-column: 1/-1; display: flex; gap: 15px; margin-top: 10px; justify-content: center; }
+        .form-label {
+            font-size: 14px;
+            color: #1c2a3a;
+            font-weight: 600;
+        }
 
-        .equipment-item { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; background: #f9fafb; padding: 8px; border-radius: 6px; border: 1px solid #eee; }
-        .remove-equipment { background: none; border: none; color: #dc2626; font-weight: bold; cursor: pointer; font-size: 16px; }
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            background: #fff;
+            border: 1px solid #d7dbe2;
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 14px;
+            color: #1b1b1b;
+            outline: none;
+        }
 
-        .time-inputs { display: flex; gap: 10px; align-items: center; }
+        .form-textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        .form-span-2 {
+            grid-column: 1 / -1;
+        }
+
+        .photo-card {
+            background: #f4f5f7;
+            border: 1px solid #d7dbe2;
+            border-radius: 10px;
+            min-height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #9aa4b2;
+            overflow: hidden;
+            position: relative;
+            padding: 12px;
+        }
+
+        .photo-card img {
+            max-width: 100%;
+            max-height: 300px;
+            object-fit: contain;
+            border-radius: 6px;
+        }
+
+        .upload-btn {
+            margin-top: 12px;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: #0f2740;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .upload-btn:hover {
+            background: #1a3a5c;
+        }
+
+        .hike-btn {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            background: #1a3a5c;
+            color: #fff;
+            border: none;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            width: auto;
+        }
+        .hike-btn:hover { filter: brightness(1.05); }
+
+        /* modal action buttons */
+        .modal-btn { padding: 8px 14px; border-radius: 8px; font-weight:600; border:1px solid transparent; cursor:pointer; }
+        .btn-cancel { background: #f3f4f6; color:#111; border-color: #e5e7eb; }
+        .btn-cancel:hover { background:#e9ecef; }
+        .btn-apply { background: #0f2740; color: white; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; }
+        .btn-apply:hover { filter:brightness(1.04); }
+
+        .form-actions {
+            grid-column: 1/-1;
+            display: flex;
+            gap: 15px;
+            margin-top: 10px;
+            justify-content: center;
+        }
+
+        .equipment-item {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 8px;
+            background: #f9fafb;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #eee;
+        }
+
+        .remove-equipment {
+            background: none;
+            border: none;
+            color: #dc2626;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .time-inputs {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
 
         .popup-message {
             position: fixed;
@@ -56,7 +176,7 @@
             color: white;
             padding: 14px 22px;
             border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
             font-size: 15px;
             font-weight: 600;
             z-index: 9999;
@@ -67,9 +187,92 @@
         .popup-message.error {
             background: #e74c3c;
         }
+
         .popup-hide {
             opacity: 0;
         }
+
+        .nc-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+        }
+
+        .nc-modal-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+        }
+
+        .nc-modal-panel {
+            position: relative;
+            max-width: 720px;
+            margin: 8vh auto;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+        }
+
+        .nc-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 14px 16px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .nc-modal-body {
+            padding: 14px 16px;
+            max-height: 55vh;
+            overflow: auto;
+        }
+
+        .nc-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding: 14px 16px;
+            border-top: 1px solid #eee;
+        }
+
+        .nc-modal-close {
+            border: 0;
+            background: transparent;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .nc-modal-panel {
+            color: #111;
+        }
+
+        .nc-modal-panel label {
+            color: #111;
+        }
+
+        .nc-modal-panel .route-sub {
+            color: #555;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .hike-btn {
+            background: #0f2740;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .hike-btn:hover {
+            background: #1a3a5c;
+        }
+
+
     </style>
 </head>
 
@@ -101,7 +304,8 @@
             </div>
             <input type="file" name="photo" id="photo" accept="image/*" style="display:none">
             <input type="hidden" name="imageUrl" id="imageUrl" th:value="${event.imageUrl}">
-            <button type="button" class="upload-btn" onclick="document.getElementById('photo').click()">Upload Photo</button>
+            <button type="button" class="upload-btn" onclick="document.getElementById('photo').click()">Upload Photo
+            </button>
         </div>
 
         <!-- Titel -->
@@ -128,7 +332,34 @@
                 <option value="Kayaking">Kayaking</option>
                 <option value="Wildlife Tour">Wildlife Tour</option>
             </select>
+
+            <button type="button" id="openHikeRoutes" class="hike-btn" aria-controls="hikeRoutesModal" title="Select hiking routes">Select hiking routes</button>
         </div>
+
+
+        <!-- Modal (Skeleton) -->
+        <div id="hikeRoutesModal" class="nc-modal" style="display:none;">
+            <div class="nc-modal-backdrop" id="hikeRoutesModalBackdrop"></div>
+
+            <div class="nc-modal-panel" role="dialog" aria-modal="true" aria-labelledby="hikeRoutesModalTitle">
+                <div class="nc-modal-header">
+                    <div id="hikeRoutesModalTitle" style="font-size:16px; font-weight:700;">Select hiking routes</div>
+                    <button type="button" id="closeHikeRoutesModal" class="nc-modal-close">✕</button>
+                </div>
+
+                <div class="nc-modal-body">
+                    <div id="hikeRoutesList">
+                        <!-- JS lädt später /api/hiking/routes und rendert Checkboxen -->
+                    </div>
+                </div>
+
+                <div class="nc-modal-actions">
+                    <button type="button" id="cancelHikeRoutesModal" class="modal-btn btn-cancel" aria-label="Cancel selection">Cancel</button>
+                    <button type="button" id="applyHikeRoutesModal" class="modal-btn btn-apply" aria-label="Apply selection">Apply</button>
+                </div>
+            </div>
+        </div>
+
 
         <!-- Beschreibung -->
         <div class="form-group form-span-2">
@@ -144,7 +375,8 @@
         <div class="form-group">
             <label class="form-label">Time:</label>
             <div class="time-inputs">
-                <input id="startTime" name="startTime" type="time" th:value="${event.startTime}" class="form-input" required>
+                <input id="startTime" name="startTime" type="time" th:value="${event.startTime}" class="form-input"
+                       required>
                 <span>to</span>
                 <input id="endTime" name="endTime" type="time" th:value="${event.endTime}" class="form-input" required>
             </div>
@@ -167,18 +399,23 @@
         <!-- Teilnehmer -->
         <div class="form-group">
             <label class="form-label">Min participants:</label>
-            <input id="minParticipants" name="minParticipants" type="number" min="1" th:field="*{minParticipants}" class="form-input" required>
+            <input id="minParticipants" name="minParticipants" type="number" min="1" th:field="*{minParticipants}"
+                   class="form-input" required>
         </div>
         <div class="form-group">
             <label class="form-label">Max participants:</label>
-            <input id="maxParticipants" name="maxParticipants" type="number" min="1" th:field="*{maxParticipants}" class="form-input" required>
+            <input id="maxParticipants" name="maxParticipants" type="number" min="1" th:field="*{maxParticipants}"
+                   class="form-input" required>
         </div>
 
         <!-- Equipment -->
         <div class="form-group form-span-2">
             <label class="form-label">Equipment:</label>
             <div id="equipment-list"></div>
-            <button type="button" id="add-equipment" class="upload-btn" style="background: #fff; color: #0f2740; border: 1px solid #ccc; width: auto; margin-top: 5px;">+ Add Equipment</button>
+            <button type="button" id="add-equipment" class="upload-btn"
+                    style="background: #fff; color: #0f2740; border: 1px solid #ccc; width: auto; margin-top: 5px;">+
+                Add Equipment
+            </button>
         </div>
 
         <!-- Audience & Price -->
@@ -193,12 +430,19 @@
         </div>
         <div class="form-group">
             <label class="form-label">Price (€):</label>
-            <input id="price" name="price" type="number" min="0" step="0.01" th:field="*{price}" class="form-input" required>
+            <input id="price" name="price" type="number" min="0" step="0.01" th:field="*{price}" class="form-input"
+                   required>
         </div>
+
+        <!-- hidden container to hold selected hike keys so they're submitted with the form -->
+        <div id="hikeRouteKeysContainer" style="display:none;"></div>
 
         <!-- Buttons -->
         <div class="form-actions">
-            <button type="submit" class="btn-primary" style="background: #0f2740; color: white; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer;">Save Event</button>
+            <button type="submit" class="btn-primary"
+                    style="background: #0f2740; color: white; padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer;">
+                Save Event
+            </button>
             <a th:href="@{/events}" class="btn-ghost" style="padding: 10px 20px; color: #555; text-decoration: none;">Cancel</a>
         </div>
     </form>
@@ -234,7 +478,9 @@
 
         if (serverEquipment) serverEquipment.forEach(eq => equipmentList.appendChild(createEquipmentRow(eq)));
         if (addButton) addButton.addEventListener("click", () => equipmentList.appendChild(createEquipmentRow()));
-        if (equipmentList) equipmentList.addEventListener("click", e => { if(e.target.classList.contains("remove-equipment")) e.target.closest(".equipment-item").remove(); });
+        if (equipmentList) equipmentList.addEventListener("click", e => {
+            if (e.target.classList.contains("remove-equipment")) e.target.closest(".equipment-item").remove();
+        });
 
         // Photo Preview
         const photoInput = document.getElementById('photo');
@@ -254,5 +500,73 @@
     });
 </script>
 
+<script th:inline="javascript">
+    const category = document.getElementById('category');
+    const openBtn = document.getElementById('openHikeRoutes');
+    const modal = document.getElementById('hikeRoutesModal');
+    const list = document.getElementById('hikeRoutesList');
+    const keysContainer = document.getElementById('hikeRouteKeysContainer');
+
+    let selected = /*[[${event.hikeRouteKeys}]]*/ [];
+
+    function updateVisibility() {
+        if (!openBtn) return;
+        openBtn.style.display = category.value && category.value.toLowerCase().includes('hiking') ? 'inline-block' : 'none';
+    }
+
+    updateVisibility();
+    category.addEventListener('change', updateVisibility);
+
+    document.getElementById('openHikeRoutes').onclick = async () => {
+        modal.style.display = 'block';
+        list.innerHTML = '';
+
+        const routes = await fetch('/api/hiking/routes').then(r => r.json());
+        routes.forEach(r => {
+            const wps = Array.isArray(r.waypoints) ? [...r.waypoints] : [];
+            wps.sort((a, b) => (a.sequence ?? 0) - (b.sequence ?? 0));
+
+            const wpText = wps.length
+                ? wps.map(w => `${w.sequence}. ${w.name}`).join(" → ")
+                : "No waypoints";
+
+            list.insertAdjacentHTML('beforeend',
+                `<label style="display:block; margin: 8px 0;">
+            <input type="checkbox" value="${r.key}"
+                ${selected.includes(r.key) ? 'checked' : ''}>
+            <strong>${r.name}</strong>
+            <div class="route-sub">${wpText}</div>
+         </label>`
+            );
+        });
+    };
+
+    document.getElementById('applyHikeRoutesModal').onclick = () => {
+        selected = [...list.querySelectorAll('input:checked')].map(i => i.value);
+        keysContainer.innerHTML = '';
+        selected.forEach(k =>
+            keysContainer.insertAdjacentHTML(
+                'beforeend',
+                `<input type="hidden" name="hikeRouteKeys" value="${k}">`
+            )
+        );
+        modal.style.display = 'none';
+    };
+
+    document.getElementById('closeHikeRoutesModal').onclick =
+        () => modal.style.display = 'none';
+
+    // Cancel button should also close modal
+    const cancelBtn = document.getElementById('cancelHikeRoutesModal');
+    if (cancelBtn) cancelBtn.onclick = () => modal.style.display = 'none';
+
+    // Clicking the backdrop closes modal
+    const backdrop = document.getElementById('hikeRoutesModalBackdrop');
+    if (backdrop) backdrop.addEventListener('click', () => modal.style.display = 'none');
+</script>
+
+
 </body>
 </html>
+
+
