@@ -1,6 +1,7 @@
 package at.fhv.Event.presentation.rest.controller;
 
 import at.fhv.Event.application.hiking.GetHikeRoutesForEventService;
+import at.fhv.Event.application.hiking.GraphDTO;
 import at.fhv.Event.application.hiking.HikeRouteDTO;
 import org.springframework.context.annotation.Profile;
 import org.springframework.web.bind.annotation.*;
@@ -12,23 +13,24 @@ import java.util.List;
 @RequestMapping("/api/hiking")
 public class HikeRestController {
 
-    private final GetHikeRoutesForEventService getHikeRoutesForEventService;
+    private final GetHikeRoutesForEventService service;
 
-    public HikeRestController (GetHikeRoutesForEventService getHikeRoutesForEventService) {
-        this.getHikeRoutesForEventService = getHikeRoutesForEventService;
+    public HikeRestController(GetHikeRoutesForEventService service) {
+        this.service = service;
     }
 
-    @GetMapping("/event/{eventId}")
-    public List<HikeRouteDTO> getHikesForEvent(@PathVariable Integer eventId) {
-        // Mehrere Routen pro Event:
-        return getHikeRoutesForEventService.getRoutesForEvent(eventId);
+    @GetMapping("/routes")
+    public List<HikeRouteDTO> getAllRoutes() {
+        return service.getAllRoutes();
     }
 
-    @GetMapping("/event/{eventId}/best")
-    public HikeRouteDTO getBestRoute(
-            @PathVariable Integer eventId,
-            @RequestParam String filter
-    ) {
-        return getHikeRoutesForEventService.getBestRouteForEvent(eventId, filter);
+    @GetMapping("/routes/best")
+    public HikeRouteDTO getBestRoute(@RequestParam String filter) {
+        return service.getBestRoute(filter);
+    }
+
+    @GetMapping("/routes/{key}/graph")
+    public GraphDTO getRouteGraph(@PathVariable String key) {
+        return service.getGraphForRoute(key);
     }
 }
