@@ -289,3 +289,45 @@ body.bookings-page {
 .btn-toggle-cancelled.active:hover {
     background-color: #c64743;
 }
+
+.booking-controls {
+    display: flex;
+    gap: 12px;
+    margin: 20px 0;
+    padding: 10px 0;
+}
+
+/* Search + Selects */
+.booking-controls input,
+.booking-controls select {
+    padding: 8px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 15px;
+    background: white;
+    color: #1f2937;
+}
+
+/* Focus state */
+.booking-controls input:focus,
+.booking-controls select:focus {
+    outline: none;
+    border-color: #0d2847;
+}
+
+/* Reset Button – SAME AS ADMIN */
+.btn-reset {
+    background: #0b2545;
+    color: white;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: .2s;
+}
+
+.btn-reset:hover {
+    background: #3b3767;
+}
