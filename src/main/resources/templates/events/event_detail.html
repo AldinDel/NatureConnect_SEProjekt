@@ -279,6 +279,10 @@
     /*]]>*/
 </script>
 
+<script th:inline="javascript" th:if="${isHikingEvent}">
+    window.selectedHikeKeys = /*[[${event.hikeRouteKeys}]]*/ [];
+</script>
+
 <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js" th:if="${isHikingEvent}"></script>
 <script th:src="@{/js/hiking-routes.js}" th:if="${isHikingEvent}"></script>
 

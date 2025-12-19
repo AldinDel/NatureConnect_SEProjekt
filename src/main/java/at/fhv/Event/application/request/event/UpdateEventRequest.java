@@ -24,8 +24,10 @@ public class UpdateEventRequest {
     private String imageUrl;
     private String audience;
     private List<EventEquipmentUpdateRequest> equipments = new ArrayList<>();
+    private List<String> hikeRouteKeys = new ArrayList<>();
 
-    public UpdateEventRequest() {}
+    public UpdateEventRequest() {
+    }
 
     public String getTitle() {
         return title;
@@ -98,6 +100,7 @@ public class UpdateEventRequest {
     public void setDifficulty(Difficulty difficulty) {
         this.difficulty = difficulty;
     }
+
     public Integer getMinParticipants() {
         return minParticipants;
     }
@@ -117,6 +120,7 @@ public class UpdateEventRequest {
     public BigDecimal getPrice() {
         return price;
     }
+
     public void setPrice(BigDecimal price) {
         this.price = price;
     }
@@ -145,4 +149,11 @@ public class UpdateEventRequest {
         this.equipments = equipments;
     }
 
+    public List<String> getHikeRouteKeys() {
+        return hikeRouteKeys;
+    }
+
+    public void setHikeRouteKeys(List<String> hikeRouteKeys) {
+        this.hikeRouteKeys = hikeRouteKeys;
+    }
 }

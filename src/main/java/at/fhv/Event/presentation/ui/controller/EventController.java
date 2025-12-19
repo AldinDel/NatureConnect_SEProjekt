@@ -154,6 +154,7 @@ public class EventController {
             }
 
             req.setImageUrl(imageUrl);
+
         }
 
         updateService.updateEvent(id, req);
@@ -271,6 +272,7 @@ public class EventController {
         req.setPrice(detail.price());
         req.setImageUrl(detail.imageUrl());
         req.setAudience(mapAudienceLabelToEnumName(detail.audience()));
+        req.setHikeRouteKeys(detail.hikeRouteKeys());
 
         List<EventEquipmentUpdateRequest> eqReqs = new ArrayList<>();
         for (var eq : detail.equipments()) {

@@ -46,6 +46,7 @@ public class EventMapperDTO {
                 mapEquipments(e.getEventEquipments()),
                 requiredIds,
                 optionalIds,
+                e.getHikeRouteKeys(),
                 e.getAudience() != null ? e.getAudience().toString() : null
         );
     }

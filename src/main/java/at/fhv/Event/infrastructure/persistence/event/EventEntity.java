@@ -57,6 +57,16 @@ public class EventEntity {
         e.setEvent(this);
     }
 
+    @ElementCollection
+    @CollectionTable(
+            name = "event_hike_route",
+            schema = "nature_connect",
+            joinColumns = @JoinColumn(name = "event_id")
+    )
+    @Column(name = "hike_key")
+    private List<String> hikeRouteKeys = new ArrayList<>();
+
+
     public void setCancelled(Boolean cancelled) {
         this.cancelled = cancelled;
     }
@@ -188,4 +198,13 @@ public class EventEntity {
     public void setEventEquipments(List<EventEquipmentEntity> eventEquipments) {
         this.eventEquipments = eventEquipments;
     }
+
+    public List<String> getHikeRouteKeys() {
+        return hikeRouteKeys;
+    }
+
+    public void setHikeRouteKeys(List<String> hikeRouteKeys) {
+        this.hikeRouteKeys = (hikeRouteKeys == null) ? new ArrayList<>() : new ArrayList<>(hikeRouteKeys);
+    }
+
 }
