@@ -43,7 +43,8 @@ public class EventEntity {
 
     private BigDecimal price;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL,
+            orphanRemoval = true, fetch = FetchType.EAGER)
     private List<EventEquipmentEntity> eventEquipments = new ArrayList<>();
 
     @Column(name = "is_cancelled")

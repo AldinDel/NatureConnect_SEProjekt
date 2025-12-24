@@ -16,21 +16,21 @@ import java.util.List;
 @CrossOrigin
 public class BookingRestController {
 
-    private final BookEventService bookEventService;
+    private final BookEventService _bookEventService;
 
     public BookingRestController(BookEventService bookEventService) {
-        this.bookEventService = bookEventService;
+        _bookEventService = bookEventService;
     }
 
     @PostMapping
     public ResponseEntity<BookingDTO> createBooking(@RequestBody CreateBookingRequest request) {
-        BookingDTO booking = bookEventService.bookEvent(request);
+        BookingDTO booking = _bookEventService.bookEvent(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(booking);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<BookingDTO> getBookingById(@PathVariable Long id) {
-        BookingDTO booking = bookEventService.getDTOById(id);
+        BookingDTO booking = _bookEventService.getDTOById(id);
         return ResponseEntity.ok(booking);
     }
 
@@ -39,7 +39,7 @@ public class BookingRestController {
             @PathVariable Long id,
             @RequestParam String paymentMethod) {
 
-        BookingDTO booking = bookEventService.updatePaymentMethod(id, paymentMethod);
+        BookingDTO booking = _bookEventService.updatePaymentMethod(id, paymentMethod);
         return ResponseEntity.ok(booking);
     }
 
