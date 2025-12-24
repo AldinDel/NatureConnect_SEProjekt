@@ -5,3 +5,5 @@ pluginManagement {
 	}
 }
 rootProject.name = 'PublicationOrganizer'
+include 'payment-service'
+project(':payment-service').projectDir = file('.Application-PaymentService')

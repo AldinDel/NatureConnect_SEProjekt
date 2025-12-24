@@ -6,7 +6,6 @@ import at.fhv.Event.application.booking.BookingPrefillService;
 import at.fhv.Event.application.event.GetEventDetailsService;
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
 import at.fhv.Event.application.request.booking.ParticipantDTO;
-import at.fhv.Event.domain.model.booking.AudienceType;
 import at.fhv.Event.domain.model.booking.Booking;
 import at.fhv.Event.domain.model.booking.BookingEquipment;
 import at.fhv.Event.domain.model.booking.BookingStatus;
@@ -49,15 +48,17 @@ public class BookingController {
         _bookingPrefillService = bookingPrefillService;
     }
 
-    @GetMapping("/{eventId}")
-    public String showBookingPage(@PathVariable Long eventId, Model model, RedirectAttributes redirectAttributes,Principal principal) {
 
-        if (principal == null) {
-            return "redirect:/booking/guest-info?eventId=" + eventId;
-        }
+    @GetMapping("/{eventId}")
+    @PreAuthorize("isAuthenticated()")
+    public String showBookingPage(@PathVariable Long eventId,
+                                  Model model,
+                                  RedirectAttributes redirectAttributes,
+                                  Principal principal) {
 
         EventDetailDTO event = _eventDetailsService.getEventDetails(eventId);
         int availableSeats = _bookEventService.getAvailableSeats(eventId);
+
         if (isEventUnavailable(event)) {
             redirectAttributes.addFlashAttribute("error", getUnavailabilityMessage(event));
             return "redirect:/events/" + eventId;
@@ -81,7 +82,8 @@ public class BookingController {
     }
 
     @PostMapping
-    public String submitBooking(@ModelAttribute("booking") CreateBookingRequest request, @RequestParam("guestMode") boolean guestMode, Model model, RedirectAttributes redirectAttributes, Principal principal) {
+    @PreAuthorize("isAuthenticated()")
+    public String submitBooking(@ModelAttribute("booking") CreateBookingRequest request, Model model, RedirectAttributes redirectAttributes, Principal principal) {
         try {
             EventDetailDTO event = _eventDetailsService.getEventDetails(request.getEventId());
             if (isEventUnavailable(event)) {
@@ -90,11 +92,7 @@ public class BookingController {
             }
 
             BookingDTO booking = _bookEventService.bookEvent(request);
-
-            if (principal != null) {
-                return "redirect:/booking/payment/" + booking.getId();
-            }
-            return "redirect:/booking/guest-info?bookingId=" + booking.getId();
+            return "redirect:/booking/payment/" + booking.getId();
 
         } catch (BookingValidationException exception) {
             return handleValidationErrors(exception, request, model);
@@ -109,6 +107,7 @@ public class BookingController {
     }
 
     @GetMapping("/payment/{id}")
+    @PreAuthorize("isAuthenticated()")
     public String showPaymentPage(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
             Booking booking = _bookEventService.getById(id);
@@ -129,6 +128,7 @@ public class BookingController {
     }
 
     @PostMapping("/payment/{id}")
+    @PreAuthorize("isAuthenticated()")
     public String updatePaymentMethodFromUI(@PathVariable Long id, @RequestParam("paymentMethod") String paymentMethod, RedirectAttributes redirectAttributes) {
         try {
             _bookEventService.updatePaymentMethod(id, paymentMethod);
@@ -142,6 +142,7 @@ public class BookingController {
     }
 
     @GetMapping("/confirmation/{id}")
+    @PreAuthorize("isAuthenticated()")
     public String showConfirmationPage(@PathVariable Long id, Model model) {
         try {
             Booking booking = _bookEventService.getById(id);
@@ -161,15 +162,6 @@ public class BookingController {
         }
     }
 
-    @GetMapping("/guest-info")
-    public String guestInfoPage(@RequestParam Long eventId, Model model) {
-        model.addAttribute("eventId", eventId);
-        return "booking/guest-info";
-    }
-
-
-
-
     private boolean isEventUnavailable(EventDetailDTO event) {
         if (Boolean.TRUE.equals(event.cancelled())) {
             return true;
@@ -183,13 +175,6 @@ public class BookingController {
             return "This event is cancelled and cannot be booked.";
         }
         return "This event is expired and cannot be booked.";
-    }
-
-    private CreateBookingRequest createInitialBookingRequest(Long eventId) {
-        CreateBookingRequest request = new CreateBookingRequest();
-        request.setEventId(eventId);
-        request.setAudience(AudienceType.INDIVIDUAL);
-        return request;
     }
 
     private String handleValidationErrors(BookingValidationException exception, CreateBookingRequest request, Model model) {

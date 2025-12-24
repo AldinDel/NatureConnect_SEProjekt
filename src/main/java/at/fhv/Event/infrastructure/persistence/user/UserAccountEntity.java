@@ -18,7 +18,7 @@ public class UserAccountEntity {
     @Column(nullable=false) private OffsetDateTime createdAt = OffsetDateTime.now();
     @Column(nullable=false) private OffsetDateTime updatedAt = OffsetDateTime.now();
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_role", schema="nature_connect",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
