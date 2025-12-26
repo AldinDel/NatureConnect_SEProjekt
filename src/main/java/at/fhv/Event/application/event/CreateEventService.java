@@ -90,7 +90,7 @@ public class CreateEventService {
                 req.getHikeRouteKeys()
         );
 
-        eventRepository.save(domain);
-        return mapper.toDetailDTO(domain);
+        Event saved = eventRepository.save(domain);
+        return mapper.toDetailDTO(saved);
     }
 }

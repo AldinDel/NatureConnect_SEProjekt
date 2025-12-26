@@ -436,6 +436,12 @@
 
         <!-- hidden container to hold selected hike keys so they're submitted with the form -->
         <div id="hikeRouteKeysContainer" style="display:none;"></div>
+        <th:block th:if="${event != null and event.hikeRouteKeys != null}">
+            <input th:each="k : ${event.hikeRouteKeys}"
+                   type="hidden"
+                   name="hikeRouteKeys"
+                   th:value="${k}" />
+        </th:block>
 
         <!-- Buttons -->
         <div class="form-actions">
@@ -508,6 +514,12 @@
     const keysContainer = document.getElementById('hikeRouteKeysContainer');
 
     let selected = /*[[${event.hikeRouteKeys}]]*/ [];
+    let originalSelected = [...selected];
+    // init hidden inputs on page load (IMPORTANT for edit)
+    keysContainer.innerHTML = '';
+    (selected || []).forEach(k => {
+        keysContainer.insertAdjacentHTML('beforeend', `<input type="hidden" name="hikeRouteKeys" value="${k}">`);
+    });
 
     function updateVisibility() {
         if (!openBtn) return;
@@ -543,6 +555,7 @@
 
     document.getElementById('applyHikeRoutesModal').onclick = () => {
         selected = [...list.querySelectorAll('input:checked')].map(i => i.value);
+        originalSelected = [...selected];
         keysContainer.innerHTML = '';
         selected.forEach(k =>
             keysContainer.insertAdjacentHTML(
@@ -558,7 +571,11 @@
 
     // Cancel button should also close modal
     const cancelBtn = document.getElementById('cancelHikeRoutesModal');
-    if (cancelBtn) cancelBtn.onclick = () => modal.style.display = 'none';
+    if (cancelBtn) cancelBtn.onclick = () => {
+        // restore previous selection
+        selected = [...originalSelected];
+        modal.style.display = 'none';
+    };
 
     // Clicking the backdrop closes modal
     const backdrop = document.getElementById('hikeRoutesModalBackdrop');

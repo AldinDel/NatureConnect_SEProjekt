@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserAccountJpaRepository extends JpaRepository<UserAccountEntity, Long> {
+    @EntityGraph(attributePaths = "roles")
     Optional<UserAccountEntity> findByEmailIgnoreCase(String email);
 
     @EntityGraph(attributePaths = "roles")

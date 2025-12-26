@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.ArrayList;
+
 
 public class Event {
 
@@ -61,8 +63,10 @@ public class Event {
         this.maxParticipants = maxParticipants;
         this.price = price;
         this.imageUrl = imageUrl;
-        this.eventEquipments = eventEquipments;
-        this.hikeRouteKeys = (hikeRouteKeys == null) ? List.of() : hikeRouteKeys;
+        this.eventEquipments = (eventEquipments == null) ? new ArrayList<>() : new ArrayList<>(eventEquipments);
+        this.hikeRouteKeys = (hikeRouteKeys == null)
+                ? new ArrayList<>()
+                : new ArrayList<>(hikeRouteKeys);
         this.cancelled = false;
         this.audience = audience;
     }
@@ -200,7 +204,9 @@ public class Event {
     }
 
     public void setEventEquipments(List<EventEquipment> eventEquipments) {
-        this.eventEquipments = eventEquipments;
+        this.eventEquipments = (eventEquipments == null)
+                ? new ArrayList<>()
+                : new ArrayList<>(eventEquipments);
     }
 
     public List<String> getHikeRouteKeys() {
@@ -208,7 +214,10 @@ public class Event {
     }
 
     public void setHikeRouteKeys(List<String> hikeRouteKeys) {
-        this.hikeRouteKeys = (hikeRouteKeys == null) ? List.of() : hikeRouteKeys;
+        this.hikeRouteKeys = (hikeRouteKeys == null)
+                ? new ArrayList<>()
+                : new ArrayList<>(hikeRouteKeys);
     }
+
 
 }
