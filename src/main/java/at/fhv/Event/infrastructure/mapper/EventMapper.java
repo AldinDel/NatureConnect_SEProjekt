@@ -22,19 +22,14 @@ public class EventMapper {
     }
 
     public Event toDomain(EventEntity e) {
-        if (e == null) {
-            return null;
-        }
+        if (e == null) return null;
 
         var equipments = e.getEventEquipments().stream()
-                .map(ee -> {
-                    var newEq = equipmentJpa.findById(ee.getEquipment().getId()).orElseThrow();
-                    return new EventEquipment(
-                            equipmentMapper.toDomain(newEq),
-                            ee.isRequired()
-                    );
-                })
-                .collect(Collectors.toList());
+                .map(ee -> new EventEquipment(
+                        equipmentMapper.toDomain(ee.getEquipment()),
+                        ee.isRequired()
+                ))
+                .toList();
 
         Event event = new Event(
                 e.getId(),
@@ -53,12 +48,13 @@ public class EventMapper {
                 e.getImageUrl(),
                 e.getAudience(),
                 equipments,
-                e.getHikeRouteKeys()
+                new java.util.ArrayList<>(e.getHikeRouteKeys())
         );
 
         event.setCancelled(e.getCancelled() != null ? e.getCancelled() : false);
         return event;
     }
+
 
     public java.util.List<Event> toDomainList(java.util.List<EventEntity> entities) {
         if (entities == null) {
@@ -91,24 +87,64 @@ public class EventMapper {
         e.setImageUrl(domain.getImageUrl());
         e.setCancelled(domain.getCancelled());
         e.setAudience(domain.getAudience());
-        e.getHikeRouteKeys().clear();
-        if (domain.getHikeRouteKeys() != null) {
-            e.getHikeRouteKeys().addAll(domain.getHikeRouteKeys());}
+        if (domain.getHikeRouteKeys() != null && !domain.getHikeRouteKeys().isEmpty()) {
+            e.getHikeRouteKeys().clear();
+            e.getHikeRouteKeys().addAll(domain.getHikeRouteKeys());
+        }
 
         var eeEntities = domain.getEventEquipments().stream()
                 .map(domEE -> {
-                    var equipEntity = equipmentMapper.toEntity(domEE.getEquipment());
+                    var equipEntity = equipmentJpa.findById(domEE.getEquipment().getId()).orElseThrow();
                     var ee = new EventEquipmentEntity();
                     ee.setEquipment(equipEntity);
                     ee.setRequired(domEE.isRequired());
                     ee.setEvent(e);
                     return ee;
                 })
-                .toList();
+                .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
+
 
         e.getEventEquipments().clear();
         e.getEventEquipments().addAll(eeEntities);
 
         return e;
     }
+
+    public void applyToExistingEntity(Event domain, EventEntity e) {
+        e.setTitle(domain.getTitle());
+        e.setDescription(domain.getDescription());
+        e.setOrganizer(domain.getOrganizer());
+        e.setCategory(domain.getCategory());
+        e.setDate(domain.getDate());
+        e.setStartTime(domain.getStartTime());
+        e.setEndTime(domain.getEndTime());
+        e.setLocation(domain.getLocation());
+        e.setDifficulty(domain.getDifficulty());
+        e.setMinParticipants(domain.getMinParticipants());
+        e.setMaxParticipants(domain.getMaxParticipants());
+        e.setPrice(domain.getPrice());
+        e.setImageUrl(domain.getImageUrl());
+        e.setCancelled(domain.getCancelled());
+        e.setAudience(domain.getAudience());
+
+        if (domain.getHikeRouteKeys() != null) {
+            e.getHikeRouteKeys().clear();
+            e.getHikeRouteKeys().addAll(domain.getHikeRouteKeys());
+        }
+
+        e.getEventEquipments().clear();
+        if (domain.getEventEquipments() != null) {
+            for (var domEE : domain.getEventEquipments()) {
+                var equipEntity = equipmentJpa.findById(domEE.getEquipment().getId()).orElseThrow();
+
+                var ee = new EventEquipmentEntity();
+                ee.setEquipment(equipEntity);
+                ee.setRequired(domEE.isRequired());
+                ee.setEvent(e);
+
+                e.getEventEquipments().add(ee);
+            }
+        }
+    }
+
 }

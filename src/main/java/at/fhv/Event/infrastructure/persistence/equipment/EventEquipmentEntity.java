@@ -55,4 +55,23 @@ public class EventEquipmentEntity {
     public void setRequired(boolean required) {
         this.required = required;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EventEquipmentEntity that = (EventEquipmentEntity) o;
+        // gleiche Event + gleiche Equipment = gleiches EventEquipment
+        return java.util.Objects.equals(event != null ? event.getId() : null, that.event != null ? that.event.getId() : null)
+                && java.util.Objects.equals(equipment != null ? equipment.getId() : null, that.equipment != null ? that.equipment.getId() : null);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(
+                event != null ? event.getId() : null,
+                equipment != null ? equipment.getId() : null
+        );
+    }
+
 }

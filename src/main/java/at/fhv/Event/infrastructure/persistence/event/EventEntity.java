@@ -44,7 +44,7 @@ public class EventEntity {
     private BigDecimal price;
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<EventEquipmentEntity> eventEquipments = new ArrayList<>();
+    private java.util.Set<EventEquipmentEntity> eventEquipments = new java.util.HashSet<>();
 
     @Column(name = "is_cancelled")
     private Boolean cancelled = false;
@@ -64,7 +64,7 @@ public class EventEntity {
             joinColumns = @JoinColumn(name = "event_id")
     )
     @Column(name = "hike_key")
-    private List<String> hikeRouteKeys = new ArrayList<>();
+    private java.util.Set<String> hikeRouteKeys = new java.util.HashSet<>();
 
 
     public void setCancelled(Boolean cancelled) {
@@ -191,20 +191,23 @@ public class EventEntity {
         this.audience = audience;
     }
 
-    public List<EventEquipmentEntity> getEventEquipments() {
+    public java.util.Set<EventEquipmentEntity> getEventEquipments() {
         return eventEquipments;
     }
 
-    public void setEventEquipments(List<EventEquipmentEntity> eventEquipments) {
-        this.eventEquipments = eventEquipments;
+    public void setEventEquipments(java.util.Set<EventEquipmentEntity> eventEquipments) {
+        this.eventEquipments = (eventEquipments == null)
+                ? new java.util.HashSet<>()
+                : new java.util.HashSet<>(eventEquipments);
     }
 
-    public List<String> getHikeRouteKeys() {
+
+    public java.util.Set<String> getHikeRouteKeys() {
         return hikeRouteKeys;
     }
 
-    public void setHikeRouteKeys(List<String> hikeRouteKeys) {
-        this.hikeRouteKeys = (hikeRouteKeys == null) ? new ArrayList<>() : new ArrayList<>(hikeRouteKeys);
+    public void setHikeRouteKeys(java.util.Set<String> hikeRouteKeys) {
+        this.hikeRouteKeys = (hikeRouteKeys == null) ? new java.util.HashSet<>() : new java.util.HashSet<>(hikeRouteKeys);
     }
 
 }
