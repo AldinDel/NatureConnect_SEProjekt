@@ -10,5 +10,7 @@ public interface EventRepository {
     List<Event> findAll();
     Event save(Event event);
     List<Event> findByDate(LocalDate date);
+    List<Event> findAllForListView();
+    List<Event> findByDateForListView(LocalDate date);
 
 }

@@ -55,7 +55,9 @@ public class UpdateEventService {
         event.setMaxParticipants(req.getMaxParticipants());
         event.setPrice(req.getPrice());
         event.setImageUrl(req.getImageUrl());
-        event.setHikeRouteKeys(req.getHikeRouteKeys());
+        if (req.getHikeRouteKeys() != null) {
+            event.setHikeRouteKeys(req.getHikeRouteKeys());
+        }
 
 
         if (req.getAudience() != null && !req.getAudience().isBlank()) {
