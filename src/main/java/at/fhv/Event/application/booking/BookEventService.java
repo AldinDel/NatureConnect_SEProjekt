@@ -31,14 +31,9 @@ public class BookEventService {
     private final BookingValidator _bookingValidator;
     private final RefundService refundService;
 
-    public BookEventService(
-            BookingRepository bookingRepository,
-            EquipmentRepository equipmentRepository,
-            BookingRequestMapper bookingRequestMapper,
-            BookingMapperDTO bookingMapperDTO,
-            BookingValidator bookingValidator,
-            RefundService refundService) {
-
+    public BookEventService(BookingRepository bookingRepository, EquipmentRepository equipmentRepository,
+            BookingRequestMapper bookingRequestMapper, BookingMapperDTO bookingMapperDTO,
+            BookingValidator bookingValidator, RefundService refundService) {
         _bookingRepository = bookingRepository;
         _equipmentRepository = equipmentRepository;
         _bookingRequestMapper = bookingRequestMapper;
@@ -49,7 +44,6 @@ public class BookEventService {
 
     @Transactional
     public BookingDTO bookEvent(CreateBookingRequest request) {
-
         Event event = loadEvent(request.getEventId());
         checkEventAvailability(event);
         checkEventCapacity(event, request.getSeats());
@@ -83,7 +77,6 @@ public class BookEventService {
 
     @Transactional
     public BookingDTO updateBooking(Long bookingId, CreateBookingRequest request) {
-
         Booking booking = findBookingById(bookingId);
         Event event = loadEvent(request.getEventId());
 
@@ -118,20 +111,20 @@ public class BookEventService {
         booking.setTotalPrice(totalPrice.doubleValue());
 
         List<BookingParticipant> participants = new ArrayList<>();
+
         if (request.getParticipants() != null) {
             for (ParticipantDTO p : request.getParticipants()) {
-                BookingParticipant bp = new BookingParticipant(
-                        null,
+                BookingParticipant bp = BookingParticipant.createNew(
+                        booking.getId(),
                         p.getFirstName(),
                         p.getLastName(),
-                        p.getAge(),
-                        ParticipantCheckInStatus.CHECKED_IN,
-                        ParticipantCheckOutStatus.NOT_CHECKED_OUT
+                        p.getAge()
                 );
                 participants.add(bp);
             }
         }
         booking.setParticipants(participants);
+
 
         List<BookingEquipment> equipmentList = new ArrayList<>();
         if (request.getEquipment() != null) {
@@ -148,9 +141,10 @@ public class BookEventService {
                     continue;
 
                 equipmentList.add(new BookingEquipment(
+                        null,
                         equipment.getId(),
                         sel.getQuantity(),
-                        equipment.getUnitPrice().doubleValue()
+                        equipment.getUnitPrice()
                 ));
             }
         }
@@ -218,44 +212,18 @@ public class BookEventService {
     }
 
     private void checkEventAvailability(Event event) {
-        if (Boolean.TRUE.equals(event.getCancelled())) {
-            throw new IllegalStateException("This event is cancelled and cannot be booked.");
-        }
-        LocalDateTime eventStart = LocalDateTime.of(event.getDate(), event.getStartTime());
-        if (eventStart.isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("This event is expired and cannot be booked.");
-        }
+        event.validateAvailability();
     }
 
     private void checkEventCapacity(Event event, int requestedSeats) {
-
-        int max = event.getMaxParticipants();
-        int min = event.getMinParticipants() == null ? 0 : event.getMinParticipants();
-
-        int confirmed = _bookingRepository.countOccupiedSeatsForEvent(event.getId());
-
-        int remaining = (max - min) - confirmed;
-
-        if (remaining <= 0)
-            throw new EventFullyBookedException(event.getId(), requestedSeats, 0);
-
-        if (requestedSeats > remaining)
-            throw new EventFullyBookedException(event.getId(), requestedSeats, remaining);
+        int booked = _bookingRepository.countOccupiedSeatsForEvent(event.getId());
+        event.validateCapacity(requestedSeats, booked);
     }
 
     private void checkEventCapacityForUpdate(Event event, Booking booking, int newSeats) {
-
         int confirmed = _bookingRepository.countOccupiedSeatsForEvent(event.getId());
-        int excludingThis = Math.max(0, confirmed - booking.getSeats());
-
-        int available = event.getMaxParticipants() - event.getMinParticipants();
-        int remaining = available - excludingThis;
-
-        if (remaining <= 0)
-            throw new EventFullyBookedException(event.getId(), newSeats, 0);
-
-        if (newSeats > remaining)
-            throw new EventFullyBookedException(event.getId(), newSeats, remaining);
+        int bookedExcludingThis = Math.max(0, confirmed - booking.getSeats());
+        event.validateCapacity(newSeats, bookedExcludingThis);
     }
 
     private Map<Long, Equipment> loadEquipmentMap(CreateBookingRequest request) {
@@ -266,10 +234,7 @@ public class BookEventService {
         return _equipmentRepository.findByIds(ids);
     }
 
-    private void validateBookingRequest(CreateBookingRequest request,
-                                        Event event,
-                                        Map<Long, Equipment> equipmentMap) {
-
+    private void validateBookingRequest(CreateBookingRequest request, Event event, Map<Long, Equipment> equipmentMap) {
         int booked = _bookingRepository.countOccupiedSeatsForEvent(event.getId());
         List<ValidationError> errors =
                 _bookingValidator.validate(request, event, equipmentMap, booked);
@@ -287,18 +252,13 @@ public class BookEventService {
                                            Event event,
                                            Map<Long, Equipment> equipmentMap) {
 
-        BigDecimal base = event.getPrice()
-                .multiply(BigDecimal.valueOf(request.getSeats()));
-
+        BigDecimal base = event.getPrice().multiply(BigDecimal.valueOf(request.getSeats()));
         BigDecimal equipmentPrice = calculateEquipmentPrice(request, equipmentMap);
         BigDecimal subtotal = base.add(equipmentPrice);
-
         return subtotal.subtract(calculateDiscount(subtotal, request));
     }
 
-    private BigDecimal calculateEquipmentPrice(CreateBookingRequest req,
-                                               Map<Long, Equipment> map) {
-
+    private BigDecimal calculateEquipmentPrice(CreateBookingRequest req, Map<Long, Equipment> map) {
         BigDecimal total = BigDecimal.ZERO;
 
         for (var entry : req.getEquipment().entrySet()) {
@@ -319,22 +279,17 @@ public class BookEventService {
         return total;
     }
 
-    private BigDecimal calculateDiscount(BigDecimal subtotal,
-                                         CreateBookingRequest req) {
-
+    private BigDecimal calculateDiscount(BigDecimal subtotal, CreateBookingRequest req) {
         if (req.getDiscountPercent() == null)
             return BigDecimal.ZERO;
 
-        BigDecimal rate =
-                BigDecimal.valueOf(req.getDiscountPercent()).divide(BigDecimal.valueOf(100));
-
+        BigDecimal rate = BigDecimal.valueOf(req.getDiscountPercent()).divide(BigDecimal.valueOf(100));
         return subtotal.multiply(rate);
     }
 
     private Booking createBooking(CreateBookingRequest req, BigDecimal totalPrice) {
 
         Booking booking = _bookingRequestMapper.toDomain(req, totalPrice.doubleValue());
-
         BigDecimal discount = calculateDiscount(totalPrice, req);
 
         booking.setDiscountAmount(discount.doubleValue());
@@ -343,10 +298,7 @@ public class BookEventService {
         return booking;
     }
 
-    private List<BookingEquipment> processEquipmentBooking(
-            CreateBookingRequest req,
-            Map<Long, Equipment> map) {
-
+    private List<BookingEquipment> processEquipmentBooking(CreateBookingRequest req, Map<Long, Equipment> map) {
         List<BookingEquipment> list = new ArrayList<>();
 
         for (var entry : req.getEquipment().entrySet()) {
@@ -363,16 +315,16 @@ public class BookEventService {
             reduceEquipmentStock(equipment, sel.getQuantity());
 
             list.add(new BookingEquipment(
+                    null,
                     equipment.getId(),
                     sel.getQuantity(),
-                    equipment.getUnitPrice().doubleValue()
+                    equipment.getUnitPrice()
             ));
         }
         return list;
     }
 
     void reduceEquipmentStock(Equipment equipment, int qty) {
-
         if (!equipment.hasEnoughStock(qty)) {
             throw new InsufficientStockException(
                     equipment.getId(),
@@ -381,18 +333,15 @@ public class BookEventService {
                     equipment.getStock()
             );
         }
-
         equipment.reduceStock(qty);
         _equipmentRepository.save(equipment);
     }
 
     private Booking findBookingById(long id) {
-        return _bookingRepository.findById(id)
-                .orElseThrow(() -> new BookingNotFoundException(id));
+        return _bookingRepository.findById(id).orElseThrow(() -> new BookingNotFoundException(id));
     }
 
     private PaymentMethod parsePaymentMethod(Long bookingId, String name) {
-
         try {
             return PaymentMethod.valueOf(name);
         } catch (IllegalArgumentException e) {
@@ -405,14 +354,9 @@ public class BookEventService {
     }
 
     public int getAvailableSeats(Long eventId) {
-
         Event event = loadEvent(eventId);
         int confirmed = _bookingRepository.countOccupiedSeatsForEvent(eventId);
-
-        int available =
-                event.getMaxParticipants() - event.getMinParticipants() - confirmed;
-
-        return Math.max(0, available);
+        return event.getAvailableSeats(confirmed);
     }
 
     @Transactional

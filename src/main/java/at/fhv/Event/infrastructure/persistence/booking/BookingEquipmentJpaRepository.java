@@ -6,7 +6,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface BookingEquipmentRepository
+public interface BookingEquipmentJpaRepository
         extends JpaRepository<BookingEquipmentEntity, Long> {
 
     @Query("""
@@ -22,4 +22,7 @@ public interface BookingEquipmentRepository
     List<BookingEquipmentEntity> findNotYetInvoicedByBookingId(
             @Param("bookingId") Long bookingId
     );
+
+    List<BookingEquipmentEntity> findByBooking_Id(Long bookingId);
+    List<BookingEquipmentEntity> findByBooking_IdAndInvoicedFalse(Long bookingId);
 }

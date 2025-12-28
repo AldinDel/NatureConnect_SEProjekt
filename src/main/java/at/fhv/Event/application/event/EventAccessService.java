@@ -80,7 +80,7 @@ public class EventAccessService {
         }
 
         UserAccount user = userOpt.get();
-        return user.get_firstName() + " " + user.get_lastName();
+        return user.getFirstName() + " " + user.getLastName();
     }
 
 
@@ -166,7 +166,7 @@ public class EventAccessService {
         }
 
         UserAccount user = userOpt.get();
-        return user.get_firstName() + " " + user.get_lastName();
+        return user.getFirstName() + " " + user.getLastName();
     }
 
 }

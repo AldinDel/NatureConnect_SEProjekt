@@ -23,13 +23,13 @@ public class BookingPrefillService {
 
         customerProfileRepository.findByEmail(email)
                 .ifPresent(customer -> {
-                    request.setBookerFirstName(customer.get_firstName());
-                    request.setBookerLastName(customer.get_lastName());
-                    request.setBookerEmail(customer.get_email());
+                    request.setBookerFirstName(customer.getFirstName());
+                    request.setBookerLastName(customer.getLastName());
+                    request.setBookerEmail(customer.getEmail());
 
                     ParticipantDTO p1 = new ParticipantDTO();
-                    p1.setFirstName(customer.get_firstName());
-                    p1.setLastName(customer.get_lastName());
+                    p1.setFirstName(customer.getFirstName());
+                    p1.setLastName(customer.getLastName());
                     p1.setAge(null);
 
                     request.setParticipants(List.of(p1));

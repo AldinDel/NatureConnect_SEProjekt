@@ -70,7 +70,7 @@ public class BookingEntity {
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private Set<BookingParticipantEntity> participants = new HashSet<>();
 
-    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<BookingEquipmentEntity> equipment = new HashSet<>();
 
     public Long getId() {

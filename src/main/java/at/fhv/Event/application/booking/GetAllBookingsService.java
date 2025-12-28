@@ -8,7 +8,6 @@ import java.util.List;
 
 @Service
 public class GetAllBookingsService {
-
     private final BookingRepository bookingRepository;
     private final BookingMapperDTO mapper;
     public GetAllBookingsService(BookingRepository bookingRepository, BookingMapperDTO mapper) {

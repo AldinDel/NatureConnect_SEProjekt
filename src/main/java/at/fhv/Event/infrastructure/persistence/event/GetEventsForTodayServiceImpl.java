@@ -1,4 +1,4 @@
-package at.fhv.Event.infrastructure.event;
+package at.fhv.Event.infrastructure.persistence.event;
 
 import at.fhv.Event.application.event.GetEventsForTodayService;
 import at.fhv.Event.application.event.EventMapperDTO;

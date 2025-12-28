@@ -17,6 +17,33 @@ public class Equipment {
         this.stock = stock;
     }
 
+    public void rent(int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than zero");
+        }
+
+        if (quantity > this.stock) {
+            throw new IllegalArgumentException("Not enough stock");
+        }
+
+        this.stock -= quantity;
+    }
+
+    public void returnEquipment(int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than zero");
+        }
+        this.stock += quantity;
+    }
+
+    public boolean isAvailable(int requestedQuantity) {
+        return requestedQuantity <= this.stock;
+    }
+
+    public BigDecimal calculatePrice(int quantity) {
+        return unitPrice.multiply(BigDecimal.valueOf(quantity));
+    }
+
     public void reduceStock(int quantity) {
         if (quantity > this.stock) {
             throw new IllegalStateException(

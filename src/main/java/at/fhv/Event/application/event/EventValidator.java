@@ -51,15 +51,15 @@ public class EventValidator {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     "title",
-                    "Title is required",
-                    title
+                    title,
+                    "Title is required"
             ));
         } else if (title.length() > MAX_TITLE_LENGTH) {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     "title",
-                    "Title cannot exceed " + MAX_TITLE_LENGTH + " characters",
-                    title
+                    title,
+                    "Title cannot exceed " + MAX_TITLE_LENGTH + " characters"
             ));
         }
     }
@@ -69,16 +69,16 @@ public class EventValidator {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     "date",
-                    "Event date is required",
-                    null
+                    null,
+                    "Event date is required"
             ));
         } else if (date.isBefore(LocalDate.now())) {
             errors.add(new ValidationError(
-                                ValidationErrorType.BUSINESS_RULE_VIOLATION,
-                    "Event date cannot be in the past",
+                    ValidationErrorType.BUSINESS_RULE_VIOLATION,
+                    "date",
                     date,
-                    "date"
-                        ));
+                    "Event date cannot be in the past"
+            ));
         }
     }
 
@@ -87,15 +87,15 @@ public class EventValidator {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     "time",
-                    "Start and end time are required",
-                    null
+                    null,
+                    "Start and end time are required"
             ));
         } else if (!start.isBefore(end)) {
             errors.add(new ValidationError(
                     ValidationErrorType.BUSINESS_RULE_VIOLATION,
                     "time",
-                    "Start time must be before end time",
-                    start + " - " + end
+                    start + " - " + end,
+                    "Start time must be before end time"
             ));
         }
     }
@@ -105,27 +105,27 @@ public class EventValidator {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     "participants",
-                    "Min and max participants are required",
-                    null
+                    null,
+                    "Min and max participants are required"
             ));
             return;
         }
 
         if (min < 1) {
             errors.add(new ValidationError(
-                                ValidationErrorType.INVALID_INPUT,
-                    "Minimum participants must be at least 1",
+                    ValidationErrorType.INVALID_INPUT,
+                    "minParticipants",
                     min,
-                    "minParticipants"
-                        ));
+                    "Minimum participants must be at least 1"
+            ));
         }
 
         if (min > max) {
             errors.add(new ValidationError(
                     ValidationErrorType.BUSINESS_RULE_VIOLATION,
                     "participants",
-                    "Minimum participants cannot exceed maximum participants",
-                    "min=" + min + ", max=" + max
+                    "min=" + min + ", max=" + max,
+                    "Minimum participants cannot exceed maximum participants"
             ));
         }
     }
@@ -135,16 +135,16 @@ public class EventValidator {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     "price",
-                    "Price is required",
-                    null
+                    null,
+                    "Price is required"
             ));
         } else if (price.compareTo(BigDecimal.ZERO) < 0) {
             errors.add(new ValidationError(
-                                ValidationErrorType.INVALID_INPUT,
-                    "Price cannot be negative",
+                    ValidationErrorType.INVALID_INPUT,
+                    "price",
                     price,
-                    "price"
-                        ));
+                    "Price cannot be negative"
+            ));
         }
     }
 
@@ -153,15 +153,15 @@ public class EventValidator {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     "location",
-                    "Location is required",
-                    location
+                    location,
+                    "Location is required"
             ));
         } else if (location.length() > MAX_LOCATION_LENGTH) {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     "location",
-                    "Location cannot exceed " + MAX_LOCATION_LENGTH + " characters",
-                    location
+                    location,
+                    "Location cannot exceed " + MAX_LOCATION_LENGTH + " characters"
             ));
         }
     }
@@ -171,8 +171,8 @@ public class EventValidator {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     "description",
-                    "Description cannot exceed " + MAX_DESCRIPTION_LENGTH + " characters",
-                    description
+                    description,
+                    "Description cannot exceed " + MAX_DESCRIPTION_LENGTH + " characters"
             ));
         }
     }

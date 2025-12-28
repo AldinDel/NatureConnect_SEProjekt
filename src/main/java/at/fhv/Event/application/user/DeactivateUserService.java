@@ -1,22 +1,22 @@
 package at.fhv.Event.application.user;
 
-import at.fhv.Event.infrastructure.persistence.user.UserAccountEntity;
-import at.fhv.Event.infrastructure.persistence.user.UserAccountJpaRepository;
+import at.fhv.Event.domain.model.user.UserAccount;
+import at.fhv.Event.domain.model.user.UserAccountRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class DeactivateUserService {
 
-    private final UserAccountJpaRepository userRepo;
+    private final UserAccountRepository userRepo;
 
-    public DeactivateUserService(UserAccountJpaRepository userRepo) {
+    public DeactivateUserService(UserAccountRepository userRepo) {
         this.userRepo = userRepo;
     }
 
     @Transactional
     public void deactivate(Long userId) {
-        UserAccountEntity user = userRepo.findById(userId).orElseThrow();
+        UserAccount user = userRepo.findById(userId).orElseThrow();
         user.setActive(false);
         userRepo.save(user);
     }

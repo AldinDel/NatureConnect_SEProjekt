@@ -8,11 +8,10 @@ import at.fhv.Event.domain.model.invoice.Invoice;
 import at.fhv.Event.domain.model.invoice.InvoiceLine;
 import at.fhv.Event.domain.model.invoice.InvoiceRepository;
 import at.fhv.Event.infrastructure.persistence.booking.BookingEquipmentEntity;
-import at.fhv.Event.infrastructure.persistence.booking.BookingEquipmentRepository;
+import at.fhv.Event.infrastructure.persistence.booking.BookingEquipmentJpaRepository;
 import at.fhv.Event.infrastructure.persistence.booking.JpaBookingParticipantRepository;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,20 +21,20 @@ public class CreateInterimInvoiceService {
 
     private final BookingRepository bookingRepository;
     private final InvoiceRepository invoiceRepository;
-    private final BookingEquipmentRepository bookingEquipmentRepository;
+    private final BookingEquipmentJpaRepository bookingEquipmentJpaRepository;
     private final EventRepository eventRepository;
     private final JpaBookingParticipantRepository bookingParticipantRepository;
 
     public CreateInterimInvoiceService(
             BookingRepository bookingRepository,
             InvoiceRepository invoiceRepository,
-            BookingEquipmentRepository bookingEquipmentRepository,
+            BookingEquipmentJpaRepository bookingEquipmentJpaRepository,
             EventRepository eventRepository,
             JpaBookingParticipantRepository bookingParticipantRepository
     ) {
         this.bookingRepository = bookingRepository;
         this.invoiceRepository = invoiceRepository;
-        this.bookingEquipmentRepository = bookingEquipmentRepository;
+        this.bookingEquipmentJpaRepository = bookingEquipmentJpaRepository;
         this.eventRepository = eventRepository;
         this.bookingParticipantRepository = bookingParticipantRepository;
     }
@@ -90,7 +89,7 @@ public class CreateInterimInvoiceService {
 
         if (equipmentIds != null && !equipmentIds.isEmpty()) {
             List<BookingEquipmentEntity> bookingEquipments =
-                    bookingEquipmentRepository.findNotYetInvoicedByBookingId(bookingId)
+                    bookingEquipmentJpaRepository.findNotYetInvoicedByBookingId(bookingId)
                             .stream()
                             .filter(be -> equipmentIds.contains(be.getEquipmentId()))
                             .toList();
@@ -101,7 +100,7 @@ public class CreateInterimInvoiceService {
                                     be.getEquipmentId(),
                                     "Equipment " + be.getEquipmentId(),
                                     be.getQuantity(),
-                                    BigDecimal.valueOf(be.getUnitPrice())
+                                    be.getPricePerUnit()
                             )
                     )
             );

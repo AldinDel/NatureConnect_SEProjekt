@@ -1,40 +1,37 @@
 package at.fhv.Event.domain.model.booking;
 
-public class BookingEquipment {
+import java.math.BigDecimal;
 
+public class BookingEquipment {
     private Long id;
+    private Long bookingId;
     private Long equipmentId;
     private int quantity;
-    private double unitPrice;
-    private double totalPrice;
+    private BigDecimal pricePerUnit;
+    private boolean invoiced;
 
     public BookingEquipment() {
     }
 
-    public BookingEquipment(Long equipmentId, int quantity, double unitPrice) {
+    public BookingEquipment(Long bookingId, Long equipmentId, int quantity, BigDecimal pricePerUnit) {
         if (equipmentId == null) {
             throw new IllegalArgumentException("equipmentId must not be null");
         }
         if (quantity < 1) {
             throw new IllegalArgumentException("Quantity must be >= 1");
         }
-        if (unitPrice < 0) {
+        if (pricePerUnit.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("Unit price must be >= 0");
         }
+        this.bookingId = bookingId;
         this.equipmentId = equipmentId;
         this.quantity = quantity;
-        this.unitPrice = unitPrice;
-        recalculateTotal();
+        this.pricePerUnit = pricePerUnit;
+        this.invoiced = false;
     }
 
-    public void recalculateTotal() {
-        this.totalPrice = unitPrice * quantity;
-    }
-
-    public void changeQuantity(int newQuantity) {
-        if (newQuantity < 1) throw new IllegalArgumentException("Quantity must be >= 1");
-        this.quantity = newQuantity;
-        recalculateTotal();
+    public BigDecimal getTotalPrice() {
+        return pricePerUnit.multiply(BigDecimal.valueOf(quantity));
     }
 
     public Long getId() {
@@ -43,6 +40,14 @@ public class BookingEquipment {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Long getBookingId() {
+        return bookingId;
+    }
+
+    public void setBookingId(Long bookingId) {
+        this.bookingId = bookingId;
     }
 
     public Long getEquipmentId() {
@@ -61,19 +66,19 @@ public class BookingEquipment {
         this.quantity = quantity;
     }
 
-    public double getUnitPrice() {
-        return unitPrice;
+    public BigDecimal getPricePerUnit() {
+        return pricePerUnit;
     }
 
-    public void setUnitPrice(double unitPrice) {
-        this.unitPrice = unitPrice;
+    public void setPricePerUnit(BigDecimal pricePerUnit) {
+        this.pricePerUnit = pricePerUnit;
     }
 
-    public double getTotalPrice() {
-        return unitPrice * quantity;
+    public boolean isInvoiced() {
+        return invoiced;
     }
 
-    public void setTotalPrice(double totalPrice) {
-        this.totalPrice = totalPrice;
+    public void setInvoiced(boolean invoiced) {
+        this.invoiced = invoiced;
     }
 }

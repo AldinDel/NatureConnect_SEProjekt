@@ -1,4 +1,4 @@
-package at.fhv.Event.infrastructure.participant;
+package at.fhv.Event.infrastructure.persistence.participant;
 
 import at.fhv.Event.application.event.GetParticipantsForEventService;
 import at.fhv.Event.domain.model.booking.*;

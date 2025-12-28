@@ -23,8 +23,6 @@ public class PaymentTransaction {
         this.status = TransactionStatus.SUCCESS;
     }
 
-    // Getters and Setters
-
     public Long getId() {
         return id;
     }

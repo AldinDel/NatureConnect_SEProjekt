@@ -1,27 +1,27 @@
 package at.fhv.Event.domain.model.user;
 
 public class Role {
-    private Long _id;
-    private String _code;
+    private Long id;
+    private String code;
 
     public Role(Long id, String code) {
-        _id = id;
-        _code = code;
+        this.id = id;
+        this.code = code;
     }
 
-    public Long get_id() {
-        return _id;
+    public Long getId() {
+        return id;
     }
 
-    public void set_id(Long _id) {
-        this._id = _id;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public String get_code() {
-        return _code;
+    public String getCode() {
+        return code;
     }
 
-    public void set_code(String _code) {
-        this._code = _code;
+    public void setCode(String code) {
+        this.code = code;
     }
 }

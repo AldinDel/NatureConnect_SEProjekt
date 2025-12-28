@@ -29,11 +29,13 @@ public class BookingRequestMapper {
                         ? req.getParticipants().stream()
                         .map(p -> new BookingParticipant(
                                 null,
+                                null,
                                 p.getFirstName(),
                                 p.getLastName(),
                                 p.getAge(),
                                 ParticipantCheckInStatus.REGISTERED,
-                                ParticipantCheckOutStatus.NOT_CHECKED_OUT
+                                ParticipantCheckOutStatus.NOT_CHECKED_OUT,
+                                null
                         ))
                         .toList()
                         : List.of(),

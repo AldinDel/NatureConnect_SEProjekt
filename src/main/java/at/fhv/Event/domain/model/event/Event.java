@@ -1,16 +1,17 @@
 package at.fhv.Event.domain.model.event;
 
 import at.fhv.Event.domain.model.equipment.EventEquipment;
+import at.fhv.Event.domain.model.exception.EventFullyBookedException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class Event {
-
     private Long id;
     private String title;
     private String description;
@@ -69,6 +70,86 @@ public class Event {
                 : new ArrayList<>(hikeRouteKeys);
         this.cancelled = false;
         this.audience = audience;
+    }
+
+    public void cancel() {
+        if (this.cancelled) {
+            throw new IllegalStateException("Event already cancelled.");
+        }
+        this.cancelled = true;
+    }
+
+    public void updateDetails(String title, String description, BigDecimal price) {
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("Title cannot be null or empty.");
+        }
+
+        if (description == null || description.trim().isEmpty()) {
+            throw new IllegalArgumentException("Description cannot be null or empty.");
+        }
+
+        if (price.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Price cannot be negative.");
+        }
+
+        this.title = title.trim();
+        this.description = description.trim();
+        this.price = price;
+    }
+
+    public boolean isBookable(int currentBookedSeats) {
+        if (Boolean.TRUE.equals(this.cancelled)) {
+            return false;
+        }
+
+        if (this.date != null && this.startTime != null) {
+            LocalDateTime eventStart = LocalDateTime.of(this.date, this.startTime);
+            if (eventStart.isBefore(LocalDateTime.now())) {
+                return false;
+            }
+        }
+
+        if (currentBookedSeats >= this.maxParticipants) {
+            return false;
+        }
+        return true;
+    }
+
+    public void validateAvailability() {
+        if (Boolean.TRUE.equals(this.cancelled)) {
+            throw new IllegalStateException("This event is cancelled and cannot be booked.");
+        }
+
+        if (this.date != null && this.startTime != null) {
+            LocalDateTime eventStart = LocalDateTime.of(this.date, this.startTime);
+            if (eventStart.isBefore(LocalDateTime.now())) {
+                throw new IllegalStateException("This event is expired and cannot be booked.");
+            }
+        }
+    }
+
+    public int getAvailableSeats(int currentlyBooked) {
+        int min = this.minParticipants != null ? this.minParticipants : 0;
+        int capacity = this.maxParticipants - min;
+        int remaining = capacity - currentlyBooked;
+        return Math.max(0, remaining);
+    }
+
+    public boolean hasEnoughSeats(int requestedSeats, int currentBookedSeats) {
+        int available = getAvailableSeats(currentBookedSeats);
+        return requestedSeats <= available;
+    }
+
+    public void validateCapacity(int requestedSeats, int currentlyBooked) {
+        int available = getAvailableSeats(currentlyBooked);
+
+        if (available <= 0) {
+            throw new EventFullyBookedException(this.id, requestedSeats, 0);
+        }
+
+        if (requestedSeats > available) {
+            throw new EventFullyBookedException(this.id, requestedSeats, available);
+        }
     }
 
     public Long getId() {

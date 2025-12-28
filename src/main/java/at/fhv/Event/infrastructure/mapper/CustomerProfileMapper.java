@@ -29,15 +29,15 @@ public class CustomerProfileMapper {
 
         CustomerProfileEntity entity = new CustomerProfileEntity();
 
-        entity.setId(domain.get_id());
-        entity.setUser(UserMapper.toEntity(domain.get_user()));
-        entity.setFirstName(domain.get_firstName());
-        entity.setLastName(domain.get_lastName());
-        entity.setEmail(domain.get_email());
-        entity.setPhone(domain.get_phone());
-        entity.setBirthday(domain.get_birthday());
-        entity.setCreatedAt(domain.get_createdAt());
-        entity.setUpdatedAt(domain.get_updatedAt());
+        entity.setId(domain.getId());
+        entity.setUser(UserMapper.toEntity(domain.getUser()));
+        entity.setFirstName(domain.getFirstName());
+        entity.setLastName(domain.getLastName());
+        entity.setEmail(domain.getEmail());
+        entity.setPhone(domain.getPhone());
+        entity.setBirthday(domain.getBirthday());
+        entity.setCreatedAt(domain.getCreatedAt());
+        entity.setUpdatedAt(domain.getUpdatedAt());
 
         return entity;
     }

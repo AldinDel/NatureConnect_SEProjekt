@@ -31,7 +31,7 @@ public class BookingValidator {
     public List<ValidationError> validate(CreateBookingRequest request, Event event, Map<Long, Equipment> equipmentMap, int alreadyBookedSeats) {
         List<ValidationError> errors = new ArrayList<>();
         validateBookerName(request, errors);
-        validateBookerEmail(request,errors);
+        validateBookerEmail(request, errors);
         validateSeats(request, event, alreadyBookedSeats, errors);
         validateParticipants(request, errors);
         validateSpecialNotes(request, errors);
@@ -41,99 +41,107 @@ public class BookingValidator {
     }
 
     private void validateBookerName(CreateBookingRequest request, List<ValidationError> errors) {
-        String _firstName = request.getBookerFirstName();
-        String _lastName = request.getBookerLastName();
-        if (isBlank(_firstName)) {
+        String firstName = request.getBookerFirstName();
+        String lastName = request.getBookerLastName();
+
+        if (isBlank(firstName)) {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     "bookerFirstName",
-                    "First name is required.",
-                    _firstName
+                    firstName,
+                    "First name is required"
             ));
         } else {
-            if (_firstName.length() > MAX_NAME_LENGTH) {
+            if (firstName.length() > MAX_NAME_LENGTH) {
                 errors.add(new ValidationError(
                         ValidationErrorType.INVALID_INPUT,
                         "bookerFirstName",
-                        "first name can't exceed 50 characters.",
-                        _firstName
+                        firstName,
+                        "First name can't exceed 50 characters"
                 ));
             }
-            if (!_firstName.matches(NAME_REGEX)) {
+            if (!firstName.matches(NAME_REGEX)) {
                 errors.add(new ValidationError(
                         ValidationErrorType.INVALID_INPUT,
                         "bookerFirstName",
-                        "First name can only contain letters, spaces, and dash.",
-                        _firstName
+                        firstName,
+                        "First name can only contain letters, spaces, and dash"
                 ));
             }
         }
-        if (isBlank(_lastName)) {
+
+        if (isBlank(lastName)) {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     "bookerLastName",
-                    "Last name is required.",
-                    _lastName
+                    lastName,
+                    "Last name is required"
             ));
         } else {
-            if (_lastName.length() > MAX_NAME_LENGTH) {
+            if (lastName.length() > MAX_NAME_LENGTH) {
                 errors.add(new ValidationError(
                         ValidationErrorType.INVALID_INPUT,
                         "bookerLastName",
-                        "Last name can't exceed 50 characters.",
-                        _lastName
+                        lastName,
+                        "Last name can't exceed 50 characters"
                 ));
             }
-            if (!_lastName.matches(NAME_REGEX)) {
+            if (!lastName.matches(NAME_REGEX)) {
                 errors.add(new ValidationError(
                         ValidationErrorType.INVALID_INPUT,
                         "bookerLastName",
-                        "Last name can only contain letters, spaces, and dash",
-                        _lastName
+                        lastName,
+                        "Last name can only contain letters, spaces, and dash"
                 ));
             }
         }
     }
+
     private void validateBookerEmail(CreateBookingRequest request, List<ValidationError> errors) {
-        String _email = request.getBookerEmail();
-        if (isBlank(_email)) {
+        String email = request.getBookerEmail();
+
+        if (isBlank(email)) {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     "bookerEmail",
-                    "Email is required.",
-                    _email
+                    email,
+                    "Email is required"
             ));
             return;
         }
-        if (!_email.matches(EMAIL_REGEX)) {
+
+        if (!email.matches(EMAIL_REGEX)) {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     "bookerEmail",
-                    "Email format is invalid",
-                    _email
+                    email,
+                    "Email format is invalid"
             ));
         }
-        if (_email.length() > MAX_EMAIL_LENGTH) {
+
+        if (email.length() > MAX_EMAIL_LENGTH) {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     "bookerEmail",
-                    "Email can't exceed 100 characters",
-                    _email
+                    email,
+                    "Email can't exceed 100 characters"
             ));
         }
     }
 
     private void validateSeats(CreateBookingRequest request, Event event, int alreadyBookedSeats, List<ValidationError> errors) {
         int requestedSeats = request.getSeats();
+
         if (requestedSeats < 1) {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     "seats",
-                    "At least 1 participant required",
-                    String.valueOf(requestedSeats)
+                    String.valueOf(requestedSeats),
+                    "At least 1 participant required"
             ));
         }
     }
+
     private void validateParticipants(CreateBookingRequest request, List<ValidationError> errors) {
         if (request.getParticipants() == null || request.getParticipants().isEmpty()) {
             return;
@@ -143,12 +151,29 @@ public class BookingValidator {
             var participant = request.getParticipants().get(i);
             String prefix = "participants[" + i + "]";
             int participantNumber = i + 1;
-            validateParticipantName(participant.getFirstName(), prefix + ".firstName",
-                    participantNumber, "First", errors);
-            validateParticipantName(participant.getLastName(), prefix + ".lastName",
-                    participantNumber, "Last", errors);
-            validateParticipantAge(participant.getAge(), prefix + ".age",
-                    participantNumber, errors);
+
+            validateParticipantName(
+                    participant.getFirstName(),
+                    prefix + ".firstName",
+                    participantNumber,
+                    "First",
+                    errors
+            );
+
+            validateParticipantName(
+                    participant.getLastName(),
+                    prefix + ".lastName",
+                    participantNumber,
+                    "Last",
+                    errors
+            );
+
+            validateParticipantAge(
+                    participant.getAge(),
+                    prefix + ".age",
+                    participantNumber,
+                    errors
+            );
         }
     }
 
@@ -157,15 +182,15 @@ public class BookingValidator {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     field,
-                    String.format("Participant %d: %s name is required", participantNumber, nameType),
-                    name
+                    name,
+                    String.format("Participant %d: %s name is required", participantNumber, nameType)
             ));
         } else if (name.length() > MAX_NAME_LENGTH) {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     field,
-                    String.format("Participant %d: %s name too long", participantNumber, nameType),
-                    name
+                    name,
+                    String.format("Participant %d: %s name too long", participantNumber, nameType)
             ));
         }
     }
@@ -175,59 +200,78 @@ public class BookingValidator {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     field,
-                    String.format("Participant %d: Age must be between 1 and 120", participantNumber),
-                    String.valueOf(age)
+                    String.valueOf(age),
+                    String.format("Participant %d: Age must be between 1 and 120", participantNumber)
             ));
         }
     }
+
     private void validateSpecialNotes(CreateBookingRequest request, List<ValidationError> errors) {
         String notes = request.getSpecialNotes();
+
         if (notes != null && notes.length() > MAX_NOTES_LENGTH) {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     "specialNotes",
-                    "Special notes can't exceed 250 characters",
-                    notes
+                    notes,
+                    "Special notes can't exceed 250 characters"
             ));
         }
     }
+
     private void validateVoucherCode(CreateBookingRequest request, List<ValidationError> errors) {
         String voucherCode = request.getVoucherCode();
-        if (voucherCode != null && voucherCode.length() > MAX_VOUCHER_LENGTH ) {
+
+        if (voucherCode != null && voucherCode.length() > MAX_VOUCHER_LENGTH) {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     "voucherCode",
-                    "Voucher code can't exceed 50 characters",
-                    voucherCode
+                    voucherCode,
+                    "Voucher code can't exceed 50 characters"
             ));
         }
     }
+
     private void validateEquipment(CreateBookingRequest request, Event event, Map<Long, Equipment> equipmentMap, List<ValidationError> errors) {
         Map<Long, EventEquipment> eventEquipmentMap = createEventEquipmentMap(event);
+
         for (var entry : request.getEquipment().entrySet()) {
             Long equipmentId = entry.getKey();
             EquipmentSelection selection = entry.getValue();
+
             if (!selection.isSelected()) {
                 continue;
             }
+
             String prefix = "equipments[" + equipmentId + "]";
             EventEquipment eventEquipment = eventEquipmentMap.get(equipmentId);
+
             if (eventEquipment == null) {
                 errors.add(new ValidationError(
                         ValidationErrorType.EQUIPMENT_ERROR,
                         prefix,
-                        String.format("Equipment %d is not available for this event", equipmentId),
-                        String.valueOf(equipmentId)
-                )); continue;
+                        String.valueOf(equipmentId),
+                        String.format("Equipment %d is not available for this event", equipmentId)
+                ));
+                continue;
             }
-            validateEquipmentQuantity(eventEquipment, selection.getQuantity(), request.getSeats(), prefix, errors);
+
+            validateEquipmentQuantity(
+                    eventEquipment,
+                    selection.getQuantity(),
+                    request.getSeats(),
+                    prefix,
+                    errors
+            );
         }
     }
-    private void validateEquipmentQuantity(EventEquipment eventEquipment,
-                                           int requestedQuantity,
-                                           int participantCount,
-                                           String prefix,
-                                           List<ValidationError> errors) {
+
+    private void validateEquipmentQuantity(
+            EventEquipment eventEquipment,
+            int requestedQuantity,
+            int participantCount,
+            String prefix,
+            List<ValidationError> errors) {
 
         String equipmentName = eventEquipment.getEquipment().getName();
         int availableStock = eventEquipment.getEquipment().getStock();
@@ -237,8 +281,8 @@ public class BookingValidator {
             errors.add(new ValidationError(
                     ValidationErrorType.EQUIPMENT_ERROR,
                     prefix + ".quantity",
-                    String.valueOf(requestedQuantity), // <-- NEU: Dies ist jetzt rejectedValue (3. Argument)
-                    String.format("%s: maximum available is %d", equipmentName, availableStock) // <-- NEU: Dies ist jetzt message (4. Argument)
+                    String.valueOf(requestedQuantity),
+                    String.format("%s: maximum available is %d", equipmentName, availableStock)
             ));
         }
 
@@ -246,8 +290,8 @@ public class BookingValidator {
             errors.add(new ValidationError(
                     ValidationErrorType.INVALID_INPUT,
                     prefix + ".quantity",
-                    String.valueOf(requestedQuantity), // <-- NEU: rejectedValue
-                    String.format("%s: quantity must be at least 1", equipmentName) // <-- NEU: message
+                    String.valueOf(requestedQuantity),
+                    String.format("%s: quantity must be at least 1", equipmentName)
             ));
             return;
         }
@@ -256,8 +300,8 @@ public class BookingValidator {
             errors.add(new ValidationError(
                     ValidationErrorType.BUSINESS_RULE_VIOLATION,
                     prefix + ".quantity",
-                    String.format("%s cannot be booked for more than the number of participants (%d)", equipmentName, participantCount),
-                    String.valueOf(requestedQuantity)
+                    String.valueOf(requestedQuantity),
+                    String.format("%s cannot be booked for more than the number of participants (%d)", equipmentName, participantCount)
             ));
         }
 
@@ -265,23 +309,24 @@ public class BookingValidator {
             errors.add(new ValidationError(
                     ValidationErrorType.EQUIPMENT_ERROR,
                     prefix,
-                    String.format("%s: required for %d participants but only %d available", equipmentName, participantCount, availableStock),
-                    String.valueOf(participantCount)
+                    String.valueOf(participantCount),
+                    String.format("%s: required for %d participants but only %d available", equipmentName, participantCount, availableStock)
             ));
         }
     }
 
     private Map<Long, EventEquipment> createEventEquipmentMap(Event event) {
         Map<Long, EventEquipment> map = new HashMap<>();
+
         for (EventEquipment eventEquipment : event.getEventEquipments()) {
             Long id = eventEquipment.getEquipment().getId();
-            map.put(id,eventEquipment);
+            map.put(id, eventEquipment);
         }
+
         return map;
     }
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
     }
-
 }

@@ -19,8 +19,8 @@ public class RoleMapper {
         }
 
         RoleEntity entity = new RoleEntity();
-        entity.setId(domain.get_id());
-        entity.setCode(domain.get_code());
+        entity.setId(domain.getId());
+        entity.setCode(domain.getCode());
 
         return entity;
     }

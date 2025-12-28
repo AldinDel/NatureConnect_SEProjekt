@@ -1,12 +1,7 @@
 package at.fhv.Event.application.user;
 
 import at.fhv.Event.application.request.user.AdminUserEditRequest;
-import at.fhv.Event.infrastructure.persistence.user.CustomerProfileEntity;
-import at.fhv.Event.infrastructure.persistence.user.CustomerProfileJpaRepository;
-import at.fhv.Event.infrastructure.persistence.user.RoleEntity;
-import at.fhv.Event.infrastructure.persistence.user.RoleJpaRepository;
-import at.fhv.Event.infrastructure.persistence.user.UserAccountEntity;
-import at.fhv.Event.infrastructure.persistence.user.UserAccountJpaRepository;
+import at.fhv.Event.domain.model.user.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,18 +10,13 @@ import java.time.OffsetDateTime;
 
 @Service
 public class CreateAdminUserService {
-
-    private final UserAccountJpaRepository userRepo;
-    private final RoleJpaRepository roleRepo;
-    private final CustomerProfileJpaRepository customerProfileRepo;
+    private final UserAccountRepository userRepo;
+    private final RoleRepository roleRepo;
+    private final CustomerProfileRepository customerProfileRepo;
     private final PasswordEncoder passwordEncoder;
 
-    public CreateAdminUserService(
-            UserAccountJpaRepository userRepo,
-            RoleJpaRepository roleRepo,
-            CustomerProfileJpaRepository customerProfileRepo,
-            PasswordEncoder passwordEncoder
-    ) {
+    public CreateAdminUserService(UserAccountRepository userRepo, RoleRepository roleRepo,
+            CustomerProfileRepository customerProfileRepo, PasswordEncoder passwordEncoder) {
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
         this.customerProfileRepo = customerProfileRepo;
@@ -46,10 +36,10 @@ public class CreateAdminUserService {
             throw new IllegalArgumentException("Passwort ist erforderlich.");
         }
 
-        RoleEntity role = roleRepo.findByCode(req.role())
+        Role role = roleRepo.findByCode(req.role())
                 .orElseThrow(() -> new IllegalArgumentException("Rolle nicht gefunden: " + req.role()));
 
-        UserAccountEntity user = new UserAccountEntity();
+        UserAccount user = new UserAccount();
         user.setFirstName(req.firstName().trim());
         user.setLastName(req.lastName().trim());
         user.setEmail(email);
@@ -57,14 +47,13 @@ public class CreateAdminUserService {
         user.setActive(req.active());
         user.setCreatedAt(OffsetDateTime.now());
         user.setUpdatedAt(OffsetDateTime.now());
-
         user.getRoles().clear();
         user.getRoles().add(role);
 
-        UserAccountEntity saved = userRepo.save(user);
+        UserAccount saved = userRepo.save(user);
 
         if ("CUSTOMER".equals(req.role())) {
-            CustomerProfileEntity profile = new CustomerProfileEntity();
+            CustomerProfile profile = new CustomerProfile();
             profile.setUser(saved);
             profile.setFirstName(saved.getFirstName());
             profile.setLastName(saved.getLastName());
@@ -73,7 +62,6 @@ public class CreateAdminUserService {
             profile.setUpdatedAt(OffsetDateTime.now());
             customerProfileRepo.save(profile);
         }
-
         return saved.getId();
     }
 }
