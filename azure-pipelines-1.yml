@@ -1,26 +1,26 @@
 trigger:
-  - master
+- master
 
 pool:
   name: fhv-linux-pool
 
 stages:
-  - stage: Build
-    displayName: Build the Application
-    jobs:
-      - job: Build
-        displayName: Gradle Build
-        steps:
-          - checkout: self
+- stage: Build
+  displayName: Build the Application
+  jobs:
+  - job: Build
+    displayName: Gradle Build
+    steps:
+    - checkout: self
 
-          - task: Gradle@3
-            displayName: Run Gradle Build
-            inputs:
-              gradleWrapperFile: 'gradlew'
-              tasks: 'build'
-              options: '-Xmx3072m'
-              publishJUnitResults: true
-              testResultsFiles: '**/TEST-*.xml'
-              javaHomeOption: 'JDKVersion'
-              jdkVersionOption: '1.17'
-              jdkArchitectureOption: 'x64'
+    - task: Gradle@3
+      displayName: Run Gradle Build
+      inputs:
+        gradleWrapperFile: 'gradlew'
+        tasks: 'build'
+        options: '-Xmx3072m'
+        publishJUnitResults: true
+        testResultsFiles: '**/TEST-*.xml'
+        javaHomeOption: 'JDKVersion'
+        jdkVersionOption: '1.17'
+        jdkArchitectureOption: 'x64'
