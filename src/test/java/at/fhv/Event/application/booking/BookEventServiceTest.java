@@ -258,7 +258,7 @@ class BookEventServiceTest {
 
         // loadEventForBooking wird vom Service in loadEvent() verwendet
         when(bookingRepository.loadEventForBooking(eventId))
-                .thenThrow(new RuntimeException("event not found"));
+                .thenThrow(new EventNotFoundException(eventId));
 
         // when + then: service soll EventNotFoundException werfen
         assertThrows(

@@ -1,6 +1,7 @@
 package at.fhv.Event.domain.model.event;
 
 import at.fhv.Event.domain.model.equipment.EventEquipment;
+import at.fhv.Event.domain.model.exception.EventAlreadyCancelledException;
 import at.fhv.Event.domain.model.exception.EventFullyBookedException;
 
 import java.math.BigDecimal;
@@ -74,7 +75,7 @@ public class Event {
 
     public void cancel() {
         if (this.cancelled) {
-            throw new IllegalStateException("Event already cancelled.");
+            throw new EventAlreadyCancelledException(id);
         }
         this.cancelled = true;
     }

@@ -69,7 +69,7 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testImplementation 'com.h2database:h2'
     implementation 'com.cloudinary:cloudinary-http44:1.38.0'
-
+    implementation project(":payment-service")
     implementation 'org.springframework.boot:spring-boot-starter-data-neo4j'
 
 }

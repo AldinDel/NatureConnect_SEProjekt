@@ -1,5 +1,7 @@
 package at.fhv.Event.domain.model.equipment;
 
+import at.fhv.Event.domain.model.exception.InsufficientStockException;
+
 import java.math.BigDecimal;
 
 public class Equipment {
@@ -23,7 +25,7 @@ public class Equipment {
         }
 
         if (quantity > this.stock) {
-            throw new IllegalArgumentException("Not enough stock");
+            throw new InsufficientStockException(id, name, quantity, stock);
         }
 
         this.stock -= quantity;
