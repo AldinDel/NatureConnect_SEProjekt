@@ -28,7 +28,7 @@ public class BookingRestController {
         return ResponseEntity.status(HttpStatus.CREATED).body(booking);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/event/{id}")
     public ResponseEntity<BookingDTO> getBookingById(@PathVariable Long id) {
         BookingDTO booking = _bookEventService.getDTOById(id);
         return ResponseEntity.ok(booking);

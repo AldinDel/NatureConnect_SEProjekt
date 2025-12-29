@@ -12,7 +12,8 @@ import java.util.Optional;
 
 public interface BookingJpaRepository extends JpaRepository<BookingEntity, Long> {
     @EntityGraph(attributePaths = {"participants", "equipment"})
-    Optional<BookingEntity> findByIdWithDetails(Long id);
+    @Query("SELECT b FROM BookingEntity b WHERE b.id = :id")
+    Optional<BookingEntity> findByIdWithDetails(@Param("id") Long id);
 
     @EntityGraph(attributePaths = {"participants", "equipment"})
     List<BookingEntity> findAllByEventId(Long eventId);

@@ -85,7 +85,7 @@
                 <a th:href="@{/booking/{id}/edit(id=${dto.id})}"
                    class="btn-edit action-btn">Edit</a>
 
-                <form th:action="@{/booking/{id}/cancel(id=${dto.id})}"
+                <form th:action="@{/booking/event/{id}/cancel(id=${dto.id})}"
                       method="post" style="display:inline;">
                     <button class="btn-small btn-cancel action-btn" type="submit">
                         Cancel

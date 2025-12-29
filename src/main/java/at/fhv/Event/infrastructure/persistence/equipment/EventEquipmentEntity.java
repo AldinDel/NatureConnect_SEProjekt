@@ -20,7 +20,8 @@ public class EventEquipmentEntity {
     @JoinColumn(name = "equipment_id")
     private EquipmentEntity equipment;
 
-    private boolean required;
+    @Column(name = "required", nullable = false)
+    private boolean required = false;
 
     public EventEquipmentEntity() {}
 

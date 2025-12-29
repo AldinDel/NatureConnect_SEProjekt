@@ -49,7 +49,7 @@ public class BookingController {
     }
 
 
-    @GetMapping("/{eventId}")
+    @GetMapping("/event/{eventId}")
     @PreAuthorize("isAuthenticated()")
     public String showBookingPage(@PathVariable Long eventId,
                                   Model model,
