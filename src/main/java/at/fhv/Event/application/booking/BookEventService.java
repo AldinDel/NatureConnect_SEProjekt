@@ -166,18 +166,30 @@ public class BookEventService {
         Booking booking = getById(bookingId);
 
         if (!isAdmin && !booking.getBookerEmail().equalsIgnoreCase(email)) {
-            throw new IllegalStateException("You cannot cancel someone else's booking.");
+            throw new BookingOperationException(
+                    bookingId,
+                    "cancel",
+                    "You cannot cancel someone else's booking"
+            );
         }
 
         if (booking.getStatus() == BookingStatus.CANCELLED) {
-            throw new IllegalStateException("This booking is already cancelled.");
+            throw new BookingOperationException(
+                    bookingId,
+                    "cancel",
+                    "This booking is already cancelled"
+            );
         }
 
         Event event = loadEvent(booking.getEventId());
         LocalDateTime eventStart = LocalDateTime.of(event.getDate(), event.getStartTime());
 
         if (eventStart.isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("This event already started and cannot be cancelled.");
+            throw new BookingOperationException(
+                    bookingId,
+                    "cancel",
+                    "This event already started and cannot be cancelled"
+            );
         }
 
         booking.setStatus(BookingStatus.CANCELLED);

@@ -12,7 +12,7 @@ public class CustomerProfileEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private UserAccountEntity user;
 

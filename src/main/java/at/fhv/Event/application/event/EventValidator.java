@@ -3,6 +3,7 @@ package at.fhv.Event.application.event;
 import at.fhv.Event.application.request.event.CreateEventRequest;
 import at.fhv.Event.application.request.event.UpdateEventRequest;
 import at.fhv.Event.domain.model.exception.ValidationError;
+import at.fhv.Event.domain.model.exception.ValidationErrorFactory;
 import at.fhv.Event.domain.model.exception.ValidationErrorType;
 import org.springframework.stereotype.Component;
 
@@ -48,30 +49,15 @@ public class EventValidator {
 
     private void validateTitle(String title, List<ValidationError> errors) {
         if (isBlank(title)) {
-            errors.add(new ValidationError(
-                    ValidationErrorType.INVALID_INPUT,
-                    "title",
-                    title,
-                    "Title is required"
-            ));
+            errors.add(ValidationErrorFactory.required("title"));
         } else if (title.length() > MAX_TITLE_LENGTH) {
-            errors.add(new ValidationError(
-                    ValidationErrorType.INVALID_INPUT,
-                    "title",
-                    title,
-                    "Title cannot exceed " + MAX_TITLE_LENGTH + " characters"
-            ));
+            errors.add(ValidationErrorFactory.tooLong("title", title, MAX_TITLE_LENGTH));
         }
     }
 
     private void validateDate(LocalDate date, List<ValidationError> errors) {
         if (date == null) {
-            errors.add(new ValidationError(
-                    ValidationErrorType.INVALID_INPUT,
-                    "date",
-                    null,
-                    "Event date is required"
-            ));
+            errors.add(ValidationErrorFactory.required("date"));
         } else if (date.isBefore(LocalDate.now())) {
             errors.add(new ValidationError(
                     ValidationErrorType.BUSINESS_RULE_VIOLATION,
@@ -84,12 +70,7 @@ public class EventValidator {
 
     private void validateTimeRange(LocalTime start, LocalTime end, List<ValidationError> errors) {
         if (start == null || end == null) {
-            errors.add(new ValidationError(
-                    ValidationErrorType.INVALID_INPUT,
-                    "time",
-                    null,
-                    "Start and end time are required"
-            ));
+            errors.add(ValidationErrorFactory.required("start, end"));
         } else if (!start.isBefore(end)) {
             errors.add(new ValidationError(
                     ValidationErrorType.BUSINESS_RULE_VIOLATION,
@@ -150,30 +131,15 @@ public class EventValidator {
 
     private void validateLocation(String location, List<ValidationError> errors) {
         if (isBlank(location)) {
-            errors.add(new ValidationError(
-                    ValidationErrorType.INVALID_INPUT,
-                    "location",
-                    location,
-                    "Location is required"
-            ));
+            errors.add(ValidationErrorFactory.required("location"));
         } else if (location.length() > MAX_LOCATION_LENGTH) {
-            errors.add(new ValidationError(
-                    ValidationErrorType.INVALID_INPUT,
-                    "location",
-                    location,
-                    "Location cannot exceed " + MAX_LOCATION_LENGTH + " characters"
-            ));
+            errors.add(ValidationErrorFactory.tooLong("location", location, MAX_LOCATION_LENGTH));
         }
     }
 
     private void validateDescription(String description, List<ValidationError> errors) {
         if (description != null && description.length() > MAX_DESCRIPTION_LENGTH) {
-            errors.add(new ValidationError(
-                    ValidationErrorType.INVALID_INPUT,
-                    "description",
-                    description,
-                    "Description cannot exceed " + MAX_DESCRIPTION_LENGTH + " characters"
-            ));
+            errors.add(ValidationErrorFactory.tooLong("description", description, MAX_DESCRIPTION_LENGTH));
         }
     }
 

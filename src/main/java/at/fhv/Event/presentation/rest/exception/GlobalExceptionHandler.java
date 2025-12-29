@@ -494,6 +494,115 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 
+    @ExceptionHandler(BookingOperationException.class)
+    public ResponseEntity<ErrorResponse> handleBookingOperation(
+            BookingOperationException exception,
+            WebRequest request) {
+
+        String message = errorMessageService.getMessage(
+                exception.getErrorCode(),
+                exception.getOperation(),
+                exception.getReason()
+        );
+
+        Map<String, Object> details = new HashMap<>();
+        details.put("bookingId", exception.getBookingId());
+        details.put("operation", exception.getOperation());
+        details.put("reason", exception.getReason());
+
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.CONFLICT.value(),
+                exception.getErrorCode(),
+                message,
+                extractPath(request),
+                details
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    @ExceptionHandler(PaymentOperationException.class)
+    public ResponseEntity<ErrorResponse> handlePaymentOperation(
+            PaymentOperationException exception,
+            WebRequest request) {
+
+        String message = errorMessageService.getMessage(
+                exception.getErrorCode(),
+                exception.getBookingId(),
+                exception.getReason()
+        );
+
+        Map<String, Object> details = new HashMap<>();
+        details.put("bookingId", exception.getBookingId());
+        details.put("reason", exception.getReason());
+
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.PAYMENT_REQUIRED.value(),
+                exception.getErrorCode(),
+                message,
+                extractPath(request),
+                details
+        );
+
+        return ResponseEntity.status(HttpStatus.PAYMENT_REQUIRED).body(response);
+    }
+
+    @ExceptionHandler(InvoiceCreationException.class)
+    public ResponseEntity<ErrorResponse> handleInvoiceCreation(
+            InvoiceCreationException exception,
+            WebRequest request) {
+
+        String message = errorMessageService.getMessage(
+                exception.getErrorCode(),
+                exception.getBookingId(),
+                exception.getReason()
+        );
+
+        Map<String, Object> details = new HashMap<>();
+        details.put("bookingId", exception.getBookingId());
+        details.put("reason", exception.getReason());
+
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                exception.getErrorCode(),
+                message,
+                extractPath(request),
+                details
+        );
+
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(EquipmentCreationException.class)
+    public ResponseEntity<ErrorResponse> handleEquipmentCreation(
+            EquipmentCreationException exception,
+            WebRequest request) {
+
+        String message = errorMessageService.getMessage(
+                exception.getErrorCode(),
+                exception.getEquipmentName(),
+                exception.getReason()
+        );
+
+        Map<String, Object> details = new HashMap<>();
+        details.put("equipmentName", exception.getEquipmentName());
+        details.put("reason", exception.getReason());
+
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                exception.getErrorCode(),
+                message,
+                extractPath(request),
+                details
+        );
+
+        return ResponseEntity.badRequest().body(response);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(
             IllegalArgumentException exception,

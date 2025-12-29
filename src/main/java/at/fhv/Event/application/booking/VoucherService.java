@@ -18,14 +18,6 @@ public class VoucherService {
         this.voucherRepository = voucherRepository;
     }
 
-    public Optional<Voucher> findByCode(String code) {
-        if (code == null || code.isBlank()) {
-            return Optional.empty();
-        }
-
-        return voucherRepository.findByCode(code.trim());
-    }
-
     public VoucherValidationResponseDTO validate(String code) {
         VoucherValidationResponseDTO response = new VoucherValidationResponseDTO();
 

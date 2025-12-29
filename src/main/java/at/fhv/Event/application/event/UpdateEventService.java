@@ -83,10 +83,24 @@ public class UpdateEventService {
 
             if (eqReq.isRentable()) {
                 if (eqReq.getUnitPrice() == null) {
-                    throw new IllegalArgumentException("Unit price is required when equipment is rentable: " + eqReq.getName());
+                    throw new EventValidationException(List.of(
+                            new ValidationError(
+                                    ValidationErrorType.BUSINESS_RULE_VIOLATION,
+                                    "equipment.unitPrice",
+                                    eqReq.getName(),
+                                    "Unit price is required when equipment is rentable: " + eqReq.getName()
+                            )
+                    ));
                 }
                 if (eqReq.getStock() == null) {
-                    throw new IllegalArgumentException("Stock is required when equipment is rentable: " + eqReq.getName());
+                    throw new EventValidationException(List.of(
+                            new ValidationError(
+                                    ValidationErrorType.BUSINESS_RULE_VIOLATION,
+                                    "equipment.stock",
+                                    eqReq.getName(),
+                                    "Stock is required when equipment is rentable: " + eqReq.getName()
+                            )
+                    ));
                 }
             }
             Equipment equipment;

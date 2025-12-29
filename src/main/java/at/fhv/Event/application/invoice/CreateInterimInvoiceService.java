@@ -4,12 +4,14 @@ import at.fhv.Event.domain.model.booking.Booking;
 import at.fhv.Event.domain.model.booking.BookingRepository;
 import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.domain.model.event.EventRepository;
+import at.fhv.Event.domain.model.exception.BookingNotFoundException;
+import at.fhv.Event.domain.model.exception.EventNotFoundException;
+import at.fhv.Event.domain.model.exception.InvoiceCreationException;
 import at.fhv.Event.domain.model.invoice.Invoice;
 import at.fhv.Event.domain.model.invoice.InvoiceLine;
 import at.fhv.Event.domain.model.invoice.InvoiceRepository;
 import at.fhv.Event.infrastructure.persistence.booking.BookingEquipmentEntity;
 import at.fhv.Event.infrastructure.persistence.booking.BookingEquipmentJpaRepository;
-import at.fhv.Event.infrastructure.persistence.booking.JpaBookingParticipantRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -23,20 +25,17 @@ public class CreateInterimInvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final BookingEquipmentJpaRepository bookingEquipmentJpaRepository;
     private final EventRepository eventRepository;
-    private final JpaBookingParticipantRepository bookingParticipantRepository;
 
     public CreateInterimInvoiceService(
             BookingRepository bookingRepository,
             InvoiceRepository invoiceRepository,
             BookingEquipmentJpaRepository bookingEquipmentJpaRepository,
-            EventRepository eventRepository,
-            JpaBookingParticipantRepository bookingParticipantRepository
+            EventRepository eventRepository
     ) {
         this.bookingRepository = bookingRepository;
         this.invoiceRepository = invoiceRepository;
         this.bookingEquipmentJpaRepository = bookingEquipmentJpaRepository;
         this.eventRepository = eventRepository;
-        this.bookingParticipantRepository = bookingParticipantRepository;
     }
 
     public Invoice createInterimInvoice(
@@ -47,23 +46,23 @@ public class CreateInterimInvoiceService {
 
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() ->
-                        new RuntimeException("Booking not found: " + bookingId)
+                        new BookingNotFoundException(bookingId)
                 );
 
         if (!booking.isBillingReady()) {
-            throw new RuntimeException(
-                    "Billing is not allowed before checkout is completed"
+            throw new InvoiceCreationException(
+                    bookingId, "Billing is not allowed before checkout is completed"
             );
         }
 
         Event event = eventRepository.findById(booking.getEventId())
                 .orElseThrow(() ->
-                        new RuntimeException("Event not found: " + booking.getEventId())
+                        new EventNotFoundException(booking.getEventId())
                 );
 
         if (event.getDate().isAfter(LocalDate.now())) {
-            throw new RuntimeException(
-                    "Interim invoices cannot include future services"
+            throw new InvoiceCreationException(
+                    bookingId, "Interim invoices cannot include future services"
             );
         }
 
@@ -74,7 +73,10 @@ public class CreateInterimInvoiceService {
                     invoiceRepository.existsEventPriceForBooking(bookingId);
 
             if (alreadyInvoiced) {
-                throw new RuntimeException("Event base price already invoiced");
+                throw new InvoiceCreationException(
+                        bookingId,
+                        "Invoice not found for booking"
+                );
             }
 
             lines.add(
@@ -107,7 +109,7 @@ public class CreateInterimInvoiceService {
         }
 
         if (lines.isEmpty()) {
-            throw new RuntimeException("At least one service must be selected");
+            throw new InvoiceCreationException(bookingId, "At least one service must be selected");
         }
 
         Invoice invoice = Invoice.createInterim(

@@ -288,7 +288,7 @@ class BookEventServiceTest {
 
         // When + Then: es soll sofort krachen, bevor irgendwas validiert/gespeichert wird
         assertThrows(
-                IllegalStateException.class,
+                EventAlreadyCancelledException.class,
                 () -> bookEventService.bookEvent(request)
         );
 
@@ -317,7 +317,7 @@ class BookEventServiceTest {
 
         // When + Then
         assertThrows(
-                IllegalStateException.class,
+                EventDateInPastException.class,
                 () -> bookEventService.bookEvent(request)
         );
 
@@ -430,7 +430,7 @@ class BookEventServiceTest {
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(existingBooking));
         when(bookingRepository.loadEventForBooking(request.getEventId())).thenReturn(mockEvent);
 
-        assertThrows(IllegalStateException.class,
+        assertThrows(EventAlreadyCancelledException.class,
                 () -> bookEventService.updateBooking(bookingId, request));
 
         verify(bookingRepository).findById(bookingId);

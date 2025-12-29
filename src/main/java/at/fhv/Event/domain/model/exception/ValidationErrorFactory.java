@@ -6,7 +6,7 @@ public class ValidationErrorFactory {
                 ValidationErrorType.INVALID_INPUT,
                 field,
                 null,
-                String.format("VALIDATION_REQUIRED: The field \"%s\" is required", field)
+                "VALIDATION_REQUIRED"
         );
     }
 
@@ -15,7 +15,7 @@ public class ValidationErrorFactory {
                 ValidationErrorType.INVALID_INPUT,
                 field,
                 value,
-                String.format("VALIDATION_INVALID_FORMAT: The field \"%s\" has an invalid format", field)
+                "VALIDATION_INVALID_FORMAT"
         );
     }
 
@@ -24,7 +24,7 @@ public class ValidationErrorFactory {
                 ValidationErrorType.INVALID_INPUT,
                 field,
                 value,
-                String.format("VALIDATION_TOO_SHORT: The field \"%s\" is too short (Minimum: %d characters)", field, minLength)
+                String.format("VALIDATION_TOO_SHORT: Minimum %d characters", minLength)
         );
     }
 
@@ -33,7 +33,7 @@ public class ValidationErrorFactory {
                 ValidationErrorType.INVALID_INPUT,
                 field,
                 value,
-                String.format("VALIDATION_TOO_LONG: The field \"%s\" is too long (Maximum: %d characters)", field, maxLength)
+                String.format("VALIDATION_TOO_LONG: Maximum %d characters", maxLength)
         );
     }
 
@@ -42,7 +42,7 @@ public class ValidationErrorFactory {
                 ValidationErrorType.INVALID_INPUT,
                 field,
                 value,
-                String.format("VALIDATION_OUT_OF_RANGE: The value for \"%s\" is outside the allowed range (%d - %d)", field, min, max)
+                String.format("VALIDATION_OUT_OF_RANGE: Must be between %d and %d", min, max)
         );
     }
 
@@ -51,7 +51,7 @@ public class ValidationErrorFactory {
                 ValidationErrorType.INVALID_INPUT,
                 field,
                 value,
-                String.format("VALIDATION_INVALID_VALUE: The value \"%s\" is not valid for the field \"%s\"", value, field)
+                "VALIDATION_INVALID_VALUE"
         );
     }
 }

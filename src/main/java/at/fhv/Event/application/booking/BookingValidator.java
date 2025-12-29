@@ -6,6 +6,7 @@ import at.fhv.Event.domain.model.equipment.EquipmentSelection;
 import at.fhv.Event.domain.model.equipment.EventEquipment;
 import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.domain.model.exception.ValidationError;
+import at.fhv.Event.domain.model.exception.ValidationErrorFactory;
 import at.fhv.Event.domain.model.exception.ValidationErrorType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,54 +46,24 @@ public class BookingValidator {
         String lastName = request.getBookerLastName();
 
         if (isBlank(firstName)) {
-            errors.add(new ValidationError(
-                    ValidationErrorType.INVALID_INPUT,
-                    "bookerFirstName",
-                    firstName,
-                    "First name is required"
-            ));
+            errors.add(ValidationErrorFactory.required("bookerFirstName"));
         } else {
             if (firstName.length() > MAX_NAME_LENGTH) {
-                errors.add(new ValidationError(
-                        ValidationErrorType.INVALID_INPUT,
-                        "bookerFirstName",
-                        firstName,
-                        "First name can't exceed 50 characters"
-                ));
+                errors.add(ValidationErrorFactory.tooLong("bookerFirstName", firstName, MAX_NAME_LENGTH));
             }
             if (!firstName.matches(NAME_REGEX)) {
-                errors.add(new ValidationError(
-                        ValidationErrorType.INVALID_INPUT,
-                        "bookerFirstName",
-                        firstName,
-                        "First name can only contain letters, spaces, and dash"
-                ));
+                errors.add(ValidationErrorFactory.invalidFormat("bookerFirstName", firstName));
             }
         }
 
         if (isBlank(lastName)) {
-            errors.add(new ValidationError(
-                    ValidationErrorType.INVALID_INPUT,
-                    "bookerLastName",
-                    lastName,
-                    "Last name is required"
-            ));
+            errors.add(ValidationErrorFactory.required("bookerLastName"));
         } else {
             if (lastName.length() > MAX_NAME_LENGTH) {
-                errors.add(new ValidationError(
-                        ValidationErrorType.INVALID_INPUT,
-                        "bookerLastName",
-                        lastName,
-                        "Last name can't exceed 50 characters"
-                ));
+                errors.add(ValidationErrorFactory.tooLong("bookerLastName", lastName, MAX_NAME_LENGTH));
             }
             if (!lastName.matches(NAME_REGEX)) {
-                errors.add(new ValidationError(
-                        ValidationErrorType.INVALID_INPUT,
-                        "bookerLastName",
-                        lastName,
-                        "Last name can only contain letters, spaces, and dash"
-                ));
+                errors.add(ValidationErrorFactory.invalidFormat("bookerLastName", lastName));
             }
         }
     }
@@ -101,31 +72,16 @@ public class BookingValidator {
         String email = request.getBookerEmail();
 
         if (isBlank(email)) {
-            errors.add(new ValidationError(
-                    ValidationErrorType.INVALID_INPUT,
-                    "bookerEmail",
-                    email,
-                    "Email is required"
-            ));
+            errors.add(ValidationErrorFactory.required("bookerEmail"));
             return;
         }
 
         if (!email.matches(EMAIL_REGEX)) {
-            errors.add(new ValidationError(
-                    ValidationErrorType.INVALID_INPUT,
-                    "bookerEmail",
-                    email,
-                    "Email format is invalid"
-            ));
+            errors.add(ValidationErrorFactory.invalidFormat("bookerEmail", email));
         }
 
         if (email.length() > MAX_EMAIL_LENGTH) {
-            errors.add(new ValidationError(
-                    ValidationErrorType.INVALID_INPUT,
-                    "bookerEmail",
-                    email,
-                    "Email can't exceed 100 characters"
-            ));
+            errors.add(ValidationErrorFactory.tooLong("bookerEmail", email, MAX_EMAIL_LENGTH));
         }
     }
 
@@ -133,12 +89,7 @@ public class BookingValidator {
         int requestedSeats = request.getSeats();
 
         if (requestedSeats < 1) {
-            errors.add(new ValidationError(
-                    ValidationErrorType.INVALID_INPUT,
-                    "seats",
-                    String.valueOf(requestedSeats),
-                    "At least 1 participant required"
-            ));
+            errors.add(ValidationErrorFactory.outOfRange("seats", requestedSeats, 1, Integer.MAX_VALUE));
         }
     }
 
@@ -197,12 +148,7 @@ public class BookingValidator {
 
     private void validateParticipantAge(int age, String field, int participantNumber, List<ValidationError> errors) {
         if (age < MIN_AGE || age > MAX_AGE) {
-            errors.add(new ValidationError(
-                    ValidationErrorType.INVALID_INPUT,
-                    field,
-                    String.valueOf(age),
-                    String.format("Participant %d: Age must be between 1 and 120", participantNumber)
-            ));
+            errors.add(ValidationErrorFactory.outOfRange("age", age, MIN_AGE, MAX_AGE));
         }
     }
 
@@ -210,12 +156,7 @@ public class BookingValidator {
         String notes = request.getSpecialNotes();
 
         if (notes != null && notes.length() > MAX_NOTES_LENGTH) {
-            errors.add(new ValidationError(
-                    ValidationErrorType.INVALID_INPUT,
-                    "specialNotes",
-                    notes,
-                    "Special notes can't exceed 250 characters"
-            ));
+            errors.add(ValidationErrorFactory.tooLong("specialNotes", notes, MAX_NOTES_LENGTH));
         }
     }
 
@@ -223,12 +164,7 @@ public class BookingValidator {
         String voucherCode = request.getVoucherCode();
 
         if (voucherCode != null && voucherCode.length() > MAX_VOUCHER_LENGTH) {
-            errors.add(new ValidationError(
-                    ValidationErrorType.INVALID_INPUT,
-                    "voucherCode",
-                    voucherCode,
-                    "Voucher code can't exceed 50 characters"
-            ));
+            errors.add(ValidationErrorFactory.tooLong("voucherCode", voucherCode, MAX_VOUCHER_LENGTH));
         }
     }
 

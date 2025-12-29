@@ -1,14 +1,24 @@
 package at.fhv.Event.infrastructure.persistence.booking;
 
 import at.fhv.Event.domain.model.booking.BookingStatus;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface BookingJpaRepository extends JpaRepository<BookingEntity, Long> {
+    @EntityGraph(attributePaths = {"participants", "equipment"})
+    Optional<BookingEntity> findByIdWithDetails(Long id);
+
+    @EntityGraph(attributePaths = {"participants", "equipment"})
+    List<BookingEntity> findAllByEventId(Long eventId);
+
+    @Override
+    List<BookingEntity> findAll();
 
     List<BookingEntity> findByEventId(Long eventId);
 
@@ -22,8 +32,8 @@ public interface BookingJpaRepository extends JpaRepository<BookingEntity, Long>
 
     List<BookingEntity> findByStatus(BookingStatus status);
 
-    @Query("SELECT DISTINCT b FROM BookingEntity b LEFT JOIN FETCH b.participants WHERE b.bookerEmail = :email")
-    List<BookingEntity> findByBookerEmail(@Param("email") String email);
+    @EntityGraph(attributePaths = {"participants", "equipment"})
+    List<BookingEntity> findByBookerEmail(String email);
 
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM BookingEquipmentEntity e WHERE e.booking.id = :bookingId")

@@ -2,6 +2,7 @@ package at.fhv.Event.application.booking;
 
 import at.fhv.Event.domain.model.booking.Booking;
 import at.fhv.Event.domain.model.booking.BookingRepository;
+import at.fhv.Event.domain.model.exception.PaymentOperationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +22,7 @@ public class SplitInvoiceService {
         Booking booking = getBookingForUser(bookingId, userEmail);
 
         if (booking.isPaid()) {
-            throw new IllegalStateException("Booking is already fully paid");
+            throw new PaymentOperationException(bookingId, "Booking is already fully paid");
         }
 
         booking.payFiftyPercent();
@@ -33,7 +34,7 @@ public class SplitInvoiceService {
         Booking booking = getBookingForUser(bookingId, userEmail);
 
         if (booking.isPaid()) {
-            throw new IllegalStateException("Booking is already fully paid");
+            throw new PaymentOperationException(bookingId, "Booking is already fully paid");
         }
 
         booking.payEquipmentItems(equipmentIds);
@@ -45,7 +46,7 @@ public class SplitInvoiceService {
         Booking booking = getBookingForUser(bookingId, userEmail);
 
         if (booking.isPaid()) {
-            throw new IllegalStateException("Booking is already fully paid");
+            throw new PaymentOperationException(bookingId, "Booking is already fully paid");
         }
 
         double remaining = booking.getRemainingAmount();
@@ -60,7 +61,7 @@ public class SplitInvoiceService {
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
 
         if (!booking.getBookerEmail().equalsIgnoreCase(userEmail)) {
-            throw new IllegalStateException("You can only manage your own bookings");
+            throw new PaymentOperationException(bookingId, "You can only manage your own bookings");
         }
 
         return booking;
