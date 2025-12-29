@@ -1,6 +1,6 @@
 package at.fhv.Event.domain.model.exception;
 
-public class RoleNotFoundException extends RuntimeException {
+public class RoleNotFoundException extends DomainException {
     private final String roleCode;
 
     public RoleNotFoundException(String roleCode) {

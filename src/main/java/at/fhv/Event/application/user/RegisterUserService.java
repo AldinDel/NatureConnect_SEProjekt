@@ -1,5 +1,7 @@
 package at.fhv.Event.application.user;
 
+import at.fhv.Event.domain.model.exception.DuplicateEmailException;
+import at.fhv.Event.domain.model.exception.RoleNotFoundException;
 import at.fhv.Event.domain.model.user.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,7 +28,7 @@ public class RegisterUserService {
     @Transactional
     public void registerCustomer(String firstName, String lastName, String email, String password) {
         if (userRepo.findByEmailIgnoreCase(email).isPresent()) {
-            throw new IllegalArgumentException("Diese E-Mail wird bereits verwendet.");
+            throw new DuplicateEmailException(email);
         }
 
         // 1. Login-Account erstellen
@@ -41,7 +43,7 @@ public class RegisterUserService {
 
         // Rolle: Customer
         Role role = roleRepo.findByCode("CUSTOMER")
-                .orElseThrow(() -> new RuntimeException("Rolle CUSTOMER nicht gefunden."));
+                .orElseThrow(() -> new RoleNotFoundException("CUSTOMER"));
         user.setRoles(Set.of(role));
 
         UserAccount savedUser = userRepo.save(user);

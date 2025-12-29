@@ -351,6 +351,128 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
     }
 
+    @ExceptionHandler(DuplicateEmailException.class)
+    public ResponseEntity<ErrorResponse> handleDuplicateEmail(
+            DuplicateEmailException exception,
+            WebRequest request) {
+
+        String message = errorMessageService.getMessage(
+                exception.getErrorCode(),
+                exception.getEmail()
+        );
+
+        Map<String, Object> details = new HashMap<>();
+        details.put("email", exception.getEmail());
+
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.CONFLICT.value(),
+                exception.getErrorCode(),
+                message,
+                extractPath(request),
+                details
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotFound(
+            UserNotFoundException exception,
+            WebRequest request) {
+
+        String message = errorMessageService.getMessage(
+                exception.getErrorCode(),
+                exception.getUserId()
+        );
+
+        Map<String, Object> details = new HashMap<>();
+        details.put("userId", exception.getUserId());
+
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                exception.getErrorCode(),
+                message,
+                extractPath(request),
+                details
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(InvalidPasswordException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidPassword(
+            InvalidPasswordException exception,
+            WebRequest request) {
+
+        String message = errorMessageService.getMessage(
+                exception.getErrorCode(),
+                exception.getReason()
+        );
+
+        Map<String, Object> details = new HashMap<>();
+        details.put("reason", exception.getReason());
+
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                exception.getErrorCode(),
+                message,
+                extractPath(request),
+                details
+        );
+
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(RoleNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleRoleNotFound(
+            RoleNotFoundException exception,
+            WebRequest request) {
+
+        String message = errorMessageService.getMessage(
+                exception.getErrorCode(),
+                exception.getRoleCode()
+        );
+
+        Map<String, Object> details = new HashMap<>();
+        details.put("roleCode", exception.getRoleCode());
+
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                exception.getErrorCode(),
+                message,
+                extractPath(request),
+                details
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(UserNotActiveException.class)
+    public ResponseEntity<ErrorResponse> handleUserNotActive(
+            UserNotActiveException exception,
+            WebRequest request) {
+
+        String message = errorMessageService.getMessage(exception.getErrorCode());
+
+        Map<String, Object> details = new HashMap<>();
+        details.put("userId", exception.getUserId());
+
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.FORBIDDEN.value(),
+                exception.getErrorCode(),
+                message,
+                extractPath(request),
+                details
+        );
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);
+    }
+
     @ExceptionHandler(SessionExpiredException.class)
     public ResponseEntity<ErrorResponse> handleSessionExpired(
             SessionExpiredException exception,

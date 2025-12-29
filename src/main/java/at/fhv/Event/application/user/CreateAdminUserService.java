@@ -1,6 +1,9 @@
 package at.fhv.Event.application.user;
 
 import at.fhv.Event.application.request.user.AdminUserEditRequest;
+import at.fhv.Event.domain.model.exception.DuplicateEmailException;
+import at.fhv.Event.domain.model.exception.InvalidPasswordException;
+import at.fhv.Event.domain.model.exception.RoleNotFoundException;
 import at.fhv.Event.domain.model.user.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,16 +31,16 @@ public class CreateAdminUserService {
         String email = req.email().trim();
 
         userRepo.findByEmailIgnoreCase(email).ifPresent(u -> {
-            throw new IllegalArgumentException("Diese E-Mail wird bereits verwendet.");
+            throw new DuplicateEmailException(email);
         });
 
         String pw = req.password() == null ? "" : req.password().trim();
         if (pw.isEmpty()) {
-            throw new IllegalArgumentException("Passwort ist erforderlich.");
+            throw new InvalidPasswordException("Passwort is required..");
         }
 
         Role role = roleRepo.findByCode(req.role())
-                .orElseThrow(() -> new IllegalArgumentException("Rolle nicht gefunden: " + req.role()));
+                .orElseThrow(() -> new RoleNotFoundException(req.role()));
 
         UserAccount user = new UserAccount();
         user.setFirstName(req.firstName().trim());

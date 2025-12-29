@@ -1,5 +1,6 @@
 package at.fhv.Event.application.user;
 
+import at.fhv.Event.domain.model.exception.UserNotActiveException;
 import at.fhv.Event.domain.model.user.UserAccount;
 import at.fhv.Event.domain.model.user.UserAccountRepository;
 import org.springframework.security.core.GrantedAuthority;
@@ -28,6 +29,11 @@ public class CustomUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         UserAccount user = userRepo.findByEmailIgnoreCase(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+
+        if (!user.getActive()) {
+            throw new UserNotActiveException(user.getId());
+        }
+
         Set<GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getCode()))
                 .collect(Collectors.toSet());

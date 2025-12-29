@@ -1,6 +1,8 @@
 package at.fhv.Event.application.user;
 
 import at.fhv.Event.application.request.user.AdminUserEditRequest;
+import at.fhv.Event.domain.model.exception.DuplicateEmailException;
+import at.fhv.Event.domain.model.exception.RoleNotFoundException;
 import at.fhv.Event.domain.model.user.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,7 +34,7 @@ public class UpdateAdminUserService {
 
         userRepo.findByEmailIgnoreCase(newEmail).ifPresent(existing -> {
             if (!existing.getId().equals(id)) {
-                throw new IllegalArgumentException("Diese E-Mail wird bereits verwendet.");
+                throw new DuplicateEmailException(newEmail);
             }
         });
 
@@ -48,7 +50,7 @@ public class UpdateAdminUserService {
         }
 
         Role role = roleRepo.findByCode(req.role())
-                .orElseThrow(() -> new IllegalArgumentException("Rolle nicht gefunden: " + req.role()));
+                .orElseThrow(() -> new RoleNotFoundException(req.role()));
         user.getRoles().clear();
         user.getRoles().add(role);
 
