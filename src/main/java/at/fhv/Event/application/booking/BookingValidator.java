@@ -136,13 +136,23 @@ public class BookingValidator {
                     name,
                     String.format("Participant %d: %s name is required", participantNumber, nameType)
             ));
-        } else if (name.length() > MAX_NAME_LENGTH) {
-            errors.add(new ValidationError(
-                    ValidationErrorType.INVALID_INPUT,
-                    field,
-                    name,
-                    String.format("Participant %d: %s name too long", participantNumber, nameType)
-            ));
+        } else {
+            if (name.length() > MAX_NAME_LENGTH) {
+                errors.add(new ValidationError(
+                        ValidationErrorType.INVALID_INPUT,
+                        field,
+                        name,
+                        String.format("Participant %d: %s name too long (max %d characters)", participantNumber, nameType, MAX_NAME_LENGTH)
+                ));
+            }
+            if (!name.matches(NAME_REGEX)) {
+                errors.add(new ValidationError(
+                        ValidationErrorType.INVALID_INPUT,
+                        field,
+                        name,
+                        String.format("Participant %d: %s name can only contain letters, spaces, and hyphens", participantNumber, nameType)
+                ));
+            }
         }
     }
 

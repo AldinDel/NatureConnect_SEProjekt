@@ -5,11 +5,9 @@ import at.fhv.Event.application.booking.BookingPermissionService;
 import at.fhv.Event.application.booking.BookingPrefillService;
 import at.fhv.Event.application.event.GetEventDetailsService;
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
-import at.fhv.Event.application.request.booking.ParticipantDTO;
 import at.fhv.Event.domain.model.booking.Booking;
 import at.fhv.Event.domain.model.booking.BookingEquipment;
 import at.fhv.Event.domain.model.booking.BookingStatus;
-import at.fhv.Event.domain.model.equipment.EquipmentSelection;
 import at.fhv.Event.domain.model.exception.BookingValidationException;
 import at.fhv.Event.domain.model.exception.EventFullyBookedException;
 import at.fhv.Event.domain.model.exception.ValidationError;
@@ -299,7 +297,7 @@ public class BookingController {
             EventDetailDTO event = _eventDetailsService.getEventDetails(booking.getEventId());
 
             List<EquipmentDTO> availableEquipment = event.equipments();
-            CreateBookingRequest request = mapBookingToCreateBookingRequest(booking);
+            CreateBookingRequest request = _bookingPrefillService.prepareEditRequest(booking);
 
             model.addAttribute("event", event);
             model.addAttribute("booking", request);
@@ -396,48 +394,5 @@ public class BookingController {
 
         return "redirect:/bookings";
     }
-
-
-
-
-
-    private CreateBookingRequest mapBookingToCreateBookingRequest(Booking booking) {
-        CreateBookingRequest req = new CreateBookingRequest();
-
-        req.setEventId(booking.getEventId());
-        req.setBookerFirstName(booking.getBookerFirstName());
-        req.setBookerLastName(booking.getBookerLastName());
-        req.setBookerEmail(booking.getBookerEmail());
-        req.setSeats(booking.getSeats());
-        req.setAudience(booking.getAudience());
-        req.setVoucherCode(booking.getVoucherCode());
-        req.setSpecialNotes(booking.getSpecialNotes());
-
-        if (booking.getParticipants() != null) {
-            List<ParticipantDTO> participants = booking.getParticipants().stream().map(p -> {
-                ParticipantDTO dto = new ParticipantDTO();
-                dto.setFirstName(p.getFirstName());
-                dto.setLastName(p.getLastName());
-                dto.setAge(p.getAge());
-                return dto;
-            }).toList();
-            req.setParticipants(participants);
-        }
-
-        if (booking.getEquipment() != null) {
-            Map<Long, EquipmentSelection> equipmentMap = new HashMap<>();
-            for (BookingEquipment be : booking.getEquipment()) {
-                EquipmentSelection sel = new EquipmentSelection();
-                sel.setSelected(true);
-                sel.setQuantity(be.getQuantity());
-                equipmentMap.put(be.getEquipmentId(), sel);
-            }
-            req.setEquipment(equipmentMap);
-        }
-
-
-        return req;
-    }
-
 
 }

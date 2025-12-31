@@ -68,16 +68,36 @@ function generateParticipants(num) {
         section.classList.add("participant-section");
 
         section.innerHTML = `
-            <h3 class="participant-title">Participant ${i + 1}</h3>
-            <label>First Name</label>
-            <input class="form-input" name="participants[${i}].firstName">
-
-            <label>Last Name</label>
-            <input class="form-input" name="participants[${i}].lastName">
-
-            <label>Age</label>
-            <input class="form-input" type="number" name="participants[${i}].age" min="1" max="120">
-        `;
+        <h3 class="participant-title">Participant ${i + 1}</h3>
+        <label>First Name</label>
+        <input class="form-input participant-firstname" 
+               name="participants[${i}].firstName" 
+               data-participant-index="${i}"
+               maxlength="50"
+               pattern="[A-Za-zÄÖÜäöüß\\- ]+"
+               title="Only letters, spaces, and hyphens are allowed"
+               required>
+        <span class="error-text participant-firstname-error" data-participant-index="${i}"></span>
+    
+        <label>Last Name</label>
+        <input class="form-input participant-lastname" 
+               name="participants[${i}].lastName" 
+               data-participant-index="${i}"
+               maxlength="50"
+               pattern="[A-Za-zÄÖÜäöüß\\- ]+"
+               title="Only letters, spaces, and hyphens are allowed"
+               required>
+        <span class="error-text participant-lastname-error" data-participant-index="${i}"></span>
+    
+        <label>Age</label>
+        <input class="form-input participant-age" 
+               type="number" 
+               name="participants[${i}].age" 
+               data-participant-index="${i}"
+               min="1" 
+               max="120">
+        <span class="error-text participant-age-error" data-participant-index="${i}"></span>
+    `;
 
         const row = Array.from(existing).find(el => Number(el.dataset.index) === i);
         if (row) {
@@ -86,6 +106,34 @@ function generateParticipants(num) {
             section.querySelector(`[name="participants[${i}].age"]`).value = row.dataset.age || "";
         }
         participantsContainer.appendChild(section);
+    }
+}
+
+function displayFieldErrors(fieldErrors) {
+    if (!fieldErrors) return;
+
+    document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+    document.querySelectorAll('.error-text').forEach(el => {
+        el.textContent = '';
+        el.style.display = 'none';
+    });
+
+    for (const [field, message] of Object.entries(fieldErrors)) {
+        if (field.startsWith('participants[')) {
+            const match = field.match(/participants\[(\d+)\]\.(firstName|lastName|age)/);
+            if (match) {
+                const index = match[1];
+                const fieldName = match[2];
+                const input = document.querySelector(`[data-participant-index="${index}"].participant-${fieldName.toLowerCase()}`);
+                const errorSpan = document.querySelector(`.participant-${fieldName.toLowerCase()}-error[data-participant-index="${index}"]`);
+
+                if (input) input.classList.add('input-error');
+                if (errorSpan) {
+                    errorSpan.textContent = message;
+                    errorSpan.style.display = 'block';
+                }
+            }
+        }
     }
 }
 
@@ -405,6 +453,17 @@ document.addEventListener("DOMContentLoaded", () => {
         generateParticipants(seats);
         initEquipmentListenersForEdit();
     }
+
+    const fieldErrorsElement = document.getElementById('fieldErrorsData');
+    if (fieldErrorsElement) {
+        try {
+            const fieldErrors = JSON.parse(fieldErrorsElement.textContent);
+            displayFieldErrors(fieldErrors);
+        } catch (e) {
+            console.error('Error parsing field errors:', e);
+        }
+    }
+
 
     updatePriceSummary();
 });

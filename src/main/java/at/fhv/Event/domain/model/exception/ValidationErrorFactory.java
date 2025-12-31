@@ -6,7 +6,7 @@ public class ValidationErrorFactory {
                 ValidationErrorType.INVALID_INPUT,
                 field,
                 null,
-                "VALIDATION_REQUIRED"
+                "This field is required"
         );
     }
 
@@ -15,7 +15,7 @@ public class ValidationErrorFactory {
                 ValidationErrorType.INVALID_INPUT,
                 field,
                 value,
-                "VALIDATION_INVALID_FORMAT"
+                "Only letters, spaces, and hyphens are allowed"
         );
     }
 
@@ -24,7 +24,7 @@ public class ValidationErrorFactory {
                 ValidationErrorType.INVALID_INPUT,
                 field,
                 value,
-                String.format("VALIDATION_TOO_SHORT: Minimum %d characters", minLength)
+                String.format("Input is too short: Minimum %d characters", minLength)
         );
     }
 
@@ -33,7 +33,7 @@ public class ValidationErrorFactory {
                 ValidationErrorType.INVALID_INPUT,
                 field,
                 value,
-                String.format("VALIDATION_TOO_LONG: Maximum %d characters", maxLength)
+                String.format("Input is too long : Maximum %d characters", maxLength)
         );
     }
 
@@ -42,7 +42,7 @@ public class ValidationErrorFactory {
                 ValidationErrorType.INVALID_INPUT,
                 field,
                 value,
-                String.format("VALIDATION_OUT_OF_RANGE: Must be between %d and %d", min, max)
+                String.format("Input isn't in range: Must be between %d and %d", min, max)
         );
     }
 
@@ -51,7 +51,7 @@ public class ValidationErrorFactory {
                 ValidationErrorType.INVALID_INPUT,
                 field,
                 value,
-                "VALIDATION_INVALID_VALUE"
+                "Input is invalid"
         );
     }
 }
