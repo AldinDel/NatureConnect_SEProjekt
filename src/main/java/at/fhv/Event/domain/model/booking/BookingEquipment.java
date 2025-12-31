@@ -7,6 +7,7 @@ public class BookingEquipment {
     private Long bookingId;
     private Long equipmentId;
     private int quantity;
+    private BigDecimal totalPrice;
     private BigDecimal pricePerUnit;
     private boolean invoiced;
 
@@ -28,10 +29,15 @@ public class BookingEquipment {
         this.quantity = quantity;
         this.pricePerUnit = pricePerUnit;
         this.invoiced = false;
+        this.totalPrice = pricePerUnit.multiply(BigDecimal.valueOf(quantity));
     }
 
     public BigDecimal getTotalPrice() {
         return pricePerUnit.multiply(BigDecimal.valueOf(quantity));
+    }
+
+    public void setTotalPrice(BigDecimal totalPrice) {
+        this.totalPrice = totalPrice;
     }
 
     public Long getId() {

@@ -9,7 +9,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 
 public class Event {
@@ -29,7 +31,7 @@ public class Event {
     private String imageUrl;
     private EventAudience audience;
     private Boolean cancelled = false;
-    private List<EventEquipment> eventEquipments;
+    private Set<EventEquipment> eventEquipments;
     private List<String> hikeRouteKeys;
 
 
@@ -48,7 +50,7 @@ public class Event {
                  BigDecimal price,
                  String imageUrl,
                  EventAudience audience,
-                 List<EventEquipment> eventEquipments,
+                 Set<EventEquipment> eventEquipments,
                  List<String> hikeRouteKeys) {
 
         this.id = id;
@@ -65,7 +67,7 @@ public class Event {
         this.maxParticipants = maxParticipants;
         this.price = price;
         this.imageUrl = imageUrl;
-        this.eventEquipments = (eventEquipments == null) ? new ArrayList<>() : new ArrayList<>(eventEquipments);
+        this.eventEquipments = (eventEquipments == null) ? new HashSet<>() : new HashSet<>(eventEquipments);
         this.hikeRouteKeys = (hikeRouteKeys == null)
                 ? new ArrayList<>()
                 : new ArrayList<>(hikeRouteKeys);
@@ -281,14 +283,14 @@ public class Event {
         this.cancelled = cancelled;
     }
 
-    public List<EventEquipment> getEventEquipments() {
+    public Set<EventEquipment> getEventEquipments() {
         return eventEquipments;
     }
 
-    public void setEventEquipments(List<EventEquipment> eventEquipments) {
+    public void setEventEquipments(Set<EventEquipment> eventEquipments) {
         this.eventEquipments = (eventEquipments == null)
-                ? new ArrayList<>()
-                : new ArrayList<>(eventEquipments);
+                ? new HashSet<>()
+                : new HashSet<>(eventEquipments);
     }
 
     public List<String> getHikeRouteKeys() {

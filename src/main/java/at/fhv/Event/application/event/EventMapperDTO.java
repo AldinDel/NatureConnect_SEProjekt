@@ -8,6 +8,7 @@ import at.fhv.Event.presentation.rest.response.event.EventOverviewDTO;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
@@ -59,7 +60,7 @@ public class EventMapperDTO {
                 e.getId(),
                 e.getTitle(),
                 e.getDescription(),
-                displayOrganizer,
+                e.getOrganizer(),
                 e.getOrganizer(),
                 e.getCategory(),
                 e.getDate(),
@@ -76,7 +77,7 @@ public class EventMapperDTO {
         );
     }
 
-    private List<EquipmentDTO> mapEquipments(List<EventEquipment> ees) {
+    private List<EquipmentDTO> mapEquipments(Set<EventEquipment> ees) {
         if (ees == null) return List.of();
         return ees.stream()
                 .map(ee -> new EquipmentDTO(

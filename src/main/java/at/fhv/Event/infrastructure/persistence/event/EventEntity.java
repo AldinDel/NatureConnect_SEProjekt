@@ -9,9 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -52,7 +50,7 @@ public class EventEntity {
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL,
             orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<EventEquipmentEntity> eventEquipments = new ArrayList<>();
+    private Set<EventEquipmentEntity> eventEquipments = new HashSet<>();
 
     @Column(name = "is_cancelled", nullable = false)
     private boolean cancelled = false;
@@ -90,12 +88,13 @@ public class EventEntity {
     private int reservedSeats = 0;
 
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
             name = "event_hike_route",
             schema = "nature_connect",
             joinColumns = @JoinColumn(name = "event_id")
     )
+
     @Column(name = "hike_key")
     private Set<String> hikeRouteKeys = new HashSet<>();
 
@@ -224,11 +223,11 @@ public class EventEntity {
         this.audience = audience;
     }
 
-    public List<EventEquipmentEntity> getEventEquipments() {
+    public Set<EventEquipmentEntity> getEventEquipments() {
         return eventEquipments;
     }
 
-    public void setEventEquipments(List<EventEquipmentEntity> eventEquipments) {
+    public void setEventEquipments(Set<EventEquipmentEntity> eventEquipments) {
         this.eventEquipments = eventEquipments;
     }
 

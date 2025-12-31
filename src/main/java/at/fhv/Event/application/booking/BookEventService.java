@@ -9,6 +9,7 @@ import at.fhv.Event.domain.model.equipment.Equipment;
 import at.fhv.Event.domain.model.equipment.EquipmentRepository;
 import at.fhv.Event.domain.model.equipment.EquipmentSelection;
 import at.fhv.Event.domain.model.event.Event;
+import at.fhv.Event.domain.model.event.EventRepository;
 import at.fhv.Event.domain.model.exception.*;
 import at.fhv.Event.domain.model.payment.PaymentMethod;
 import at.fhv.Event.domain.model.payment.PaymentStatus;
@@ -30,16 +31,18 @@ public class BookEventService {
     private final BookingMapperDTO _bookingMapperDTO;
     private final BookingValidator _bookingValidator;
     private final RefundService refundService;
+    private final EventRepository _eventRepository;
 
     public BookEventService(BookingRepository bookingRepository, EquipmentRepository equipmentRepository,
             BookingRequestMapper bookingRequestMapper, BookingMapperDTO bookingMapperDTO,
-            BookingValidator bookingValidator, RefundService refundService) {
+            BookingValidator bookingValidator, RefundService refundService, EventRepository eventRepository) {
         _bookingRepository = bookingRepository;
         _equipmentRepository = equipmentRepository;
         _bookingRequestMapper = bookingRequestMapper;
         _bookingMapperDTO = bookingMapperDTO;
         _bookingValidator = bookingValidator;
         this.refundService = refundService;
+        _eventRepository = eventRepository;
     }
 
     @Transactional
@@ -216,11 +219,8 @@ public class BookEventService {
     }
 
     private Event loadEvent(Long eventId) {
-        try {
-            return _bookingRepository.loadEventForBooking(eventId);
-        } catch (Exception e) {
-            throw new EventNotFoundException(eventId);
-        }
+        return _eventRepository.findById(eventId)
+                .orElseThrow(() -> new EventNotFoundException(eventId));
     }
 
     private void checkEventAvailability(Event event) {
@@ -325,13 +325,15 @@ public class BookEventService {
                 continue;
 
             reduceEquipmentStock(equipment, sel.getQuantity());
-
-            list.add(new BookingEquipment(
+            BigDecimal totalPrice = equipment.getUnitPrice().multiply(BigDecimal.valueOf(sel.getQuantity()));
+            BookingEquipment be = new BookingEquipment(
                     null,
                     equipment.getId(),
                     sel.getQuantity(),
                     equipment.getUnitPrice()
-            ));
+            );
+            be.setTotalPrice(totalPrice);
+            list.add(be);
         }
         return list;
     }

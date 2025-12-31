@@ -51,7 +51,9 @@ public class EventAccessService {
         return visibleEvents;
     }
 
-    public int calculateRemainingSpots(Long eventId, int minParticipants, int maxParticipants) {
+
+
+        public int calculateRemainingSpots(Long eventId, int minParticipants, int maxParticipants) {
         int confirmed = _bookingRepository.countOccupiedSeatsForEvent(eventId);
         int baseSlots = maxParticipants - minParticipants;
         int remaining = baseSlots - confirmed;
@@ -91,7 +93,7 @@ public class EventAccessService {
                 return organizer;
             }
         }
-        return "NatureConnect Team";
+        return organizer;
     }
 
     private List<EventOverviewDTO> filterForAnonymous(List<EventOverviewDTO> events, LocalDate today) {

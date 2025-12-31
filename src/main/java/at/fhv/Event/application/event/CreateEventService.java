@@ -11,12 +11,14 @@ import at.fhv.Event.domain.model.event.EventRepository;
 import at.fhv.Event.domain.model.exception.EquipmentNotFoundException;
 import at.fhv.Event.domain.model.exception.EventValidationException;
 import at.fhv.Event.domain.model.exception.ValidationError;
+import at.fhv.Event.domain.model.exception.ValidationErrorType;
 import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class CreateEventService {
@@ -42,23 +44,73 @@ public class CreateEventService {
             throw new EventValidationException(errors);
         }
 
-        List<Equipment> required = new ArrayList<>();
+        Set<EventEquipment> ees = new HashSet<>();
+
+        if (req.getEquipments() != null && !req.getEquipments().isEmpty()) {
+            for (var eqReq : req.getEquipments()) {
+                if (eqReq.getName() == null || eqReq.getName().isBlank()) {
+                    continue;
+                }
+                if (eqReq.isRentable()) {
+                    if (eqReq.getUnitPrice() == null) {
+                        throw new EventValidationException(List.of(
+                                new ValidationError(
+                                        ValidationErrorType.BUSINESS_RULE_VIOLATION,
+                                        "equipment.unitPrice",
+                                        eqReq.getName(),
+                                        "Unit price is required when equipment is rentable: " + eqReq.getName()
+                                )
+                        ));
+                    }
+                    if (eqReq.getStock() == null) {
+                        throw new EventValidationException(List.of(
+                                new ValidationError(
+                                        ValidationErrorType.BUSINESS_RULE_VIOLATION,
+                                        "equipment.stock",
+                                        eqReq.getName(),
+                                        "Stock is required when equipment is rentable: " + eqReq.getName()
+                                )
+                        ));
+                    }
+                }
+                Equipment equipment;
+                if (eqReq.getId() == null) {
+                    equipment = new Equipment(
+                            null,
+                            eqReq.getName(),
+                            eqReq.getUnitPrice(),
+                            eqReq.isRentable(),
+                            eqReq.getStock()
+                    );
+                    equipment = equipmentRepository.save(equipment);
+                } else {
+                    equipment = equipmentRepository.findById(eqReq.getId())
+                            .orElseThrow(() -> new EquipmentNotFoundException(eqReq.getId()));
+                }
+
+                EventEquipment eventEquipment = new EventEquipment(equipment, eqReq.isRequired());
+                ees.add(eventEquipment);
+            }
+        }
+
+        Set<Equipment> required = new HashSet<>();
         if (req.getRequiredEquipmentIds() != null) {
             for (Long id : req.getRequiredEquipmentIds()) {
-                Equipment equipment = equipmentRepository.findById(id).orElseThrow(() -> new EquipmentNotFoundException(id));
+                Equipment equipment = equipmentRepository.findById(id)
+                        .orElseThrow(() -> new EquipmentNotFoundException(id));
                 required.add(equipment);
             }
         }
 
-        List<Equipment> optional = new ArrayList<>();
+        Set<Equipment> optional = new HashSet<>();
         if (req.getOptionalEquipmentIds() != null) {
             for (Long id : req.getOptionalEquipmentIds()) {
-                Equipment equipment = equipmentRepository.findById(id).orElseThrow(() -> new EquipmentNotFoundException(id));
+                Equipment equipment = equipmentRepository.findById(id)
+                        .orElseThrow(() -> new EquipmentNotFoundException(id));
                 optional.add(equipment);
             }
         }
 
-        List<EventEquipment> ees = new ArrayList<>();
         for (Equipment eq : required) {
             ees.add(new EventEquipment(eq, true));
         }

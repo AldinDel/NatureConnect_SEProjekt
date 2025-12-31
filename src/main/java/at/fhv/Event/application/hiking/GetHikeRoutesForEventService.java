@@ -17,70 +17,48 @@ public class GetHikeRoutesForEventService {
     }
 
     public List<HikeRouteDTO> getAllRoutes() {
+        String optimizedQuery = """
+            MATCH (h:Hike)
+            OPTIONAL MATCH (h)-[:STARTS_AT]->(start:Waypoint)
+            OPTIONAL MATCH (start)-[:NEXT*0..]->(wp:Waypoint)
+            WITH h, COLLECT(DISTINCT wp) AS waypoints
+            RETURN h.key AS key,
+                   h.name AS name,
+                   h.difficulty AS difficulty,
+                   h.lengthKm AS lengthKm,
+                   h.durationMinutes AS durationMinutes,
+                   waypoints
+            ORDER BY h.lengthKm ASC
+            """;
 
-        String hikeQuery = """
-                MATCH (h:Hike)
-                RETURN h.key AS key,
-                       h.name AS name,
-                       h.difficulty AS difficulty,
-                       h.lengthKm AS lengthKm,
-                       h.durationMinutes AS durationMinutes,
-                       id(h) AS hid
-                ORDER BY h.lengthKm ASC
-                """;
+        Collection<HikeRouteDTO> routes = neo4jClient.query(optimizedQuery)
+                .fetchAs(HikeRouteDTO.class)
+                .mappedBy((ts, record) -> {
+                    List<WaypointDTO> waypointDTOs = new ArrayList<>();
+                    record.get("waypoints").asList(value -> {
+                        if (value instanceof org.neo4j.driver.types.Node node) {
+                            if (node.containsKey("name") && node.containsKey("sequence")) {
+                                waypointDTOs.add(new WaypointDTO(
+                                        node.get("name").asString(),
+                                        node.get("sequence").asInt()
+                                ));
+                            }
+                        }
+                        return null;
+                    });
 
-        List<HikeMeta> hikes = new ArrayList<>(
-                neo4jClient.query(hikeQuery)
-                        .fetchAs(HikeMeta.class)
-                        .mappedBy((ts, r) -> new HikeMeta(
-                                r.get("hid").asLong(),
-                                r.get("key").isNull() ? null : r.get("key").asString(),
-                                r.get("name").asString(),
-                                r.get("difficulty").isNull() ? null : r.get("difficulty").asString(),
-                                r.get("lengthKm").isNull() ? null : r.get("lengthKm").asInt(),
-                                r.get("durationMinutes").isNull() ? null : r.get("durationMinutes").asInt()
-                        ))
-                        .all()
-        );
+                    waypointDTOs.sort(Comparator.comparingInt(WaypointDTO::getSequence));
 
-        List<HikeRouteDTO> result = new ArrayList<>();
-
-        for (HikeMeta meta : hikes) {
-
-            String wpQuery = """
-                    MATCH (h:Hike) WHERE id(h) = $hid
-                    MATCH (h)-[:STARTS_AT]->(start:Waypoint)
-                    OPTIONAL MATCH (start)-[:NEXT*0..]->(wp:Waypoint)
-                    WITH collect(DISTINCT start) + collect(DISTINCT wp) AS wps
-                    UNWIND wps AS wp
-                    WITH DISTINCT wp
-                    RETURN wp.name AS name,
-                           wp.sequence AS sequence
-                    ORDER BY sequence
-                    """;
-
-            List<WaypointDTO> waypoints = new ArrayList<>(
-                    neo4jClient.query(wpQuery)
-                            .bind(meta.hid).to("hid")
-                            .fetchAs(WaypointDTO.class)
-                            .mappedBy((ts, r) -> new WaypointDTO(
-                                    r.get("name").asString(),
-                                    r.get("sequence").asInt()
-                            ))
-                            .all()
-            );
-
-            result.add(new HikeRouteDTO(
-                    meta.key,
-                    meta.name,
-                    meta.difficulty,
-                    meta.lengthKm,
-                    meta.durationMinutes,
-                    waypoints
-            ));
-        }
-
-        return result;
+                    return new HikeRouteDTO(
+                            record.get("key").isNull() ? null : record.get("key").asString(),
+                            record.get("name").asString(),
+                            record.get("difficulty").isNull() ? null : record.get("difficulty").asString(),
+                            record.get("lengthKm").isNull() ? null : record.get("lengthKm").asInt(),
+                            record.get("durationMinutes").isNull() ? null : record.get("durationMinutes").asInt(),
+                            waypointDTOs
+                    );
+                }).all();
+        return new ArrayList<>(routes);
     }
 
     public HikeRouteDTO getBestRoute(String filter) {

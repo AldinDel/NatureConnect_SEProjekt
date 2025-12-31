@@ -15,7 +15,7 @@ public interface EventJpaRepository extends JpaRepository<EventEntity, Long> {
     FROM EventEntity e
     LEFT JOIN FETCH e.eventEquipments ee
     LEFT JOIN FETCH ee.equipment
-    LEFT JOIN FETCH e.hikeRouteKeys hk
+    LEFT JOIN FETCH e.hikeRouteKeys
     WHERE e.id = :id
 """)
     Optional<EventEntity> findByIdWithEquipments(@Param("id") Long id);
@@ -43,7 +43,7 @@ public interface EventJpaRepository extends JpaRepository<EventEntity, Long> {
         FROM EventEntity e
         LEFT JOIN FETCH e.eventEquipments ee
         LEFT JOIN FETCH ee.equipment
-        LEFT JOIN FETCH e.hikeRouteKeys hk
+        LEFT JOIN FETCH e.hikeRouteKeys
     """)
     List<EventEntity> findAllWithEquipmentsAndHikeKeys();
 
@@ -52,10 +52,8 @@ public interface EventJpaRepository extends JpaRepository<EventEntity, Long> {
     FROM EventEntity e
     LEFT JOIN FETCH e.eventEquipments ee
     LEFT JOIN FETCH ee.equipment
-    LEFT JOIN FETCH e.hikeRouteKeys hk
+    LEFT JOIN FETCH e.hikeRouteKeys
     WHERE e.date = :date
 """)
     List<EventEntity> findByDateWithEquipmentsAndHikeKeys(@Param("date") LocalDate date);
-
-
 }
