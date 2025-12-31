@@ -23,7 +23,7 @@
 
 <div class="container">
     <div id="errorPop"></div>
-    <form th:action="${isEdit} ? @{/booking/event/{id}(id=${bookingId})} : @{/booking}"
+    <form th:action="${isEdit} ? @{/booking/{id}(id=${bookingId})} : @{/booking}"
           th:object="${booking}"
           method="post">
 

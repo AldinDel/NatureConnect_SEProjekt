@@ -52,4 +52,12 @@ public interface BookingJpaRepository extends JpaRepository<BookingEntity, Long>
           AND b.status NOT IN ('CANCELLED', 'EXPIRED')
     """)
     void markExpiredForEvent(@Param("eventId") Long eventId);
+
+    @Query("""
+    SELECT b FROM BookingEntity b
+    LEFT JOIN FETCH b.participants
+    LEFT JOIN FETCH b.equipment
+    WHERE b.id = :id
+""")
+    Optional<BookingEntity> findByIdWithParticipants(@Param("id") Long id);
 }

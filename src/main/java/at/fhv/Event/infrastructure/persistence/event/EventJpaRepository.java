@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public interface EventJpaRepository extends JpaRepository<EventEntity, Long> {
 
@@ -56,4 +57,14 @@ public interface EventJpaRepository extends JpaRepository<EventEntity, Long> {
     WHERE e.date = :date
 """)
     List<EventEntity> findByDateWithEquipmentsAndHikeKeys(@Param("date") LocalDate date);
+
+    @Query("""
+    SELECT DISTINCT e
+    FROM EventEntity e
+    LEFT JOIN FETCH e.eventEquipments ee
+    LEFT JOIN FETCH ee.equipment
+    LEFT JOIN FETCH e.hikeRouteKeys hk
+    WHERE e.id IN :ids
+""")
+    List<EventEntity> findAllByIdWithEquipments(@Param("ids") Set<Long> ids);
 }

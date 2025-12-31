@@ -363,9 +363,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (voucherDB && voucherDB.value) {
             discountInput.value = voucherDB.value;
-            discountField.value = discountField.value || 0;
-            discountMessage.textContent = "Voucher loaded";
-            discountMessage.classList.remove("hidden");
+            const discountPercent = parseFloat(discountField.value) || 0;
+
+            if (discountPercent > 0) {
+                currentDiscount = discountPercent;
+                discountInput.readOnly = true;
+                discountBtn.disabled = true;
+                discountBtn.classList.add("btn-disabled");
+                removeDiscountBtn.classList.remove("hidden");
+
+                discountMessage.classList.add("text-green");
+                discountMessage.textContent = "✓ Voucher applied";
+                discountMessage.classList.remove("hidden");
+            } else {
+                discountMessage.textContent = "Voucher loaded";
+                discountMessage.classList.remove("hidden");
+            }
         }
     }
 
@@ -384,7 +397,6 @@ document.addEventListener("DOMContentLoaded", () => {
         syncSeatsFormField(1);
         loadEquipmentForEvent(eventId);
     } else {
-        // EDIT Modus: Existierende Daten laden
         const seatsField = document.querySelector('[name="seats"]');
         let seats = 1;
         if (seatsField && seatsField.value) seats = parseInt(seatsField.value, 10) || 1;

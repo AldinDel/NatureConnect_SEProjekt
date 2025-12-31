@@ -287,7 +287,7 @@ public class BookingController {
                 return "redirect:/bookings";
             }
 
-            Booking booking = _bookEventService.getById(id);
+            Booking booking = _bookEventService.getByIdWithParticipants(id);
 
             try {
                 _bookEventService.assertEventIsEditableForBooking(booking);

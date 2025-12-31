@@ -9,6 +9,7 @@ import at.fhv.Event.domain.model.event.EventAudience;
 import at.fhv.Event.domain.model.event.EventRepository;
 import at.fhv.Event.domain.model.exception.*;
 import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +30,7 @@ public class UpdateEventService {
         this.eventValidator = eventValidator;
     }
 
+    @CacheEvict(value = {"events", "eventBatch"}, allEntries = true)
     @Transactional
     public EventDetailDTO updateEvent(Long id, UpdateEventRequest req) {
         List<ValidationError> errors = eventValidator.validate(req);

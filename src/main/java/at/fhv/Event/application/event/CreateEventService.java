@@ -13,6 +13,7 @@ import at.fhv.Event.domain.model.exception.EventValidationException;
 import at.fhv.Event.domain.model.exception.ValidationError;
 import at.fhv.Event.domain.model.exception.ValidationErrorType;
 import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +38,7 @@ public class CreateEventService {
         this.eventValidator = eventValidator;
     }
 
+    @CacheEvict(value = {"events", "eventBatch"}, allEntries = true)
     @Transactional
     public EventDetailDTO createEvent(CreateEventRequest req) {
         List<ValidationError> errors = eventValidator.validate(req);

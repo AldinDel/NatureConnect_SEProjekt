@@ -170,4 +170,9 @@ public class BookingRepositoryImpl implements BookingRepository {
     public void updateStatus(Long id, BookingStatus status) {
         jpa.updateStatus(id, status);
     }
+
+    @Override
+    public Optional<Booking> findByIdWithParticipants(Long id) {
+        return jpa.findByIdWithParticipants(id).map(mapper::toDomain);
+    }
 }

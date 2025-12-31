@@ -386,4 +386,10 @@ public class BookEventService {
         booking.setStatus(BookingStatus.PAYMENT_FAILED);
         _bookingRepository.save(booking);
     }
+
+    @Transactional(readOnly = true)
+    public Booking getByIdWithParticipants(Long bookingId) {
+        return _bookingRepository.findByIdWithParticipants(bookingId)
+                .orElseThrow(() -> new BookingNotFoundException(bookingId));
+    }
 }
