@@ -18,6 +18,6 @@ stages:
       inputs:
         gradleWrapperFile: 'gradlew'
         tasks: 'build'
-        options: '-Xmx3072m'
+        options: '-Dorg.gradle.jvmargs=-Xmx3072m'
         publishJUnitResults: true
         testResultsFiles: '**/TEST-*.xml'
