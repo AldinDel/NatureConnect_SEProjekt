@@ -2,7 +2,10 @@ package at.fhv.Event.application.booking;
 
 import at.fhv.Event.application.request.booking.BookingRequestMapper;
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
-import at.fhv.Event.domain.model.booking.*;
+import at.fhv.Event.domain.model.booking.AudienceType;
+import at.fhv.Event.domain.model.booking.Booking;
+import at.fhv.Event.domain.model.booking.BookingRepository;
+import at.fhv.Event.domain.model.booking.BookingStatus;
 import at.fhv.Event.domain.model.equipment.EquipmentRepository;
 import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.domain.model.exception.*;
@@ -17,7 +20,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -210,12 +212,7 @@ class BookEventServiceTest {
         CreateBookingRequest request = createValidRequest();
 
         Event mockEvent = mock(Event.class);
-        when(mockEvent.getCancelled()).thenReturn(false);
-        when(mockEvent.getDate()).thenReturn(java.time.LocalDate.now().plusDays(1));
-        when(mockEvent.getStartTime()).thenReturn(java.time.LocalTime.NOON);
         when(mockEvent.getId()).thenReturn(42L);
-        when(mockEvent.getMaxParticipants()).thenReturn(10);
-        when(mockEvent.getMinParticipants()).thenReturn(0);
 
         // Mock validateAvailability and validateCapacity to do nothing (they pass)
         doNothing().when(mockEvent).validateAvailability();
@@ -284,7 +281,6 @@ class BookEventServiceTest {
         CreateBookingRequest request = createValidRequest();
 
         Event mockEvent = mock(Event.class);
-        when(mockEvent.getCancelled()).thenReturn(true);
 
         // Mock validateAvailability to throw the correct exception
         doThrow(new EventAlreadyCancelledException(request.getEventId()))
@@ -314,12 +310,9 @@ class BookEventServiceTest {
         CreateBookingRequest request = createValidRequest();
 
         Event mockEvent = mock(Event.class);
-        when(mockEvent.getCancelled()).thenReturn(false);
 
         // gestern → Event ist abgelaufen
         LocalDate eventDate = java.time.LocalDate.now().minusDays(1);
-        when(mockEvent.getDate()).thenReturn(eventDate);
-        when(mockEvent.getStartTime()).thenReturn(java.time.LocalTime.NOON);
 
         // Mock validateAvailability to throw the correct exception
         doThrow(new EventDateInPastException(request.getEventId(), eventDate))
@@ -348,16 +341,7 @@ class BookEventServiceTest {
         CreateBookingRequest request = createValidRequest();
 
         Event mockEvent = mock(Event.class);
-        when(mockEvent.getCancelled()).thenReturn(false);
-
-        when(mockEvent.getDate()).thenReturn(java.time.LocalDate.now().plusDays(1));
-        when(mockEvent.getStartTime()).thenReturn(java.time.LocalTime.NOON);
-
         when(mockEvent.getId()).thenReturn(42L);
-
-        // Kapazitäten
-        when(mockEvent.getMaxParticipants()).thenReturn(10);
-        when(mockEvent.getMinParticipants()).thenReturn(0);
 
         // bereits 10 gebucht → voll
         when(bookingRepository.countOccupiedSeatsForEvent(42L)).thenReturn(10);
@@ -397,12 +381,7 @@ class BookEventServiceTest {
         request.setSeats(3);
 
         Event mockEvent = mock(Event.class);
-        when(mockEvent.getCancelled()).thenReturn(false);
-        when(mockEvent.getDate()).thenReturn(java.time.LocalDate.now().plusDays(1));
-        when(mockEvent.getStartTime()).thenReturn(java.time.LocalTime.NOON);
         when(mockEvent.getId()).thenReturn(42L);
-        when(mockEvent.getMaxParticipants()).thenReturn(10);
-        when(mockEvent.getMinParticipants()).thenReturn(0);
         when(mockEvent.getPrice()).thenReturn(BigDecimal.valueOf(100));
 
         // Mock validateAvailability and validateCapacity to do nothing (success case)
@@ -449,7 +428,6 @@ class BookEventServiceTest {
         CreateBookingRequest request = createValidRequest();
 
         Event mockEvent = mock(Event.class);
-        when(mockEvent.getCancelled()).thenReturn(true); // cancelled
 
         // Mock validateAvailability to throw the correct exception
         doThrow(new EventAlreadyCancelledException(request.getEventId()))
@@ -476,12 +454,7 @@ class BookEventServiceTest {
         request.setSeats(3);
 
         Event mockEvent = mock(Event.class);
-        when(mockEvent.getCancelled()).thenReturn(false);
-        when(mockEvent.getDate()).thenReturn(java.time.LocalDate.now().plusDays(1));
-        when(mockEvent.getStartTime()).thenReturn(java.time.LocalTime.NOON);
         when(mockEvent.getId()).thenReturn(42L);
-        when(mockEvent.getMaxParticipants()).thenReturn(10);
-        when(mockEvent.getMinParticipants()).thenReturn(0);
 
         // Mock validateAvailability and validateCapacity to do nothing (they pass)
         doNothing().when(mockEvent).validateAvailability();
@@ -527,12 +500,7 @@ class BookEventServiceTest {
 
         // mock
         Event event = mock(Event.class);
-        when(event.getCancelled()).thenReturn(false);
-        when(event.getDate()).thenReturn(LocalDate.now().plusDays(1));
-        when(event.getStartTime()).thenReturn(LocalTime.NOON);
         when(event.getId()).thenReturn(42L);
-        when(event.getMaxParticipants()).thenReturn(10);
-        when(event.getMinParticipants()).thenReturn(0);
 
         // Mock validateAvailability to do nothing
         doNothing().when(event).validateAvailability();
