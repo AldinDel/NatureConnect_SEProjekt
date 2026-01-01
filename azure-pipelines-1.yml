@@ -17,7 +17,7 @@ stages:
       inputs:
         versionSpec: '17'
         jdkArchitectureOption: 'x64'
-        jdkSourceOption: 'PreInstalled'
+        jdkSourceOption: 'AzureStorage'
 
     - task: Gradle@3
       displayName: Run Gradle Build
