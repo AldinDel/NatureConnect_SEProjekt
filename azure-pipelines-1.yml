@@ -13,12 +13,6 @@ stages:
     steps:
     - checkout: self
 
-    - task: JavaToolInstaller@0
-      inputs:
-        versionSpec: '17'
-        jdkArchitectureOption: 'x64'
-        jdkSourceOption: 'AzureStorage'
-
     - task: Gradle@3
       displayName: Run Gradle Build
       inputs:
@@ -27,6 +21,3 @@ stages:
         options: '-Xmx3072m'
         publishJUnitResults: true
         testResultsFiles: '**/TEST-*.xml'
-        javaHomeOption: 'JDKVersion'
-        jdkVersionOption: '1.17'
-        jdkArchitectureOption: 'x64'
