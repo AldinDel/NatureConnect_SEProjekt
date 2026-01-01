@@ -14,10 +14,11 @@ stages:
     - checkout: self
 
     - task: Gradle@3
-      displayName: Run Gradle Build
       inputs:
         gradleWrapperFile: 'gradlew'
         tasks: 'build'
-        options: '-Dorg.gradle.jvmargs=-Xmx3072m'
         publishJUnitResults: true
         testResultsFiles: '**/TEST-*.xml'
+        javaHomeOption: 'JDKVersion'
+        sonarQubeRunAnalysis: false
+        spotBugsAnalysis: false
