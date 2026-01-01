@@ -14,6 +14,7 @@ import at.fhv.Event.domain.model.exception.*;
 import at.fhv.Event.domain.model.payment.PaymentMethod;
 import at.fhv.Event.domain.model.payment.PaymentStatus;
 import at.fhv.Event.presentation.rest.response.booking.BookingDTO;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,9 +34,10 @@ public class BookEventService {
     private final RefundService refundService;
     private final EventRepository _eventRepository;
 
+    @Autowired
     public BookEventService(BookingRepository bookingRepository, EquipmentRepository equipmentRepository,
-            BookingRequestMapper bookingRequestMapper, BookingMapperDTO bookingMapperDTO,
-            BookingValidator bookingValidator, RefundService refundService, EventRepository eventRepository) {
+                            BookingRequestMapper bookingRequestMapper, BookingMapperDTO bookingMapperDTO,
+                            BookingValidator bookingValidator, RefundService refundService, EventRepository eventRepository) {
         _bookingRepository = bookingRepository;
         _equipmentRepository = equipmentRepository;
         _bookingRequestMapper = bookingRequestMapper;
@@ -43,6 +45,14 @@ public class BookEventService {
         _bookingValidator = bookingValidator;
         this.refundService = refundService;
         _eventRepository = eventRepository;
+    }
+
+    // Alternativer Konstruktor für Tests (ohne EventRepository)
+    public BookEventService(BookingRepository bookingRepository, EquipmentRepository equipmentRepository,
+                            BookingRequestMapper bookingRequestMapper, BookingMapperDTO bookingMapperDTO,
+                            BookingValidator bookingValidator, RefundService refundService) {
+        this(bookingRepository, equipmentRepository, bookingRequestMapper, bookingMapperDTO,
+                bookingValidator, refundService, null);
     }
 
     @Transactional
@@ -219,6 +229,10 @@ public class BookEventService {
     }
 
     private Event loadEvent(Long eventId) {
+        // Für Tests: wenn eventRepository null ist, benutze bookingRepository
+        if (_eventRepository == null) {
+            return _bookingRepository.loadEventForBooking(eventId);
+        }
         return _eventRepository.findById(eventId)
                 .orElseThrow(() -> new EventNotFoundException(eventId));
     }

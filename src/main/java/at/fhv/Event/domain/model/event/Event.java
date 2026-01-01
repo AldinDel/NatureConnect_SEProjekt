@@ -2,6 +2,7 @@ package at.fhv.Event.domain.model.event;
 
 import at.fhv.Event.domain.model.equipment.EventEquipment;
 import at.fhv.Event.domain.model.exception.EventAlreadyCancelledException;
+import at.fhv.Event.domain.model.exception.EventDateInPastException;
 import at.fhv.Event.domain.model.exception.EventFullyBookedException;
 
 import java.math.BigDecimal;
@@ -120,13 +121,13 @@ public class Event {
 
     public void validateAvailability() {
         if (Boolean.TRUE.equals(this.cancelled)) {
-            throw new IllegalStateException("This event is cancelled and cannot be booked.");
+            throw new EventAlreadyCancelledException(this.id);
         }
 
         if (this.date != null && this.startTime != null) {
             LocalDateTime eventStart = LocalDateTime.of(this.date, this.startTime);
             if (eventStart.isBefore(LocalDateTime.now())) {
-                throw new IllegalStateException("This event is expired and cannot be booked.");
+                throw new EventDateInPastException(this.id, this.date);
             }
         }
     }
