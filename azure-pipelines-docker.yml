@@ -28,4 +28,5 @@ steps:
   displayName: Deploy Application
   inputs:
     dockerComposeFile: docker-compose.yml
+    projectName: natureconnect
     action: Run services
