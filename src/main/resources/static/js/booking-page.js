@@ -188,14 +188,21 @@ async function loadEquipmentForEvent(eventId) {
             qty.name = `equipment[${item.id}].quantity`;
             qty.className = "form-input";
             qty.style = "width: 70px; display: none;";
+            qty.className = "form-input";
+            qty.style.cssText = "width: 70px; display: none;";
+            qty.setAttribute('disabled', 'true');
 
             cb.addEventListener("change", () => {
                 if (cb.checked) {
-                    qty.value = 1;
+                    if (!qty.value || parseInt(qty.value) < 1) {
+                        qty.value = 1;
+                    }
                     qty.style.display = "block";
+                    qty.removeAttribute('disabled');
                 } else {
                     qty.value = 0;
                     qty.style.display = "none";
+                    qty.setAttribute('disabled', 'true');
                 }
                 updatePriceSummary();
             });
@@ -242,19 +249,32 @@ function hideDiscountRow() {
 }
 
 function initEquipmentListenersForEdit() {
+    console.log("=== initEquipmentListenersForEdit START ===");
+    console.log("Equipment containers found:", document.querySelectorAll('#equipmentContainer .checkbox-label').length);
+
     document.querySelectorAll('#equipmentContainer .checkbox-label').forEach(label => {
         const cb = label.querySelector('input[type="checkbox"][name^="equipment"]');
         const qty = label.querySelector('input[type="number"][name^="equipment"]');
+
+        console.log("Checkbox:", cb?.name, "Checked:", cb?.checked, "Quantity:", qty?.value);
         if (!cb || !qty) return;
+
         if (cb.checked) {
             if (!qty.value || parseInt(qty.value) < 1) {
                 qty.value = 1;
             }
-            qty.style.display = "block";
+            qty.style.display = "block";  // <- Diese Zeile ist wichtig!
+        } else {
+            qty.style.display = "none";
         }
 
         cb.addEventListener("change", () => {
-            qty.style.display = cb.checked ? "block" : "none";
+            if (cb.checked) {
+                qty.value = qty.value && parseInt(qty.value) > 0 ? qty.value : 1;
+                qty.style.display = "block";
+            } else {
+                qty.style.display = "none";
+            }
             updatePriceSummary();
         });
 
@@ -272,11 +292,6 @@ function initEquipmentListenersForEdit() {
 
             updatePriceSummary();
         });
-
-
-        if (cb.checked) {
-            qty.style.display = "block";
-        }
     });
 }
 
@@ -403,8 +418,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 document.addEventListener("DOMContentLoaded", () => {
-    const isEditMode = document.getElementById("isEdit").value === "true";
-
     if (isEditMode) {
         const voucherDB = document.getElementById("voucherCodeField");
         const discountField = document.getElementById("discountPercentField");
@@ -439,7 +452,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     const eventId = eventIdEl.value;
 
-    if (!isEditMode) {
+    const currentIsEditMode = document.getElementById("isEdit")?.value === "true";
+    console.log("Edit mode check:", currentIsEditMode);
+
+    if (!currentIsEditMode) {
         generateParticipants(1);
         numParticipantsInput.value = 1;
         syncSeatsFormField(1);

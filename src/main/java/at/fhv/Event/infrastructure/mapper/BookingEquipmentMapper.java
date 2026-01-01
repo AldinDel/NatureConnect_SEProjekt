@@ -33,6 +33,7 @@ public class BookingEquipmentMapper {
         entity.setEquipmentId(domain.getEquipmentId());
         entity.setQuantity(domain.getQuantity());
         entity.setPricePerUnit(domain.getPricePerUnit());
+        entity.setTotalPrice(domain.getTotalPrice().doubleValue());
         entity.setInvoiced(domain.isInvoiced());
 
         return entity;

@@ -51,6 +51,7 @@ public class BookingMapper {
                 ee.setEquipmentId(eq.getEquipmentId());
                 ee.setQuantity(eq.getQuantity());
                 ee.setPricePerUnit(eq.getPricePerUnit());
+                ee.setTotalPrice(eq.getTotalPrice().doubleValue());
                 ee.setInvoiced(eq.isInvoiced());
                 ee.setBooking(entity);
                 entity.getEquipment().add(ee);
@@ -144,17 +145,36 @@ public class BookingMapper {
             }
         }
 
-        entity.getEquipment().clear();
         if (domain.getEquipment() != null) {
+            entity.getEquipment().removeIf(existing ->
+                    domain.getEquipment().stream()
+                            .noneMatch(domainEq -> domainEq.getEquipmentId().equals(existing.getEquipmentId()))
+            );
+
             for (BookingEquipment eq : domain.getEquipment()) {
-                BookingEquipmentEntity ee = new BookingEquipmentEntity();
-                ee.setEquipmentId(eq.getEquipmentId());
-                ee.setQuantity(eq.getQuantity());
-                ee.setPricePerUnit(eq.getPricePerUnit());
-                ee.setInvoiced(eq.isInvoiced());
-                ee.setBooking(entity);
-                entity.getEquipment().add(ee);
+                BookingEquipmentEntity existing = entity.getEquipment().stream()
+                        .filter(e -> e.getEquipmentId().equals(eq.getEquipmentId()))
+                        .findFirst()
+                        .orElse(null);
+
+                if (existing != null) {
+                    existing.setQuantity(eq.getQuantity());
+                    existing.setPricePerUnit(eq.getPricePerUnit());
+                    existing.setTotalPrice(eq.getTotalPrice().doubleValue());
+                    existing.setInvoiced(eq.isInvoiced());
+                } else {
+                    BookingEquipmentEntity ee = new BookingEquipmentEntity();
+                    ee.setEquipmentId(eq.getEquipmentId());
+                    ee.setQuantity(eq.getQuantity());
+                    ee.setPricePerUnit(eq.getPricePerUnit());
+                    ee.setTotalPrice(eq.getTotalPrice().doubleValue());
+                    ee.setInvoiced(eq.isInvoiced());
+                    ee.setBooking(entity);
+                    entity.getEquipment().add(ee);
+                }
             }
+        } else {
+            entity.getEquipment().clear();
         }
     }
 

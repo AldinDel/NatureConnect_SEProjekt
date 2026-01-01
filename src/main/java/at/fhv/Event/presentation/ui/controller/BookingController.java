@@ -141,7 +141,7 @@ public class BookingController {
 
     @GetMapping("/confirmation/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String showConfirmationPage(@PathVariable Long id, Model model) {
+    public String showConfirmationPage(@PathVariable Long id, @RequestParam(required = false) String paymentMethod, Model model) {
         try {
             Booking booking = _bookEventService.getById(id);
             if (booking.getStatus() == BookingStatus.PAYMENT_FAILED) {
@@ -151,7 +151,14 @@ public class BookingController {
             model.addAttribute("booking", booking);
             model.addAttribute("bookingId", booking.getId());
             model.addAttribute("amount", booking.getTotalPrice());
-            model.addAttribute("paymentMethod", booking.getPaymentMethod());
+
+            String finalPaymentMethod = paymentMethod != null
+                    ? paymentMethod
+                    : (booking.getPaymentMethod() != null ? booking.getPaymentMethod().name() : null);
+            model.addAttribute("paymentMethod", finalPaymentMethod != null
+                    ? at.fhv.Event.domain.model.payment.PaymentMethod.valueOf(finalPaymentMethod)
+                    : null);
+
             return "booking/confirmation";
 
         } catch (Exception exception) {
@@ -297,7 +304,7 @@ public class BookingController {
             EventDetailDTO event = _eventDetailsService.getEventDetails(booking.getEventId());
 
             List<EquipmentDTO> availableEquipment = event.equipments();
-            CreateBookingRequest request = _bookingPrefillService.prepareEditRequest(booking);
+            CreateBookingRequest request = _bookingPrefillService.prepareEditRequest(booking, availableEquipment);
 
             model.addAttribute("event", event);
             model.addAttribute("booking", request);

@@ -158,7 +158,7 @@
                                        th:field="*{equipment[__${addon.id}__].selected}"
                                        th:attr="data-price=${addon.unitPrice}"
                                        value="true"
-                                       th:checked="${selectedEquipmentIds != null and selectedEquipmentIds.contains(addon.id)}"/>
+                                       />
 
                                 <div class="addon-content">
                                     <p class="addon-name" th:text="${addon.name}"></p>

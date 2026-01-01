@@ -54,4 +54,13 @@ public class ValidationErrorFactory {
                 "Input is invalid"
         );
     }
+
+    public static ValidationError create(ValidationErrorType type, String field, String message) {
+        return new ValidationError(
+                type,
+                field,
+                null,
+                message
+        );
+    }
 }

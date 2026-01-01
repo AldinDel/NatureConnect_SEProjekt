@@ -57,6 +57,7 @@ public class SecurityConfig {
                         .requestMatchers("/booking/payment/**").authenticated()
                         .requestMatchers("/booking/confirmation/**").permitAll()
                         .requestMatchers("/api/hiking/**").permitAll()
+                        .requestMatchers("/api/events/*/equipment").permitAll()
                         .requestMatchers("/api/events/**").hasAnyRole("ADMIN", "FRONT", "ORGANIZER")
 
                         .anyRequest().authenticated()

@@ -7,6 +7,7 @@ import at.fhv.Event.domain.model.booking.Booking;
 import at.fhv.Event.domain.model.booking.BookingEquipment;
 import at.fhv.Event.domain.model.equipment.EquipmentSelection;
 import at.fhv.Event.domain.model.user.CustomerProfileRepository;
+import at.fhv.Event.presentation.rest.response.equipment.EquipmentDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -46,7 +47,7 @@ public class BookingPrefillService {
         return request;
     }
 
-    public CreateBookingRequest prepareEditRequest(Booking booking) {
+    public CreateBookingRequest prepareEditRequest(Booking booking, List<EquipmentDTO> availableEquipment) {
         CreateBookingRequest req = new CreateBookingRequest();
 
         req.setEventId(booking.getEventId());
@@ -60,7 +61,7 @@ public class BookingPrefillService {
 
         enrichWithVoucherDiscount(req, booking.getVoucherCode());
         enrichWithParticipants(req, booking);
-        enrichWithEquipment(req, booking);
+        enrichWithEquipment(req, booking, availableEquipment);
 
         return req;
     }
@@ -87,16 +88,25 @@ public class BookingPrefillService {
         }
     }
 
-    private void enrichWithEquipment(CreateBookingRequest req, Booking booking) {
+    private void enrichWithEquipment(CreateBookingRequest req, Booking booking, List<EquipmentDTO> availableEquipment) {
+        Map<Long, EquipmentSelection> equipmentMap = new HashMap<>();
+
+        for (EquipmentDTO equipment : availableEquipment) {
+            EquipmentSelection sel = new EquipmentSelection();
+            sel.setSelected(false);
+            sel.setQuantity(1);
+            equipmentMap.put(equipment.id(), sel);
+        }
+
         if (booking.getEquipment() != null) {
-            Map<Long, EquipmentSelection> equipmentMap = new HashMap<>();
             for (BookingEquipment be : booking.getEquipment()) {
                 EquipmentSelection sel = new EquipmentSelection();
                 sel.setSelected(true);
                 sel.setQuantity(be.getQuantity());
                 equipmentMap.put(be.getEquipmentId(), sel);
             }
-            req.setEquipment(equipmentMap);
         }
+
+        req.setEquipment(equipmentMap);
     }
 }
