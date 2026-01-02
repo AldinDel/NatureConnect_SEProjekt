@@ -110,7 +110,8 @@ public class BookingRepositoryImpl implements BookingRepository {
 
     @Override
     public List<Booking> findByEventId(Long eventId) {
-        return jpa.findByEventId(eventId).stream()
+        return jpa.findByEventIdWithDetails(eventId)
+                .stream()
                 .map(mapper::toDomain)
                 .map(this::withExpirationSync)
                 .toList();

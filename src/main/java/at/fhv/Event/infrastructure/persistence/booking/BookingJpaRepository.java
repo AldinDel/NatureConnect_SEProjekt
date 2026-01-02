@@ -61,4 +61,23 @@ public interface BookingJpaRepository extends JpaRepository<BookingEntity, Long>
 """)
     List<BookingEntity> findAllWithDetails();
 
+    @Query("""
+    SELECT DISTINCT b
+    FROM BookingEntity b
+    LEFT JOIN FETCH b.participants
+    WHERE b.eventId = :eventId
+""")
+    List<BookingEntity> findByEventIdWithParticipants(@Param("eventId") Long eventId);
+
+    @Query("""
+    SELECT DISTINCT b
+    FROM BookingEntity b
+    LEFT JOIN FETCH b.participants
+    LEFT JOIN FETCH b.equipment
+    WHERE b.eventId = :eventId
+""")
+    List<BookingEntity> findByEventIdWithDetails(@Param("eventId") Long eventId);
+
+
+
 }
