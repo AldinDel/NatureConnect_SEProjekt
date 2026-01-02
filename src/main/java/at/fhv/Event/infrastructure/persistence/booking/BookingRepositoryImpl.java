@@ -3,6 +3,7 @@ package at.fhv.Event.infrastructure.persistence.booking;
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
 import at.fhv.Event.domain.model.booking.*;
 import at.fhv.Event.domain.model.event.Event;
+import at.fhv.Event.domain.model.exception.EventNotFoundException;
 import at.fhv.Event.infrastructure.mapper.BookingMapper;
 import at.fhv.Event.infrastructure.mapper.EventMapper;
 import at.fhv.Event.infrastructure.persistence.equipment.EquipmentEntity;
@@ -141,9 +142,9 @@ public class BookingRepositoryImpl implements BookingRepository {
 
     @Override
     public Event loadEventForBooking(Long eventId) {
-        return eventJpa.findById(eventId)
+        return eventJpa.findByIdWithEquipments(eventId)
                 .map(eventMapper::toDomain)
-                .orElse(null);
+                .orElseThrow(() -> new EventNotFoundException(eventId));
     }
 
     @Override

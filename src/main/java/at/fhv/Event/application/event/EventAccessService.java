@@ -9,6 +9,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -69,6 +71,7 @@ public class EventAccessService {
         return eventStart.isBefore(now);
     }
 
+    @Transactional(readOnly = true)
     public String getCurrentUserFullName(Authentication auth) {
         if (auth == null) {
             return null;
@@ -157,7 +160,8 @@ public class EventAccessService {
         return "CUSTOMER";
     }
 
-    private String getOrganizerName(Authentication auth) {
+    @Transactional(readOnly = true)
+    protected String getOrganizerName(Authentication auth) {
         String email = auth.getName();
         Optional<UserAccount> userOpt = _userAccountRepository.findByEmailIgnoreCase(email);
 
