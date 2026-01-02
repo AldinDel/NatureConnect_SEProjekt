@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface BookingJpaRepository extends JpaRepository<BookingEntity, Long> {
 
@@ -41,4 +42,23 @@ public interface BookingJpaRepository extends JpaRepository<BookingEntity, Long>
           AND b.status NOT IN ('CANCELLED', 'EXPIRED')
     """)
     void markExpiredForEvent(@Param("eventId") Long eventId);
+
+    @Query("""
+    SELECT DISTINCT b
+    FROM BookingEntity b
+    LEFT JOIN FETCH b.participants
+    LEFT JOIN FETCH b.equipment
+    WHERE b.id = :id
+""")
+    Optional<BookingEntity> findByIdWithDetails(@Param("id") Long id);
+
+
+    @Query("""
+    SELECT DISTINCT b
+    FROM BookingEntity b
+    LEFT JOIN FETCH b.participants
+    LEFT JOIN FETCH b.equipment
+""")
+    List<BookingEntity> findAllWithDetails();
+
 }

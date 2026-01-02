@@ -95,14 +95,14 @@ public class BookingRepositoryImpl implements BookingRepository {
 
     @Override
     public Optional<Booking> findById(Long id) {
-        return jpa.findById(id)
+        return jpa.findByIdWithDetails(id)
                 .map(mapper::toDomain)
                 .map(this::withExpirationSync);
     }
 
     @Override
     public List<Booking> findAll() {
-        return jpa.findAll().stream()
+        return jpa.findAllWithDetails().stream()
                 .map(mapper::toDomain)
                 .map(this::withExpirationSync)
                 .toList();
