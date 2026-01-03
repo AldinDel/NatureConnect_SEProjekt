@@ -9,6 +9,9 @@ import at.fhv.Event.domain.model.equipment.EquipmentSelection;
 import at.fhv.Event.domain.model.user.CustomerProfileRepository;
 import at.fhv.Event.presentation.rest.response.equipment.EquipmentDTO;
 import org.springframework.stereotype.Service;
+import at.fhv.Event.application.request.booking.ParticipantDTO;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,14 +19,15 @@ import java.util.Map;
 
 @Service
 public class BookingPrefillService {
-    private final CustomerProfileRepository customerProfileRepository;
-    private final VoucherService voucherService;
 
-    public BookingPrefillService(CustomerProfileRepository repo, VoucherService voucherService) {
+    private final CustomerProfileRepository customerProfileRepository;
+
+    public BookingPrefillService(CustomerProfileRepository repo) {
         this.customerProfileRepository = repo;
         this.voucherService = voucherService;
     }
 
+    @Transactional(readOnly = true)
     public CreateBookingRequest prepareCreateRequestForLoggedInUser(String email, Long eventId) {
         CreateBookingRequest request = new CreateBookingRequest();
         request.setEventId(eventId);

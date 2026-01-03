@@ -104,7 +104,7 @@ public class BookingRepositoryImpl implements BookingRepository {
 
     @Override
     public List<Booking> findAll() {
-        return jpa.findAll().stream()
+        return jpa.findAllWithDetails().stream()
                 .map(mapper::toDomain)
                 .map(this::withExpirationSync)
                 .toList();
@@ -112,7 +112,8 @@ public class BookingRepositoryImpl implements BookingRepository {
 
     @Override
     public List<Booking> findByEventId(Long eventId) {
-        return jpa.findAllByEventId(eventId).stream()
+        return jpa.findByEventIdWithDetails(eventId)
+                .stream()
                 .map(mapper::toDomain)
                 .map(this::withExpirationSync)
                 .toList();
@@ -142,7 +143,7 @@ public class BookingRepositoryImpl implements BookingRepository {
 
     @Override
     public Event loadEventForBooking(Long eventId) {
-        return eventJpa.findById(eventId)
+        return eventJpa.findByIdWithEquipments(eventId)
                 .map(eventMapper::toDomain)
                 .orElseThrow(() -> new EventNotFoundException(eventId));
     }
