@@ -53,15 +53,6 @@ public interface BookingJpaRepository extends JpaRepository<BookingEntity, Long>
     """)
     void markExpiredForEvent(@Param("eventId") Long eventId);
 
-    @Query("""
-    SELECT DISTINCT b
-    FROM BookingEntity b
-    LEFT JOIN FETCH b.participants
-    LEFT JOIN FETCH b.equipment
-    WHERE b.id = :id
-""")
-    Optional<BookingEntity> findByIdWithDetails(@Param("id") Long id);
-
 
     @Query("""
     SELECT DISTINCT b

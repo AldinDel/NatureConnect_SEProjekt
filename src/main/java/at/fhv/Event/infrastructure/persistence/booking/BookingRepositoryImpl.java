@@ -174,6 +174,7 @@ public class BookingRepositoryImpl implements BookingRepository {
 
     @Override
     public Optional<Booking> findByIdWithParticipants(Long id) {
-        return jpa.findByIdWithParticipants(id).map(mapper::toDomain);
+        return jpa.findByIdWithDetails(id).map(mapper::toDomain);
     }
+
 }

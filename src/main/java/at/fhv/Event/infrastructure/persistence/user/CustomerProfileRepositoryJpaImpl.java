@@ -53,10 +53,23 @@ public class CustomerProfileRepositoryJpaImpl implements CustomerProfileReposito
 
     @Override
     public CustomerProfile save(CustomerProfile profile) {
-        CustomerProfileEntity entity = CustomerProfileMapper.toEntity(profile);
+
+        CustomerProfileEntity entity;
+
+        if (profile.getId() == null) {
+            entity = CustomerProfileMapper.toEntity(profile);
+        } else {
+            entity = _customerProfileJpaRepository
+                    .findById(profile.getId())
+                    .orElseThrow(() -> new IllegalStateException("Profile not found"));
+            CustomerProfileMapper.updateEntity(entity, profile);
+        }
+
         CustomerProfileEntity saved = _customerProfileJpaRepository.save(entity);
         return toDomain(saved);
     }
+
+
 
     private CustomerProfile toDomain(CustomerProfileEntity e) {
         return new CustomerProfile(
@@ -67,6 +80,11 @@ public class CustomerProfileRepositoryJpaImpl implements CustomerProfileReposito
                 e.getEmail(),
                 e.getPhone(),
                 e.getBirthday(),
+                e.getStreet(),
+                e.getPostalCode(),
+                e.getCity(),
+                e.getCountry(),
+                e.getAvatarUrl(),
                 e.getCreatedAt(),
                 e.getUpdatedAt()
         );
