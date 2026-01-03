@@ -27,5 +27,7 @@ public record EventDetailDTO(
         List<EquipmentDTO> equipments,
         List<Long> requiredEquipmentIds,
         List<Long> optionalEquipmentIds,
+        List<String> hikeRouteKeys,
         String audience
+
 ) {}

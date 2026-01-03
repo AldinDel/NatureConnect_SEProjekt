@@ -8,9 +8,10 @@
 <th:block th:fragment="navbar">
     <header class="nc-header">
         <div class="nc-container">
+
             <div class="nc-top">
-                <a class="nc-logo" th:href="@{/}" href="/">
-                    <img th:src="@{/images/NatureConnectLogo.png}" src="/images/NatureConnectLogo.png" alt="Logo">
+                <a class="nc-logo" th:href="@{/}">
+                    <img th:src="@{/images/NatureConnectLogo.png}" alt="Logo">
                     <span class="nc-brand"><strong>NATURE</strong>Connect</span>
                 </a>
             </div>
@@ -18,28 +19,33 @@
             <div class="nc-divider"></div>
 
             <nav class="nc-nav" id="nc-nav">
+                <!-- LEFT -->
                 <ul class="nc-left">
-                    <li><a th:href="@{/}" href="/">Home</a></li>
+                    <li><a th:href="@{/}">Home</a></li>
+
                     <li class="dropdown">
                         <a href="#" class="dropbtn">Events ▾</a>
                         <ul class="dropdown-content">
-                            <li><a th:href="@{/events}" href="/events">All Events</a></li>
+                            <li><a th:href="@{/events}">All Events</a></li>
 
                             <li sec:authorize="hasAnyRole('ADMIN', 'ORGANIZER')">
-                                <a th:href="@{/events/new}" href="/events/new">Create Event</a>
+                                <a th:href="@{/events/new}">Create Event</a>
                             </li>
                         </ul>
                     </li>
-                    <li><a th:href="@{/bookings}" href="/bookings">Bookings</a></li>
 
-                    <li class="nav-item" sec:authorize="hasAnyRole('FRONT', 'ADMIN')">
-                        <a class="nav-link" th:href="@{/event_management}">Event Management</a>
+                    <li><a th:href="@{/bookings}">Bookings</a></li>
+
+                    <li sec:authorize="hasAnyRole('FRONT', 'ADMIN')">
+                        <a th:href="@{/event_management}">Event Management</a>
                     </li>
                 </ul>
 
+                <!-- RIGHT -->
                 <ul class="nc-right">
+
                     <li sec:authorize="!isAuthenticated() or hasRole('CUSTOMER')">
-                        <a th:href="@{/about}" href="/about">About Us</a>
+                        <a th:href="@{/about}">About Us</a>
                     </li>
 
                     <li sec:authorize="!isAuthenticated() or hasRole('CUSTOMER')">
@@ -47,29 +53,32 @@
                     </li>
 
                     <li sec:authorize="!isAuthenticated() or hasRole('CUSTOMER')">
-                        <a th:href="@{/contact}" href="/contact">Contact Us</a>
+                        <a th:href="@{/contact}">Contact Us</a>
                     </li>
 
                     <li sec:authorize="!isAuthenticated()">
-                        <a class="nc-login" th:href="@{/login}" href="/login">Log In</a>
+                        <a class="nc-login" th:href="@{/login}">Log In</a>
                     </li>
 
+                    <!-- USER MENU -->
                     <li sec:authorize="isAuthenticated()" class="dropdown">
                         <a href="#" class="dropbtn profile-link">
                             <span>👤</span>
-                            <span th:text="'Welcome, ' + ${currentUserName != null ? currentUserName : #authentication.name}">User</span>
+                            <span th:text="'Welcome, ' + ${currentUserName != null ? currentUserName : #authentication.name}">
+                                User
+                            </span>
                             <span> ▾</span>
                         </a>
 
                         <ul class="dropdown-content">
 
+                            <!-- ROLE BADGES (unchanged, good stuff) -->
                             <li class="badge-item" sec:authorize="hasRole('ADMIN')">
                                 <div class="badge-card badge-gold">
                                     <span class="badge-role">Back Office</span>
                                     <span class="badge-sub">Admin</span>
                                 </div>
                             </li>
-
 
                             <li class="badge-item" sec:authorize="hasRole('FRONT')">
                                 <div class="badge-card badge-blue">
@@ -83,26 +92,19 @@
                                 </div>
                             </li>
 
-
                             <li class="badge-item" sec:authorize="hasRole('CUSTOMER') and !hasRole('ORGANIZER')">
                                 <div class="badge-card badge-green">
                                     <span class="badge-role">Customer</span>
                                 </div>
                             </li>
 
-                            <li sec:authorize="hasRole('CUSTOMER')" class="dropdown nested-dropdown">
-                                <a href="#" class="menu-link">My Profile ▸</a>
-                                <ul class="dropdown-content nested-content">
-                                    <li>
-                                        <a th:href="@{/invoices}" class="menu-link">My Invoices</a>
-                                    </li>
-                                </ul>
+                            <li>
+                                <a th:href="@{/profile}" class="menu-link">My Profile</a>
                             </li>
 
                             <li sec:authorize="hasRole('ADMIN')">
                                 <a th:href="@{/admin/users}" class="menu-link">Users & Roles</a>
                             </li>
-
 
                             <li>
                                 <form th:action="@{/logout}" method="post" style="margin:0">
@@ -112,6 +114,7 @@
 
                         </ul>
                     </li>
+
                 </ul>
             </nav>
         </div>

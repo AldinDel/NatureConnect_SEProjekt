@@ -86,10 +86,11 @@ public class CreateEventService {
                 req.getPrice(),
                 req.getImageUrl(),
                 EventAudience.valueOf(req.getAudience()),
-                ees
+                ees,
+                req.getHikeRouteKeys()
         );
 
-        eventRepository.save(domain);
-        return mapper.toDetailDTO(domain);
+        Event saved = eventRepository.save(domain);
+        return mapper.toDetailDTO(saved);
     }
 }

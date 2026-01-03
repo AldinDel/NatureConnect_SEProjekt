@@ -9,6 +9,7 @@
 
 <body class="bookings-page">
 
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
 
 <div th:if="${success}" class="toast-success">
     <span th:text="${success}"></span>
@@ -18,13 +19,13 @@
     <span th:text="${error}"></span>
 </div>
 
-<div th:replace="~{events/fragments/navbar :: navbar}"></div>
-
 <div class="booking-container">
 
     <h1>Your Bookings</h1>
 
-    <div class="booking-controls" th:if="${bookings.size() > 0}">
+    <!-- 🔍 CONTROLS -->
+    <div class="booking-controls">
+
         <input type="text"
                id="bookingSearch"
                placeholder="Search your bookings..."
@@ -37,23 +38,17 @@
             <option value="past">Past</option>
         </select>
 
-        <select id="bookingSort" onchange="sortBookings()">
-            <option value="date_desc">Latest first</option>
-            <option value="date_asc">Earliest first</option>
-            <option value="price_asc">Price ↑</option>
-            <option value="price_desc">Price ↓</option>
-            <option value="event_asc">Event ↑</option>
-            <option value="event_desc">Event ↓</option>
-        </select>
-
         <button class="btn-reset" onclick="resetFilters()">Reset</button>
-    </div>
 
+        <!-- ✅ MOVED HERE -->
+        <button class="toggle-cancelled-btn" onclick="toggleInactive()">
+            Show active bookings
+        </button>
+    </div>
 
     <p th:if="${bookings.size() == 0}" class="no-bookings">
         You don't have any bookings yet
     </p>
-
 
     <table th:if="${bookings.size() > 0}" class="booking-table">
         <thead>
@@ -67,104 +62,100 @@
         </thead>
 
         <tbody>
-        <tr th:each="dto : ${bookings}">
-            <td>
+        <tr th:each="dto : ${bookings}"
+            th:classappend="
+                ${dto.cancelled} ? 'row-inactive cancelled' :
+                (${dto.expired} ? 'row-inactive expired' : '')">
+
+            <td class="event-col">
                 <div class="event-info">
                     <img th:src="${dto.event.imageUrl}" alt="thumbnail">
                     <span th:text="${dto.event.title}"></span>
                 </div>
             </td>
 
-            <!-- DATE -->
             <td th:text="${dto.event.date}"></td>
-
-
             <td th:text="${dto.seats}"></td>
-
 
             <td>
                 <span th:text="${#numbers.formatDecimal(dto.totalPrice, 1, 2, 'COMMA')} + ' €'"></span>
             </td>
 
-
             <td class="actions">
+                <a th:href="@{/booking/{id}/edit(id=${dto.id})}"
+                   class="btn-edit action-btn">Edit</a>
 
-                <a th:if="${!dto.event.cancelled and dto.event.date >= T(java.time.LocalDate).now()}"
-                   th:href="@{/booking/{id}/edit(id=${dto.id})}"
-                   class="btn-edit">
-                    Edit
-                </a>
-
-                <span th:if="${dto.event.cancelled or dto.event.date < T(java.time.LocalDate).now()}"
-                      class="badge-disabled">
-                    Not editable
-                </span>
-
-                <button class="btn-cancel">Cancel</button>
+                <form th:action="@{/booking/{id}/cancel(id=${dto.id})}"
+                      method="post" style="display:inline;">
+                    <button class="btn-small btn-cancel action-btn" type="submit">
+                        Cancel
+                    </button>
+                </form>
             </td>
+
         </tr>
         </tbody>
     </table>
+
 </div>
 
-
 <script>
+    let inactiveVisible = false;
+
+    function toggleInactive() {
+        const rows = document.querySelectorAll("tbody tr");
+
+        inactiveVisible = !inactiveVisible;
+
+        rows.forEach(r => {
+            const isInactive = r.classList.contains("row-inactive");
+            if (isInactive) {
+                r.style.display = inactiveVisible ? "" : "none";
+            }
+        });
+
+        const btn = document.querySelector(".toggle-cancelled-btn");
+        btn.innerText = inactiveVisible ? "Hide inactive bookings" : "Show active bookings";
+        btn.classList.toggle("active", inactiveVisible);
+    }
+
     function filterBookings() {
         const search = document.getElementById("bookingSearch").value.toLowerCase();
         const filter = document.getElementById("bookingFilter").value;
         const rows = document.querySelectorAll(".booking-table tbody tr");
+
         const today = new Date().toISOString().slice(0, 10);
 
         rows.forEach(row => {
             const event = row.children[0].innerText.toLowerCase();
             const date = row.children[1].innerText;
-            const price = row.children[3].innerText.toLowerCase();
 
-            let show = event.includes(search) || price.includes(search);
+            let show = event.includes(search);
 
             if (filter === "today" && date !== today) show = false;
             if (filter === "future" && date < today) show = false;
             if (filter === "past" && date > today) show = false;
 
+            if (!inactiveVisible && row.classList.contains("row-inactive")) {
+                show = false;
+            }
+
             row.style.display = show ? "" : "none";
         });
-    }
-
-    function sortBookings() {
-        const sort = document.getElementById("bookingSort").value;
-        const tbody = document.querySelector(".booking-table tbody");
-        const rows = Array.from(tbody.querySelectorAll("tr"));
-
-        rows.sort((a, b) => {
-            const eventA = a.children[0].innerText.trim();
-            const eventB = b.children[0].innerText.trim();
-            const dateA = a.children[1].innerText;
-            const dateB = b.children[1].innerText;
-            const priceA = parseFloat(a.children[3].innerText.replace("€", "").replace(",", "."));
-            const priceB = parseFloat(b.children[3].innerText.replace("€", "").replace(",", "."));
-
-            switch (sort) {
-                case "date_desc": return dateB.localeCompare(dateA);
-                case "date_asc": return dateA.localeCompare(dateB);
-                case "price_asc": return priceA - priceB;
-                case "price_desc": return priceB - priceA;
-                case "event_asc": return eventA.localeCompare(eventB);
-                case "event_desc": return eventB.localeCompare(eventA);
-            }
-        });
-
-        rows.forEach(r => tbody.appendChild(r));
     }
 
     function resetFilters() {
         document.getElementById("bookingSearch").value = "";
         document.getElementById("bookingFilter").value = "all";
-        document.getElementById("bookingSort").value = "date_desc";
 
-        document.querySelectorAll(".booking-table tbody tr")
-            .forEach(row => row.style.display = "");
-
-        sortBookings();
+        const rows = document.querySelectorAll(".booking-table tbody tr");
+        rows.forEach(row => {
+            if (!inactiveVisible && row.classList.contains("row-inactive")) {
+                row.style.display = "none";
+            } else {
+                row.style.display = "";
+            }
+        });
     }
 </script>
 

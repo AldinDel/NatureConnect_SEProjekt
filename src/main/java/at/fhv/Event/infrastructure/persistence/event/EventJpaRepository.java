@@ -10,9 +10,52 @@ import java.util.Optional;
 
 public interface EventJpaRepository extends JpaRepository<EventEntity, Long> {
 
-    @Query("SELECT e FROM EventEntity e LEFT JOIN FETCH e.eventEquipments ee LEFT JOIN FETCH ee.equipment WHERE e.id = :id")
+    @Query("""
+    SELECT DISTINCT e
+    FROM EventEntity e
+    LEFT JOIN FETCH e.eventEquipments ee
+    LEFT JOIN FETCH ee.equipment
+    LEFT JOIN FETCH e.hikeRouteKeys hk
+    WHERE e.id = :id
+""")
     Optional<EventEntity> findByIdWithEquipments(@Param("id") Long id);
+
+    @Query("""
+        SELECT DISTINCT e FROM EventEntity e
+        LEFT JOIN FETCH e.eventEquipments ee
+        LEFT JOIN FETCH ee.equipment
+    """)
+    List<EventEntity> findAllWithEquipments();
+
+    @Query("""
+        SELECT DISTINCT e FROM EventEntity e
+        LEFT JOIN FETCH e.eventEquipments ee
+        LEFT JOIN FETCH ee.equipment
+        WHERE e.date = :date
+    """)
+    List<EventEntity> findByDateWithEquipments(@Param("date") LocalDate date);
 
     @Query("SELECT e FROM EventEntity e WHERE e.date = :date")
     List<EventEntity> findByDate(@Param("date") LocalDate date);
+
+    @Query("""
+        SELECT DISTINCT e
+        FROM EventEntity e
+        LEFT JOIN FETCH e.eventEquipments ee
+        LEFT JOIN FETCH ee.equipment
+        LEFT JOIN FETCH e.hikeRouteKeys hk
+    """)
+    List<EventEntity> findAllWithEquipmentsAndHikeKeys();
+
+    @Query("""
+    SELECT DISTINCT e
+    FROM EventEntity e
+    LEFT JOIN FETCH e.eventEquipments ee
+    LEFT JOIN FETCH ee.equipment
+    LEFT JOIN FETCH e.hikeRouteKeys hk
+    WHERE e.date = :date
+""")
+    List<EventEntity> findByDateWithEquipmentsAndHikeKeys(@Param("date") LocalDate date);
+
+
 }
