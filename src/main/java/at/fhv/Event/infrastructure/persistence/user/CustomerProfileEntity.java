@@ -1,6 +1,5 @@
 package at.fhv.Event.infrastructure.persistence.user;
 
-
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -25,6 +24,21 @@ public class CustomerProfileEntity {
     @Column(nullable=false, unique=true, length=200) private String email;
     @Column(length=50) private String phone;
     private LocalDate birthday;
+
+    @Column(length = 200)
+    private String street;
+
+    @Column(length = 20)
+    private String postalCode;
+
+    @Column(length = 100)
+    private String city;
+
+    @Column(length = 100)
+    private String country;
+
+    @Column(length = 500)
+    private String avatarUrl;
 
     @Column(nullable=false) private OffsetDateTime createdAt = OffsetDateTime.now();
     @Column(nullable=false) private OffsetDateTime updatedAt = OffsetDateTime.now();
@@ -85,6 +99,46 @@ public class CustomerProfileEntity {
         this.birthday = birthday;
     }
 
+    public String getStreet() {
+        return street;
+    }
+
+    public void setStreet(String street) {
+        this.street = street;
+    }
+
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
     public OffsetDateTime getCreatedAt() {
         return createdAt;
     }
@@ -101,4 +155,3 @@ public class CustomerProfileEntity {
         this.updatedAt = updatedAt;
     }
 }
-

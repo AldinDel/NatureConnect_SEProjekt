@@ -174,3 +174,56 @@
     accent-color: #0b2545; /* nice dark blue */
     cursor: pointer;
 }
+
+.dropdown > .profile-link {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.nav-avatar-wrapper {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #dbeafe;
+}
+
+.nav-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.nav-avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    font-weight: 700;
+    font-size: 14px;
+    background-color: #dbeafe;
+    color: #1e3a8a;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.profile-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-username {
+    font-weight: 500;
+    color: #fff;
+}
+.avatar-placeholder {
+    background-color: #c7d9ff;  
+    color: #1e3a8a;
+    font-weight: 700;
+}

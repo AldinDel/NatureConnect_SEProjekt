@@ -63,12 +63,32 @@
                     <!-- USER MENU -->
                     <li sec:authorize="isAuthenticated()" class="dropdown">
                         <a href="#" class="dropbtn profile-link">
-                            <span>👤</span>
-                            <span th:text="'Welcome, ' + ${currentUserName != null ? currentUserName : #authentication.name}">
-                                User
+
+                            <div class="nav-avatar-wrapper">
+
+                                <!-- echtes Avatar -->
+                                <img th:if="${avatarUrl != null}"
+                                     th:src="${avatarUrl}"
+                                     class="nav-avatar-img"
+                                     alt="Avatar">
+
+                                <!-- Initialen (BF) -->
+                                <div th:if="${avatarUrl == null}"
+                                     class="nav-avatar-placeholder"
+                                     th:text="${userInitials}">
+                                    BF
+                                </div>
+
+                            </div>
+
+                            <span class="nav-username"
+                                  th:text="${currentUserName}">
                             </span>
-                            <span> ▾</span>
+
+                            <span class="caret">▾</span>
                         </a>
+
+
 
                         <ul class="dropdown-content">
 

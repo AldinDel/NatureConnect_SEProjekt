@@ -11,6 +11,12 @@ public class CustomerProfile {
     private String email;
     private String phone;
     private LocalDate birthday;
+    private String street;
+    private String postalCode;
+    private String city;
+    private String country;
+    private String avatarUrl;
+
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
 
@@ -25,6 +31,25 @@ public class CustomerProfile {
         this.email = email;
         this.phone = phone;
         this.birthday = birthday;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+    }
+
+    public CustomerProfile(Long id, UserAccount user, String firstName, String lastName, String email, String phone,
+                           LocalDate birthday, String street, String postalCode, String city, String country,
+                           String avatarUrl, OffsetDateTime createdAt, OffsetDateTime updatedAt) {
+        this.id = id;
+        this.user = user;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.phone = phone;
+        this.birthday = birthday;
+        this.street = street;
+        this.postalCode = postalCode;
+        this.city = city;
+        this.country = country;
+        this.avatarUrl = avatarUrl;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -83,6 +108,46 @@ public class CustomerProfile {
 
     public void setBirthday(LocalDate birthday) {
         this.birthday = birthday;
+    }
+
+    public String getStreet() {
+        return street;
+    }
+
+    public void setStreet(String street) {
+        this.street = street;
+    }
+
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 
     public OffsetDateTime getCreatedAt() {
