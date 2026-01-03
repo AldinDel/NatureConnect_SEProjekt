@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 @Repository
 public class EventRepositoryJPAImpl implements EventRepository {
@@ -71,5 +71,13 @@ public class EventRepositoryJPAImpl implements EventRepository {
         return mapper.toDomainList(jpa.findByDateWithEquipmentsAndHikeKeys(date));
     }
 
-
+    @Override
+    public List<Event> findAllByIds(Set<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return jpa.findAllByIdWithEquipments(ids).stream()
+                .map(mapper::toDomain)
+                .toList();
+    }
 }

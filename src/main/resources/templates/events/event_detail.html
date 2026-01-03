@@ -202,13 +202,18 @@
 
             <!-- Buchen Button -->
             <a class="book-btn"
-               th:href="@{'/booking/' + ${event.id}}"
-               th:classappend="${remainingSpots == 0} ? ' disabled-link'">
-                Book now
+               th:href="@{'/booking/event/' + ${event.id}}"
+               th:classappend="${remainingSpots == 0 or event.cancelled} ? ' disabled-link'">
+                <span th:if="${!event.cancelled}">Book now</span>
+                <span th:if="${event.cancelled}">Event Cancelled</span>
             </a>
 
             <p th:if="${remainingSpots == 0}" style="color:red; margin-top:10px;">
                 This event is fully booked
+            </p>
+
+            <p th:if="${event.cancelled}" style="color:red; margin-top:10px; font-weight: bold;">
+                This event has been cancelled
             </p>
         </div>
 

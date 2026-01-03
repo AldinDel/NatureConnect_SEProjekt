@@ -1,6 +1,7 @@
 package at.fhv.Event.config;
 
 import at.fhv.Event.application.user.CustomUserDetailsService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -11,10 +12,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.RememberMeServices;
+import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.web.savedrequest.SavedRequest;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Profile("!test")
 @Configuration
@@ -23,6 +24,9 @@ import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
+
+    @Value("${remember.me.secret}")
+    private String rememberMeSecret;
 
     public SecurityConfig(CustomUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
@@ -53,6 +57,7 @@ public class SecurityConfig {
                         .requestMatchers("/booking/payment/**").authenticated()
                         .requestMatchers("/booking/confirmation/**").permitAll()
                         .requestMatchers("/api/hiking/**").permitAll()
+                        .requestMatchers("/api/events/*/equipment").permitAll()
                         .requestMatchers("/api/events/**").hasAnyRole("ADMIN", "FRONT", "ORGANIZER")
 
                         .anyRequest().authenticated()
@@ -81,18 +86,37 @@ public class SecurityConfig {
 
                         .permitAll()
                 )
+                .rememberMe(remember -> remember
+                        .rememberMeServices(rememberMeServices())
+                        .key(rememberMeSecret)
+                )
+
 
                 .logout(logout -> logout
-                        .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                        .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
+                        .deleteCookies("JSESSIONID", "remember-me")
                         .permitAll()
                 );
-
-
-
-
         return http.build();
     }
+
+    @Bean
+    public RememberMeServices rememberMeServices() {
+        TokenBasedRememberMeServices rememberMeServices =
+                new TokenBasedRememberMeServices(
+                        rememberMeSecret,
+                        userDetailsService
+                );
+
+        rememberMeServices.setTokenValiditySeconds(2592000);
+        rememberMeServices.setCookieName("remember-me");
+        rememberMeServices.setParameter("remember-me");
+
+        return rememberMeServices;
+    }
+
+
 
     @Bean
     public PasswordEncoder passwordEncoder() {

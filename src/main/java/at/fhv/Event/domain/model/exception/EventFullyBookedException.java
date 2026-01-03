@@ -1,32 +1,40 @@
 package at.fhv.Event.domain.model.exception;
 
-public class EventFullyBookedException extends RuntimeException {
+public class EventFullyBookedException extends DomainException {
     private final Long _eventId;
     private final int _requestedSeats;
     private final int _availableSeats;
 
     public EventFullyBookedException(Long eventId, int requestedSeats, int availableSeats) {
-        super(buildMessage(requestedSeats, availableSeats));
+        super("BOOKING_003");
         _eventId = eventId;
         _requestedSeats = requestedSeats;
         _availableSeats = availableSeats;
     }
 
-    private static String buildMessage(int requestedSeats, int availableSeats) {
-        if (availableSeats == 0) {
-            return "This event is fully booked. sorry :) ";
-        }
-        return String.format("Only %d spot(s) remaining for this event, but %d were requested.", availableSeats, requestedSeats);
+    public Long getEventId() {
+        return _eventId;
     }
 
+    public int getRequestedSeats() {
+        return _requestedSeats;
+    }
+
+    public int getAvailableSeats() {
+        return _availableSeats;
+    }
+
+    @Deprecated
     public Long get_eventId() {
         return _eventId;
     }
 
+    @Deprecated
     public int get_requestedSeats() {
         return _requestedSeats;
     }
 
+    @Deprecated
     public int get_availableSeats() {
         return _availableSeats;
     }

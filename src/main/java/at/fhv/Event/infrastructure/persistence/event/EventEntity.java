@@ -8,11 +8,12 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.OffsetDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
-@Table(name = "event")
+@Table(name = "event", schema="nature_connect")
 public class EventEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,7 +25,10 @@ public class EventEntity {
     private String organizer;
     private String category;
     private String location;
+
+    @Column(name = "image_url")
     private String imageUrl;
+
 
     private LocalDate date;
     private LocalTime startTime;
@@ -41,13 +45,15 @@ public class EventEntity {
     @Column(name = "audience", length = 50)
     private EventAudience audience;
 
+    @Column(name = "price", precision = 10, scale = 2)
     private BigDecimal price;
 
-    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
-    private java.util.Set<EventEquipmentEntity> eventEquipments = new java.util.HashSet<>();
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL,
+            orphanRemoval = true, fetch = FetchType.LAZY)
+    private Set<EventEquipmentEntity> eventEquipments = new HashSet<>();
 
-    @Column(name = "is_cancelled")
-    private Boolean cancelled = false;
+    @Column(name = "is_cancelled", nullable = false)
+    private boolean cancelled = false;
 
     public Boolean getCancelled() {
         return cancelled;
@@ -57,14 +63,40 @@ public class EventEntity {
         e.setEvent(this);
     }
 
-    @ElementCollection
+    @Column(name = "created_at", nullable = false)
+    private OffsetDateTime createdAt;
+
+    @Column(name = "updated_at", nullable = false)
+    private OffsetDateTime updatedAt;
+
+    @PrePersist
+    void onCreate() {
+        this.createdAt = OffsetDateTime.now();
+        this.updatedAt = OffsetDateTime.now();
+    }
+
+    @PreUpdate
+    void onUpdate() {
+        this.updatedAt = OffsetDateTime.now();
+    }
+
+
+    @Column(name = "confirmed_seats", nullable = false)
+    private int confirmedSeats = 0;
+
+    @Column(name = "reserved_seats", nullable = false)
+    private int reservedSeats = 0;
+
+
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(
             name = "event_hike_route",
             schema = "nature_connect",
             joinColumns = @JoinColumn(name = "event_id")
     )
+
     @Column(name = "hike_key")
-    private java.util.Set<String> hikeRouteKeys = new java.util.HashSet<>();
+    private Set<String> hikeRouteKeys = new HashSet<>();
 
 
     public void setCancelled(Boolean cancelled) {
@@ -191,23 +223,20 @@ public class EventEntity {
         this.audience = audience;
     }
 
-    public java.util.Set<EventEquipmentEntity> getEventEquipments() {
+    public Set<EventEquipmentEntity> getEventEquipments() {
         return eventEquipments;
     }
 
-    public void setEventEquipments(java.util.Set<EventEquipmentEntity> eventEquipments) {
-        this.eventEquipments = (eventEquipments == null)
-                ? new java.util.HashSet<>()
-                : new java.util.HashSet<>(eventEquipments);
+    public void setEventEquipments(Set<EventEquipmentEntity> eventEquipments) {
+        this.eventEquipments = eventEquipments;
     }
 
-
-    public java.util.Set<String> getHikeRouteKeys() {
+    public Set<String> getHikeRouteKeys() {
         return hikeRouteKeys;
     }
 
-    public void setHikeRouteKeys(java.util.Set<String> hikeRouteKeys) {
-        this.hikeRouteKeys = (hikeRouteKeys == null) ? new java.util.HashSet<>() : new java.util.HashSet<>(hikeRouteKeys);
+    public void setHikeRouteKeys(Set<String> hikeRouteKeys) {
+        this.hikeRouteKeys = (hikeRouteKeys == null) ? new HashSet<>() : new HashSet<>(hikeRouteKeys);
     }
 
 }

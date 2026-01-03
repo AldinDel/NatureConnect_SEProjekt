@@ -10,13 +10,13 @@ public class BookingParticipantMapper {
     public BookingParticipant toDomain(BookingParticipantEntity e) {
         return new BookingParticipant(
                 e.getId(),
+                e.getBooking() != null ? e.getBooking().getId() : null,
                 e.getFirstName(),
                 e.getLastName(),
                 e.getAge(),
                 e.getCheckInStatus(),
-                e.getCheckOutStatus()
+                e.getCheckOutStatus(),
+                e.getCheckOutTime()
         );
     }
-
-
 }

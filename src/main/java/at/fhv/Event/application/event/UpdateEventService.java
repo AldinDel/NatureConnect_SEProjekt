@@ -9,6 +9,7 @@ import at.fhv.Event.domain.model.event.EventAudience;
 import at.fhv.Event.domain.model.event.EventRepository;
 import at.fhv.Event.domain.model.exception.*;
 import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +30,7 @@ public class UpdateEventService {
         this.eventValidator = eventValidator;
     }
 
+    @CacheEvict(value = {"events", "eventBatch"}, allEntries = true)
     @Transactional
     public EventDetailDTO updateEvent(Long id, UpdateEventRequest req) {
         List<ValidationError> errors = eventValidator.validate(req);
@@ -83,10 +85,24 @@ public class UpdateEventService {
 
             if (eqReq.isRentable()) {
                 if (eqReq.getUnitPrice() == null) {
-                    throw new IllegalArgumentException("Unit price is required when equipment is rentable: " + eqReq.getName());
+                    throw new EventValidationException(List.of(
+                            new ValidationError(
+                                    ValidationErrorType.BUSINESS_RULE_VIOLATION,
+                                    "equipment.unitPrice",
+                                    eqReq.getName(),
+                                    "Unit price is required when equipment is rentable: " + eqReq.getName()
+                            )
+                    ));
                 }
                 if (eqReq.getStock() == null) {
-                    throw new IllegalArgumentException("Stock is required when equipment is rentable: " + eqReq.getName());
+                    throw new EventValidationException(List.of(
+                            new ValidationError(
+                                    ValidationErrorType.BUSINESS_RULE_VIOLATION,
+                                    "equipment.stock",
+                                    eqReq.getName(),
+                                    "Stock is required when equipment is rentable: " + eqReq.getName()
+                            )
+                    ));
                 }
             }
             Equipment equipment;

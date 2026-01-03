@@ -1,6 +1,8 @@
 package at.fhv.Event.application.user;
 
-import at.fhv.Event.infrastructure.persistence.user.*;
+import at.fhv.Event.domain.model.exception.DuplicateEmailException;
+import at.fhv.Event.domain.model.exception.RoleNotFoundException;
+import at.fhv.Event.domain.model.user.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,17 +12,13 @@ import java.util.Set;
 
 @Service
 public class RegisterUserService {
-
-    private final UserAccountJpaRepository userRepo;
-    private final RoleJpaRepository roleRepo;
-    private final CustomerProfileJpaRepository customerProfileRepo;
+    private final UserAccountRepository userRepo;
+    private final RoleRepository roleRepo;
+    private final CustomerProfileRepository customerProfileRepo;
     private final PasswordEncoder passwordEncoder;
 
-    public RegisterUserService(
-            UserAccountJpaRepository userRepo,
-            RoleJpaRepository roleRepo,
-            CustomerProfileJpaRepository customerProfileRepo,
-            PasswordEncoder passwordEncoder) {
+    public RegisterUserService(UserAccountRepository userRepo, RoleRepository roleRepo,
+            CustomerProfileRepository customerProfileRepo, PasswordEncoder passwordEncoder) {
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
         this.customerProfileRepo = customerProfileRepo;
@@ -30,11 +28,11 @@ public class RegisterUserService {
     @Transactional
     public void registerCustomer(String firstName, String lastName, String email, String password) {
         if (userRepo.findByEmailIgnoreCase(email).isPresent()) {
-            throw new IllegalArgumentException("Diese E-Mail wird bereits verwendet.");
+            throw new DuplicateEmailException(email);
         }
 
         // 1. Login-Account erstellen
-        UserAccountEntity user = new UserAccountEntity();
+        UserAccount user = new UserAccount();
         user.setFirstName(firstName);
         user.setLastName(lastName);
         user.setEmail(email);
@@ -44,14 +42,14 @@ public class RegisterUserService {
         user.setUpdatedAt(OffsetDateTime.now());
 
         // Rolle: Customer
-        RoleEntity role = roleRepo.findByCode("CUSTOMER")
-                .orElseThrow(() -> new RuntimeException("Rolle CUSTOMER nicht gefunden."));
+        Role role = roleRepo.findByCode("CUSTOMER")
+                .orElseThrow(() -> new RoleNotFoundException("CUSTOMER"));
         user.setRoles(Set.of(role));
 
-        UserAccountEntity savedUser = userRepo.save(user);
+        UserAccount savedUser = userRepo.save(user);
 
         // 2. Customer Profil erstellen (Wichtig für die Konsistenz)
-        CustomerProfileEntity profile = new CustomerProfileEntity();
+        CustomerProfile profile = new CustomerProfile();
         profile.setUser(savedUser);
         profile.setFirstName(firstName);
         profile.setLastName(lastName);

@@ -1,7 +1,9 @@
 package at.fhv.Event.infrastructure.persistence.booking;
 
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
-import at.fhv.Event.domain.model.booking.*;
+import at.fhv.Event.domain.model.booking.Booking;
+import at.fhv.Event.domain.model.booking.BookingRepository;
+import at.fhv.Event.domain.model.booking.BookingStatus;
 import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.domain.model.exception.EventNotFoundException;
 import at.fhv.Event.infrastructure.mapper.BookingMapper;
@@ -14,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -169,5 +170,10 @@ public class BookingRepositoryImpl implements BookingRepository {
     @Override
     public void updateStatus(Long id, BookingStatus status) {
         jpa.updateStatus(id, status);
+    }
+
+    @Override
+    public Optional<Booking> findByIdWithParticipants(Long id) {
+        return jpa.findByIdWithParticipants(id).map(mapper::toDomain);
     }
 }

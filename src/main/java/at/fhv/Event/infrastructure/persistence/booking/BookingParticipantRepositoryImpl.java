@@ -42,6 +42,9 @@ public class BookingParticipantRepositoryImpl
                 .orElseThrow(() -> new RuntimeException("Participant not found"));
 
         entity.setCheckInStatus(participant.getCheckInStatus());
+        entity.setCheckOutStatus(participant.getCheckOutStatus());
+
+        jpaRepo.save(entity);
 
         return mapper.toDomain(entity);
     }

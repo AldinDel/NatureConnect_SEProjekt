@@ -23,9 +23,21 @@
 
 <div class="container">
     <div id="errorPop"></div>
+    <div th:if="${errors != null and !errors.isEmpty()}"
+         id="validationErrorBox"
+         style="background-color: #fee2e2; border: 1px solid #ef4444; border-radius: 8px; padding: 16px; margin-bottom: 20px; transition: opacity 0.6s ease;">
+        <h3 style="color: #dc2626; margin-top: 0; font-size: 18px;">Please fix the following errors:</h3>
+        <ul style="color: #dc2626; margin-bottom: 0;">
+            <li th:each="error : ${errors}" th:text="${error}"></li>
+        </ul>
+    </div>
+    <script th:if="${fieldErrors != null}" type="application/json" id="fieldErrorsData" th:inline="text">
+        [[${fieldErrors}]]
+    </script>
     <form th:action="${isEdit} ? @{/booking/{id}(id=${bookingId})} : @{/booking}"
           th:object="${booking}"
           method="post">
+
 
         <input type="hidden" id="isEdit" th:value="${isEdit}"/>
 
@@ -34,7 +46,6 @@
         <input type="hidden" id="eventBasePrice" th:value="${event.price}">
         <input type="hidden" id="eventMinParticipants" th:value="${event.minParticipants}">
         <input type="hidden" id="eventMaxParticipants" th:value="${event.maxParticipants}">
-        <input type="hidden" id="guestMode" name="guestMode" value="false">
         <input type="hidden" id="changePayment" name="changePayment" value="false"/>
 
         <div class="grid">
@@ -57,13 +68,37 @@
                     <h2 class="card-title">Your Information</h2>
 
                     <label>First Name</label>
-                    <input type="text" class="form-input" th:field="*{bookerFirstName}" maxlength="50" required>
+                    <input type="text"
+                           class="form-input"
+                           th:field="*{bookerFirstName}"
+                           th:classappend="${fieldErrors?.containsKey('bookerFirstName')} ? 'input-error' : ''"
+                           maxlength="50"
+                           required>
+                    <span th:if="${fieldErrors?.containsKey('bookerFirstName')}"
+                          class="error-text"
+                          th:text="${fieldErrors['bookerFirstName']}"></span>
 
                     <label>Last Name</label>
-                    <input type="text" class="form-input" th:field="*{bookerLastName}" maxlength="50" required>
+                    <input type="text"
+                           class="form-input"
+                           th:field="*{bookerLastName}"
+                           th:classappend="${fieldErrors?.containsKey('bookerLastName')} ? 'input-error' : ''"
+                           maxlength="50"
+                           required>
+                    <span th:if="${fieldErrors?.containsKey('bookerLastName')}"
+                          class="error-text"
+                          th:text="${fieldErrors['bookerLastName']}"></span>
 
                     <label>Email</label>
-                    <input type="email" class="form-input" th:field="*{bookerEmail}" maxlength="100" required>
+                    <input type="email"
+                           class="form-input"
+                           th:field="*{bookerEmail}"
+                           th:classappend="${fieldErrors?.containsKey('bookerEmail')} ? 'input-error' : ''"
+                           maxlength="100"
+                           required>
+                    <span th:if="${fieldErrors?.containsKey('bookerEmail')}"
+                          class="error-text"
+                          th:text="${fieldErrors['bookerEmail']}"></span>
                 </div>
 
                 <div class="card">
@@ -100,7 +135,7 @@
 
 
                     <div id="existingParticipantsData" style="display:none;"
-                         th:if="${booking.participants != null}">
+                         th:if="${booking.participants != null and !booking.participants.isEmpty()}">
                         <div th:each="p, stat : *{participants}"
                              th:attr="data-index=${stat.index},
                   data-firstname=${p.firstName},
@@ -123,7 +158,7 @@
                                        th:field="*{equipment[__${addon.id}__].selected}"
                                        th:attr="data-price=${addon.unitPrice}"
                                        value="true"
-                                       th:checked="${selectedEquipmentIds != null and selectedEquipmentIds.contains(addon.id)}"/>
+                                       />
 
                                 <div class="addon-content">
                                     <p class="addon-name" th:text="${addon.name}"></p>
@@ -248,6 +283,16 @@
                 flash.style.transition = "opacity 0.6s ease";
                 flash.style.opacity = "0";
                 setTimeout(() => flash.remove(), 600);
+            }, 3000);
+        }
+    });
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const validationError = document.getElementById("validationErrorBox");
+        if (validationError) {
+            setTimeout(() => {
+                validationError.style.opacity = "0";
+                setTimeout(() => validationError.remove(), 600);
             }, 3000);
         }
     });

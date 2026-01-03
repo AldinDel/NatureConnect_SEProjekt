@@ -3,7 +3,10 @@ package at.fhv.Event.domain.model.booking;
 import at.fhv.Event.domain.model.payment.PaymentMethod;
 import at.fhv.Event.domain.model.payment.PaymentStatus;
 import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
 import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 // 1) recalculateTotal sums equipment and subtracts discount
@@ -41,8 +44,8 @@ class BookingTest {
     @Test
     void recalculateTotal_shouldSumEquipmentAndSubtractDiscount() {
         // Given: zwei Equipments mit 20 + 5 = 25 Euro
-        BookingEquipment eq1 = new BookingEquipment(1L, 2, 10.0); // 2 * 10 = 20
-        BookingEquipment eq2 = new BookingEquipment(2L, 1, 5.0);  // 1 * 5 = 5
+        BookingEquipment eq1 = new BookingEquipment(null, 1L, 2, BigDecimal.valueOf(10.0)); // 2 * 10 = 20
+        BookingEquipment eq2 = new BookingEquipment(null, 2L, 1, BigDecimal.valueOf(5.0));  // 1 * 5 = 5
 
         Booking booking = createBookingWithEquipmentAndDiscount(
                 List.of(eq1, eq2),
@@ -57,7 +60,7 @@ class BookingTest {
     @Test
     void applyVoucher_shouldSetVoucherCodeAndApplyDiscount() {
 
-        BookingEquipment eq1 = new BookingEquipment(1L, 2, 10.0); // 20
+        BookingEquipment eq1 = new BookingEquipment(null, 1L, 2, BigDecimal.valueOf(10.0)); // 20
         Booking booking = createBookingWithEquipmentAndDiscount(
                 List.of(eq1),
                 0.0
@@ -74,7 +77,7 @@ class BookingTest {
     @Test
     void applyVoucher_shouldNotAllowNegativeDiscount() {
 
-        BookingEquipment eq = new BookingEquipment(1L, 1, 20.0);
+        BookingEquipment eq = new BookingEquipment(null, 1L, 1, BigDecimal.valueOf(20.0));
         Booking booking = createBookingWithEquipmentAndDiscount(
                 List.of(eq),
                 0.0
@@ -90,7 +93,7 @@ class BookingTest {
     @Test
     void recalculateTotal_shouldNotGoBelowZero() {
 
-        BookingEquipment eq = new BookingEquipment(1L, 2, 10.0);
+        BookingEquipment eq = new BookingEquipment(null, 1L, 2, BigDecimal.valueOf(10.0));
         Booking booking = createBookingWithEquipmentAndDiscount(
                 List.of(eq),
                 50.0

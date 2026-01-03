@@ -10,17 +10,18 @@ public class EventEquipmentEntity {
     @EmbeddedId
     private EventEquipmentId id = new EventEquipmentId();
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("eventId")
     @JoinColumn(name = "event_id")
     private EventEntity event;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("equipmentId")
     @JoinColumn(name = "equipment_id")
     private EquipmentEntity equipment;
 
-    private boolean required;
+    @Column(name = "required", nullable = false)
+    private boolean required = false;
 
     public EventEquipmentEntity() {}
 

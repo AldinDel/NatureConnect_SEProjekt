@@ -1,6 +1,6 @@
 package at.fhv.Event.application.user;
 
-import at.fhv.Event.infrastructure.persistence.user.UserAccountJpaRepository;
+import at.fhv.Event.domain.model.user.UserAccountRepository;
 import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -18,9 +18,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserPermissionService {
 
-    private final UserAccountJpaRepository userRepo;
+    private final UserAccountRepository userRepo;
 
-    public UserPermissionService(UserAccountJpaRepository userRepo) {
+    public UserPermissionService(UserAccountRepository userRepo) {
         this.userRepo = userRepo;
     }
 

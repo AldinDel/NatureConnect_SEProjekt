@@ -2,6 +2,7 @@ package at.fhv.Event.domain.model.invoice;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Invoice {
@@ -51,15 +52,30 @@ public class Invoice {
         return invoice;
     }
 
-    private void calculateTotal() {
-        if (lines == null || lines.isEmpty()) {
+    public void calculateTotal() {
+        if (this.lines == null || this.lines.isEmpty()) {
             this.total = BigDecimal.ZERO;
             return;
         }
 
-        this.total = lines.stream()
-                .map(InvoiceLine::getTotal)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal sum = BigDecimal.ZERO;
+        for (InvoiceLine line : lines) {
+            sum = sum.add(line.getTotal());
+        }
+        this.total = sum;
+    }
+
+    public void addLine(InvoiceLine line) {
+        if (this.status == InvoiceStatus.FINAL) {
+            throw new IllegalStateException("Final invoice cannot be changed");
+        }
+
+        if (this.lines == null) {
+            this.lines = new ArrayList<>();
+        }
+
+        this.lines.add(line);
+        calculateTotal();
     }
 
     public Long getEventId() {

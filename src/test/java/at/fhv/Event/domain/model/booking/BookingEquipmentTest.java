@@ -1,6 +1,9 @@
 package at.fhv.Event.domain.model.booking;
 
 import org.junit.jupiter.api.Test;
+
+import java.math.BigDecimal;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -17,14 +20,14 @@ class BookingEquipmentTest {
     void getTotalPrice_shouldBeQuantityTimesUnitPrice() {
 
         BookingEquipment equipment = new BookingEquipment(
+                null,
                 1L,
                 3,
-                10.0
+                BigDecimal.valueOf(10.0)
         );
 
-        double total = equipment.getTotalPrice();
-
-        assertEquals(30.0, total);
+        BigDecimal total = equipment.getTotalPrice();
+        assertEquals(BigDecimal.valueOf(30.0), total);
     }
 
     @Test
@@ -32,9 +35,10 @@ class BookingEquipmentTest {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new BookingEquipment(
+                        null,
                         1L,
                         0,      // nicht erlaubt
-                        10.0
+                        BigDecimal.valueOf(10.0)
                 )
         );
     }
@@ -43,21 +47,21 @@ class BookingEquipmentTest {
     @Test
     void constructor_shouldThrowException_whenQuantityIsNegative() {
         assertThrows(IllegalArgumentException.class, () ->
-                new BookingEquipment(1L, -1, 10.0)
+                new BookingEquipment(null, 1L, -1, BigDecimal.valueOf(10.0))
         );
     }
 
     @Test
     void constructor_shouldThrowException_whenUnitPriceIsNegative() {
         assertThrows(IllegalArgumentException.class, () ->
-                new BookingEquipment(1L, 2, -5.0)
+                new BookingEquipment(null, 1L, 2, BigDecimal.valueOf(-5.0))
         );
     }
 
     @Test
     void constructor_shouldThrowException_whenEquipmentIdIsNull() {
         assertThrows(IllegalArgumentException.class, () ->
-                new BookingEquipment(null, 2, 10.0)
+                new BookingEquipment(null, null, 2, BigDecimal.valueOf(10.0))
         );
     }
 

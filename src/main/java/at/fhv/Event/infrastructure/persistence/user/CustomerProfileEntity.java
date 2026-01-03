@@ -12,12 +12,16 @@ public class CustomerProfileEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private UserAccountEntity user;
 
-    @Column(nullable=false, length=100) private String firstName;
-    @Column(nullable=false, length=100) private String lastName;
+    @Column(name = "first_name", nullable = false, length = 100)
+    private String firstName;
+
+    @Column(name = "last_name", nullable = false, length = 100)
+    private String lastName;
+
     @Column(nullable=false, unique=true, length=200) private String email;
     @Column(length=50) private String phone;
     private LocalDate birthday;

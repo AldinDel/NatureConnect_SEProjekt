@@ -29,7 +29,7 @@ public class EventMapper {
                         equipmentMapper.toDomain(ee.getEquipment()),
                         ee.isRequired()
                 ))
-                .toList();
+                .collect(Collectors.toSet());
 
         Event event = new Event(
                 e.getId(),
