@@ -10,17 +10,18 @@ public class EventEquipmentEntity {
     @EmbeddedId
     private EventEquipmentId id = new EventEquipmentId();
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("eventId")
     @JoinColumn(name = "event_id")
     private EventEntity event;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("equipmentId")
     @JoinColumn(name = "equipment_id")
     private EquipmentEntity equipment;
 
-    private boolean required;
+    @Column(name = "required", nullable = false)
+    private boolean required = false;
 
     public EventEquipmentEntity() {}
 
@@ -55,4 +56,23 @@ public class EventEquipmentEntity {
     public void setRequired(boolean required) {
         this.required = required;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        EventEquipmentEntity that = (EventEquipmentEntity) o;
+        // gleiche Event + gleiche Equipment = gleiches EventEquipment
+        return java.util.Objects.equals(event != null ? event.getId() : null, that.event != null ? that.event.getId() : null)
+                && java.util.Objects.equals(equipment != null ? equipment.getId() : null, that.equipment != null ? that.equipment.getId() : null);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(
+                event != null ? event.getId() : null,
+                equipment != null ? equipment.getId() : null
+        );
+    }
+
 }

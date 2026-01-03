@@ -60,9 +60,10 @@ public class EventController {
     @GetMapping("/new")
     @PreAuthorize("hasAnyRole('ADMIN', 'ORGANIZER')")
     public String showCreateForm(Model model) {
-        model.addAttribute("event", new CreateEventRequest());
+        CreateEventRequest request = new CreateEventRequest();
+        model.addAttribute("event", request);
         model.addAttribute("equipments", equipmentService.getAll());
-        model.addAttribute("eventEquipments", new ArrayList<>());
+        model.addAttribute("eventEquipments", request.getEquipments());
         model.addAttribute("isEdit", false);
         return "events/create_event";
     }
@@ -76,11 +77,6 @@ public class EventController {
         if (req.getDate() != null && req.getDate().isBefore(LocalDate.now())) {
             redirect.addFlashAttribute("error", "Event date cannot be in the past.");
             return "redirect:/events/new";
-        }
-
-        String organizerName = accessService.getCurrentUserFullName(auth);
-        if (organizerName != null) {
-            req.setOrganizer(organizerName);
         }
 
         String imageUrl = cloudinaryService.uploadImage(photo);
@@ -154,6 +150,7 @@ public class EventController {
             }
 
             req.setImageUrl(imageUrl);
+
         }
 
         updateService.updateEvent(id, req);
@@ -186,14 +183,9 @@ public class EventController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) String source,
-            RedirectAttributes redirect,
             Model model,
             Authentication auth
     ) {
-        if (q != null && q.length() > 75) {
-            redirect.addFlashAttribute("error", "Search keyword must not exceed 75 characters.");
-            return redirectBack(source);
-        }
 
         List<EventOverviewDTO> events;
         if ("home".equals(source) && startDate != null && endDate == null) {
@@ -271,6 +263,7 @@ public class EventController {
         req.setPrice(detail.price());
         req.setImageUrl(detail.imageUrl());
         req.setAudience(mapAudienceLabelToEnumName(detail.audience()));
+        req.setHikeRouteKeys(detail.hikeRouteKeys());
 
         List<EventEquipmentUpdateRequest> eqReqs = new ArrayList<>();
         for (var eq : detail.equipments()) {

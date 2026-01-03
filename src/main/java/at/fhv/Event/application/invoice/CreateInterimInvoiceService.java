@@ -4,15 +4,16 @@ import at.fhv.Event.domain.model.booking.Booking;
 import at.fhv.Event.domain.model.booking.BookingRepository;
 import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.domain.model.event.EventRepository;
+import at.fhv.Event.domain.model.exception.BookingNotFoundException;
+import at.fhv.Event.domain.model.exception.EventNotFoundException;
+import at.fhv.Event.domain.model.exception.InvoiceCreationException;
 import at.fhv.Event.domain.model.invoice.Invoice;
 import at.fhv.Event.domain.model.invoice.InvoiceLine;
 import at.fhv.Event.domain.model.invoice.InvoiceRepository;
 import at.fhv.Event.infrastructure.persistence.booking.BookingEquipmentEntity;
-import at.fhv.Event.infrastructure.persistence.booking.BookingEquipmentRepository;
-import at.fhv.Event.infrastructure.persistence.booking.JpaBookingParticipantRepository;
+import at.fhv.Event.infrastructure.persistence.booking.BookingEquipmentJpaRepository;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,22 +23,19 @@ public class CreateInterimInvoiceService {
 
     private final BookingRepository bookingRepository;
     private final InvoiceRepository invoiceRepository;
-    private final BookingEquipmentRepository bookingEquipmentRepository;
+    private final BookingEquipmentJpaRepository bookingEquipmentJpaRepository;
     private final EventRepository eventRepository;
-    private final JpaBookingParticipantRepository bookingParticipantRepository;
 
     public CreateInterimInvoiceService(
             BookingRepository bookingRepository,
             InvoiceRepository invoiceRepository,
-            BookingEquipmentRepository bookingEquipmentRepository,
-            EventRepository eventRepository,
-            JpaBookingParticipantRepository bookingParticipantRepository
+            BookingEquipmentJpaRepository bookingEquipmentJpaRepository,
+            EventRepository eventRepository
     ) {
         this.bookingRepository = bookingRepository;
         this.invoiceRepository = invoiceRepository;
-        this.bookingEquipmentRepository = bookingEquipmentRepository;
+        this.bookingEquipmentJpaRepository = bookingEquipmentJpaRepository;
         this.eventRepository = eventRepository;
-        this.bookingParticipantRepository = bookingParticipantRepository;
     }
 
     public Invoice createInterimInvoice(
@@ -48,23 +46,23 @@ public class CreateInterimInvoiceService {
 
         Booking booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() ->
-                        new RuntimeException("Booking not found: " + bookingId)
+                        new BookingNotFoundException(bookingId)
                 );
 
         if (!booking.isBillingReady()) {
-            throw new RuntimeException(
-                    "Billing is not allowed before checkout is completed"
+            throw new InvoiceCreationException(
+                    bookingId, "Billing is not allowed before checkout is completed"
             );
         }
 
         Event event = eventRepository.findById(booking.getEventId())
                 .orElseThrow(() ->
-                        new RuntimeException("Event not found: " + booking.getEventId())
+                        new EventNotFoundException(booking.getEventId())
                 );
 
         if (event.getDate().isAfter(LocalDate.now())) {
-            throw new RuntimeException(
-                    "Interim invoices cannot include future services"
+            throw new InvoiceCreationException(
+                    bookingId, "Interim invoices cannot include future services"
             );
         }
 
@@ -75,7 +73,10 @@ public class CreateInterimInvoiceService {
                     invoiceRepository.existsEventPriceForBooking(bookingId);
 
             if (alreadyInvoiced) {
-                throw new RuntimeException("Event base price already invoiced");
+                throw new InvoiceCreationException(
+                        bookingId,
+                        "Invoice not found for booking"
+                );
             }
 
             lines.add(
@@ -90,7 +91,7 @@ public class CreateInterimInvoiceService {
 
         if (equipmentIds != null && !equipmentIds.isEmpty()) {
             List<BookingEquipmentEntity> bookingEquipments =
-                    bookingEquipmentRepository.findNotYetInvoicedByBookingId(bookingId)
+                    bookingEquipmentJpaRepository.findNotYetInvoicedByBookingId(bookingId)
                             .stream()
                             .filter(be -> equipmentIds.contains(be.getEquipmentId()))
                             .toList();
@@ -101,14 +102,14 @@ public class CreateInterimInvoiceService {
                                     be.getEquipmentId(),
                                     "Equipment " + be.getEquipmentId(),
                                     be.getQuantity(),
-                                    BigDecimal.valueOf(be.getUnitPrice())
+                                    be.getPricePerUnit()
                             )
                     )
             );
         }
 
         if (lines.isEmpty()) {
-            throw new RuntimeException("At least one service must be selected");
+            throw new InvoiceCreationException(bookingId, "At least one service must be selected");
         }
 
         Invoice invoice = Invoice.createInterim(

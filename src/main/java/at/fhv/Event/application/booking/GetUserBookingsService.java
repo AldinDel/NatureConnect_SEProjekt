@@ -18,7 +18,6 @@ public class GetUserBookingsService {
     @Transactional(readOnly = true)
     public List<Booking> getBookingsByUserEmail(String email) {
         List<Booking> bookings = bookingRepository.findByCustomerEmail(email);
-        // Force lazy loading while in transaction
         bookings.forEach(b -> {
             b.getEquipment().size();
             b.getParticipants().size();

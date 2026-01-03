@@ -23,4 +23,5 @@ public interface BookingRepository {
     void updateStatus(Long bookingId, BookingStatus status);
 
     void markExpiredForEvent(Long eventId);
+    Optional<Booking> findByIdWithParticipants(Long id);
 }

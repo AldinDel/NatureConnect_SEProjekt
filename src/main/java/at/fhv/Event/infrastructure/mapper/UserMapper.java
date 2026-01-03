@@ -31,7 +31,7 @@ public class UserMapper {
             domainRoles.add(domainRole);
         }
 
-        domain.set_roles(domainRoles);
+        domain.setRoles(domainRoles);
 
         return domain;
     }
@@ -42,17 +42,17 @@ public class UserMapper {
         }
 
         UserAccountEntity entity = new UserAccountEntity();
-        entity.setId(domain.get_id());
-        entity.setEmail(domain.get_email());
-        entity.setPasswordHash(domain.get_passwordHash());
-        entity.setFirstName(domain.get_firstName());
-        entity.setLastName(domain.get_lastName());
-        entity.setActive(domain.get_IsActive());
-        entity.setCreatedAt(domain.get_createdAt());
-        entity.setUpdatedAt(domain.get_updatedAt());
+        entity.setId(domain.getId());
+        entity.setEmail(domain.getEmail());
+        entity.setPasswordHash(domain.getPasswordHash());
+        entity.setFirstName(domain.getFirstName());
+        entity.setLastName(domain.getLastName());
+        entity.setActive(domain.getActive());
+        entity.setCreatedAt(domain.getCreatedAt());
+        entity.setUpdatedAt(domain.getUpdatedAt());
 
         Set<RoleEntity> entityRoles = new HashSet<>();
-        for (Role r : domain.get_roles()) {
+        for (Role r : domain.getRoles()) {
             RoleEntity roleEntity = RoleMapper.toEntity(r);
             entityRoles.add(roleEntity);
         }

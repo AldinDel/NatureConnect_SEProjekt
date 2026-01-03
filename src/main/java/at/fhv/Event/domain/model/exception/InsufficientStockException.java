@@ -1,13 +1,13 @@
 package at.fhv.Event.domain.model.exception;
 
-public class InsufficientStockException extends RuntimeException {
+public class InsufficientStockException extends DomainException {
     private final Long _equipmentId;
     private final String _equipmentName;
     private final int _requestedQuantity;
     private final int _availableQuantity;
 
     public InsufficientStockException(Long equipmentId, String equipmentName, int requestedQuantity, int availableQuantity) {
-        super(String.format("Insufficient stock for equipment %s.: requested %d, available %d", equipmentName, requestedQuantity, availableQuantity));
+        super("EQUIPMENT_002");
         _equipmentId = equipmentId;
         _equipmentName = equipmentName;
         _requestedQuantity = requestedQuantity;

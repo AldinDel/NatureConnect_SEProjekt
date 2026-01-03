@@ -1,7 +1,5 @@
 trigger:
-  branches:
-    include:
-      - sprint-4
+- master
 
 pool:
   name: fhv-linux-pool
@@ -9,15 +7,26 @@ pool:
 steps:
 - checkout: self
 
-- script: |
-    docker build -t localhost:5000/natureconnect:latest .
-    docker push localhost:5000/natureconnect:latest
-  displayName: Build & Push Docker Image
+- task: Docker@2
+  displayName: Build Docker Image
+  inputs:
+    command: build
+    Dockerfile: Dockerfile
+    repository: localhost:5000/natureconnect
+    tags: |
+      1.0
 
-- script: |
-    docker rm -f natureconnect || true
-    docker run -d \
-      --name natureconnect \
-      -p 8081:8080 \
-      localhost:5000/natureconnect:latest
-  displayName: Deploy (clean & stable)
+- task: Docker@2
+  displayName: Push Docker Image
+  inputs:
+    command: push
+    repository: localhost:5000/natureconnect
+    tags: |
+      1.0
+
+- task: DockerCompose@0
+  displayName: Deploy Application
+  inputs:
+    dockerComposeFile: docker-compose.yml
+    projectName: natureconnect
+    action: Run services

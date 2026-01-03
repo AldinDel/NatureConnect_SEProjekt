@@ -54,9 +54,8 @@ public class AdminUserController {
         String roleClean = (role == null || role.trim().isEmpty() || role.equalsIgnoreCase("all") || role.equalsIgnoreCase("all roles")) ? "" : role.trim();
 
         boolean hasQuery = q != null && !q.trim().isEmpty();
-        boolean hasRole = !roleClean.isEmpty();
 
-        if (!hasQuery && !hasRole) {
+        if (!hasQuery && roleClean.isEmpty() && (role == null || role.trim().isEmpty())) {
             model.addAttribute("users", getAdminUsersService.getLatestUsers(5));
         } else {
             model.addAttribute("users", getAdminUsersService.search(q, roleClean, 50));

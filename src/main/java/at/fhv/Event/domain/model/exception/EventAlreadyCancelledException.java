@@ -1,10 +1,10 @@
 package at.fhv.Event.domain.model.exception;
 
-public class EventAlreadyCancelledException extends RuntimeException {
+public class EventAlreadyCancelledException extends DomainException {
     private final Long _eventId;
 
     public EventAlreadyCancelledException(Long eventId) {
-        super(String.format("Event with id %d is already cancelled", eventId));
+        super("EVENT_003");
         _eventId = eventId;
     }
 

@@ -33,7 +33,7 @@ public class FilterEventService {
                                          LocalDate endDate,
                                          String sort) {
 
-        var events = eventRepository.findAll();
+        var events = new ArrayList<>(eventRepository.findAllForListView());
 
         if (q != null && !q.isBlank()) {
             String qLower = q.toLowerCase();
@@ -42,47 +42,51 @@ public class FilterEventService {
                             (e.getTitle() != null && e.getTitle().toLowerCase().contains(qLower))
                                     || (e.getDescription() != null && e.getDescription().toLowerCase().contains(qLower))
                     )
-                    .toList();
+                    .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
+
         }
 
         if (category != null && !category.isBlank())
             events = events.stream()
                     .filter(e -> category.equalsIgnoreCase(e.getCategory()))
-                    .toList();
+                    .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
+
 
         if (location != null && !location.isBlank())
             events = events.stream()
                     .filter(e -> e.getLocation() != null
                             && e.getLocation().toLowerCase().contains(location.toLowerCase()))
-                    .toList();
+                    .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
+
 
         if (difficulty != null && !difficulty.isBlank())
             events = events.stream()
                     .filter(e -> e.getDifficulty() != null
                             && e.getDifficulty().name().equalsIgnoreCase(difficulty))
-                    .toList();
+                    .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
+
 
         if (minPrice != null)
             events = events.stream()
                     .filter(e -> e.getPrice() != null
                             && e.getPrice().compareTo(minPrice) >= 0)
-                    .toList();
+                    .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
 
         if (maxPrice != null)
             events = events.stream()
                     .filter(e -> e.getPrice() != null
                             && e.getPrice().compareTo(maxPrice) <= 0)
-                    .toList();
+                    .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
 
         if (startDate != null)
             events = events.stream()
                     .filter(e -> e.getDate() != null && !e.getDate().isBefore(startDate))
-                    .toList();
+                    .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
 
         if (endDate != null)
             events = events.stream()
                     .filter(e -> e.getDate() != null && !e.getDate().isAfter(endDate))
-                    .toList();
+                    .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
 
         if (sort != null) {
             switch (sort) {
@@ -109,9 +113,8 @@ public class FilterEventService {
 
     public List<EventOverviewDTO> filterExactDate(LocalDate date, String sort) {
 
-        var events = eventRepository.findAll().stream()
-                .filter(e -> e.getDate() != null && e.getDate().equals(date))
-                .toList();
+        var events = eventRepository.findByDateForListView(date);
+
 
         if (sort != null) {
             switch (sort) {
