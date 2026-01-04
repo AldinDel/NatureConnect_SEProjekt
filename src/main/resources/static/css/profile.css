@@ -118,13 +118,17 @@
 }
 
 .primary-btn {
-    background: #1e5eff;
+    background: #0b2545;
     color: #ffffff;
     border: none;
     padding: 12px 18px;
     border-radius: 999px;
     font-weight: 600;
     cursor: pointer;
+}
+.primary-btn:hover {
+    background: #3b3767;
+    transform: translateY(-2px);
 }
 
 .secondary-btn {
@@ -363,4 +367,31 @@
     border-radius: 999px;
     font-weight: 600;
     cursor: pointer;
+}
+
+.avatar-wrapper {
+    width: 96px;
+    height: 96px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.avatar-img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Placeholder Style */
+.avatar-placeholder {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    color: #1e3a8a;
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    border: 1px solid #c7d2fe;
 }

@@ -842,3 +842,13 @@ flex: 1;
     border-radius: 6px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
+
+.nc-nav {
+    display: flex;
+    align-items: center;
+}
+
+.nc-right {
+    display: flex;
+    align-items: center;
+}
