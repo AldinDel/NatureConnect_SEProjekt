@@ -42,7 +42,7 @@
 
         <!-- ✅ MOVED HERE -->
         <button class="toggle-cancelled-btn" onclick="toggleInactive()">
-            Show active bookings
+            Show all bookings
         </button>
     </div>
 
@@ -115,7 +115,7 @@
         });
 
         const btn = document.querySelector(".toggle-cancelled-btn");
-        btn.innerText = inactiveVisible ? "Hide inactive bookings" : "Show active bookings";
+        btn.innerText = inactiveVisible ? "Hide inactive bookings" : "Show all bookings";
         btn.classList.toggle("active", inactiveVisible);
     }
 
