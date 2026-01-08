@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <title>Users & Roles</title>
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/users-admin-overview.css}">
+</head>
+
+<body class="users-admin-page">
+
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
+
+<div class="admin-user-container">
+    <h1>Users & Roles</h1>
+
+    <div class="toast-container">
+        <div th:if="${successMessage}" class="toast toast-success" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="toast toast-error" th:text="${errorMessage}"></div>
+    </div>
+
+
+    <form class="user-controls" th:action="@{/admin/users}" method="get">
+        <input type="text" name="q" placeholder="Search users..." th:value="${q}">
+
+        <select name="role">
+            <option value="all" th:selected="${role == 'all'}">All roles</option>
+            <option value="ADMIN" th:selected="${role == 'ADMIN'}">ADMIN</option>
+            <option value="FRONT" th:selected="${role == 'FRONT'}">FRONT</option>
+            <option value="ORGANIZER" th:selected="${role == 'ORGANIZER'}">ORGANIZER</option>
+            <option value="CUSTOMER" th:selected="${role == 'CUSTOMER'}">CUSTOMER</option>
+        </select>
+
+        <button class="btn-add" type="submit">Search</button>
+
+        <a class="btn-reset" th:href="@{/admin/users}">Reset</a>
+
+        <a class="btn-add" th:href="@{/admin/users/new}">Add User</a>
+    </form>
+
+
+    <table class="admin-user-table">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>E-Mail</th>
+            <th>Active</th>
+            <th>Role</th>
+            <th sec:authorize="hasRole('ADMIN')">Actions</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="u : ${users}" th:classappend="${!u.active()} ? 'row-inactive' : ''">
+            <td th:text="'#' + ${u.id()}"></td>
+            <td th:text="${u.firstName()}"></td>
+            <td th:text="${u.lastName()}"></td>
+            <td th:text="${u.email()}"></td>
+            <td th:text="${u.active()} ? 'true' : 'false'"></td>
+            <td th:text="${u.roles()}"></td>
+            <td class="actions">
+                <a class="btn-edit" th:href="@{/admin/users/{id}/edit(id=${u.id()}, q=${q}, role=${role})}">Edit</a>
+
+                <form th:action="@{/admin/users/{id}/deactivate(id=${u.id()})}" method="post">
+                    <input type="hidden" name="q" th:value="${q}">
+                    <input type="hidden" name="role" th:value="${role}">
+                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <button class="btn-deactivate" type="submit" th:disabled="${!u.active()}">Deactivate</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

@@ -68,7 +68,6 @@
     </div>
 </section>
 
-<!-- 4. MAIN CONTENT (Details, Equipment, Sidebar) -->
 <main class="page">
     <!-- Linke Spalte -->
     <section class="left">
@@ -102,7 +101,6 @@
 
                 <div class="detail-item">
                     <h4>Duration</h4>
-                    <!-- Falls du eine duration() Methode im DTO hast, sonst berechnen -->
                     <p th:text="${event.startTime} + ' - ' + ${event.endTime}">Time</p>
                 </div>
 
@@ -113,6 +111,39 @@
                         <span th:text="${#temporals.format(event.endTime, 'HH:mm')}">14:00</span>
                     </p>
                 </div>
+            </div>
+        </div>
+
+        <div class="box" id="hiking-route-box" th:if="${isHikingEvent}">
+            <h3>Hiking Routes</h3>
+
+            <p id="no-hike-info">No hiking route available for this event.</p>
+
+            <div id="hike-route-content" style="display:none;">
+                <div class="hike-route-header">
+                    <div>
+                        <label for="hike-route-select">Route:</label>
+                        <select id="hike-route-select"></select>
+                    </div>
+
+                    <div>
+                        <label for="hike-filter-select">Filter:</label>
+                        <select id="hike-filter-select">
+                            <option value="shortest">Shortest</option>
+                            <option value="longest">Longest</option>
+                            <option value="easiest">Easiest</option>
+                            <option value="hardest">Hardest</option>
+                            <option value=" ">—</option>
+                        </select>
+                    </div>
+
+                    <div id="hike-route-meta" class="hike-meta-badge"></div>
+                </div>
+
+                <ul id="hike-waypoint-list"></ul>
+
+                <div id="hike-route-graph" style="height: 240px;"></div>
+                <div id="hike-edge-info" style="margin-top:10px; display:none;"></div>
             </div>
         </div>
 
@@ -130,10 +161,11 @@
 
                     <div id="allEquipmentList" class="equipment-rows"></div>
 
-                    <p id="noEquipMsg" style="display:none;">No equipment found 💼</p>
+                    <p id="noEquipMsg" style="display:none;">No equipment found</p>
                 </div>
             </div>
         </div>
+
     </section>
 
     <!-- Rechte Spalte (Sidebar) -->
@@ -170,13 +202,18 @@
 
             <!-- Buchen Button -->
             <a class="book-btn"
-               th:href="@{'/booking/' + ${event.id}}"
-               th:classappend="${remainingSpots == 0} ? ' disabled-link'">
-                Book now
+               th:href="@{'/booking/event/' + ${event.id}}"
+               th:classappend="${remainingSpots == 0 or event.cancelled} ? ' disabled-link'">
+                <span th:if="${!event.cancelled}">Book now</span>
+                <span th:if="${event.cancelled}">Event Cancelled</span>
             </a>
 
             <p th:if="${remainingSpots == 0}" style="color:red; margin-top:10px;">
                 This event is fully booked
+            </p>
+
+            <p th:if="${event.cancelled}" style="color:red; margin-top:10px; font-weight: bold;">
+                This event has been cancelled
             </p>
         </div>
 
@@ -187,7 +224,8 @@
             <div style="display: flex; gap: 10px; flex-direction: column;">
                 <a th:if="${canEdit}"
                    th:href="@{/events/{id}/edit(id=${event.id})}"
-                   class="edit-btn" style="text-align: center; background: #f3f4f6; padding: 10px; border-radius: 8px; text-decoration: none; color: #333;">
+                   class="edit-btn"
+                   style="text-align: center; background: #f3f4f6; padding: 10px; border-radius: 8px; text-decoration: none; color: #333;">
                     ✎ Edit Event
                 </a>
 
@@ -245,6 +283,14 @@
     }
     /*]]>*/
 </script>
+
+<script th:inline="javascript" th:if="${isHikingEvent}">
+    window.selectedHikeKeys = /*[[${event.hikeRouteKeys}]]*/ [];
+</script>
+
+<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js" th:if="${isHikingEvent}"></script>
+<script th:src="@{/js/hiking-routes.js}" th:if="${isHikingEvent}"></script>
+
 
 </body>
 </html>

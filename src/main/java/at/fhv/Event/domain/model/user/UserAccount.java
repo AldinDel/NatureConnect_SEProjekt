@@ -1,103 +1,103 @@
 package at.fhv.Event.domain.model.user;
 
 import java.time.OffsetDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 public class UserAccount {
-    private Long _id;
-    private String _email;
-    private String _passwordHash;
-    private String _firstName;
-    private String _lastName;
-    private Boolean _IsActive = true;
-    private OffsetDateTime _createdAt;
-    private OffsetDateTime _updatedAt;
-    private Set<Role> _roles;
+    private Long id;
+    private String email;
+    private String passwordHash;
+    private String firstName;
+    private String lastName;
+    private Boolean IsActive = true;
+    private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
+    private Set<Role> roles = new HashSet<>();
 
-    public UserAccount(Long id, String email, String passwordHash,
-                       String firstName, String lastName,
-                       Boolean IsActive, OffsetDateTime createdAt,
-                       OffsetDateTime updatedAt) {
-        _id = id;
-        _email = email;
-        _passwordHash = passwordHash;
-        _firstName = firstName;
-        _lastName = lastName;
-        _IsActive = IsActive;
-        _createdAt = createdAt;
-        _updatedAt = updatedAt;
+    public UserAccount() {}
 
+    public UserAccount(Long id, String email, String passwordHash, String firstName, String lastName,
+                       Boolean IsActive, OffsetDateTime createdAt, OffsetDateTime updatedAt) {
+        this.id = id;
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.IsActive = IsActive;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
-    public Long get_id() {
-        return _id;
+    public Long getId() {
+        return id;
     }
 
-    public void set_id(Long _id) {
-        this._id = _id;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public String get_email() {
-        return _email;
+    public String getEmail() {
+        return email;
     }
 
-    public void set_email(String _email) {
-        this._email = _email;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public String get_passwordHash() {
-        return _passwordHash;
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
-    public void set_passwordHash(String _passwordHash) {
-        this._passwordHash = _passwordHash;
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
     }
 
-    public String get_firstName() {
-        return _firstName;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public void set_firstName(String _firstName) {
-        this._firstName = _firstName;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public String get_lastName() {
-        return _lastName;
+    public String getLastName() {
+        return lastName;
     }
 
-    public void set_lastName(String _lastName) {
-        this._lastName = _lastName;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
-    public Boolean get_IsActive() {
-        return _IsActive;
+    public Boolean getActive() {
+        return IsActive;
     }
 
-    public void set_IsActive(Boolean _IsActive) {
-        this._IsActive = _IsActive;
+    public void setActive(Boolean active) {
+        IsActive = active;
     }
 
-    public OffsetDateTime get_createdAt() {
-        return _createdAt;
+    public OffsetDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void set_createdAt(OffsetDateTime _createdAt) {
-        this._createdAt = _createdAt;
+    public void setCreatedAt(OffsetDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public OffsetDateTime get_updatedAt() {
-        return _updatedAt;
+    public OffsetDateTime getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void set_updatedAt(OffsetDateTime _updatedAt) {
-        this._updatedAt = _updatedAt;
+    public void setUpdatedAt(OffsetDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
-    public Set<Role> get_roles() {
-        return _roles;
+    public Set<Role> getRoles() {
+        return roles;
     }
 
-    public void set_roles(Set<Role> _roles) {
-        this._roles = _roles;
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
     }
 }

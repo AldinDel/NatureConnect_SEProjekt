@@ -5,7 +5,12 @@ import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.domain.model.event.EventRepository;
 import at.fhv.Event.domain.model.exception.EventNotFoundException;
 import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class GetEventDetailsService {
@@ -19,6 +24,7 @@ public class GetEventDetailsService {
         _equipmentRepository = equipmentRepository;
     }
 
+    @Cacheable(value = "events", key = "#eventId")
     public EventDetailDTO getEventDetails(Long eventId) {
         Event event = _eventRepository.findByIdWithEquipments(eventId).orElseThrow(() -> new EventNotFoundException(eventId));
         for (var eventEquipment : event.getEventEquipments()) {
@@ -28,5 +34,16 @@ public class GetEventDetailsService {
             });
         }
         return _mapper.toDetailDTO(event);
+    }
+
+    @Cacheable(value = "eventBatch", key = "#ids")
+    @Transactional(readOnly = true)
+    public List<EventDetailDTO> getEventsByIds(Set<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return _eventRepository.findAllByIds(ids).stream()
+                .map(_mapper::toDetailDTO)
+                .toList();
     }
 }

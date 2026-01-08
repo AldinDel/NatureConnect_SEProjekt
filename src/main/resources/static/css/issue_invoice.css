@@ -1,0 +1,139 @@
+/* =========================
+   PAGE BACKGROUND
+   ========================= */
+body.issue-invoice-page {
+    background-image: url("../images/ManOnMountain.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-color: rgba(0, 0, 0, 0.65);
+    background-blend-mode: darken;
+    font-family: 'Inter', sans-serif;
+    color: white;
+    padding-bottom: 100px;
+}
+
+/* =========================
+   HEADER
+   ========================= */
+.page-header {
+    text-align: center;
+    margin: 60px 0 30px;
+}
+
+.page-header h1 {
+    font-size: 44px;
+    font-weight: 700;
+}
+
+.page-header p {
+    font-size: 16px;
+    opacity: 0.85;
+}
+
+/* =========================
+   TABS (gleich wie Participants)
+   ========================= */
+.fo-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    margin-bottom: 40px;
+}
+
+.fo-tab {
+    padding: 10px 26px;
+    border-radius: 30px;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: white;
+    cursor: pointer;
+    text-decoration: none;
+    transition: 0.2s;
+}
+
+.fo-tab:hover {
+    background: rgba(255, 255, 255, 0.27);
+}
+
+.fo-tab.active {
+    background: #0b2545;
+    font-weight: 600;
+}
+
+/* =========================
+   TABLE
+   ========================= */
+.table-wrapper {
+    width: 92%;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.participants-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 15px;
+}
+
+.participants-table thead th {
+    background-color: #0F2A43;
+    color: white;
+    padding: 16px 14px;
+    font-weight: 600;
+    text-align: left;
+}
+
+.participants-table thead tr:first-child th:first-child {
+    border-top-left-radius: 12px;
+}
+
+.participants-table thead tr:first-child th:last-child {
+    border-top-right-radius: 12px;
+}
+
+.participants-table tbody tr {
+    background: white;
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.participants-table tbody td {
+    padding: 16px 14px;
+    color: #000;
+    vertical-align: middle;
+}
+
+.participants-table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 12px;
+}
+
+.participants-table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 12px;
+}
+
+/* =========================
+   BUTTON (Issue Interim Invoice)
+   ========================= */
+.btn {
+    padding: 8px 14px;
+    font-size: 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.2s;
+    font-weight: 600;
+    text-decoration: none; /* <<< ganz wichtig */
+    display: inline-block;
+}
+
+/* exakt wie Check-Out Button */
+.btn.invoice-btn {
+    background: white;
+    color: #000;
+    border: 2px solid #dcdcdc;
+}
+
+.btn.invoice-btn:hover {
+    background: #f4f4f4;
+}

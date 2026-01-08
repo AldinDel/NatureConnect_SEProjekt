@@ -1,8 +1,6 @@
 package at.fhv.Event.application.request.booking;
 
-import at.fhv.Event.domain.model.booking.Booking;
-import at.fhv.Event.domain.model.booking.BookingParticipant;
-import at.fhv.Event.domain.model.booking.BookingStatus;
+import at.fhv.Event.domain.model.booking.*;
 import at.fhv.Event.domain.model.payment.PaymentStatus;
 import org.springframework.stereotype.Component;
 
@@ -30,10 +28,16 @@ public class BookingRequestMapper {
                 req.getParticipants() != null
                         ? req.getParticipants().stream()
                         .map(p -> new BookingParticipant(
+                                null,
+                                null,
                                 p.getFirstName(),
                                 p.getLastName(),
-                                p.getAge()
-                        )).toList()
+                                p.getAge(),
+                                ParticipantCheckInStatus.REGISTERED,
+                                ParticipantCheckOutStatus.NOT_CHECKED_OUT,
+                                null
+                        ))
+                        .toList()
                         : List.of(),
                 List.of()
         );

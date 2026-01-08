@@ -1,0 +1,24 @@
+trigger:
+- master
+
+pool:
+  name: fhv-linux-pool
+
+stages:
+- stage: Build
+  displayName: Build the Application
+  jobs:
+  - job: Build
+    displayName: Gradle Build
+    steps:
+    - checkout: self
+
+    - task: Gradle@3
+      inputs:
+        gradleWrapperFile: 'gradlew'
+        tasks: 'build'
+        publishJUnitResults: true
+        testResultsFiles: '**/TEST-*.xml'
+        javaHomeOption: 'JDKVersion'
+        sonarQubeRunAnalysis: false
+        spotBugsAnalysis: false

@@ -3,11 +3,12 @@ package at.fhv.Event.presentation.rest.controller;
 import at.fhv.Event.application.event.*;
 import at.fhv.Event.application.request.event.CreateEventRequest;
 import at.fhv.Event.application.request.event.UpdateEventRequest;
+import at.fhv.Event.presentation.rest.response.booking.EventParticipantsStats;
 import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
 import at.fhv.Event.presentation.rest.response.event.EventOverviewDTO;
+import at.fhv.Event.presentation.rest.response.equipment.EquipmentDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import at.fhv.Event.presentation.rest.response.equipment.EquipmentDTO;
 
 import java.util.List;
 
@@ -20,18 +21,24 @@ public class EventRestController {
     private final UpdateEventService updateService;
     private final CancelEventService cancelService;
     private final SearchEventService searchService;
+    private final GetParticipantsForEventService participantsService;
 
-    public EventRestController(CreateEventService createService,
-                               GetEventDetailsService detailsService,
-                               UpdateEventService updateService,
-                               CancelEventService cancelService,
-                               SearchEventService searchService) {
+    public EventRestController(
+            CreateEventService createService,
+            GetEventDetailsService detailsService,
+            UpdateEventService updateService,
+            CancelEventService cancelService,
+            SearchEventService searchService,
+            GetParticipantsForEventService participantsService
+    ) {
         this.createService = createService;
         this.detailsService = detailsService;
         this.updateService = updateService;
         this.cancelService = cancelService;
         this.searchService = searchService;
+        this.participantsService = participantsService;
     }
+
 
     @GetMapping
     public ResponseEntity<List<EventOverviewDTO>> getAll() {
@@ -49,8 +56,10 @@ public class EventRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<EventDetailDTO> update(@PathVariable Long id,
-                                                 @RequestBody UpdateEventRequest req) {
+    public ResponseEntity<EventDetailDTO> update(
+            @PathVariable Long id,
+            @RequestBody UpdateEventRequest req
+    ) {
         return ResponseEntity.ok(updateService.updateEvent(id, req));
     }
 
@@ -68,4 +77,8 @@ public class EventRestController {
     }
 
 
+    @GetMapping("/{eventId}/participants/stats")
+    public EventParticipantsStats getParticipantStats(@PathVariable Long eventId) {
+        return participantsService.getStatsForEvent(eventId);
+    }
 }

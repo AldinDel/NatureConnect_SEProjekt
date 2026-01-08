@@ -3,6 +3,7 @@ package at.fhv.Event.application.equipment;
 import at.fhv.Event.application.request.equipment.CreateEquipmentRequest;
 import at.fhv.Event.domain.model.equipment.Equipment;
 import at.fhv.Event.domain.model.equipment.EquipmentRepository;
+import at.fhv.Event.domain.model.exception.EquipmentCreationException;
 import at.fhv.Event.presentation.rest.response.equipment.EquipmentDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,10 +22,10 @@ public class CreateEquipmentService {
     @Transactional
     public EquipmentDTO create(CreateEquipmentRequest req) {
         if (req.getName() == null || req.getName().isBlank()) {
-            throw new RuntimeException("Equipment name is required");
+            throw new EquipmentCreationException(req.getName(), "Equipment name is required");
         }
         equipmentRepository.findByNameIgnoreCase(req.getName()).ifPresent(e -> {
-            throw new RuntimeException("Equipment already exists: " + req.getName());
+            throw new EquipmentCreationException(req.getName(), "Equipment already exists: ");
         });
         Equipment domain = mapper.toDomainCreate(req.getName(), req.getUnitPrice(), req.isRentable(), req.getStock());
         equipmentRepository.save(domain);

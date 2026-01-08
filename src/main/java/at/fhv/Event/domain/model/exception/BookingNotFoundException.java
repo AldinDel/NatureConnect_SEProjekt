@@ -1,10 +1,10 @@
 package at.fhv.Event.domain.model.exception;
 
-public class BookingNotFoundException extends RuntimeException {
+public class BookingNotFoundException extends DomainException {
     private final Long _bookingId;
 
     public BookingNotFoundException(Long bookingId) {
-        super(String.format("Booking with id %s not found", bookingId));
+        super("BOOKING_001");
         _bookingId = bookingId;
     }
 

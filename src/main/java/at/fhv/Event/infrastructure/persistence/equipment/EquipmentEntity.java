@@ -10,9 +10,17 @@ public class EquipmentEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "name", nullable = false, length = 100)
     private String name;
+
+    @Column(name = "unit_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal unitPrice;
-    private boolean rentable;
+
+    @Column(name = "rentable", nullable = false)
+    private boolean rentable = true;
+
+    @Column(name = "stock")
     private Integer stock;
 
     public Long getId() {

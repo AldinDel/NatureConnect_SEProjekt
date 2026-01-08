@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="payment-service-port" content="9090">
     <title>Payment - Nature Connect</title>
     <link rel="stylesheet" th:href="@{/css/payment.css}">
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
@@ -11,6 +12,15 @@
 </head>
 <body>
 <div th:replace="events/fragments/navbar :: navbar"></div>
+
+<div th:if="${success}" class="toast-success">
+    <span th:text="${success}"></span>
+</div>
+
+<div th:if="${error}" class="toast-error">
+    <span th:text="${error}"></span>
+</div>
+
 <div class="container">
     <div class="header">
         <h1>Complete Your Payment</h1>
@@ -26,7 +36,8 @@
                 <div class="payment-methods">
 
                     <div class="payment-option" onclick="selectPayment('CREDIT_CARD', this)">
-                        <input type="radio" name="paymentMethod" value="CREDIT_CARD" id="creditCard">
+                        <input type="radio" name="paymentMethod" value="CREDIT_CARD" id="creditCard"
+                               th:checked="${paymentMethod} == 'CREDIT_CARD'">
                         <label for="creditCard">
                             <span class="payment-icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -42,7 +53,8 @@
                     </div>
 
                     <div class="payment-option" onclick="selectPayment('PAYPAL', this)">
-                        <input type="radio" name="paymentMethod" value="PAYPAL" id="paypal">
+                        <input type="radio" name="paymentMethod" value="PAYPAL" id="paypal"
+                               th:checked="${paymentMethod} == 'PAYPAL'">
                         <label for="paypal">
                             <span class="payment-icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -59,7 +71,8 @@
                     </div>
 
                     <div class="payment-option" onclick="selectPayment('INVOICE', this)">
-                        <input type="radio" name="paymentMethod" value="INVOICE" id="invoice">
+                        <input type="radio" name="paymentMethod" value="INVOICE" id="invoice"
+                               th:checked="${paymentMethod} == 'INVOICE'">
                         <label for="invoice">
                             <span class="payment-icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -78,7 +91,8 @@
                     </div>
 
                     <div class="payment-option" onclick="selectPayment('ON_SITE', this)">
-                        <input type="radio" name="paymentMethod" value="ON_SITE" id="onSite">
+                        <input type="radio" name="paymentMethod" value="ON_SITE" id="onSite"
+                               th:checked="${paymentMethod} == 'ON_SITE'">
                         <label for="onSite">
                             <span class="payment-icon">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

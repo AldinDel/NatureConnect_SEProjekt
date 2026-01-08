@@ -1,14 +1,19 @@
 package at.fhv.Event.domain.model.exception;
 
-public class EventNotFoundException extends RuntimeException {
-    private final Long _eventId;
+public class EventNotFoundException extends DomainException {
+    private final Long eventId;
 
     public EventNotFoundException(Long eventId) {
-        super(String.format("Event with id %s not found", eventId));
-        _eventId = eventId;
+        super("EVENT_001");
+        this.eventId = eventId;
     }
 
+    public Long getEventId() {
+        return eventId;
+    }
+
+    @Deprecated
     public Long get_eventId() {
-        return _eventId;
+        return eventId;
     }
 }

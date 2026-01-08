@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Invoice</title>
+
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/invoice_view.css}">
+</head>
+
+<body class="invoice_view">
+
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
+
+<div class="invoice-view-container">
+
+    <h1 th:text="'Invoice #' + ${invoice.id}"></h1>
+
+    <div class="invoice-meta">
+        <p>
+            <strong>Status:</strong>
+            <span th:text="${invoice.status}"></span>
+        </p>
+
+        <p>
+            <strong>Date:</strong>
+            <span th:text="${#temporals.format(invoice.createdAt, 'dd.MM.yyyy')}"></span>
+        </p>
+
+        <p>
+            <strong>Time:</strong>
+            <span th:text="${#temporals.format(invoice.createdAt, 'HH:mm')}"></span>
+        </p>
+    </div>
+
+    <!-- ===================== -->
+    <!-- ACTION BUTTONS -->
+    <!-- ===================== -->
+    <div class="invoice-actions"
+         th:if="${invoice.status.name() == 'INTERIM'}">
+
+        <!-- Issue Final Invoice -->
+        <form th:action="@{/event_management/invoices/finalize}"
+              method="post">
+            <input type="hidden" name="invoiceId"
+                   th:value="${invoice.id}"/>
+
+            <button class="btn primary">
+                Issue Final Invoice
+            </button>
+        </form>
+
+        <!-- Split Invoice -->
+        <a class="btn secondary"
+           th:if="${invoice.lines != null and invoice.lines.size() > 1}"
+           th:href="@{/event_management/invoices/split(invoiceId=${invoice.id})}">
+            Split Invoice
+        </a>
+    </div>
+
+    <div class="info-box info"
+         th:if="${invoice.status.name() == 'INTERIM'
+             and (invoice.lines == null or invoice.lines.size() <= 1)}">
+        Splitting requires at least two invoice items.
+    </div>
+
+    <!-- ===================== -->
+    <!-- INVOICE LINES -->
+    <!-- ===================== -->
+    <table class="invoice-lines">
+        <thead>
+        <tr>
+            <th>Description</th>
+            <th>Quantity</th>
+            <th>Unit price</th>
+            <th>Total</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:if="${invoice.lines == null || invoice.lines.isEmpty()}">
+            <td colspan="4" class="empty-lines">
+                No invoice items available
+            </td>
+        </tr>
+
+        <tr th:each="line : ${invoice.lines}">
+            <td th:text="${line.description}"></td>
+            <td th:text="${line.quantity}"></td>
+            <td th:text="${line.unitPrice} + ' €'"></td>
+            <td th:text="${line.total} + ' €'"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="invoice-total">
+        <strong>Total:</strong>
+        <span th:text="${invoice.total} + ' €'"></span>
+    </div>
+
+</div>
+
+</body>
+</html>

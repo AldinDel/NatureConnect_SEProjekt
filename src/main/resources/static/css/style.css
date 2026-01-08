@@ -2,7 +2,7 @@ body {
     margin: 0;
     padding: 0;
     font-family: "Inter", "Segoe UI", Roboto, sans-serif;
-    color: white;
+    color: #000000;
 }
 
 body.home {
@@ -841,4 +841,14 @@ flex: 1;
     padding: 4px 8px;
     border-radius: 6px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.nc-nav {
+    display: flex;
+    align-items: center;
+}
+
+.nc-right {
+    display: flex;
+    align-items: center;
 }

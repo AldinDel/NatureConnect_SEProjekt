@@ -3,6 +3,7 @@ package at.fhv.Event.application.request.event;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 
 public class CreateEventRequest {
@@ -22,10 +23,12 @@ public class CreateEventRequest {
     private String audience;
     private List<Long> requiredEquipmentIds;
     private List<Long> optionalEquipmentIds;
+    private List<EventEquipmentUpdateRequest> equipments = new ArrayList<>();
+    private List<String> hikeRouteKeys = new ArrayList<>();
+
 
     public CreateEventRequest() {}
 
-    /* getters and setters */
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
     public String getDescription() { return description; }
@@ -58,4 +61,16 @@ public class CreateEventRequest {
     public void setRequiredEquipmentIds(List<Long> requiredEquipmentIds) { this.requiredEquipmentIds = requiredEquipmentIds; }
     public List<Long> getOptionalEquipmentIds() { return optionalEquipmentIds; }
     public void setOptionalEquipmentIds(List<Long> optionalEquipmentIds) { this.optionalEquipmentIds = optionalEquipmentIds; }
+
+    public List<EventEquipmentUpdateRequest> getEquipments() {
+        return equipments;
+    }
+
+    public void setEquipments(List<EventEquipmentUpdateRequest> equipments) {
+        this.equipments = equipments;
+    }
+
+    public List<String> getHikeRouteKeys() { return hikeRouteKeys; }
+    public void setHikeRouteKeys(List<String> hikeRouteKeys) { this.hikeRouteKeys = hikeRouteKeys; }
+
 }

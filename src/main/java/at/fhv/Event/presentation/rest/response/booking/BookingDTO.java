@@ -15,17 +15,21 @@ public class BookingDTO {
 
     private int seats;
     private double totalPrice;
+
     private BookingStatus status;
     private Instant createdAt;
-    private boolean editable;
 
+    private boolean editable;
+    private boolean expired;
 
     public BookingDTO() {
     }
 
     public BookingDTO(Long id, Long eventId,
                       String bookerFirstName, String bookerLastName, String bookerEmail,
-                      int seats, double totalPrice, BookingStatus status, Instant createdAt) {
+                      int seats, double totalPrice,
+                      BookingStatus status, Instant createdAt,
+                      boolean expired) {
 
         this.id = id;
         this.eventId = eventId;
@@ -36,7 +40,10 @@ public class BookingDTO {
         this.totalPrice = totalPrice;
         this.status = status;
         this.createdAt = createdAt;
+        this.expired = expired;
     }
+
+    // ---------- GETTER + SETTER ----------
 
     public Long getId() {
         return id;
@@ -118,4 +125,15 @@ public class BookingDTO {
         this.editable = editable;
     }
 
+    public boolean isExpired() {
+        return expired;
+    }
+
+    public void setExpired(boolean expired) {
+        this.expired = expired;
+    }
+
+    public boolean isCancelled() {
+        return status == BookingStatus.CANCELLED;
+    }
 }

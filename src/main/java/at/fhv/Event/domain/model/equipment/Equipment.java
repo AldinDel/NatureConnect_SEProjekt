@@ -1,5 +1,7 @@
 package at.fhv.Event.domain.model.equipment;
 
+import at.fhv.Event.domain.model.exception.InsufficientStockException;
+
 import java.math.BigDecimal;
 
 public class Equipment {
@@ -15,6 +17,33 @@ public class Equipment {
         this.unitPrice = unitPrice;
         this.rentable = rentable;
         this.stock = stock;
+    }
+
+    public void rent(int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than zero");
+        }
+
+        if (quantity > this.stock) {
+            throw new InsufficientStockException(id, name, quantity, stock);
+        }
+
+        this.stock -= quantity;
+    }
+
+    public void returnEquipment(int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than zero");
+        }
+        this.stock += quantity;
+    }
+
+    public boolean isAvailable(int requestedQuantity) {
+        return requestedQuantity <= this.stock;
+    }
+
+    public BigDecimal calculatePrice(int quantity) {
+        return unitPrice.multiply(BigDecimal.valueOf(quantity));
     }
 
     public void reduceStock(int quantity) {

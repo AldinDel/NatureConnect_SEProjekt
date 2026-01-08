@@ -1,10 +1,10 @@
 package at.fhv.Event.domain.model.exception;
 
-public class EquipmentNotFoundException extends RuntimeException {
+public class EquipmentNotFoundException extends DomainException {
     private final Long equipmentId;
 
     public EquipmentNotFoundException(Long equipmentId) {
-        super("Equipment not found with id: " + equipmentId);
+        super("EQUIPMENT_001");
         this.equipmentId = equipmentId;
     }
 

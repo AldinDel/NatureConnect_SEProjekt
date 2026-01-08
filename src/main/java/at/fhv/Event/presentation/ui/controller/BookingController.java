@@ -2,15 +2,12 @@ package at.fhv.Event.presentation.ui.controller;
 
 import at.fhv.Event.application.booking.BookEventService;
 import at.fhv.Event.application.booking.BookingPermissionService;
-import at.fhv.Event.application.equipment.GetRentableEquipmentService;
+import at.fhv.Event.application.booking.BookingPrefillService;
 import at.fhv.Event.application.event.GetEventDetailsService;
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
-import at.fhv.Event.application.request.booking.ParticipantDTO;
-import at.fhv.Event.domain.model.booking.AudienceType;
 import at.fhv.Event.domain.model.booking.Booking;
 import at.fhv.Event.domain.model.booking.BookingEquipment;
 import at.fhv.Event.domain.model.booking.BookingStatus;
-import at.fhv.Event.domain.model.equipment.EquipmentSelection;
 import at.fhv.Event.domain.model.exception.BookingValidationException;
 import at.fhv.Event.domain.model.exception.EventFullyBookedException;
 import at.fhv.Event.domain.model.exception.ValidationError;
@@ -36,40 +33,46 @@ public class BookingController {
 
     private final BookEventService _bookEventService;
     private final GetEventDetailsService _eventDetailsService;
-    private final GetRentableEquipmentService _rentableEquipmentService;
     private final BookingPermissionService _bookingPermissionService;
+    private final BookingPrefillService _bookingPrefillService;
 
     public BookingController(BookEventService bookEventService,
                              GetEventDetailsService eventDetailsService,
-                             GetRentableEquipmentService rentableEquipmentService,
-                             BookingPermissionService bookingPermissionService) {
+                             BookingPermissionService bookingPermissionService,
+                             BookingPrefillService bookingPrefillService) {
         _bookEventService = bookEventService;
         _eventDetailsService = eventDetailsService;
-        _rentableEquipmentService = rentableEquipmentService;
         _bookingPermissionService = bookingPermissionService;
+        _bookingPrefillService = bookingPrefillService;
     }
 
-    @GetMapping("/{eventId}")
-    public String showBookingPage(@PathVariable Long eventId, Model model, RedirectAttributes redirectAttributes,Principal principal) {
 
-        if (principal == null) {
-            return "redirect:/booking/guest-info?eventId=" + eventId;
-        }
+    @GetMapping("/event/{eventId}")
+    @PreAuthorize("isAuthenticated()")
+    public String showBookingPage(@PathVariable Long eventId,
+                                  Model model,
+                                  RedirectAttributes redirectAttributes,
+                                  Principal principal) {
 
         EventDetailDTO event = _eventDetailsService.getEventDetails(eventId);
         int availableSeats = _bookEventService.getAvailableSeats(eventId);
+
         if (isEventUnavailable(event)) {
             redirectAttributes.addFlashAttribute("error", getUnavailabilityMessage(event));
             return "redirect:/events/" + eventId;
         }
 
-        CreateBookingRequest bookingRequest = createInitialBookingRequest(eventId);
+        CreateBookingRequest bookingRequest =
+                _bookingPrefillService.prepareCreateRequestForLoggedInUser(
+                        principal.getName(),
+                        eventId
+                );
         List<EquipmentDTO> availableEquipment = event.equipments();
 
         model.addAttribute("event", event);
         model.addAttribute("booking", bookingRequest);
         model.addAttribute("addons", availableEquipment);
-        model.addAttribute("availableSeats", Math.max(0, availableSeats)); // Add this line
+        model.addAttribute("availableSeats", Math.max(0, availableSeats));
         model.addAttribute("isEdit", false);
         model.addAttribute("bookingId", null);
 
@@ -77,7 +80,8 @@ public class BookingController {
     }
 
     @PostMapping
-    public String submitBooking(@ModelAttribute("booking") CreateBookingRequest request, @RequestParam("guestMode") boolean guestMode, Model model, RedirectAttributes redirectAttributes, Principal principal) {
+    @PreAuthorize("isAuthenticated()")
+    public String submitBooking(@ModelAttribute("booking") CreateBookingRequest request, Model model, RedirectAttributes redirectAttributes, Principal principal) {
         try {
             EventDetailDTO event = _eventDetailsService.getEventDetails(request.getEventId());
             if (isEventUnavailable(event)) {
@@ -86,11 +90,7 @@ public class BookingController {
             }
 
             BookingDTO booking = _bookEventService.bookEvent(request);
-
-            if (principal != null) {
-                return "redirect:/booking/payment/" + booking.getId();
-            }
-            return "redirect:/booking/guest-info?bookingId=" + booking.getId();
+            return "redirect:/booking/payment/" + booking.getId();
 
         } catch (BookingValidationException exception) {
             return handleValidationErrors(exception, request, model);
@@ -105,12 +105,18 @@ public class BookingController {
     }
 
     @GetMapping("/payment/{id}")
+    @PreAuthorize("isAuthenticated()")
     public String showPaymentPage(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         try {
             Booking booking = _bookEventService.getById(id);
             model.addAttribute("bookingId", booking.getId());
             model.addAttribute("amount", booking.getTotalPrice());
             model.addAttribute("paymentMethod", booking.getPaymentMethod());
+
+            String paymentMethod = booking.getPaymentMethod() != null
+                    ? booking.getPaymentMethod().name()
+                    : null;
+            model.addAttribute("paymentMethod", paymentMethod);
 
             return "booking/payment";
         } catch (Exception exception) {
@@ -120,6 +126,7 @@ public class BookingController {
     }
 
     @PostMapping("/payment/{id}")
+    @PreAuthorize("isAuthenticated()")
     public String updatePaymentMethodFromUI(@PathVariable Long id, @RequestParam("paymentMethod") String paymentMethod, RedirectAttributes redirectAttributes) {
         try {
             _bookEventService.updatePaymentMethod(id, paymentMethod);
@@ -133,7 +140,8 @@ public class BookingController {
     }
 
     @GetMapping("/confirmation/{id}")
-    public String showConfirmationPage(@PathVariable Long id, Model model) {
+    @PreAuthorize("isAuthenticated()")
+    public String showConfirmationPage(@PathVariable Long id, @RequestParam(required = false) String paymentMethod, Model model) {
         try {
             Booking booking = _bookEventService.getById(id);
             if (booking.getStatus() == BookingStatus.PAYMENT_FAILED) {
@@ -143,7 +151,14 @@ public class BookingController {
             model.addAttribute("booking", booking);
             model.addAttribute("bookingId", booking.getId());
             model.addAttribute("amount", booking.getTotalPrice());
-            model.addAttribute("paymentMethod", booking.getPaymentMethod());
+
+            String finalPaymentMethod = paymentMethod != null
+                    ? paymentMethod
+                    : (booking.getPaymentMethod() != null ? booking.getPaymentMethod().name() : null);
+            model.addAttribute("paymentMethod", finalPaymentMethod != null
+                    ? at.fhv.Event.domain.model.payment.PaymentMethod.valueOf(finalPaymentMethod)
+                    : null);
+
             return "booking/confirmation";
 
         } catch (Exception exception) {
@@ -151,15 +166,6 @@ public class BookingController {
             return "error/404";
         }
     }
-
-    @GetMapping("/guest-info")
-    public String guestInfoPage(@RequestParam Long eventId, Model model) {
-        model.addAttribute("eventId", eventId);
-        return "booking/guest-info";
-    }
-
-
-
 
     private boolean isEventUnavailable(EventDetailDTO event) {
         if (Boolean.TRUE.equals(event.cancelled())) {
@@ -174,13 +180,6 @@ public class BookingController {
             return "This event is cancelled and cannot be booked.";
         }
         return "This event is expired and cannot be booked.";
-    }
-
-    private CreateBookingRequest createInitialBookingRequest(Long eventId) {
-        CreateBookingRequest request = new CreateBookingRequest();
-        request.setEventId(eventId);
-        request.setAudience(AudienceType.INDIVIDUAL);
-        return request;
     }
 
     private String handleValidationErrors(BookingValidationException exception, CreateBookingRequest request, Model model) {
@@ -293,7 +292,7 @@ public class BookingController {
                 return "redirect:/bookings";
             }
 
-            Booking booking = _bookEventService.getById(id);
+            Booking booking = _bookEventService.getByIdWithParticipants(id);
 
             try {
                 _bookEventService.assertEventIsEditableForBooking(booking);
@@ -305,7 +304,7 @@ public class BookingController {
             EventDetailDTO event = _eventDetailsService.getEventDetails(booking.getEventId());
 
             List<EquipmentDTO> availableEquipment = event.equipments();
-            CreateBookingRequest request = mapBookingToCreateBookingRequest(booking);
+            CreateBookingRequest request = _bookingPrefillService.prepareEditRequest(booking, availableEquipment);
 
             model.addAttribute("event", event);
             model.addAttribute("booking", request);
@@ -334,6 +333,7 @@ public class BookingController {
     @PreAuthorize("hasAnyRole('ADMIN', 'CUSTOMER', 'FRONT', 'ORGANIZER')")
     public String updateBooking(@PathVariable("id") Long id,
                                 @ModelAttribute("booking") CreateBookingRequest request,
+                                @RequestParam(name = "changePayment", required = false, defaultValue = "false") boolean changePayment,
                                 Model model,
                                 RedirectAttributes redirectAttributes,
                                 Authentication auth) {
@@ -347,6 +347,14 @@ public class BookingController {
             request.setEventId(existingBooking.getEventId());
 
             _bookEventService.updateBooking(id, request);
+
+            boolean isAdmin = auth != null &&
+                    auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+            if (changePayment && isAdmin) {
+                redirectAttributes.addFlashAttribute("success", "Booking updated. You can now change the payment method.");
+                return "redirect:/booking/payment/" + id;
+            }
 
             redirectAttributes.addFlashAttribute("success", "Booking updated successfully.");
             return "redirect:/bookings";
@@ -363,44 +371,35 @@ public class BookingController {
         }
     }
 
+    @PostMapping("/{id}/cancel")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'ADMIN')")
+    public String cancelBooking(@PathVariable Long id,
+                                Authentication auth,
+                                Principal principal,
+                                RedirectAttributes redirectAttributes) {
 
-    private CreateBookingRequest mapBookingToCreateBookingRequest(Booking booking) {
-        CreateBookingRequest req = new CreateBookingRequest();
+        try {
+            boolean isAdmin = auth.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-        req.setEventId(booking.getEventId());
-        req.setBookerFirstName(booking.getBookerFirstName());
-        req.setBookerLastName(booking.getBookerLastName());
-        req.setBookerEmail(booking.getBookerEmail());
-        req.setSeats(booking.getSeats());
-        req.setAudience(booking.getAudience());
-        req.setVoucherCode(booking.getVoucherCode());
-        req.setSpecialNotes(booking.getSpecialNotes());
+            _bookEventService.cancelBooking(id, principal.getName(), isAdmin);
 
-        if (booking.getParticipants() != null) {
-            List<ParticipantDTO> participants = booking.getParticipants().stream().map(p -> {
-                ParticipantDTO dto = new ParticipantDTO();
-                dto.setFirstName(p.getFirstName());
-                dto.setLastName(p.getLastName());
-                dto.setAge(p.getAge());
-                return dto;
-            }).toList();
-            req.setParticipants(participants);
+            redirectAttributes.addFlashAttribute("success", "Booking cancelled successfully.");
+
+            redirectAttributes.addFlashAttribute(
+                    "info",
+                    "Refund email has been sent to the customer."
+            );
+
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
         }
 
-        if (booking.getEquipment() != null) {
-            Map<Long, EquipmentSelection> equipmentMap = new HashMap<>();
-            for (BookingEquipment be : booking.getEquipment()) {
-                EquipmentSelection sel = new EquipmentSelection();
-                sel.setSelected(true);
-                sel.setQuantity(be.getQuantity());
-                equipmentMap.put(be.getEquipmentId(), sel);
-            }
-            req.setEquipment(equipmentMap);
+        if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
+            return "redirect:/bookings";
         }
 
-
-        return req;
+        return "redirect:/bookings";
     }
-
 
 }

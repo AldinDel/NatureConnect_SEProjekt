@@ -4,101 +4,165 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 
 public class CustomerProfile {
-    private Long _id;
-    private UserAccount _user;
-    private String _firstName;
-    private String _lastName;
-    private String _email;
-    private String _phone;
-    private LocalDate _birthday;
-    private OffsetDateTime _createdAt;
-    private OffsetDateTime _updatedAt;
+    private Long id;
+    private UserAccount user;
+    private String firstName;
+    private String lastName;
+    private String email;
+    private String phone;
+    private LocalDate birthday;
+    private String street;
+    private String postalCode;
+    private String city;
+    private String country;
+    private String avatarUrl;
 
-    public CustomerProfile(Long id, UserAccount user, String firstName,
-                           String lastName, String email, String phone,
-                           LocalDate birthday, OffsetDateTime createdAt,
-                           OffsetDateTime updatedAt) {
+    private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
 
-        _id = id;
-        _user = user;
-        _firstName = firstName;
-        _lastName = lastName;
-        _email = email;
-        _phone = phone;
-        _birthday = birthday;
-        _createdAt = createdAt;
-        _updatedAt = updatedAt;
+    public CustomerProfile() {}
+
+    public CustomerProfile(Long id, UserAccount user, String firstName, String lastName, String email, String phone,
+                           LocalDate birthday, OffsetDateTime createdAt, OffsetDateTime updatedAt) {
+        this.id = id;
+        this.user = user;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.phone = phone;
+        this.birthday = birthday;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
-    public Long get_id() {
-        return _id;
+    public CustomerProfile(Long id, UserAccount user, String firstName, String lastName, String email, String phone,
+                           LocalDate birthday, String street, String postalCode, String city, String country,
+                           String avatarUrl, OffsetDateTime createdAt, OffsetDateTime updatedAt) {
+        this.id = id;
+        this.user = user;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.phone = phone;
+        this.birthday = birthday;
+        this.street = street;
+        this.postalCode = postalCode;
+        this.city = city;
+        this.country = country;
+        this.avatarUrl = avatarUrl;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
-    public void set_id(Long _id) {
-        this._id = _id;
+    public Long getId() {
+        return id;
     }
 
-    public UserAccount get_user() {
-        return _user;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public void set_user(UserAccount _user) {
-        this._user = _user;
+    public UserAccount getUser() {
+        return user;
     }
 
-    public String get_firstName() {
-        return _firstName;
+    public void setUser(UserAccount user) {
+        this.user = user;
     }
 
-    public void set_firstName(String _firstName) {
-        this._firstName = _firstName;
+    public String getFirstName() {
+        return firstName;
     }
 
-    public String get_lastName() {
-        return _lastName;
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
-    public void set_lastName(String _lastName) {
-        this._lastName = _lastName;
+    public String getLastName() {
+        return lastName;
     }
 
-    public String get_email() {
-        return _email;
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
     }
 
-    public void set_email(String _email) {
-        this._email = _email;
+    public String getEmail() {
+        return email;
     }
 
-    public String get_phone() {
-        return _phone;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public void set_phone(String _phone) {
-        this._phone = _phone;
+    public String getPhone() {
+        return phone;
     }
 
-    public LocalDate get_birthday() {
-        return _birthday;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
-    public void set_birthday(LocalDate _birthday) {
-        this._birthday = _birthday;
+    public LocalDate getBirthday() {
+        return birthday;
     }
 
-    public OffsetDateTime get_createdAt() {
-        return _createdAt;
+    public void setBirthday(LocalDate birthday) {
+        this.birthday = birthday;
     }
 
-    public void set_createdAt(OffsetDateTime _createdAt) {
-        this._createdAt = _createdAt;
+    public String getStreet() {
+        return street;
     }
 
-    public OffsetDateTime get_updatedAt() {
-        return _updatedAt;
+    public void setStreet(String street) {
+        this.street = street;
     }
 
-    public void set_updatedAt(OffsetDateTime _updatedAt) {
-        this._updatedAt = _updatedAt;
+    public String getPostalCode() {
+        return postalCode;
+    }
+
+    public void setPostalCode(String postalCode) {
+        this.postalCode = postalCode;
+    }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
+    public OffsetDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(OffsetDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public OffsetDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(OffsetDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

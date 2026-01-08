@@ -15,6 +15,19 @@ const discountRow = document.getElementById("summaryDiscountRow");
 const discountText = document.getElementById("summaryDiscountText");
 const discountAmount = document.getElementById("summaryDiscountAmount");
 
+function showPopupError(message) {
+    const popup = document.createElement("div");
+    popup.className = "popup-message error";
+    popup.textContent = message;
+
+    document.body.appendChild(popup);
+
+    setTimeout(() => {
+        popup.classList.add("popup-hide");
+        setTimeout(() => popup.remove(), 800);
+    }, 2500);
+}
+
 
 if (removeDiscountBtn) {
     removeDiscountBtn.addEventListener("click", () => {
@@ -46,47 +59,84 @@ function generateParticipants(num) {
     participantsContainer.innerHTML = "";
 
     const existingDataContainer = document.getElementById("existingParticipantsData");
-    const existing = existingDataContainer ? existingDataContainer.querySelectorAll("div[data-index]") : [];
+    const existing = existingDataContainer
+        ? existingDataContainer.querySelectorAll("div[data-index]")
+        : [];
 
     for (let i = 0; i < num; i++) {
         const section = document.createElement("div");
         section.classList.add("participant-section");
 
         section.innerHTML = `
-            <h3 class="participant-title">Participant ${i + 1}</h3>
-            <div class="form-group">
-                <label>First Name</label>
-                <input class="form-input" type="text" name="participants[${i}].firstName" maxlength="50"/>
-            </div>
-            <div class="form-group">
-                <label>Last Name</label>
-                <input class="form-input" type="text" name="participants[${i}].lastName" maxlength="50"/>
-            </div>
-            <div class="form-group">
-                <label>Age</label>
-                <input class="form-input" type="number" name="participants[${i}].age" min="1" max="120"/>
-            </div>
-        `;
+        <h3 class="participant-title">Participant ${i + 1}</h3>
+        <label>First Name</label>
+        <input class="form-input participant-firstname" 
+               name="participants[${i}].firstName" 
+               data-participant-index="${i}"
+               maxlength="50"
+               pattern="[A-Za-zÄÖÜäöüß\\- ]+"
+               title="Only letters, spaces, and hyphens are allowed"
+               required>
+        <span class="error-text participant-firstname-error" data-participant-index="${i}"></span>
+    
+        <label>Last Name</label>
+        <input class="form-input participant-lastname" 
+               name="participants[${i}].lastName" 
+               data-participant-index="${i}"
+               maxlength="50"
+               pattern="[A-Za-zÄÖÜäöüß\\- ]+"
+               title="Only letters, spaces, and hyphens are allowed"
+               required>
+        <span class="error-text participant-lastname-error" data-participant-index="${i}"></span>
+    
+        <label>Age</label>
+        <input class="form-input participant-age" 
+               type="number" 
+               name="participants[${i}].age" 
+               data-participant-index="${i}"
+               min="1" 
+               max="120">
+        <span class="error-text participant-age-error" data-participant-index="${i}"></span>
+    `;
 
-        if (isEditMode && existing.length > 0) {
-            const row = Array.from(existing).find(el => parseInt(el.dataset.index, 10) === i);
-            if (row) {
-                section.querySelector(`input[name="participants[${i}].firstName"]`).value = row.dataset.firstname || "";
-                section.querySelector(`input[name="participants[${i}].lastName"]`).value = row.dataset.lastname || "";
-                section.querySelector(`input[name="participants[${i}].age"]`).value = row.dataset.age || "";
-            }
+        const row = Array.from(existing).find(el => Number(el.dataset.index) === i);
+        if (row) {
+            section.querySelector(`[name="participants[${i}].firstName"]`).value = row.dataset.firstname || "";
+            section.querySelector(`[name="participants[${i}].lastName"]`).value = row.dataset.lastname || "";
+            section.querySelector(`[name="participants[${i}].age"]`).value = row.dataset.age || "";
         }
-
-        const ageInput = section.querySelector(`input[name="participants[${i}].age"]`);
-        ageInput.addEventListener("input", () => {
-            let value = parseInt(ageInput.value, 10);
-            if (value > 120) ageInput.value = 120;
-            if (value < 1) ageInput.value = 1;
-        });
-
         participantsContainer.appendChild(section);
     }
 }
+
+function displayFieldErrors(fieldErrors) {
+    if (!fieldErrors) return;
+
+    document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+    document.querySelectorAll('.error-text').forEach(el => {
+        el.textContent = '';
+        el.style.display = 'none';
+    });
+
+    for (const [field, message] of Object.entries(fieldErrors)) {
+        if (field.startsWith('participants[')) {
+            const match = field.match(/participants\[(\d+)\]\.(firstName|lastName|age)/);
+            if (match) {
+                const index = match[1];
+                const fieldName = match[2];
+                const input = document.querySelector(`[data-participant-index="${index}"].participant-${fieldName.toLowerCase()}`);
+                const errorSpan = document.querySelector(`.participant-${fieldName.toLowerCase()}-error[data-participant-index="${index}"]`);
+
+                if (input) input.classList.add('input-error');
+                if (errorSpan) {
+                    errorSpan.textContent = message;
+                    errorSpan.style.display = 'block';
+                }
+            }
+        }
+    }
+}
+
 
 function syncSeatsFormField(value) {
     const seatsField = document.querySelector('[name="seats"]');
@@ -138,14 +188,21 @@ async function loadEquipmentForEvent(eventId) {
             qty.name = `equipment[${item.id}].quantity`;
             qty.className = "form-input";
             qty.style = "width: 70px; display: none;";
+            qty.className = "form-input";
+            qty.style.cssText = "width: 70px; display: none;";
+            qty.setAttribute('disabled', 'true');
 
             cb.addEventListener("change", () => {
                 if (cb.checked) {
-                    qty.value = 1;
+                    if (!qty.value || parseInt(qty.value) < 1) {
+                        qty.value = 1;
+                    }
                     qty.style.display = "block";
+                    qty.removeAttribute('disabled');
                 } else {
                     qty.value = 0;
                     qty.style.display = "none";
+                    qty.setAttribute('disabled', 'true');
                 }
                 updatePriceSummary();
             });
@@ -192,19 +249,32 @@ function hideDiscountRow() {
 }
 
 function initEquipmentListenersForEdit() {
+    console.log("=== initEquipmentListenersForEdit START ===");
+    console.log("Equipment containers found:", document.querySelectorAll('#equipmentContainer .checkbox-label').length);
+
     document.querySelectorAll('#equipmentContainer .checkbox-label').forEach(label => {
         const cb = label.querySelector('input[type="checkbox"][name^="equipment"]');
         const qty = label.querySelector('input[type="number"][name^="equipment"]');
+
+        console.log("Checkbox:", cb?.name, "Checked:", cb?.checked, "Quantity:", qty?.value);
         if (!cb || !qty) return;
+
         if (cb.checked) {
             if (!qty.value || parseInt(qty.value) < 1) {
                 qty.value = 1;
             }
-            qty.style.display = "block";
+            qty.style.display = "block";  // <- Diese Zeile ist wichtig!
+        } else {
+            qty.style.display = "none";
         }
 
         cb.addEventListener("change", () => {
-            qty.style.display = cb.checked ? "block" : "none";
+            if (cb.checked) {
+                qty.value = qty.value && parseInt(qty.value) > 0 ? qty.value : 1;
+                qty.style.display = "block";
+            } else {
+                qty.style.display = "none";
+            }
             updatePriceSummary();
         });
 
@@ -222,11 +292,6 @@ function initEquipmentListenersForEdit() {
 
             updatePriceSummary();
         });
-
-
-        if (cb.checked) {
-            qty.style.display = "block";
-        }
     });
 }
 
@@ -342,34 +407,43 @@ if (numParticipantsInput) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    const isEditMode = document.getElementById("isEdit").value === "true";
+    const popup = document.getElementById("error-popup");
+    if (popup) {
+        setTimeout(() => {
+            popup.classList.add("popup-hide");
+            setTimeout(() => popup.remove(), 800);
+        }, 2000);
+    }
+});
 
+
+document.addEventListener("DOMContentLoaded", () => {
     if (isEditMode) {
         const voucherDB = document.getElementById("voucherCodeField");
         const discountField = document.getElementById("discountPercentField");
 
         if (voucherDB && voucherDB.value) {
             discountInput.value = voucherDB.value;
+            const discountPercent = parseFloat(discountField.value) || 0;
 
-            discountField.value = discountField.value || 0;
+            if (discountPercent > 0) {
+                currentDiscount = discountPercent;
+                discountInput.readOnly = true;
+                discountBtn.disabled = true;
+                discountBtn.classList.add("btn-disabled");
+                removeDiscountBtn.classList.remove("hidden");
 
-            discountMessage.textContent = "Voucher loaded";
-            discountMessage.classList.remove("hidden");
+                discountMessage.classList.add("text-green");
+                discountMessage.textContent = "✓ Voucher applied";
+                discountMessage.classList.remove("hidden");
+            } else {
+                discountMessage.textContent = "Voucher loaded";
+                discountMessage.classList.remove("hidden");
+            }
         }
     }
 
-
     updatePriceSummary();
-
-
-    function showError(message) {
-        const box = document.getElementById("errorPop");
-        const error = document.createElement("div");
-        error.className = "error";
-        error.textContent = message;
-        box.appendChild(error);
-        setTimeout(() => error.remove(), 2000);
-    }
 
     const eventIdEl = document.getElementById("pageEventId");
     if (!eventIdEl || !eventIdEl.value) {
@@ -378,73 +452,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     const eventId = eventIdEl.value;
 
-    const form = document.querySelector("form");
-    const errorBox = document.getElementById("errorBox");
-    const confirmBtn = document.getElementById("confirmBtn");
+    const currentIsEditMode = document.getElementById("isEdit")?.value === "true";
+    console.log("Edit mode check:", currentIsEditMode);
 
-    if (form && !isEditMode) {
-        form.addEventListener("submit", async (event) => {
-            event.preventDefault();
-
-            errorBox.classList.add("hidden");
-            errorBox.innerHTML = "";
-            confirmBtn.disabled = true;
-            confirmBtn.textContent = "Validating...";
-
-            const formData = new FormData(form);
-            const json = {};
-            const equipmentData = {};
-            const participants = [];
-
-            formData.forEach((value, key) => json[key] = value);
-
-            Object.keys(json).forEach(key => {
-                const m = key.match(/^equipment\[(\d+)]\.(\w+)$/);
-                if (!m) return;
-
-                const id = parseInt(m[1]);
-                const field = m[2];
-                equipmentData[id] ??= {};
-                equipmentData[id][field] = json[key];
-                delete json[key];
-            });
-
-            Object.keys(json).forEach(key => {
-                const m = key.match(/^participants\[(\d+)]\.(\w+)$/);
-                if (!m) return;
-
-                const index = parseInt(m[1]);
-                const field = m[2];
-                participants[index] ??= {};
-                participants[index][field] = json[key];
-                delete json[key];
-            });
-
-            json.equipment = equipmentData;
-            json.participants = participants;
-            json.discountPercent = currentDiscount;
-
-            const res = await fetch("/api/bookings", {
-                method: "POST",
-                headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(json)
-            });
-
-            if (!res.ok) {
-                const body = await res.json();
-                if (Array.isArray(body)) body.forEach(msg => showError(msg));
-                else if (body.message) body.message.split("|").forEach(m => showError(m.trim()));
-                confirmBtn.disabled = false;
-                confirmBtn.textContent = "Confirm Booking";
-                return;
-            }
-
-            const booking = await res.json();
-            window.location.href = "/booking/payment/" + booking.id;
-        });
-    }
-
-    if (!isEditMode) {
+    if (!currentIsEditMode) {
         generateParticipants(1);
         numParticipantsInput.value = 1;
         syncSeatsFormField(1);
@@ -459,5 +470,17 @@ document.addEventListener("DOMContentLoaded", () => {
         initEquipmentListenersForEdit();
     }
 
+    const fieldErrorsElement = document.getElementById('fieldErrorsData');
+    if (fieldErrorsElement) {
+        try {
+            const fieldErrors = JSON.parse(fieldErrorsElement.textContent);
+            displayFieldErrors(fieldErrors);
+        } catch (e) {
+            console.error('Error parsing field errors:', e);
+        }
+    }
+
+
     updatePriceSummary();
 });
+

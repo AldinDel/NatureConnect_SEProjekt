@@ -1,5 +1,14 @@
-const MAIN_BASE = "http://10.0.40.198:8080";
-const PAYMENT_BASE = "http://10.0.40.198:9090";
+const host = window.location.hostname;
+const protocol = window.location.protocol;
+const port = window.location.port;
+
+const MAIN_BASE = port ? `${protocol}//${host}:${port}` : `${protocol}//${host}`;
+
+const paymentPort = document.querySelector('meta[name="payment-service-port"]')?.getAttribute('content')
+    || document.getElementById('paymentServicePort')?.value
+    || '9090';
+const PAYMENT_BASE = `${protocol}//${host}:${paymentPort}`;
+
 
 function selectPayment(method, el) {
     document.querySelectorAll('.payment-option').forEach(opt => {
@@ -59,16 +68,25 @@ async function openPayment() {
         alert("Please select a payment method.");
         return;
     }
+
     try {
-        await fetch(`${MAIN_BASE}/booking/payment/${bookingId}`, {
+        const response = await fetch(`/booking/payment/${bookingId}`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
             },
             body: `paymentMethod=${method}`
         });
+
+        if (!response.ok) {
+            alert("Payment method could not be saved. Try again.");
+            return;
+        }
+
+        await new Promise(resolve => setTimeout(resolve, 100));
+
     } catch (e) {
-        alert("Payment method could not be saved.");
+        alert("Payment method could not be saved. Error: " + e.message);
         return;
     }
 
@@ -83,4 +101,3 @@ async function openPayment() {
 
     window.open(paymentUrl, "_blank");
 }
-

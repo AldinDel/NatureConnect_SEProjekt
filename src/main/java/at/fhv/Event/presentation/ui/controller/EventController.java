@@ -33,6 +33,8 @@ public class EventController {
     private final CancelEventService cancelService;
     private final UserPermissionService userPermissionService;
     private final EventAccessService accessService;
+    private final CloudinaryService cloudinaryService;
+
 
     public EventController(CreateEventService createService,
                            UpdateEventService updateService,
@@ -41,7 +43,8 @@ public class EventController {
                            GetAllEquipmentService equipmentService,
                            CancelEventService cancelService,
                            UserPermissionService  userPermissionService,
-                           EventAccessService accessService) {
+                           EventAccessService accessService,
+                           CloudinaryService cloudinaryService) {
 
         this.createService = createService;
         this.updateService = updateService;
@@ -51,21 +54,24 @@ public class EventController {
         this.cancelService = cancelService;
         this.userPermissionService = userPermissionService;
         this.accessService = accessService;
+        this.cloudinaryService = cloudinaryService;
     }
 
     @GetMapping("/new")
     @PreAuthorize("hasAnyRole('ADMIN', 'ORGANIZER')")
     public String showCreateForm(Model model) {
-        model.addAttribute("event", new CreateEventRequest());
+        CreateEventRequest request = new CreateEventRequest();
+        model.addAttribute("event", request);
         model.addAttribute("equipments", equipmentService.getAll());
-        model.addAttribute("eventEquipments", new ArrayList<>());
+        model.addAttribute("eventEquipments", request.getEquipments());
         model.addAttribute("isEdit", false);
         return "events/create_event";
     }
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ORGANIZER')")
-    public String create(@ModelAttribute("event") CreateEventRequest req, @RequestParam("photo") MultipartFile photo,
+    public String create(@ModelAttribute("event") CreateEventRequest req,
+                         @RequestParam("photo") MultipartFile photo,
                          RedirectAttributes redirect,
                          Authentication auth) {
         if (req.getDate() != null && req.getDate().isBefore(LocalDate.now())) {
@@ -73,14 +79,22 @@ public class EventController {
             return "redirect:/events/new";
         }
 
-        String organizerName = accessService.getCurrentUserFullName(auth);
-        if (organizerName != null) {
-            req.setOrganizer(organizerName);
+        String imageUrl = cloudinaryService.uploadImage(photo);
+
+        if (imageUrl == null && photo != null && !photo.isEmpty()) {
+            // Upload wurde versucht, aber ist fehlgeschlagen
+            redirect.addFlashAttribute("error", "Image upload failed.");
+            return "redirect:/events/new";
+        }
+
+        if (imageUrl != null) {
+            req.setImageUrl(imageUrl);
         }
 
         createService.createEvent(req);
         redirect.addFlashAttribute("success", "Event created successfully!");
         return "redirect:/events";
+
     }
 
     @GetMapping("/{id}/edit")
@@ -118,6 +132,7 @@ public class EventController {
     @PreAuthorize("hasAnyRole('ADMIN', 'FRONT', 'ORGANIZER')")
     public String update(@PathVariable("id") Long id,
                          @ModelAttribute("event") UpdateEventRequest req,
+                         @RequestParam(value = "photo", required = false) MultipartFile photo,
                          RedirectAttributes redirect,
                          Authentication auth) {
 
@@ -126,9 +141,22 @@ public class EventController {
             return "redirect:/events/" + id + "/edit";
         }
 
+        if (photo != null && !photo.isEmpty()) {
+            String imageUrl = cloudinaryService.uploadImage(photo);
+
+            if (imageUrl == null) {
+                redirect.addFlashAttribute("error", "Image upload failed.");
+                return "redirect:/events/" + id + "/edit";
+            }
+
+            req.setImageUrl(imageUrl);
+
+        }
+
         updateService.updateEvent(id, req);
         redirect.addFlashAttribute("success", "Event updated successfully!");
         return "redirect:/events";
+
     }
 
     @GetMapping
@@ -155,14 +183,9 @@ public class EventController {
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) String source,
-            RedirectAttributes redirect,
             Model model,
             Authentication auth
     ) {
-        if (q != null && q.length() > 75) {
-            redirect.addFlashAttribute("error", "Search keyword must not exceed 75 characters.");
-            return redirectBack(source);
-        }
 
         List<EventOverviewDTO> events;
         if ("home".equals(source) && startDate != null && endDate == null) {
@@ -192,6 +215,9 @@ public class EventController {
 
         boolean expired = accessService.isEventExpired(event.date(), event.startTime());
         model.addAttribute("expired", expired);
+
+        boolean isHiking = event.category() != null && event.category().toLowerCase().contains("hiking");
+        model.addAttribute("isHikingEvent", isHiking);
 
         return "events/event_detail";
     }
@@ -237,6 +263,7 @@ public class EventController {
         req.setPrice(detail.price());
         req.setImageUrl(detail.imageUrl());
         req.setAudience(mapAudienceLabelToEnumName(detail.audience()));
+        req.setHikeRouteKeys(detail.hikeRouteKeys());
 
         List<EventEquipmentUpdateRequest> eqReqs = new ArrayList<>();
         for (var eq : detail.equipments()) {

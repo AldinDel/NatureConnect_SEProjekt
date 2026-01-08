@@ -1,0 +1,224 @@
+body.users-admin-page {
+    background-image: url("../images/ManOnMountain.jpg");
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-color: rgba(0, 0, 0, 0.7);
+    background-blend-mode: darken;
+}
+
+.admin-user-container {
+    width: 90%;
+    margin: 120px auto 80px;
+}
+
+.admin-user-container h1 {
+    text-align: center;
+    color: white;
+    margin-bottom: 30px;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.user-controls {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding: 10px 0;
+}
+
+.user-controls input,
+.user-controls select {
+    padding: 8px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 15px;
+}
+
+.admin-user-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    table-layout: fixed;
+}
+
+.admin-user-table thead th {
+    background: #0d2847;
+    color: white;
+    padding: 14px 20px;
+    font-size: 15px;
+    font-weight: 600;
+    text-align: left;
+}
+
+.admin-user-table tbody tr {
+    border-bottom: 1px solid #e5e7eb;
+    background: white;
+}
+
+.admin-user-table tbody tr:nth-child(even) {
+    background: #fafafa;
+}
+
+.admin-user-table td {
+    padding: 14px 20px;
+    font-size: 15px;
+    color: #1f2937;
+    vertical-align: middle;
+}
+
+.row-inactive {
+    background: #f3f4f6 !important;
+}
+
+.row-inactive td {
+    color: #6b7280;
+}
+
+.row-inactive td.actions {
+    color: #1f2937;
+}
+
+.row-inactive td.actions .btn-edit {
+    color: #0b2545;
+    background: white;
+    border-color: #d1d5db;
+}
+
+.row-inactive td.actions .btn-deactivate {
+    opacity: 0.65;
+}
+
+.row-inactive .btn-edit {
+    color: #0b2545;
+    border-color: #d1d5db;
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    padding-right: 10px;
+}
+
+.btn-edit {
+    background: white;
+    color: #0b2545;
+    border: 1.5px solid #d1d5db;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: .2s;
+}
+
+.btn-deactivate {
+    background: #dc2626;
+    color: white;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    transition: .2s;
+}
+
+.btn-add {
+    background: #0b2545;
+    color: white;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+}
+
+.admin-user-table th,
+.admin-user-table td {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+.admin-user-table th:nth-child(1),
+.admin-user-table td:nth-child(1) {
+    width: 90px;
+}
+
+.btn-deactivate {
+    cursor: pointer;
+}
+
+.btn-edit:hover {
+    filter: brightness(0.95);
+}
+
+.btn-deactivate:hover {
+    filter: brightness(0.95);
+}
+
+.btn-edit:hover,
+.btn-deactivate:hover {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.btn-reset {
+    background: #0b2545;
+    color: white;
+    padding: 6px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+}
+
+.actions form {
+    margin: 0;
+}
+
+.toast-container {
+    position: fixed;
+    top: 90px;
+    right: 30px;
+    z-index: 9999;
+}
+
+.toast {
+    min-width: 260px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    animation: fadeOut 4s forwards;
+}
+
+.toast-success {
+    background: #ecfdf5;
+    color: #065f46;
+
+}
+
+.toast-error {
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+@keyframes fadeOut {
+    0% { opacity: 0; }
+    10% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+
+

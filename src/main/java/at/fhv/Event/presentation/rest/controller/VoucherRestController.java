@@ -3,6 +3,7 @@ package at.fhv.Event.presentation.rest.controller;
 
 import at.fhv.Event.application.booking.VoucherService;
 import at.fhv.Event.application.request.booking.VoucherRequest;
+import at.fhv.Event.domain.model.booking.Voucher;
 import at.fhv.Event.presentation.rest.response.booking.VoucherValidationResponseDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,15 +25,21 @@ public class VoucherRestController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<VoucherRequest> create(@RequestBody VoucherRequest req) {
-        VoucherRequest created = _service.create(
+    public ResponseEntity<VoucherValidationResponseDTO> create(@RequestBody VoucherRequest req) {
+        Voucher voucher = _service.create(
                 req.code,
                 req.discountPercent,
                 req.validFrom,
                 req.validUntil,
                 req.maxUsage
         );
-        return ResponseEntity.ok(created);
+
+        VoucherValidationResponseDTO dto = new VoucherValidationResponseDTO();
+        dto.valid = true;
+        dto.discountPercent = voucher.getDiscountPercent();
+        dto.message = "Voucher created";
+
+        return ResponseEntity.ok(dto);
     }
 
     @PostMapping("/consume")
@@ -41,7 +48,5 @@ public class VoucherRestController {
         boolean valid = _service.consume(code);
         return ResponseEntity.ok(Map.of("valid", valid));
     }
-
-
 
 }

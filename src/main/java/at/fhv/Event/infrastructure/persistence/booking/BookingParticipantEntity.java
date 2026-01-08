@@ -1,6 +1,10 @@
 package at.fhv.Event.infrastructure.persistence.booking;
 
+import at.fhv.Event.domain.model.booking.ParticipantCheckInStatus;
+import at.fhv.Event.domain.model.booking.ParticipantCheckOutStatus;
 import jakarta.persistence.*;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "booking_participant", schema = "nature_connect")
@@ -10,7 +14,7 @@ public class BookingParticipantEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "booking_id", nullable = false)
     private BookingEntity booking;
 
@@ -22,6 +26,17 @@ public class BookingParticipantEntity {
 
     @Column(name = "age", nullable = false)
     private int age;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "check_in_status", nullable = false)
+    private ParticipantCheckInStatus checkInStatus = ParticipantCheckInStatus.REGISTERED;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "check_out_status", nullable = false)
+    private ParticipantCheckOutStatus checkOutStatus = ParticipantCheckOutStatus.NOT_CHECKED_OUT;
+
+    @Column(name = "check_out_time")
+    private LocalDateTime checkOutTime;
 
     public Long getId() {
         return id;
@@ -59,7 +74,27 @@ public class BookingParticipantEntity {
         this.age = age;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public ParticipantCheckInStatus getCheckInStatus() {
+        return checkInStatus;
+    }
+
+    public void setCheckInStatus(ParticipantCheckInStatus checkInStatus) {
+        this.checkInStatus = checkInStatus;
+    }
+
+    public ParticipantCheckOutStatus getCheckOutStatus() {
+        return checkOutStatus;
+    }
+
+    public void setCheckOutStatus(ParticipantCheckOutStatus checkOutStatus) {
+        this.checkOutStatus = checkOutStatus;
+    }
+
+    public LocalDateTime getCheckOutTime() {
+        return checkOutTime;
+    }
+
+    public void setCheckOutTime(LocalDateTime checkOutTime) {
+        this.checkOutTime = checkOutTime;
     }
 }

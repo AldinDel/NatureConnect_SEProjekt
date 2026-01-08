@@ -1,11 +1,12 @@
 package at.fhv.Event.infrastructure.mapper;
 
-import at.fhv.Event.domain.model.booking.*;
-import at.fhv.Event.infrastructure.persistence.booking.*;
+import at.fhv.Event.domain.model.booking.Booking;
+import at.fhv.Event.domain.model.booking.BookingEquipment;
+import at.fhv.Event.domain.model.booking.BookingParticipant;
+import at.fhv.Event.infrastructure.persistence.booking.BookingEntity;
+import at.fhv.Event.infrastructure.persistence.booking.BookingEquipmentEntity;
+import at.fhv.Event.infrastructure.persistence.booking.BookingParticipantEntity;
 import org.springframework.stereotype.Component;
-
-import java.util.stream.Collectors;
-
 @Component
 public class BookingMapper {
     public BookingEntity toEntity(Booking domain) {
@@ -24,112 +25,157 @@ public class BookingMapper {
         entity.setVoucherCode(domain.getVoucherCode());
         entity.setDiscountAmount(domain.getDiscountAmount());
         entity.setTotalPrice(domain.getTotalPrice());
+        entity.setPaidAmount(domain.getPaidAmount());
         entity.setSpecialNotes(domain.getSpecialNotes());
         entity.setCreatedAt(domain.getCreatedAt() != null ? domain.getCreatedAt() : java.time.Instant.now());
+        entity.setBillingReady(domain.isBillingReady());
 
+        entity.getParticipants().clear();
         if (domain.getParticipants() != null) {
-            var participantEntities = domain.getParticipants().stream()
-                    .map(p -> toParticipantEntity(p, entity))
-                    .collect(Collectors.toList());
-
-            entity.setParticipants(participantEntities);
+            for (BookingParticipant p : domain.getParticipants()) {
+                BookingParticipantEntity pe = new BookingParticipantEntity();
+                pe.setFirstName(p.getFirstName());
+                pe.setLastName(p.getLastName());
+                pe.setAge(p.getAge());
+                pe.setCheckInStatus(p.getCheckInStatus());
+                pe.setCheckOutStatus(p.getCheckOutStatus());
+                pe.setBooking(entity);
+                entity.getParticipants().add(pe);
+            }
         }
 
+        entity.getEquipment().clear();
         if (domain.getEquipment() != null) {
-            var equipmentEntities = domain.getEquipment().stream()
-                    .map(eq -> toEquipmentEntity(eq, entity))
-                    .collect(Collectors.toList());
-
-            entity.setEquipment(equipmentEntities);
+            for (BookingEquipment eq : domain.getEquipment()) {
+                BookingEquipmentEntity ee = new BookingEquipmentEntity();
+                ee.setEquipmentId(eq.getEquipmentId());
+                ee.setQuantity(eq.getQuantity());
+                ee.setPricePerUnit(eq.getPricePerUnit());
+                ee.setTotalPrice(eq.getTotalPrice().doubleValue());
+                ee.setInvoiced(eq.isInvoiced());
+                ee.setBooking(entity);
+                entity.getEquipment().add(ee);
+            }
         }
-        return entity;
-    }
-
-    private BookingParticipantEntity toParticipantEntity(BookingParticipant p, BookingEntity booking) {
-        BookingParticipantEntity entity = new BookingParticipantEntity();
-
-        entity.setId(p.getId());
-        entity.setFirstName(p.getFirstName());
-        entity.setLastName(p.getLastName());
-        entity.setAge(p.getAge());
-        entity.setBooking(booking);
-
-        return entity;
-    }
-
-    private BookingEquipmentEntity toEquipmentEntity(BookingEquipment eq, BookingEntity booking) {
-        BookingEquipmentEntity entity = new BookingEquipmentEntity();
-
-        entity.setId(eq.getId());
-        entity.setEquipmentId(eq.getEquipmentId());
-        entity.setQuantity(eq.getQuantity());
-        entity.setUnitPrice(eq.getUnitPrice());
-        entity.setTotalPrice(eq.getTotalPrice());
-        entity.setBooking(booking);
-
         return entity;
     }
 
     public Booking toDomain(BookingEntity entity) {
-        Booking domain = new Booking(
-                entity.getEventId(),
-                entity.getBookerFirstName(),
-                entity.getBookerLastName(),
-                entity.getBookerEmail(),
-                entity.getSeats(),
-                entity.getAudience(),
-                entity.getStatus(),
-                entity.getPaymentStatus(),
-                entity.getPaymentMethod(),
-                entity.getVoucherCode(),
-                entity.getDiscountAmount() == null ? 0.0 : entity.getDiscountAmount(),
-                entity.getTotalPrice(),
-                entity.getSpecialNotes(),
-                null,
-                null
-        );
+        Booking domain = new Booking();
 
         domain.setId(entity.getId());
+        domain.setEventId(entity.getEventId());
+        domain.setBookerFirstName(entity.getBookerFirstName());
+        domain.setBookerLastName(entity.getBookerLastName());
+        domain.setBookerEmail(entity.getBookerEmail());
+        domain.setSeats(entity.getSeats());
+        domain.setAudience(entity.getAudience());
+        domain.setStatus(entity.getStatus());
+        domain.setPaymentStatus(entity.getPaymentStatus());
+        domain.setPaymentMethod(entity.getPaymentMethod());
+        domain.setVoucherCode(entity.getVoucherCode());
+        domain.setDiscountAmount(entity.getDiscountAmount() == null ? 0.0 : entity.getDiscountAmount());
+        domain.setTotalPrice(entity.getTotalPrice());
+        domain.setPaidAmount(entity.getPaidAmount() == null ? 0.0 : entity.getPaidAmount());
+        domain.setSpecialNotes(entity.getSpecialNotes());
         domain.setCreatedAt(entity.getCreatedAt());
-
+        domain.setBillingReady(entity.isBillingReady());
 
         if (entity.getParticipants() != null) {
-            var domainParticipants = entity.getParticipants().stream()
-                    .map(this::toParticipantDomain)
-                    .collect(Collectors.toList());
-
-            domain.setParticipants(domainParticipants);
+            domain.setParticipants(
+                    entity.getParticipants().stream()
+                            .map(e -> new BookingParticipant(
+                                    e.getId(),
+                                    entity.getId(),
+                                    e.getFirstName(),
+                                    e.getLastName(),
+                                    e.getAge(),
+                                    e.getCheckInStatus(),
+                                    e.getCheckOutStatus(),
+                                    e.getCheckOutTime()
+                            ))
+                            .toList()
+            );
         }
 
         if (entity.getEquipment() != null) {
-            var domainEquipment = entity.getEquipment().stream()
-                    .map(this::toEquipmentDomain)
-                    .collect(Collectors.toList());
-
-            domain.setEquipment(domainEquipment);
+            domain.setEquipment(
+                    entity.getEquipment().stream()
+                            .map(e -> new BookingEquipment(
+                                    entity.getId(),
+                                    e.getEquipmentId(),
+                                    e.getQuantity(),
+                                    e.getPricePerUnit()
+                            ))
+                            .toList()
+            );
         }
 
         return domain;
     }
 
-    private BookingParticipant toParticipantDomain(BookingParticipantEntity e) {
-        BookingParticipant domain = new BookingParticipant(
-                e.getFirstName(),
-                e.getLastName(),
-                e.getAge()
-        );
-        domain.setId(e.getId());
-        return domain;
+    public void updateEntity(BookingEntity entity, Booking domain) {
+        entity.setEventId(domain.getEventId());
+        entity.setBookerFirstName(domain.getBookerFirstName());
+        entity.setBookerLastName(domain.getBookerLastName());
+        entity.setBookerEmail(domain.getBookerEmail());
+        entity.setSeats(domain.getSeats());
+        entity.setAudience(domain.getAudience());
+        entity.setStatus(domain.getStatus());
+        entity.setPaymentStatus(domain.getPaymentStatus());
+        entity.setPaymentMethod(domain.getPaymentMethod());
+        entity.setVoucherCode(domain.getVoucherCode());
+        entity.setDiscountAmount(domain.getDiscountAmount());
+        entity.setTotalPrice(domain.getTotalPrice());
+        entity.setPaidAmount(domain.getPaidAmount());
+        entity.setSpecialNotes(domain.getSpecialNotes());
+        entity.setBillingReady(domain.isBillingReady());
+
+        entity.getParticipants().clear();
+        if (domain.getParticipants() != null) {
+            for (BookingParticipant p : domain.getParticipants()) {
+                BookingParticipantEntity pe = new BookingParticipantEntity();
+                pe.setFirstName(p.getFirstName());
+                pe.setLastName(p.getLastName());
+                pe.setAge(p.getAge());
+                pe.setCheckInStatus(p.getCheckInStatus());
+                pe.setCheckOutStatus(p.getCheckOutStatus());
+                pe.setBooking(entity);
+                entity.getParticipants().add(pe);
+            }
+        }
+
+        if (domain.getEquipment() != null) {
+            entity.getEquipment().removeIf(existing ->
+                    domain.getEquipment().stream()
+                            .noneMatch(domainEq -> domainEq.getEquipmentId().equals(existing.getEquipmentId()))
+            );
+
+            for (BookingEquipment eq : domain.getEquipment()) {
+                BookingEquipmentEntity existing = entity.getEquipment().stream()
+                        .filter(e -> e.getEquipmentId().equals(eq.getEquipmentId()))
+                        .findFirst()
+                        .orElse(null);
+
+                if (existing != null) {
+                    existing.setQuantity(eq.getQuantity());
+                    existing.setPricePerUnit(eq.getPricePerUnit());
+                    existing.setTotalPrice(eq.getTotalPrice().doubleValue());
+                    existing.setInvoiced(eq.isInvoiced());
+                } else {
+                    BookingEquipmentEntity ee = new BookingEquipmentEntity();
+                    ee.setEquipmentId(eq.getEquipmentId());
+                    ee.setQuantity(eq.getQuantity());
+                    ee.setPricePerUnit(eq.getPricePerUnit());
+                    ee.setTotalPrice(eq.getTotalPrice().doubleValue());
+                    ee.setInvoiced(eq.isInvoiced());
+                    ee.setBooking(entity);
+                    entity.getEquipment().add(ee);
+                }
+            }
+        } else {
+            entity.getEquipment().clear();
+        }
     }
 
-    private BookingEquipment toEquipmentDomain(BookingEquipmentEntity e) {
-        BookingEquipment domain = new BookingEquipment(
-                e.getEquipmentId(),
-                e.getQuantity(),
-                e.getUnitPrice()
-        );
-        domain.setId(e.getId());
-        domain.setTotalPrice(e.getTotalPrice());
-        return domain;
-    }
 }

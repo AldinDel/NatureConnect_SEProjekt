@@ -1,6 +1,7 @@
 package at.fhv.Event.application.equipment;
 
 import at.fhv.Event.domain.model.equipment.EquipmentRepository;
+import at.fhv.Event.domain.model.exception.EquipmentNotFoundException;
 import at.fhv.Event.presentation.rest.response.equipment.EquipmentDTO;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +17,7 @@ public class GetEquipmentDetailsService {
     }
 
     public EquipmentDTO getById(Long id) {
-        var e = equipmentRepository.findById(id).orElseThrow(() -> new RuntimeException("Equipment not found: " + id));
+        var e = equipmentRepository.findById(id).orElseThrow(() -> new EquipmentNotFoundException(id));
         return mapper.toDto(e, false);
     }
 }

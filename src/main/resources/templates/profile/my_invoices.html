@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>My Invoices</title>
+
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/profile.css}">
+</head>
+
+<body class="profile-page">
+
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
+
+<div th:if="${success}" class="toast-success">
+    <span th:text="${success}"></span>
+</div>
+
+<div th:if="${error}" class="toast-error">
+    <span th:text="${error}"></span>
+</div>
+
+<div class="profile-page-wrapper">
+    <div class="profile-layout">
+
+        <aside class="profile-sidebar">
+            <a th:href="@{/profile}">Personal Information</a>
+            <a th:href="@{/profile/invoices}" class="active">My Invoices</a>
+        </aside>
+
+        <main class="profile-main">
+
+            <section class="invoices-scope">
+                <h1>My Invoices</h1>
+
+                <div class="invoice-card">
+
+                    <p th:if="${bookings == null || bookings.size() == 0}">
+                        You don't have any invoices yet.
+                    </p>
+
+                    <div class="invoice-table-wrapper"
+                         th:if="${bookings != null && bookings.size() > 0}">
+
+                        <table class="invoice-table">
+                            <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Date</th>
+                                <th>Total</th>
+                                <th>Paid</th>
+                                <th>Remaining</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                            </thead>
+
+                            <tbody>
+                            <tr th:each="dto : ${bookings}">
+                                <td class="event-title" th:text="${dto.event.title}"></td>
+                                <td th:text="${dto.event.date}"></td>
+
+                                <td class="price"
+                                    th:text="${#numbers.formatDecimal(dto.totalPrice,1,2,'COMMA')} + ' €'"></td>
+
+                                <td th:text="${#numbers.formatDecimal(dto.paidAmount,1,2,'COMMA')} + ' €'"></td>
+
+                                <td class="price remaining"
+                                    th:text="${#numbers.formatDecimal(dto.totalPrice - dto.paidAmount,1,2,'COMMA')} + ' €'"></td>
+
+                                <td>
+                                    <span th:if="${dto.paymentStatus.name() == 'PAID'}" class="badge paid">Paid</span>
+                                    <span th:if="${dto.paymentStatus.name() == 'PARTIALLY_PAID'}" class="badge partial">Partial</span>
+                                    <span th:if="${dto.paymentStatus.name() == 'UNPAID' || dto.paymentStatus.name() == 'PENDING'}"
+                                          class="badge unpaid">Unpaid</span>
+                                </td>
+
+                                <td>
+                                    <button th:if="${dto.paymentStatus.name() != 'PAID'}"
+                                            class="primary-btn"
+                                            th:onclick="'openSplitModal(' + ${dto.id} + ')'">
+                                        Split invoice
+                                    </button>
+
+                                    <span th:if="${dto.paymentStatus.name() == 'PAID'}"
+                                          class="paid-check">✓ Fully paid</span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<!-- SPLIT MODAL -->
+<div id="splitModal" class="split-modal">
+    <div class="split-modal-content">
+        <span class="split-close" onclick="closeSplitModal()">×</span>
+
+        <h2>Split Invoice</h2>
+
+        <div class="split-option">
+            <h3>Pay 50%</h3>
+            <p>Pay half now, rest on event day.</p>
+            <form id="pay50Form" method="post">
+                <button type="submit">Pay 50%</button>
+            </form>
+        </div>
+
+        <div class="split-option">
+            <h3>Pay Selected Equipment</h3>
+            <form id="payEquipmentForm" method="post">
+                <div id="equipmentList"></div>
+                <button type="submit">Pay Equipment</button>
+            </form>
+        </div>
+
+        <div class="split-option">
+            <h3>Pay Remaining</h3>
+            <form id="payRemainingForm" method="post">
+                <button type="submit">Pay Remaining</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    const bookingsData = /*[[${bookings}]]*/ [];
+
+    function openSplitModal(bookingId) {
+        const modal = document.getElementById('splitModal');
+        const equipmentList = document.getElementById('equipmentList');
+
+        document.getElementById('pay50Form').action =
+            `/profile/invoices/${bookingId}/split/fifty-percent`;
+        document.getElementById('payEquipmentForm').action =
+            `/profile/invoices/${bookingId}/split/equipment`;
+        document.getElementById('payRemainingForm').action =
+            `/profile/invoices/${bookingId}/pay-remaining`;
+
+        equipmentList.innerHTML = '';
+
+        const booking = bookingsData.find(b => b.id === bookingId);
+        if (!booking || !booking.equipment || booking.equipment.length === 0) {
+            equipmentList.innerHTML = '<p>No equipment available.</p>';
+        } else {
+            booking.equipment.forEach(eq => {
+                const div = document.createElement('div');
+                div.className = 'equipment-item';
+                div.innerHTML = `
+                <label>
+                    <input type="checkbox" name="equipmentIds" value="${eq.equipmentId}">
+                    ${eq.quantity}× Equipment (${eq.totalPrice.toFixed(2)} €)
+                </label>
+            `;
+                equipmentList.appendChild(div);
+            });
+        }
+
+        modal.classList.add('open');
+    }
+
+    function closeSplitModal() {
+        document.getElementById('splitModal').classList.remove('open');
+    }
+
+    window.addEventListener('click', e => {
+        const modal = document.getElementById('splitModal');
+        if (e.target === modal) closeSplitModal();
+    });
+    /*]]>*/
+</script>
+
+</body>
+</html>

@@ -93,6 +93,63 @@
     background-color: #f9f9f9;
 }
 
+/* Nested Dropdown for My Profile */
+.dropdown-content .nested-dropdown {
+    position: relative;
+}
+
+.dropdown-content .nested-dropdown > .menu-link {
+    display: block;
+    padding: 12px 16px;
+    text-decoration: none;
+    color: #000;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.dropdown-content .nested-dropdown > .menu-link:hover {
+    background-color: #f2f2f2;
+}
+
+/* Sub-Dropdown: standardmäßig versteckt - SEHR SPEZIFISCHER SELEKTOR */
+.dropdown-content .nested-dropdown .nested-content {
+    display: none !important;
+    position: absolute !important;
+    left: 13px !important;  /* 13px Einrückung */
+    top: 100% !important;  /* Direkt unter "My Profile" */
+    background-color: #ffffff !important;
+    min-width: 200px !important;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2) !important;
+    border-radius: 8px !important;
+    padding: 4px 0 !important;
+    list-style: none !important;
+    z-index: 30 !important;
+    margin: 0 !important;
+}
+
+/* Nur bei Hover über .nested-dropdown anzeigen */
+.dropdown-content .nested-dropdown:hover > .nested-content {
+    display: block !important;
+}
+
+.nested-content li {
+    margin: 0;
+    padding: 0;
+}
+
+.nested-content li a {
+    display: block;
+    padding: 12px 16px;
+    text-decoration: none;
+    color: #000;
+    white-space: nowrap;
+}
+
+.nested-content li a:hover {
+    background-color: #f2f2f2;
+    border-radius: 4px;
+}
+
 /* FIX Difficulty Radio Layout */
 .checkbox-group {
     display: grid !important;
@@ -116,4 +173,57 @@
     height: 16px;
     accent-color: #0b2545; /* nice dark blue */
     cursor: pointer;
+}
+
+.dropdown > .profile-link {
+    display: flex;
+    align-items: center;
+    height: 100%;
+}
+
+.nav-avatar-wrapper {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #dbeafe;
+}
+
+.nav-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.nav-avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    font-weight: 700;
+    font-size: 14px;
+    background-color: #dbeafe;
+    color: #1e3a8a;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.profile-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-username {
+    font-weight: 500;
+    color: #fff;
+}
+.avatar-placeholder {
+    background-color: #c7d9ff;  
+    color: #1e3a8a;
+    font-weight: 700;
 }
