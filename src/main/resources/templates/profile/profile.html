@@ -20,6 +20,10 @@
         </aside>
 
         <main class="profile-main">
+            <div th:if="${successMessage}" class="success-message">
+                <span th:text="${successMessage}"></span>
+            </div>
+
             <h1>Personal Information</h1>
 
             <div class="profile-card">
@@ -138,4 +142,17 @@
 </div>
 
 </body>
+<script>
+
+
+    setTimeout(() => {
+    const msg = document.querySelector('.success-message');
+    if (msg) {
+        msg.style.opacity = '0';
+        msg.style.transition = 'opacity 0.4s ease';
+        setTimeout(() => msg.remove(), 400);
+    }
+}, 3000);
+
+</script>
 </html>
