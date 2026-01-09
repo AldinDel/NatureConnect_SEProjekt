@@ -126,6 +126,10 @@
                                 <a th:href="@{/admin/users}" class="menu-link">Users & Roles</a>
                             </li>
 
+                            <li sec:authorize="hasRole('ADMIN')">
+                                <a th:href="@{/admin/logs}" class="menu-link">Logs</a>
+                            </li>
+
                             <li>
                                 <form th:action="@{/logout}" method="post" style="margin:0">
                                     <button type="submit" class="logout-btn">Log out</button>
