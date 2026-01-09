@@ -40,7 +40,7 @@ public class AuditLogService {
             String ipAddress
     ) {
         try {
-            UserAccount user = userAccountRepository.findByEmail(userEmail)
+            UserAccount user = userAccountRepository.findByEmailIgnoreCase(userEmail)
                     .orElse(null);
 
             String username = user != null ? user.getFirstName() + " " + user.getLastName() : "Unknown";
