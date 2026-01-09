@@ -3,89 +3,88 @@ package at.fhv.Event.domain.model.user;
 import java.time.OffsetDateTime;
 
 public class Organizer {
-    private Long _id;
-    private UserAccount _user;
-    private String _name;
-    private String _email;
-    private String _phone;
-    private Boolean _isActive = true;
-    private OffsetDateTime _createdAt;
-    private OffsetDateTime _updatedAt;
+    private Long id;
+    private UserAccount user;
+    private String name;
+    private String email;
+    private String phone;
+    private Boolean isActive = true;
+    private OffsetDateTime createdAt;
+    private OffsetDateTime updatedAt;
 
-    public Organizer(Long id, UserAccount user, String name,
-                     String email, String phone, Boolean isActive,
+    public Organizer(Long id, UserAccount user, String name, String email, String phone, Boolean isActive,
                      OffsetDateTime createdAt, OffsetDateTime updatedAt) {
-        _id = id;
-        _user = user;
-        _name = name;
-        _email = email;
-        _phone = phone;
-        _isActive = isActive;
-        _createdAt = createdAt;
-        _updatedAt = updatedAt;
+        this.id = id;
+        this.user = user;
+        this.name = name;
+        this.email = email;
+        this.phone = phone;
+        this.isActive = isActive;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
-    public Long get_id() {
-        return _id;
+    public Long getId() {
+        return id;
     }
 
-    public void set_id(Long _id) {
-        this._id = _id;
+    public void setId(Long id) {
+        this.id = id;
     }
 
-    public UserAccount get_user() {
-        return _user;
+    public UserAccount getUser() {
+        return user;
     }
 
-    public void set_user(UserAccount _user) {
-        this._user = _user;
+    public void setUser(UserAccount user) {
+        this.user = user;
     }
 
-    public String get_name() {
-        return _name;
+    public String getName() {
+        return name;
     }
 
-    public void set_name(String _name) {
-        this._name = _name;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String get_email() {
-        return _email;
+    public String getEmail() {
+        return email;
     }
 
-    public void set_email(String _email) {
-        this._email = _email;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public String get_phone() {
-        return _phone;
+    public String getPhone() {
+        return phone;
     }
 
-    public void set_phone(String _phone) {
-        this._phone = _phone;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
-    public Boolean get_isActive() {
-        return _isActive;
+    public Boolean getActive() {
+        return isActive;
     }
 
-    public void set_isActive(Boolean _isActive) {
-        this._isActive = _isActive;
+    public void setActive(Boolean active) {
+        isActive = active;
     }
 
-    public OffsetDateTime get_createdAt() {
-        return _createdAt;
+    public OffsetDateTime getCreatedAt() {
+        return createdAt;
     }
 
-    public void set_createdAt(OffsetDateTime _createdAt) {
-        this._createdAt = _createdAt;
+    public void setCreatedAt(OffsetDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 
-    public OffsetDateTime get_updatedAt() {
-        return _updatedAt;
+    public OffsetDateTime getUpdatedAt() {
+        return updatedAt;
     }
 
-    public void set_updatedAt(OffsetDateTime _updatedAt) {
-        this._updatedAt = _updatedAt;
+    public void setUpdatedAt(OffsetDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

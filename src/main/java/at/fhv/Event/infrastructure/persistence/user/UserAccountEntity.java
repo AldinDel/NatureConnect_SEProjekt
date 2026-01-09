@@ -13,12 +13,18 @@ public class UserAccountEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY) private Long id;
     @Column(nullable = false, unique = true, length = 200) private String email;
     @Column(name="password_hash", nullable=false, length=255) private String passwordHash;
-    private String firstName; private String lastName;
+
+    @Column(name = "first_name", length = 100)
+    private String firstName;
+
+    @Column(name = "last_name", length = 100)
+    private String lastName;
+
     @Column(nullable=false) private Boolean isActive = true;
     @Column(nullable=false) private OffsetDateTime createdAt = OffsetDateTime.now();
     @Column(nullable=false) private OffsetDateTime updatedAt = OffsetDateTime.now();
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_role", schema="nature_connect",
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))

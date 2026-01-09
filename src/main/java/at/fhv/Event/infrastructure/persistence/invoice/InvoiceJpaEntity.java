@@ -12,14 +12,19 @@ public class InvoiceJpaEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "booking_id", nullable = false)
     private Long bookingId;
 
+    @Column(name = "event_id", nullable = false)
     private Long eventId;
 
+    @Column(name = "status", length = 50, nullable = false)
     private String status;
 
+    @Column(name = "total", precision = 12, scale = 2, nullable = false)
     private BigDecimal total;
 
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     public Long getId() {

@@ -2,17 +2,16 @@ package at.fhv.Event.infrastructure.persistence.booking;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "booking_equipment", schema = "nature_connect")
 public class BookingEquipmentEntity {
-
-    public BookingEquipmentEntity() {}
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "booking_id", nullable = false)
     private BookingEntity booking;
 
@@ -23,10 +22,13 @@ public class BookingEquipmentEntity {
     private int quantity;
 
     @Column(name = "unit_price", nullable = false)
-    private Double unitPrice;
+    private BigDecimal pricePerUnit;
 
     @Column(name = "total_price", nullable = false)
     private Double totalPrice;
+
+    @Column(name = "invoiced", nullable = false)
+    private boolean invoiced = false;
 
     public Long getId() {
         return id;
@@ -60,12 +62,12 @@ public class BookingEquipmentEntity {
         this.quantity = quantity;
     }
 
-    public Double getUnitPrice() {
-        return unitPrice;
+    public BigDecimal getPricePerUnit() {
+        return pricePerUnit;
     }
 
-    public void setUnitPrice(Double unitPrice) {
-        this.unitPrice = unitPrice;
+    public void setPricePerUnit(BigDecimal pricePerUnit) {
+        this.pricePerUnit = pricePerUnit;
     }
 
     public Double getTotalPrice() {
@@ -74,5 +76,13 @@ public class BookingEquipmentEntity {
 
     public void setTotalPrice(Double totalPrice) {
         this.totalPrice = totalPrice;
+    }
+
+    public boolean isInvoiced() {
+        return invoiced;
+    }
+
+    public void setInvoiced(boolean invoiced) {
+        this.invoiced = invoiced;
     }
 }

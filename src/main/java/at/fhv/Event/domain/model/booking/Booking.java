@@ -4,6 +4,7 @@ import at.fhv.Event.domain.model.payment.PaymentMethod;
 import at.fhv.Event.domain.model.payment.PaymentStatus;
 import at.fhv.Event.domain.model.user.CustomerProfile;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
@@ -66,9 +67,60 @@ public class Booking {
         this.createdAt = Instant.now();
         this.participants = participants;
         this.equipment = equipment;
-
-
     }
+
+    public void confirm() {
+        if (this.status != BookingStatus.PENDING) {
+            throw new IllegalStateException("Only pending bookings can be confirmed.");
+        }
+        this.status = BookingStatus.CONFIRMED;
+    }
+
+    public void cancel() {
+        if (this.status == BookingStatus.CANCELLED) {
+            throw new IllegalStateException("Booking cancelled.");
+        }
+
+        this.status = BookingStatus.CANCELLED;
+        this.paymentStatus = PaymentStatus.REFUNDED;
+    }
+
+    public void markAsPaid() {
+        if (this.paidAmount >= this.totalPrice) {
+            this.paymentStatus = PaymentStatus.PAID;
+        } else {
+            this.paymentStatus = PaymentStatus.PARTIALLY_PAID;
+        }
+    }
+
+    public void addPayment(double amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("Payment amount cannot be negative.");
+        }
+        this.paidAmount += amount;
+        markAsPaid();
+    }
+
+    public void markAsBillingReady() {
+        if (this.status != BookingStatus.CONFIRMED) {
+            throw new IllegalStateException("Only confirmed bookings can be billed");
+        }
+        this.billingReady = true;
+    }
+
+    public boolean isFullyPaid() {
+        return this.paidAmount >= this.totalPrice;
+    }
+
+    public boolean isCancelled() {
+        return this.status == BookingStatus.CANCELLED;
+    }
+
+    public double getRemainingAmount() {
+        double remaining = this.totalPrice - this.paidAmount;
+        return Math.max(0, remaining);
+    }
+
 
     public void applyVoucher(String code, double discountAmount) {
         this.voucherCode = code;
@@ -82,7 +134,8 @@ public class Booking {
 
         if (equipment != null) {
             basePrice += equipment.stream()
-                    .mapToDouble(BookingEquipment::getTotalPrice)
+                    .map(BookingEquipment::getTotalPrice)
+                    .mapToDouble(BigDecimal::doubleValue)
                     .sum();
         }
 
@@ -90,22 +143,66 @@ public class Booking {
     }
 
     public void prefillFromCustomer(CustomerProfile customer) {
-        this.bookerFirstName = customer.get_firstName();
-        this.bookerLastName  = customer.get_lastName();
-        this.bookerEmail     = customer.get_email();
+        this.bookerFirstName = customer.getFirstName();
+        this.bookerLastName  = customer.getLastName();
+        this.bookerEmail     = customer.getEmail();
 
-        BookingParticipant p1 = new BookingParticipant(
-                null,
-                customer.get_firstName(),
-                customer.get_lastName(),
-                null,
-                ParticipantCheckInStatus.REGISTERED,
-                ParticipantCheckOutStatus.NOT_CHECKED_OUT
+        BookingParticipant p1 = BookingParticipant.createNew(
+                this.id,
+                customer.getFirstName(),
+                customer.getLastName(),
+                null
         );
 
-        this.setParticipants(List.of(p1));
-        this.setSeats(1);
+        this.participants = List.of(p1);
+        this.seats = 1;
     }
+
+    public void makePartialPayment(double amount) {
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Payment amount must be positive");
+        }
+
+        double remaining = getRemainingAmount();
+        if (amount > remaining) {
+            throw new IllegalArgumentException("Payment amount exceeds remaining balance");
+        }
+
+        this.paidAmount += amount;
+
+        if (this.paidAmount >= this.totalPrice) {
+            this.paymentStatus = PaymentStatus.PAID;
+        } else if (this.paidAmount > 0) {
+            this.paymentStatus = PaymentStatus.PARTIALLY_PAID;
+        }
+    }
+
+    public void payFiftyPercent() {
+        double halfAmount = totalPrice * 0.5;
+        double remainingToHalf = halfAmount - paidAmount;
+
+        if (remainingToHalf <= 0) {
+            throw new IllegalStateException("50% or more has already been paid");
+        }
+
+        makePartialPayment(remainingToHalf);
+    }
+
+    public void payEquipmentItems(List<Long> equipmentIds) {
+        if (equipment == null || equipmentIds == null) return;
+
+        double equipmentTotal = equipment.stream()
+                .filter(e -> equipmentIds.contains(e.getEquipmentId()))
+                .map(BookingEquipment::getTotalPrice)
+                .mapToDouble(BigDecimal::doubleValue)
+                .sum();
+
+        if (equipmentTotal > 0 && equipmentTotal <= getRemainingAmount()) {
+            makePartialPayment(equipmentTotal);
+        }
+    }
+
+
 
 
     public Long getId() {
@@ -151,54 +248,6 @@ public class Booking {
     public boolean isPartiallyPaid() {
         return paymentStatus == PaymentStatus.PARTIALLY_PAID;
     }
-
-    public double getRemainingAmount() {
-        return Math.max(0, totalPrice - paidAmount);
-    }
-
-    public void makePartialPayment(double amount) {
-        if (amount <= 0) {
-            throw new IllegalArgumentException("Payment amount must be positive");
-        }
-
-        double remaining = getRemainingAmount();
-        if (amount > remaining) {
-            throw new IllegalArgumentException("Payment amount exceeds remaining balance");
-        }
-
-        this.paidAmount += amount;
-
-        if (this.paidAmount >= this.totalPrice) {
-            this.paymentStatus = PaymentStatus.PAID;
-        } else if (this.paidAmount > 0) {
-            this.paymentStatus = PaymentStatus.PARTIALLY_PAID;
-        }
-    }
-
-    public void payFiftyPercent() {
-        double halfAmount = totalPrice * 0.5;
-        double remainingToHalf = halfAmount - paidAmount;
-
-        if (remainingToHalf <= 0) {
-            throw new IllegalStateException("50% or more has already been paid");
-        }
-
-        makePartialPayment(remainingToHalf);
-    }
-
-    public void payEquipmentItems(List<Long> equipmentIds) {
-        if (equipment == null || equipmentIds == null) return;
-
-        double equipmentTotal = equipment.stream()
-                .filter(e -> equipmentIds.contains(e.getEquipmentId()))
-                .mapToDouble(BookingEquipment::getTotalPrice)
-                .sum();
-
-        if (equipmentTotal > 0 && equipmentTotal <= getRemainingAmount()) {
-            makePartialPayment(equipmentTotal);
-        }
-    }
-
 
     public String getBookerEmail() {
         return bookerEmail;

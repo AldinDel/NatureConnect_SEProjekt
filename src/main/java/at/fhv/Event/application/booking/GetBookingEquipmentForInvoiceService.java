@@ -1,41 +1,41 @@
 package at.fhv.Event.application.booking;
 
-import at.fhv.Event.infrastructure.persistence.booking.BookingEquipmentEntity;
-import at.fhv.Event.infrastructure.persistence.booking.BookingEquipmentRepository;
-import at.fhv.Event.infrastructure.persistence.equipment.EquipmentEntity;
-import at.fhv.Event.infrastructure.persistence.equipment.EquipmentJpaRepository;
+import at.fhv.Event.domain.model.booking.BookingEquipment;
+import at.fhv.Event.domain.model.booking.BookingEquipmentRepository;
+import at.fhv.Event.domain.model.equipment.Equipment;
+import at.fhv.Event.domain.model.equipment.EquipmentRepository;
+import at.fhv.Event.domain.model.exception.EquipmentNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class GetBookingEquipmentForInvoiceService {
 
     private final BookingEquipmentRepository bookingEquipmentRepository;
-    private final EquipmentJpaRepository equipmentRepository;
+    private final EquipmentRepository equipmentRepository;
 
     public GetBookingEquipmentForInvoiceService(
             BookingEquipmentRepository bookingEquipmentRepository,
-            EquipmentJpaRepository equipmentRepository
-    ) {
+            EquipmentRepository equipmentRepository) {
         this.bookingEquipmentRepository = bookingEquipmentRepository;
         this.equipmentRepository = equipmentRepository;
     }
 
-    public List<EquipmentEntity> getEquipmentUsedSoFar(Long bookingId) {
+    public List<Equipment> getEquipmentUsedSoFar(Long bookingId) {
 
-        List<BookingEquipmentEntity> bookingEquipments =
+        List<BookingEquipment> bookingEquipments =
                 bookingEquipmentRepository.findNotYetInvoicedByBookingId(bookingId);
 
-        return bookingEquipments.stream()
-                .map(be ->
-                        equipmentRepository.findById(be.getEquipmentId())
-                                .orElseThrow(() ->
-                                        new RuntimeException(
-                                                "Equipment not found: " + be.getEquipmentId()
-                                        )
-                                )
-                )
-                .toList();
+        List<Equipment> result = new ArrayList<>();
+        for (BookingEquipment bookingEquipment : bookingEquipments) {
+            Long equipmentId = bookingEquipment.getEquipmentId();
+
+            Equipment equipment = equipmentRepository.findById(equipmentId)
+                    .orElseThrow(() -> new EquipmentNotFoundException(equipmentId));
+            result.add(equipment);
+        }
+        return result;
     }
 }

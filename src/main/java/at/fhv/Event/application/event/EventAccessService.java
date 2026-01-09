@@ -9,6 +9,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -51,7 +53,9 @@ public class EventAccessService {
         return visibleEvents;
     }
 
-    public int calculateRemainingSpots(Long eventId, int minParticipants, int maxParticipants) {
+
+
+        public int calculateRemainingSpots(Long eventId, int minParticipants, int maxParticipants) {
         int confirmed = _bookingRepository.countOccupiedSeatsForEvent(eventId);
         int baseSlots = maxParticipants - minParticipants;
         int remaining = baseSlots - confirmed;
@@ -69,6 +73,7 @@ public class EventAccessService {
         return eventStart.isBefore(now);
     }
 
+    @Transactional(readOnly = true)
     public String getCurrentUserFullName(Authentication auth) {
         if (auth == null) {
             return null;
@@ -80,7 +85,7 @@ public class EventAccessService {
         }
 
         UserAccount user = userOpt.get();
-        return user.get_firstName() + " " + user.get_lastName();
+        return user.getFirstName() + " " + user.getLastName();
     }
 
 
@@ -91,7 +96,7 @@ public class EventAccessService {
                 return organizer;
             }
         }
-        return "NatureConnect Team";
+        return organizer;
     }
 
     private List<EventOverviewDTO> filterForAnonymous(List<EventOverviewDTO> events, LocalDate today) {
@@ -157,7 +162,8 @@ public class EventAccessService {
         return "CUSTOMER";
     }
 
-    private String getOrganizerName(Authentication auth) {
+    @Transactional(readOnly = true)
+    protected String getOrganizerName(Authentication auth) {
         String email = auth.getName();
         Optional<UserAccount> userOpt = _userAccountRepository.findByEmailIgnoreCase(email);
 
@@ -166,7 +172,7 @@ public class EventAccessService {
         }
 
         UserAccount user = userOpt.get();
-        return user.get_firstName() + " " + user.get_lastName();
+        return user.getFirstName() + " " + user.getLastName();
     }
 
 }

@@ -131,4 +131,13 @@ public class InvoicesController {
         return "redirect:/event_management/invoices/issue?bookingId="
                 + bookingId + "&created=true";
     }
+
+    @PostMapping("/event_management/invoices/finalize")
+    public String finalizeInvoice(
+            @RequestParam("invoiceId") Long invoiceId
+    ) {
+        invoiceRepository.finalizeInvoice(invoiceId);
+        return "redirect:/event_management/invoices/view?invoiceId=" + invoiceId;
+    }
+
 }

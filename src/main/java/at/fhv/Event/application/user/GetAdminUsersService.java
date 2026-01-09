@@ -1,12 +1,12 @@
 package at.fhv.Event.application.user;
 
 import at.fhv.Event.application.request.user.AdminUserRowDTO;
-import at.fhv.Event.infrastructure.persistence.user.UserAccountEntity;
-import at.fhv.Event.infrastructure.persistence.user.UserAccountJpaRepository;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import at.fhv.Event.domain.model.user.UserAccount;
+import at.fhv.Event.domain.model.user.UserAccountRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,24 +14,26 @@ import java.util.stream.Collectors;
 @Service
 public class GetAdminUsersService {
 
-    private final UserAccountJpaRepository userRepo;
+    private final UserAccountRepository userRepo;
 
-    public GetAdminUsersService(UserAccountJpaRepository userRepo) {
+    public GetAdminUsersService(UserAccountRepository userRepo) {
         this.userRepo = userRepo;
     }
 
     @Transactional(readOnly = true)
     public List<AdminUserRowDTO> getLatestUsers(int limit) {
-        List<UserAccountEntity> users = userRepo.findTop5ByOrderByIdDesc();
-        return users.stream()
-                .limit(limit)
+        return userRepo.findTopByOrderByIdDesc(limit)
+                .stream()
                 .map(u -> new AdminUserRowDTO(
                         u.getId(),
                         u.getFirstName(),
                         u.getLastName(),
                         u.getEmail(),
                         Boolean.TRUE.equals(u.getActive()),
-                        u.getRoles().stream().map(r -> r.getCode()).sorted().collect(Collectors.joining(", "))
+                        u.getRoles().stream()
+                                .map(r -> r.getCode())
+                                .sorted()
+                                .collect(Collectors.joining(", "))
                 ))
                 .toList();
     }
@@ -51,9 +53,7 @@ public class GetAdminUsersService {
         }
 
         Pageable pageable = PageRequest.of(0, limit);
-        List<UserAccountEntity> found = userRepo.searchAdminUsers(cleanedQ, idExact, cleanedRole, pageable);
-        List<Long> ids = found.stream().map(UserAccountEntity::getId).toList();
-        List<UserAccountEntity> users = ids.isEmpty() ? List.of() : userRepo.findAllByIdIn(ids);
+        List<UserAccount> users = userRepo.searchAdminUsers(cleanedQ, idExact, cleanedRole, pageable);
 
         users = users.stream()
                 .sorted((a, b) -> Long.compare(b.getId(), a.getId()))

@@ -110,4 +110,27 @@ public class InvoiceRepositoryImpl implements InvoiceRepository {
         return itemJpa.existsByInvoice_BookingIdAndEquipmentIdIsNull(bookingId);
     }
 
+    @Override
+    public void finalizeInvoice(Long invoiceId) {
+
+        Invoice invoice = findById(invoiceId)
+                .orElseThrow(() ->
+                        new IllegalStateException("Invoice not found: " + invoiceId)
+                );
+
+        if (invoice.getStatus() == InvoiceStatus.FINAL) {
+            throw new IllegalStateException("Invoice is already finalized");
+        }
+
+        if (invoice.getStatus() != InvoiceStatus.INTERIM) {
+            throw new IllegalStateException(
+                    "Only INTERIM invoices can be finalized"
+            );
+        }
+
+        jpa.finalizeInvoice(invoiceId);
+    }
+
+
+
 }

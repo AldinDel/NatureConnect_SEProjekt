@@ -2,6 +2,7 @@ package at.fhv.Event.infrastructure.persistence.user;
 
 import at.fhv.Event.domain.model.user.CustomerProfile;
 import at.fhv.Event.domain.model.user.CustomerProfileRepository;
+import at.fhv.Event.infrastructure.mapper.CustomerProfileMapper;
 import at.fhv.Event.infrastructure.mapper.UserMapper;
 import org.springframework.stereotype.Repository;
 
@@ -30,6 +31,12 @@ public class CustomerProfileRepositoryJpaImpl implements CustomerProfileReposito
     }
 
     @Override
+    public Optional<CustomerProfile> findByUserId(Long userId) {
+        return _customerProfileJpaRepository.findByUser_Id(userId)
+                .map(CustomerProfileMapper::toDomain);
+    }
+
+    @Override
     public Optional<CustomerProfile> findByEmail(String email) {
 
         Optional<CustomerProfileEntity> entityOptional = _customerProfileJpaRepository.findByEmail(email);
@@ -44,6 +51,26 @@ public class CustomerProfileRepositoryJpaImpl implements CustomerProfileReposito
         return Optional.of(domain);
     }
 
+    @Override
+    public CustomerProfile save(CustomerProfile profile) {
+
+        CustomerProfileEntity entity;
+
+        if (profile.getId() == null) {
+            entity = CustomerProfileMapper.toEntity(profile);
+        } else {
+            entity = _customerProfileJpaRepository
+                    .findById(profile.getId())
+                    .orElseThrow(() -> new IllegalStateException("Profile not found"));
+            CustomerProfileMapper.updateEntity(entity, profile);
+        }
+
+        CustomerProfileEntity saved = _customerProfileJpaRepository.save(entity);
+        return toDomain(saved);
+    }
+
+
+
     private CustomerProfile toDomain(CustomerProfileEntity e) {
         return new CustomerProfile(
                 e.getId(),
@@ -53,6 +80,11 @@ public class CustomerProfileRepositoryJpaImpl implements CustomerProfileReposito
                 e.getEmail(),
                 e.getPhone(),
                 e.getBirthday(),
+                e.getStreet(),
+                e.getPostalCode(),
+                e.getCity(),
+                e.getCountry(),
+                e.getAvatarUrl(),
                 e.getCreatedAt(),
                 e.getUpdatedAt()
         );

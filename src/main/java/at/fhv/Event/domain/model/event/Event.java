@@ -1,16 +1,21 @@
 package at.fhv.Event.domain.model.event;
 
 import at.fhv.Event.domain.model.equipment.EventEquipment;
+import at.fhv.Event.domain.model.exception.EventAlreadyCancelledException;
+import at.fhv.Event.domain.model.exception.EventDateInPastException;
+import at.fhv.Event.domain.model.exception.EventFullyBookedException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
 public class Event {
-
     private Long id;
     private String title;
     private String description;
@@ -27,7 +32,7 @@ public class Event {
     private String imageUrl;
     private EventAudience audience;
     private Boolean cancelled = false;
-    private List<EventEquipment> eventEquipments;
+    private Set<EventEquipment> eventEquipments;
     private List<String> hikeRouteKeys;
 
 
@@ -46,7 +51,7 @@ public class Event {
                  BigDecimal price,
                  String imageUrl,
                  EventAudience audience,
-                 List<EventEquipment> eventEquipments,
+                 Set<EventEquipment> eventEquipments,
                  List<String> hikeRouteKeys) {
 
         this.id = id;
@@ -63,12 +68,92 @@ public class Event {
         this.maxParticipants = maxParticipants;
         this.price = price;
         this.imageUrl = imageUrl;
-        this.eventEquipments = (eventEquipments == null) ? new ArrayList<>() : new ArrayList<>(eventEquipments);
+        this.eventEquipments = (eventEquipments == null) ? new HashSet<>() : new HashSet<>(eventEquipments);
         this.hikeRouteKeys = (hikeRouteKeys == null)
                 ? new ArrayList<>()
                 : new ArrayList<>(hikeRouteKeys);
         this.cancelled = false;
         this.audience = audience;
+    }
+
+    public void cancel() {
+        if (this.cancelled) {
+            throw new EventAlreadyCancelledException(id);
+        }
+        this.cancelled = true;
+    }
+
+    public void updateDetails(String title, String description, BigDecimal price) {
+        if (title == null || title.trim().isEmpty()) {
+            throw new IllegalArgumentException("Title cannot be null or empty.");
+        }
+
+        if (description == null || description.trim().isEmpty()) {
+            throw new IllegalArgumentException("Description cannot be null or empty.");
+        }
+
+        if (price.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Price cannot be negative.");
+        }
+
+        this.title = title.trim();
+        this.description = description.trim();
+        this.price = price;
+    }
+
+    public boolean isBookable(int currentBookedSeats) {
+        if (Boolean.TRUE.equals(this.cancelled)) {
+            return false;
+        }
+
+        if (this.date != null && this.startTime != null) {
+            LocalDateTime eventStart = LocalDateTime.of(this.date, this.startTime);
+            if (eventStart.isBefore(LocalDateTime.now())) {
+                return false;
+            }
+        }
+
+        if (currentBookedSeats >= this.maxParticipants) {
+            return false;
+        }
+        return true;
+    }
+
+    public void validateAvailability() {
+        if (Boolean.TRUE.equals(this.cancelled)) {
+            throw new EventAlreadyCancelledException(this.id);
+        }
+
+        if (this.date != null && this.startTime != null) {
+            LocalDateTime eventStart = LocalDateTime.of(this.date, this.startTime);
+            if (eventStart.isBefore(LocalDateTime.now())) {
+                throw new EventDateInPastException(this.id, this.date);
+            }
+        }
+    }
+
+    public int getAvailableSeats(int currentlyBooked) {
+        int min = this.minParticipants != null ? this.minParticipants : 0;
+        int capacity = this.maxParticipants - min;
+        int remaining = capacity - currentlyBooked;
+        return Math.max(0, remaining);
+    }
+
+    public boolean hasEnoughSeats(int requestedSeats, int currentBookedSeats) {
+        int available = getAvailableSeats(currentBookedSeats);
+        return requestedSeats <= available;
+    }
+
+    public void validateCapacity(int requestedSeats, int currentlyBooked) {
+        int available = getAvailableSeats(currentlyBooked);
+
+        if (available <= 0) {
+            throw new EventFullyBookedException(this.id, requestedSeats, 0);
+        }
+
+        if (requestedSeats > available) {
+            throw new EventFullyBookedException(this.id, requestedSeats, available);
+        }
     }
 
     public Long getId() {
@@ -199,14 +284,14 @@ public class Event {
         this.cancelled = cancelled;
     }
 
-    public List<EventEquipment> getEventEquipments() {
+    public Set<EventEquipment> getEventEquipments() {
         return eventEquipments;
     }
 
-    public void setEventEquipments(List<EventEquipment> eventEquipments) {
+    public void setEventEquipments(Set<EventEquipment> eventEquipments) {
         this.eventEquipments = (eventEquipments == null)
-                ? new ArrayList<>()
-                : new ArrayList<>(eventEquipments);
+                ? new HashSet<>()
+                : new HashSet<>(eventEquipments);
     }
 
     public List<String> getHikeRouteKeys() {

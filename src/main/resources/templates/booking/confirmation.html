@@ -39,15 +39,6 @@
             </div>
 
             <div class="detail-row">
-                <span class="detail-label">Payment Method</span>
-                <span class="detail-value"
-                      th:text="${paymentMethod != null
-                        ? #strings.capitalize(#strings.replace(paymentMethod.name().toLowerCase(), '_', ' '))
-                        : 'Not selected yet'}">
-                </span>
-            </div>
-
-            <div class="detail-row">
                 <span class="detail-label">Amount</span>
                 <span class="detail-value amount" th:text="'€' + ${amount}"></span>
             </div>
