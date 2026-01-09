@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <title>Activity Logs</title>
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/users-admin-overview.css}">
+</head>
+
+<body class="users-admin-page">
+
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
+
+<div class="admin-user-container">
+    <h1>Activity Logs</h1>
+
+    <form class="user-controls" th:action="@{/admin/logs}" method="get">
+        <select name="actionType">
+            <option value="all" th:selected="${selectedActionType == 'all'}">All Actions</option>
+            <option th:each="type : ${actionTypes}"
+                    th:value="${type.name()}"
+                    th:text="${type.name()}"
+                    th:selected="${selectedActionType == type.name()}">
+            </option>
+        </select>
+
+        <input type="text"
+               name="entityType"
+               placeholder="Entity Type (e.g., Event, Booking...)"
+               th:value="${selectedEntityType != 'all' ? selectedEntityType : ''}">
+
+        <button class="btn-add" type="submit">Filter</button>
+        <a class="btn-reset" th:href="@{/admin/logs}">Reset</a>
+    </form>
+
+    <div th:if="${logs.size() == 0}">
+        <p style="text-align: center; padding: 40px; color: #666;">
+            No logs found matching the selected filters.
+        </p>
+    </div>
+
+    <table class="admin-user-table" th:if="${logs.size() > 0}">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>User</th>
+            <th>Role</th>
+            <th>Action</th>
+            <th>Type</th>
+            <th>Entity</th>
+            <th>Timestamp</th>
+            <th>Details</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="log : ${logs}">
+            <td th:text="'#' + ${log.id}"></td>
+            <td>
+                <div th:text="${log.username}"></div>
+                <div style="font-size: 0.85em; color: #666;" th:text="${log.userEmail}"></div>
+            </td>
+            <td>
+                <span class="role-badge"
+                      th:classappend="${log.userRole == 'ADMIN'} ? 'role-admin' :
+                                     ${log.userRole == 'FRONT'} ? 'role-front' :
+                                     ${log.userRole == 'ORGANIZER'} ? 'role-organizer' : 'role-customer'"
+                      th:text="${log.userRole}">
+                </span>
+            </td>
+            <td th:text="${log.action}"></td>
+            <td>
+                <span class="action-badge"
+                      th:classappend="${log.actionType.name() == 'CREATE'} ? 'action-create' :
+                                     ${log.actionType.name() == 'UPDATE'} ? 'action-update' :
+                                     ${log.actionType.name() == 'DELETE'} ? 'action-delete' :
+                                     ${log.actionType.name() == 'PAYMENT'} ? 'action-payment' : 'action-other'"
+                      th:text="${log.actionType.name()}">
+                </span>
+            </td>
+            <td>
+                <span th:if="${log.entityType != null and log.entityId != null}"
+                      th:text="${log.entityType + ' #' + log.entityId}"></span>
+                <span th:if="${log.entityType == null or log.entityId == null}"
+                      style="color: #999;">-</span>
+            </td>
+            <td th:text="${#temporals.format(log.timestamp, 'dd.MM.yyyy HH:mm')}"></td>
+            <td>
+                <span th:if="${log.details != null and !log.details.isEmpty()}"
+                      th:text="${log.details}"
+                      style="font-size: 0.9em; color: #666;">
+                </span>
+                <span th:if="${log.details == null or log.details.isEmpty()}"
+                      style="color: #999;">-</span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<style>
+    .role-badge, .action-badge {
+        display: inline-block;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.85em;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .role-admin {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .role-front {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .role-organizer {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .role-customer {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .action-create {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .action-update {
+        background-color: #ffc107;
+        color: #333;
+    }
+
+    .action-delete {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .action-payment {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+    .action-other {
+        background-color: #6c757d;
+        color: white;
+    }
+
+    .admin-user-table td {
+        vertical-align: top;
+        padding: 12px 8px;
+    }
+
+    .admin-user-table tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+</style>
+
+</body>
+</html>
