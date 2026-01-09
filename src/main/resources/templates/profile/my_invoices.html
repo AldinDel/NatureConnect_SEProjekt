@@ -30,60 +30,74 @@
 
         <main class="profile-main">
 
+            <!-- Open Bookings Section -->
+            <section class="invoices-scope" th:if="${openBookings != null && openBookings.size() > 0}">
+                <h1>Open Payments</h1>
+
+                <div class="invoice-card" th:each="booking : ${openBookings}" style="margin-bottom: 20px;">
+                    <h3 th:text="${booking.event.title}"></h3>
+                    <div th:if="${booking.expired}" style="color: red; font-weight: bold; margin-top: 5px; margin-bottom: 10px;">
+                        EXPIRED
+                    </div>
+                    <p><strong>Event Date:</strong> <span th:text="${booking.event.date}"></span></p>
+                    <p><strong>Total:</strong> <span th:text="${#numbers.formatDecimal(booking.totalPrice,1,2,'COMMA')} + ' €'"></span></p>
+                    <p><strong>Paid:</strong> <span th:text="${#numbers.formatDecimal(booking.paidAmount,1,2,'COMMA')} + ' €'"></span></p>
+                    <p><strong>Remaining:</strong> <span th:text="${#numbers.formatDecimal(booking.totalPrice - booking.paidAmount,1,2,'COMMA')} + ' €'"></span></p>
+
+                    <div style="margin-top: 20px;">
+                        <form th:action="@{'/profile/invoices/' + ${booking.id} + '/split/fifty-percent'}" method="post" style="display: inline-block; margin-right: 10px;">
+                            <button type="submit" class="primary-btn">Pay 50%</button>
+                        </form>
+
+                        <button type="button" class="primary-btn"
+                                th:onclick="'openEquipmentModal(' + ${booking.id} + ')'"
+                                style="margin-right: 10px;">
+                            Split Invoice
+                        </button>
+
+                        <form th:action="@{'/profile/invoices/' + ${booking.id} + '/pay-remaining'}" method="post" style="display: inline-block;">
+                            <button type="submit" class="primary-btn">Pay Remaining</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Invoices Section -->
             <section class="invoices-scope">
                 <h1>My Invoices</h1>
 
                 <div class="invoice-card">
 
-                    <p th:if="${bookings == null || bookings.size() == 0}">
+                    <p th:if="${invoices == null || invoices.size() == 0}">
                         You don't have any invoices yet.
                     </p>
 
                     <div class="invoice-table-wrapper"
-                         th:if="${bookings != null && bookings.size() > 0}">
+                         th:if="${invoices != null && invoices.size() > 0}">
 
                         <table class="invoice-table">
                             <thead>
                             <tr>
+                                <th>Invoice #</th>
                                 <th>Event</th>
-                                <th>Date</th>
-                                <th>Total</th>
-                                <th>Paid</th>
-                                <th>Remaining</th>
+                                <th>Created</th>
+                                <th>Amount</th>
                                 <th>Status</th>
-                                <th>Actions</th>
                             </tr>
                             </thead>
 
                             <tbody>
-                            <tr th:each="dto : ${bookings}">
+                            <tr th:each="dto : ${invoices}">
+                                <td th:text="'#' + ${dto.id}"></td>
                                 <td class="event-title" th:text="${dto.event.title}"></td>
-                                <td th:text="${dto.event.date}"></td>
+                                <td th:text="${#temporals.format(dto.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
 
                                 <td class="price"
-                                    th:text="${#numbers.formatDecimal(dto.totalPrice,1,2,'COMMA')} + ' €'"></td>
-
-                                <td th:text="${#numbers.formatDecimal(dto.paidAmount,1,2,'COMMA')} + ' €'"></td>
-
-                                <td class="price remaining"
-                                    th:text="${#numbers.formatDecimal(dto.totalPrice - dto.paidAmount,1,2,'COMMA')} + ' €'"></td>
+                                    th:text="${#numbers.formatDecimal(dto.total,1,2,'COMMA')} + ' €'"></td>
 
                                 <td>
-                                    <span th:if="${dto.paymentStatus.name() == 'PAID'}" class="badge paid">Paid</span>
-                                    <span th:if="${dto.paymentStatus.name() == 'PARTIALLY_PAID'}" class="badge partial">Partial</span>
-                                    <span th:if="${dto.paymentStatus.name() == 'UNPAID' || dto.paymentStatus.name() == 'PENDING'}"
-                                          class="badge unpaid">Unpaid</span>
-                                </td>
-
-                                <td>
-                                    <button th:if="${dto.paymentStatus.name() != 'PAID'}"
-                                            class="primary-btn"
-                                            th:onclick="'openSplitModal(' + ${dto.id} + ')'">
-                                        Split invoice
-                                    </button>
-
-                                    <span th:if="${dto.paymentStatus.name() == 'PAID'}"
-                                          class="paid-check">✓ Fully paid</span>
+                                    <span th:if="${dto.status.name() == 'FINAL'}" class="badge paid">Final</span>
+                                    <span th:if="${dto.status.name() == 'INTERIM'}" class="badge partial">Interim</span>
                                 </td>
                             </tr>
                             </tbody>
@@ -96,85 +110,122 @@
     </div>
 </div>
 
-<!-- SPLIT MODAL -->
-<div id="splitModal" class="split-modal">
+<!-- Equipment Split Modal -->
+<div id="equipmentModal" class="split-modal">
     <div class="split-modal-content">
-        <span class="split-close" onclick="closeSplitModal()">×</span>
+        <span class="split-close" onclick="closeEquipmentModal()">×</span>
 
-        <h2>Split Invoice</h2>
+        <h2>Split Invoice - Select Equipment</h2>
+        <p>Select the equipment items you want to pay for now:</p>
 
-        <div class="split-option">
-            <h3>Pay 50%</h3>
-            <p>Pay half now, rest on event day.</p>
-            <form id="pay50Form" method="post">
-                <button type="submit">Pay 50%</button>
-            </form>
-        </div>
-
-        <div class="split-option">
-            <h3>Pay Selected Equipment</h3>
-            <form id="payEquipmentForm" method="post">
-                <div id="equipmentList"></div>
-                <button type="submit">Pay Equipment</button>
-            </form>
-        </div>
-
-        <div class="split-option">
-            <h3>Pay Remaining</h3>
-            <form id="payRemainingForm" method="post">
-                <button type="submit">Pay Remaining</button>
-            </form>
-        </div>
+        <form id="equipmentSplitForm" method="post">
+            <div id="equipmentList"></div>
+            <button type="submit" class="primary-btn" style="margin-top: 20px;">Pay Selected Equipment</button>
+        </form>
     </div>
 </div>
 
 <script th:inline="javascript">
     /*<![CDATA[*/
-    const bookingsData = /*[[${bookings}]]*/ [];
+    const openBookingsData = /*[[${openBookings}]]*/ [];
 
-    function openSplitModal(bookingId) {
-        const modal = document.getElementById('splitModal');
+    function openEquipmentModal(bookingId) {
+        const modal = document.getElementById('equipmentModal');
         const equipmentList = document.getElementById('equipmentList');
+        const form = document.getElementById('equipmentSplitForm');
 
-        document.getElementById('pay50Form').action =
-            `/profile/invoices/${bookingId}/split/fifty-percent`;
-        document.getElementById('payEquipmentForm').action =
-            `/profile/invoices/${bookingId}/split/equipment`;
-        document.getElementById('payRemainingForm').action =
-            `/profile/invoices/${bookingId}/pay-remaining`;
+        form.action = `/profile/invoices/${bookingId}/split/equipment`;
 
         equipmentList.innerHTML = '';
 
-        const booking = bookingsData.find(b => b.id === bookingId);
+        const booking = openBookingsData.find(b => b.id === bookingId);
         if (!booking || !booking.equipment || booking.equipment.length === 0) {
-            equipmentList.innerHTML = '<p>No equipment available.</p>';
+            equipmentList.innerHTML = '<p>No equipment available for this booking.</p>';
         } else {
             booking.equipment.forEach(eq => {
                 const div = document.createElement('div');
                 div.className = 'equipment-item';
+                div.style.marginBottom = '10px';
                 div.innerHTML = `
-                <label>
-                    <input type="checkbox" name="equipmentIds" value="${eq.equipmentId}">
-                    ${eq.quantity}× Equipment (${eq.totalPrice.toFixed(2)} €)
-                </label>
-            `;
+                    <label style="display: flex; align-items: center; cursor: pointer;">
+                        <input type="checkbox" name="equipmentIds" value="${eq.equipmentId}" style="margin-right: 10px;">
+                        <span>${eq.quantity}× Equipment ID ${eq.equipmentId} (${eq.totalPrice.toFixed(2)} €)</span>
+                    </label>
+                `;
                 equipmentList.appendChild(div);
             });
         }
 
-        modal.classList.add('open');
+        modal.style.display = 'block';
     }
 
-    function closeSplitModal() {
-        document.getElementById('splitModal').classList.remove('open');
+    function closeEquipmentModal() {
+        document.getElementById('equipmentModal').style.display = 'none';
     }
 
     window.addEventListener('click', e => {
-        const modal = document.getElementById('splitModal');
-        if (e.target === modal) closeSplitModal();
+        const modal = document.getElementById('equipmentModal');
+        if (e.target === modal) closeEquipmentModal();
     });
     /*]]>*/
 </script>
+
+<style>
+    .split-modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .split-modal-content {
+        background-color: #fefefe;
+        margin: 10% auto;
+        padding: 30px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 600px;
+        border-radius: 8px;
+        position: relative;
+    }
+
+    .split-close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+        position: absolute;
+        right: 20px;
+        top: 10px;
+    }
+
+    .split-close:hover,
+    .split-close:focus {
+        color: #000;
+    }
+
+    .equipment-item {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background-color: #f9f9f9;
+    }
+
+    .invoice-table tbody tr td {
+        padding-top: 15px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .invoice-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+</style>
 
 </body>
 </html>

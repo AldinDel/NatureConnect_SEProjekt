@@ -5,7 +5,7 @@ public class PaymentOperationException extends DomainException {
     private final String reason;
 
     public PaymentOperationException(Long bookingId, String reason) {
-        super("PAYMENT_002");
+        super(reason);
         this.bookingId = bookingId;
         this.reason = reason;
     }
