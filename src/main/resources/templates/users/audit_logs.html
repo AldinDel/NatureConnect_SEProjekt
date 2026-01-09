@@ -64,19 +64,14 @@
             </td>
             <td>
                 <span class="role-badge"
-                      th:classappend="${log.userRole == 'ADMIN'} ? 'role-admin' :
-                                     ${log.userRole == 'FRONT'} ? 'role-front' :
-                                     ${log.userRole == 'ORGANIZER'} ? 'role-organizer' : 'role-customer'"
+                      th:classappend="${log.userRole == 'ADMIN' ? 'role-admin' : (log.userRole == 'FRONT' ? 'role-front' : (log.userRole == 'ORGANIZER' ? 'role-organizer' : 'role-customer'))}"
                       th:text="${log.userRole}">
                 </span>
             </td>
             <td th:text="${log.action}"></td>
             <td>
                 <span class="action-badge"
-                      th:classappend="${log.actionType.name() == 'CREATE'} ? 'action-create' :
-                                     ${log.actionType.name() == 'UPDATE'} ? 'action-update' :
-                                     ${log.actionType.name() == 'DELETE'} ? 'action-delete' :
-                                     ${log.actionType.name() == 'PAYMENT'} ? 'action-payment' : 'action-other'"
+                      th:classappend="${log.actionType.name() == 'CREATE' ? 'action-create' : (log.actionType.name() == 'UPDATE' ? 'action-update' : (log.actionType.name() == 'DELETE' ? 'action-delete' : (log.actionType.name() == 'PAYMENT' ? 'action-payment' : 'action-other')))}"
                       th:text="${log.actionType.name()}">
                 </span>
             </td>
