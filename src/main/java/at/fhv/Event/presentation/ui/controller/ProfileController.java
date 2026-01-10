@@ -12,6 +12,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/profile")
@@ -45,8 +46,7 @@ public class ProfileController {
     @PostMapping
     public String saveProfile(
             @ModelAttribute("form") ProfileForm form,
-            @RequestParam(value = "avatar", required = false) MultipartFile avatar,
-            @RequestParam(value = "removeAvatar", required = false) String removeAvatar
+            RedirectAttributes redirectAttributes
     ) {
         String email = SecurityContextHolder.getContext()
                 .getAuthentication()
@@ -56,11 +56,13 @@ public class ProfileController {
                 customerProfileService.getOrCreateProfileByEmail(email);
 
         ProfileFormMapper.applyToDomain(form, profile);
-
         customerProfileService.updateProfile(profile);
+
+        redirectAttributes.addFlashAttribute("successMessage", "Profile saved successfully!");
 
         return "redirect:/profile";
     }
+
     @PostMapping("/avatar")
     public String uploadAvatar(@RequestParam("avatar") MultipartFile file) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
