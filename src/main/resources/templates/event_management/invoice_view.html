@@ -33,13 +33,9 @@
         </p>
     </div>
 
-    <!-- ===================== -->
-    <!-- ACTION BUTTONS -->
-    <!-- ===================== -->
     <div class="invoice-actions"
          th:if="${canEditInvoice and invoice.status.name() == 'INTERIM'}">
 
-    <!-- Issue Final Invoice -->
         <form th:action="@{/event_management/invoices/finalize}"
               method="post">
             <input type="hidden" name="invoiceId"
@@ -50,7 +46,6 @@
             </button>
         </form>
 
-        <!-- Split Invoice -->
         <a class="btn secondary"
            th:if="${canEditInvoice
        and invoice.lines != null
@@ -66,9 +61,6 @@
         Splitting requires at least two invoice items.
     </div>
 
-    <!-- ===================== -->
-    <!-- INVOICE LINES -->
-    <!-- ===================== -->
     <table class="invoice-lines">
         <thead>
         <tr>
