@@ -85,12 +85,23 @@ public class InvoiceRepositoryImpl implements InvoiceRepository {
         List<InvoiceLine> lines =
                 itemJpa.findByInvoice_Id(entity.getId())
                         .stream()
-                        .map(item -> new InvoiceLine(
-                                item.getEquipmentId(),
-                                item.getDescription(),
-                                item.getQuantity(),
-                                item.getUnitPrice()
-                        ))
+                        .map(item -> {
+
+                            String description = item.getDescription();
+
+                            if (description == null || description.isBlank()) {
+                                description = item.getEquipmentId() == null
+                                        ? "Event base price"
+                                        : "Equipment " + item.getEquipmentId();
+                            }
+
+                            return new InvoiceLine(
+                                    item.getEquipmentId(),
+                                    description,
+                                    item.getQuantity(),
+                                    item.getUnitPrice()
+                            );
+                        })
                         .toList();
 
         return Invoice.rehydrate(
