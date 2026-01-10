@@ -2,6 +2,8 @@ package at.fhv.Event.presentation.ui.controller;
 
 import at.fhv.Event.application.user.*;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class AdminUserController {
+    private static final Logger log = LoggerFactory.getLogger(AdminUserController.class);
 
     private final GetAdminUsersService getAdminUsersService;
     private final DeactivateUserService deactivateUserService;
@@ -170,10 +173,15 @@ public class AdminUserController {
             redirectAttributes.addFlashAttribute("successMessage", "User created successfully.");
             return "redirect:/admin/users";
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage() == null ? "Create failed." : e.getMessage());
-            return "redirect:/admin/users/new";
-        }
+        log.error("Create user failed. email={}, roleCode={}", email, roleCode, e);
+        redirectAttributes.addFlashAttribute(
+                "errorMessage",
+                e.getMessage() == null ? "Create failed." : e.getMessage()
+        );
+        return "redirect:/admin/users/new";
     }
+
+}
 
 
 

@@ -1,6 +1,7 @@
 package at.fhv.Event.domain.model.user;
 
 import java.time.OffsetDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 public class UserAccount {
@@ -12,7 +13,7 @@ public class UserAccount {
     private Boolean IsActive = true;
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
-    private Set<Role> roles;
+    private Set<Role> roles = new HashSet<>();
 
     public UserAccount() {}
 

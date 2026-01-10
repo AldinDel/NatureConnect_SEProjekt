@@ -1,9 +1,11 @@
 package at.fhv.Event.application.booking;
 
+import at.fhv.Event.application.audit.AuditLogService;
 import at.fhv.Event.application.refund.RefundService;
 import at.fhv.Event.application.request.booking.BookingRequestMapper;
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
 import at.fhv.Event.application.request.booking.ParticipantDTO;
+import at.fhv.Event.domain.model.audit.ActionType;
 import at.fhv.Event.domain.model.booking.*;
 import at.fhv.Event.domain.model.equipment.Equipment;
 import at.fhv.Event.domain.model.equipment.EquipmentRepository;
@@ -15,6 +17,8 @@ import at.fhv.Event.domain.model.payment.PaymentMethod;
 import at.fhv.Event.domain.model.payment.PaymentStatus;
 import at.fhv.Event.presentation.rest.response.booking.BookingDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,11 +37,13 @@ public class BookEventService {
     private final BookingValidator _bookingValidator;
     private final RefundService refundService;
     private final EventRepository _eventRepository;
+    private final AuditLogService auditLogService;
 
     @Autowired
     public BookEventService(BookingRepository bookingRepository, EquipmentRepository equipmentRepository,
                             BookingRequestMapper bookingRequestMapper, BookingMapperDTO bookingMapperDTO,
-                            BookingValidator bookingValidator, RefundService refundService, EventRepository eventRepository) {
+                            BookingValidator bookingValidator, RefundService refundService, EventRepository eventRepository,
+                            AuditLogService auditLogService) {
         _bookingRepository = bookingRepository;
         _equipmentRepository = equipmentRepository;
         _bookingRequestMapper = bookingRequestMapper;
@@ -45,6 +51,7 @@ public class BookEventService {
         _bookingValidator = bookingValidator;
         this.refundService = refundService;
         _eventRepository = eventRepository;
+        this.auditLogService = auditLogService;
     }
 
     // Alternativer Konstruktor für Tests (ohne EventRepository)
@@ -52,7 +59,7 @@ public class BookEventService {
                             BookingRequestMapper bookingRequestMapper, BookingMapperDTO bookingMapperDTO,
                             BookingValidator bookingValidator, RefundService refundService) {
         this(bookingRepository, equipmentRepository, bookingRequestMapper, bookingMapperDTO,
-                bookingValidator, refundService, null);
+                bookingValidator, refundService, null, null);
     }
 
     @Transactional
@@ -71,6 +78,22 @@ public class BookEventService {
         booking.setEquipment(processEquipmentBooking(request, equipmentMap));
 
         Booking savedBooking = _bookingRepository.save(booking);
+
+        // Audit log
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            String userEmail = auth.getName();
+            if (auditLogService != null) {
+                auditLogService.log(
+                        userEmail,
+                        ActionType.CREATE,
+                        "Created booking for event #" + savedBooking.getEventId(),
+                        "Booking",
+                        savedBooking.getId(),
+                        "Seats: " + savedBooking.getSeats() + ", Total: " + savedBooking.getTotalPrice() + "€"
+                );
+            }
+        }
 
         return _bookingMapperDTO.toDTO(savedBooking);
     }
@@ -213,6 +236,18 @@ public class BookEventService {
                 booking.getId(),
                 booking.getTotalPrice()
         );
+
+        // Audit log
+        if (auditLogService != null) {
+            auditLogService.log(
+                    email,
+                    ActionType.CANCEL,
+                    "Cancelled booking #" + bookingId + " for event #" + booking.getEventId(),
+                    "Booking",
+                    bookingId,
+                    "Refund processed: " + booking.getTotalPrice() + "€"
+            );
+        }
     }
 
     @Transactional

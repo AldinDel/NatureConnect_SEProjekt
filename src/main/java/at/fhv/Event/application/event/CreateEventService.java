@@ -1,6 +1,8 @@
 package at.fhv.Event.application.event;
 
+import at.fhv.Event.application.audit.AuditLogService;
 import at.fhv.Event.application.request.event.CreateEventRequest;
+import at.fhv.Event.domain.model.audit.ActionType;
 import at.fhv.Event.domain.model.equipment.Equipment;
 import at.fhv.Event.domain.model.equipment.EquipmentRepository;
 import at.fhv.Event.domain.model.equipment.EventEquipment;
@@ -14,6 +16,8 @@ import at.fhv.Event.domain.model.exception.ValidationError;
 import at.fhv.Event.domain.model.exception.ValidationErrorType;
 import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,15 +31,18 @@ public class CreateEventService {
     private final EquipmentRepository equipmentRepository;
     private final EventMapperDTO mapper;
     private final EventValidator eventValidator;
+    private final AuditLogService auditLogService;
 
     public CreateEventService(EventRepository eventRepository,
                               EquipmentRepository equipmentRepository,
                               EventMapperDTO mapper,
-                              EventValidator eventValidator) {
+                              EventValidator eventValidator,
+                              AuditLogService auditLogService) {
         this.eventRepository = eventRepository;
         this.equipmentRepository = equipmentRepository;
         this.mapper = mapper;
         this.eventValidator = eventValidator;
+        this.auditLogService = auditLogService;
     }
 
     @CacheEvict(value = {"events", "eventBatch"}, allEntries = true)
@@ -145,6 +152,21 @@ public class CreateEventService {
         );
 
         Event saved = eventRepository.save(domain);
+
+        // Audit log
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            String userEmail = auth.getName();
+            auditLogService.log(
+                    userEmail,
+                    ActionType.CREATE,
+                    "Created event: " + saved.getTitle(),
+                    "Event",
+                    saved.getId(),
+                    "Date: " + saved.getDate() + ", Location: " + saved.getLocation()
+            );
+        }
+
         return mapper.toDetailDTO(saved);
     }
 }
