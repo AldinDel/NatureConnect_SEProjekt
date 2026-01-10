@@ -2,12 +2,10 @@ package at.fhv.Event.domain.model.exception;
 
 public class PaymentOperationException extends DomainException {
     private final Long bookingId;
-    private final String reason;
 
-    public PaymentOperationException(Long bookingId, String reason) {
-        super(reason);
+    public PaymentOperationException(Long bookingId, String errorCode, String message) {
+        super(errorCode, message);
         this.bookingId = bookingId;
-        this.reason = reason;
     }
 
     public Long getBookingId() {
@@ -15,6 +13,6 @@ public class PaymentOperationException extends DomainException {
     }
 
     public String getReason() {
-        return reason;
+        return getMessage();
     }
 }

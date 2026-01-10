@@ -44,7 +44,7 @@ public class SplitInvoiceService {
                 bookingId, booking.getTotalPrice(), booking.getPaidAmount(), booking.getPaymentStatus());
 
         if (booking.isFullyPaid()) {
-            throw new PaymentOperationException(bookingId, "Booking is already fully paid");
+            throw new PaymentOperationException(bookingId, "PAYMENT_001", "Booking is already fully paid");
         }
 
         double totalPrice = booking.getTotalPrice();
@@ -108,7 +108,7 @@ public class SplitInvoiceService {
                 bookingId, booking.getEquipment() != null ? booking.getEquipment().size() : 0);
 
         if (booking.isFullyPaid()) {
-            throw new PaymentOperationException(bookingId, "Booking is already fully paid");
+            throw new PaymentOperationException(bookingId, "PAYMENT_001", "Booking is already fully paid");
         }
 
         if (equipmentIds == null || equipmentIds.isEmpty()) {
@@ -172,7 +172,7 @@ public class SplitInvoiceService {
         Booking booking = getBookingForUser(bookingId, userEmail);
 
         if (booking.isFullyPaid()) {
-            throw new PaymentOperationException(bookingId, "Booking is already fully paid");
+            throw new PaymentOperationException(bookingId, "PAYMENT_001", "Booking is already fully paid");
         }
 
         double remaining = booking.getRemainingAmount();
@@ -214,7 +214,7 @@ public class SplitInvoiceService {
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
 
         if (!booking.getBookerEmail().equalsIgnoreCase(userEmail)) {
-            throw new PaymentOperationException(bookingId, "You can only manage your own bookings");
+            throw new PaymentOperationException(bookingId, "PAYMENT_002", "You can only manage your own bookings");
         }
 
         return booking;
