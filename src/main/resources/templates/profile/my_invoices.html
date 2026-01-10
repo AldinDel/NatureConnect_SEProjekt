@@ -78,19 +78,25 @@
                         <table class="invoice-table">
                             <thead>
                             <tr>
-                                <th>Invoice #</th>
-                                <th>Event</th>
-                                <th>Created</th>
+                                <th class="col-invoice-id">Invoice #</th>
+                                <th class="col-event">Event</th>
+                                <th>Date</th>
+                                <th>Time</th>
                                 <th>Amount</th>
                                 <th>Status</th>
+                                <th>Action</th>
                             </tr>
                             </thead>
 
                             <tbody>
                             <tr th:each="dto : ${invoices}">
-                                <td th:text="'#' + ${dto.id}"></td>
-                                <td class="event-title" th:text="${dto.event.title}"></td>
-                                <td th:text="${#temporals.format(dto.createdAt, 'dd.MM.yyyy HH:mm')}"></td>
+                                <td class="col-invoice-id" th:text="'#' + ${dto.id}"></td>
+                                <td class="col-event event-title"
+                                    th:title="${dto.event.title}"
+                                    th:text="${dto.event.title}">
+                                </td>
+                                <td th:text="${#temporals.format(dto.createdAt, 'dd.MM.yyyy')}"></td>
+                                <td th:text="${#temporals.format(dto.createdAt, 'HH:mm')}"></td>
 
                                 <td class="price"
                                     th:text="${#numbers.formatDecimal(dto.total,1,2,'COMMA')} + ' €'"></td>
@@ -98,6 +104,13 @@
                                 <td>
                                     <span th:if="${dto.status.name() == 'FINAL'}" class="badge paid">Final</span>
                                     <span th:if="${dto.status.name() == 'INTERIM'}" class="badge partial">Interim</span>
+                                </td>
+
+                                <td>
+                                    <a class="invoice-link"
+                                       th:href="@{/profile/invoices/view(invoiceId=${dto.id})}">
+                                        View Invoice
+                                    </a>
                                 </td>
                             </tr>
                             </tbody>
@@ -225,6 +238,37 @@
     .invoice-table tbody tr:last-child td {
         border-bottom: none;
     }
+
+    .invoice-link {
+        color: #0b2545;
+        font-weight: 500;
+        text-decoration: underline;
+    }
+
+    .invoice-link:hover {
+        color: #1f7a4f;
+    }
+
+    .invoice-table {
+        table-layout: fixed;
+        width: 100%;
+    }
+
+    .col-invoice-id {
+        width: 70px;
+        max-width: 70px;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .event-title {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+
+
 </style>
 
 </body>

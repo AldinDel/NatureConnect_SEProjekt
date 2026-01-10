@@ -13,6 +13,8 @@ import at.fhv.Event.domain.model.invoice.InvoiceRepository;
 import at.fhv.Event.infrastructure.persistence.booking.BookingEquipmentEntity;
 import at.fhv.Event.infrastructure.persistence.booking.BookingEquipmentJpaRepository;
 import org.springframework.stereotype.Service;
+import at.fhv.Event.domain.model.equipment.Equipment;
+import at.fhv.Event.domain.model.equipment.EquipmentRepository;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -25,17 +27,19 @@ public class CreateInterimInvoiceService {
     private final InvoiceRepository invoiceRepository;
     private final BookingEquipmentJpaRepository bookingEquipmentJpaRepository;
     private final EventRepository eventRepository;
+    private final EquipmentRepository equipmentRepository;
 
     public CreateInterimInvoiceService(
             BookingRepository bookingRepository,
             InvoiceRepository invoiceRepository,
             BookingEquipmentJpaRepository bookingEquipmentJpaRepository,
-            EventRepository eventRepository
+            EventRepository eventRepository, EquipmentRepository equipmentRepository
     ) {
         this.bookingRepository = bookingRepository;
         this.invoiceRepository = invoiceRepository;
         this.bookingEquipmentJpaRepository = bookingEquipmentJpaRepository;
         this.eventRepository = eventRepository;
+        this.equipmentRepository = equipmentRepository;
     }
 
     public Invoice createInterimInvoice(
@@ -96,16 +100,29 @@ public class CreateInterimInvoiceService {
                             .filter(be -> equipmentIds.contains(be.getEquipmentId()))
                             .toList();
 
-            bookingEquipments.forEach(be ->
-                    lines.add(
-                            new InvoiceLine(
-                                    be.getEquipmentId(),
-                                    "Equipment " + be.getEquipmentId(),
-                                    be.getQuantity(),
-                                    be.getPricePerUnit()
-                            )
-                    )
-            );
+            bookingEquipments.forEach(be -> {
+                Equipment equipment = equipmentRepository.findById(be.getEquipmentId())
+                        .orElseThrow(() ->
+                                new InvoiceCreationException(
+                                        bookingId,
+                                        "Equipment not found: " + be.getEquipmentId()
+                                )
+                        );
+
+                String description = equipment.getName();
+                if (equipment.isRentable()) {
+                    description += " (Rental)";
+                }
+
+                lines.add(
+                        new InvoiceLine(
+                                be.getEquipmentId(),
+                                description,
+                                be.getQuantity(),
+                                be.getPricePerUnit()
+                        )
+                );
+            });
         }
 
         if (lines.isEmpty()) {
