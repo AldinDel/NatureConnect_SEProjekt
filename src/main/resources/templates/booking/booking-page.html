@@ -23,7 +23,7 @@
 
 <div class="container">
     <div id="errorPop"></div>
-    <div th:if="${errors != null and !errors.isEmpty()}"
+    <div th:if="${errors != null and !errors.isEmpty() and fieldErrors == null}"
          id="validationErrorBox"
          style="background-color: #fee2e2; border: 1px solid #ef4444; border-radius: 8px; padding: 16px; margin-bottom: 20px; transition: opacity 0.6s ease;">
         <h3 style="color: #dc2626; margin-top: 0; font-size: 18px;">Please fix the following errors:</h3>
@@ -31,8 +31,16 @@
             <li th:each="error : ${errors}" th:text="${error}"></li>
         </ul>
     </div>
+
     <script th:if="${fieldErrors != null}" type="application/json" id="fieldErrorsData" th:inline="text">
-        [[${fieldErrors}]]
+        [
+            [
+                $
+                {
+                    fieldErrors
+                }
+            ]
+        ]
     </script>
     <form th:action="${isEdit} ? @{/booking/{id}(id=${bookingId})} : @{/booking}"
           th:object="${booking}"
@@ -158,7 +166,7 @@
                                        th:field="*{equipment[__${addon.id}__].selected}"
                                        th:attr="data-price=${addon.unitPrice}"
                                        value="true"
-                                       />
+                                />
 
                                 <div class="addon-content">
                                     <p class="addon-name" th:text="${addon.name}"></p>
@@ -174,16 +182,27 @@
                                                    : 1}"
                                        min="1"
                                        th:max="${addon.stock}"
-                                       style="width: 70px; display: none;" />
+                                       style="width: 70px; display: none;"/>
 
 
                             </label>
                         </div>
                     </div>
 
-
                 </div>
 
+                <div class="card" id="hikeRouteSection" style="display:none;">
+                    <h2 class="card-title">Hiking route</h2>
+
+                    <div id="hikeRoutesList"></div>
+
+                    <span th:if="${fieldErrors?.containsKey('hikeRouteKey')}"
+                          class="error-text"
+                          th:text="${fieldErrors['hikeRouteKey']}">
+                    </span>
+                </div>
+
+                <input type="hidden" th:field="*{hikeRouteKey}" id="hikeRouteKey" value="">
 
                 <div class="card">
                     <h2 class="card-title">Special Notes</h2>

@@ -468,4 +468,13 @@ body {
     text-align: center;      /* falls nötig */
 }
 
+#hikeRoutesList .equipment-item {
+    display: block;
+    width: 100%;
+}
+
+#hikeRoutesList .checkbox-label {
+    display: flex;
+    width: 100%;
+}
 
