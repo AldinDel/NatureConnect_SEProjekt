@@ -6,10 +6,12 @@ import at.fhv.Event.application.event.GetEventDetailsService;
 import at.fhv.Event.domain.model.booking.Booking;
 import at.fhv.Event.domain.model.invoice.Invoice;
 import at.fhv.Event.domain.model.invoice.InvoiceRepository;
+import at.fhv.Event.domain.model.invoice.InvoiceStatus;
 import at.fhv.Event.presentation.rest.response.booking.BookingWithEventDTO;
 import at.fhv.Event.presentation.rest.response.invoice.InvoiceWithEventDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -58,6 +60,7 @@ public class InvoiceController {
                         List<Invoice> invoices = invoiceRepository.findByBookingId(booking.getId());
                         logger.debug("Booking {} has {} invoices", booking.getId(), invoices.size());
                         return invoices.stream()
+                                .filter(invoice -> invoice.getStatus() == InvoiceStatus.FINAL)
                                 .map(invoice -> {
                                     logger.debug("Invoice {} with total: {}", invoice.getId(), invoice.getTotal());
                                     return new InvoiceWithEventDTO(
@@ -170,4 +173,33 @@ public class InvoiceController {
         return "redirect:/profile/invoices";
 
     }
+
+    @GetMapping("/view")
+    public String viewInvoice(
+            @RequestParam Long invoiceId,
+            Principal principal,
+            Model model) {
+
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        Invoice invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() -> new IllegalArgumentException("Invoice not found"));
+
+        boolean belongsToUser = userBookingsService
+                .getBookingsByUserEmail(principal.getName())
+                .stream()
+                .anyMatch(b -> b.getId().equals(invoice.getBookingId()));
+
+        if (!belongsToUser) {
+            throw new AccessDeniedException("Access denied");
+        }
+
+        model.addAttribute("invoice", invoice);
+        model.addAttribute("canEditInvoice", false);
+
+        return "event_management/invoice_view";
+    }
+
 }
