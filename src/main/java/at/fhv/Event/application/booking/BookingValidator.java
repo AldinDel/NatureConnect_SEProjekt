@@ -38,6 +38,7 @@ public class BookingValidator {
         validateSpecialNotes(request, errors);
         validateVoucherCode(request, errors);
         validateEquipment(request, event, equipmentMap, errors);
+        validateHikeRouteKey(request, event, errors);
         return errors;
     }
 
@@ -156,9 +157,24 @@ public class BookingValidator {
         }
     }
 
-    private void validateParticipantAge(int age, String field, int participantNumber, List<ValidationError> errors) {
+    private void validateParticipantAge(Integer age, String field, int participantNumber, List<ValidationError> errors) {
+        if (age == null) {
+            errors.add(new ValidationError(
+                    ValidationErrorType.INVALID_INPUT,
+                    field,
+                    null,
+                    String.format("Participant %d: Age is required", participantNumber)
+            ));
+            return;
+        }
+
         if (age < MIN_AGE || age > MAX_AGE) {
-            errors.add(ValidationErrorFactory.outOfRange("age", age, MIN_AGE, MAX_AGE));
+            errors.add(new ValidationError(
+                    ValidationErrorType.INVALID_INPUT,
+                    field,
+                    age,
+                    String.format("Age must be between %d and %d", MIN_AGE, MAX_AGE)
+            ));
         }
     }
 
@@ -178,26 +194,34 @@ public class BookingValidator {
         }
     }
 
-    private void validateEquipment(CreateBookingRequest request, Event event, Map<Long, Equipment> equipmentMap, List<ValidationError> errors) {
+    private void validateEquipment(CreateBookingRequest request, Event event,
+                                   Map<Long, Equipment> equipmentMap,
+                                   List<ValidationError> errors) {
+
+        Map<Long, EquipmentSelection> selections = request.getEquipment();
+        if (selections == null || selections.isEmpty()) {
+            return;
+        }
+
         Map<Long, EventEquipment> eventEquipmentMap = createEventEquipmentMap(event);
 
-        for (var entry : request.getEquipment().entrySet()) {
+        for (var entry : selections.entrySet()) {
             Long equipmentId = entry.getKey();
             EquipmentSelection selection = entry.getValue();
 
-            if (!selection.isSelected()) {
+            if (selection == null || !selection.isSelected()) {
                 continue;
             }
 
-            String prefix = "equipments[" + equipmentId + "]";
+            String prefix = "equipment[" + equipmentId + "]"; // falls ihr hier "equipments" hattet, besser gleichziehen
             EventEquipment eventEquipment = eventEquipmentMap.get(equipmentId);
 
             if (eventEquipment == null) {
                 errors.add(new ValidationError(
                         ValidationErrorType.EQUIPMENT_ERROR,
                         prefix,
-                        String.valueOf(equipmentId),
-                        String.format("Equipment %d is not available for this event", equipmentId)
+                        equipmentId,
+                        "Invalid equipment selection"
                 ));
                 continue;
             }
@@ -209,6 +233,17 @@ public class BookingValidator {
                     prefix,
                     errors
             );
+        }
+    }
+
+    private void validateHikeRouteKey(CreateBookingRequest request, Event event, List<ValidationError> errors) {
+        boolean isHiking = event.getCategory() != null
+                && event.getCategory().toLowerCase().contains("hiking");
+
+        if (!isHiking) return;
+
+        if (isBlank(request.getHikeRouteKey())) {
+            errors.add(ValidationErrorFactory.required("hikeRouteKey"));
         }
     }
 

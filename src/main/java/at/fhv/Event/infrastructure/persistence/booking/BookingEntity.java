@@ -64,6 +64,17 @@ public class BookingEntity {
     @Column(name = "special_notes")
     private String specialNotes;
 
+    @Column(name = "hike_route_key", length = 50)
+    private String hikeRouteKey;
+
+    public String getHikeRouteKey() {
+        return hikeRouteKey;
+    }
+
+    public void setHikeRouteKey(String hikeRouteKey) {
+        this.hikeRouteKey = hikeRouteKey;
+    }
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
