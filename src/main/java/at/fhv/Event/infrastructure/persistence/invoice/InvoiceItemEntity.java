@@ -19,6 +19,9 @@ public class InvoiceItemEntity {
     private Long equipmentId;
 
     @Column(nullable = false)
+    private String description;
+
+    @Column(nullable = false)
     private int quantity;
 
     @Column(name = "unit_price", nullable = false)
@@ -69,5 +72,13 @@ public class InvoiceItemEntity {
 
     public void setTotalPrice(BigDecimal totalPrice) {
         this.totalPrice = totalPrice;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

@@ -40,6 +40,7 @@ public class InvoiceRepositoryImpl implements InvoiceRepository {
             InvoiceItemEntity item = new InvoiceItemEntity();
             item.setInvoice(saved);
             item.setEquipmentId(line.getEquipmentId());
+            item.setDescription(line.getDescription());
             item.setQuantity(line.getQuantity());
             item.setUnitPrice(line.getUnitPrice());
             item.setTotalPrice(line.getTotal());
@@ -86,9 +87,7 @@ public class InvoiceRepositoryImpl implements InvoiceRepository {
                         .stream()
                         .map(item -> new InvoiceLine(
                                 item.getEquipmentId(),
-                                item.getEquipmentId() == null
-                                        ? "Event base price"
-                                        : "Equipment " + item.getEquipmentId(),
+                                item.getDescription(),
                                 item.getQuantity(),
                                 item.getUnitPrice()
                         ))
