@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Methods</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/static-page.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+</head>
+
+<body class="static_page">
+
+<div th:replace="events/fragments/navbar :: navbar"></div>
+
+<main class="static-container">
+    <h1 class="static-title">Payment Methods</h1>
+    <p class="static-subtitle">Available payment options at NATUREConnect</p>
+
+    <section class="static-card">
+        <h2>Available Payment Methods</h2>
+        <p>
+            During checkout, you can choose one of the following payment methods:
+            Invoice, on-site payment, credit card or PayPal.
+        </p>
+
+        <h2>Partial Payments</h2>
+        <p>
+            In some cases, payments can be recorded in multiple steps (for example, if a part is paid first and the
+            remaining amount later). The invoice can show the paid amounts and the open balance.
+        </p>
+
+        <h2>Splitting Invoices</h2>
+        <p>
+            Individual items can be moved to a separate invoice. This allows multiple invoices where each invoice
+            contains only part of the items.
+        </p>
+
+        <h2>Important</h2>
+        <p>
+            The available options may depend on the event and organizer. The final payment details are shown during checkout.
+        </p>
+    </section>
+
+
+
+
+</main>
+
+<div th:replace="events/fragments/footer :: footer"></div>
+
+</body>
+</html>
