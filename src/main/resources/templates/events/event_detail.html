@@ -88,6 +88,7 @@
 
         <div class="box">
             <h3>Event Details</h3>
+
             <div class="details-grid">
 
                 <!-- Difficulty -->
@@ -106,47 +107,43 @@
                     </p>
                 </div>
 
-                <!-- Schedule / Date (full row) -->
+                <!-- Schedule (full width) -->
                 <div class="detail-item" style="grid-column: 1 / -1;">
                     <h4 th:text="${event.recurring} ? 'Schedule' : 'Date'">Schedule</h4>
 
-                    <!-- Single event -->
                     <p th:if="${!event.recurring}"
-                       th:text="${#temporals.format(event.date, 'MMMM dd, yyyy')}">
-                    </p>
+                       th:text="${#temporals.format(event.date, 'MMMM dd, yyyy')}"></p>
 
-                    <!-- Recurring -->
                     <div th:if="${event.recurring}">
                         <p>
                             Repeats from
                             <strong th:text="${#temporals.format(
-                                event.recurrenceStart,
-                                'MMMM dd, yyyy',
-                                T(java.util.Locale).ENGLISH
-                            )}"></strong>
-
+                        event.recurrenceStart,
+                        'MMMM dd, yyyy',
+                        T(java.util.Locale).ENGLISH
+                    )}"></strong>
                             to
                             <strong th:text="${#temporals.format(
-                                event.recurrenceEnd,
-                                'MMMM dd, yyyy',
-                                T(java.util.Locale).ENGLISH
-                            )}"></strong>
-
+                        event.recurrenceEnd,
+                        'MMMM dd, yyyy',
+                        T(java.util.Locale).ENGLISH
+                    )}"></strong>
                         </p>
 
                         <p th:if="${event.recurrenceDays != null}">
-    <span th:each="day, stat : ${event.recurrenceDays}">
-        <span th:text="${#strings.capitalize(day.toString().toLowerCase())}"></span><span th:if="${!stat.last}">, </span>
-    </span>
-                    </p>
-
+                    <span th:each="day, stat : ${event.recurrenceDays}">
+                        <span th:text="${#strings.capitalize(day.toString().toLowerCase())}"></span><span th:if="${!stat.last}">, </span>
+                    </span>
+                        </p>
                     </div>
                 </div>
 
             </div>
+        </div>
 
 
-            <div class="box" id="hiking-route-box" th:if="${isHikingEvent}">
+
+        <div class="box" id="hiking-route-box" th:if="${isHikingEvent}">
             <h3>Hiking Routes</h3>
 
             <p id="no-hike-info">No hiking route available for this event.</p>

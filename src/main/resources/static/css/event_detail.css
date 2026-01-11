@@ -157,6 +157,7 @@ body > .hero-box {
     grid-template-columns: 1fr 1fr;
     gap: 15px;
     margin-top: 15px;
+    grid-auto-flow: row dense;
 }
 
 .detail-item {
