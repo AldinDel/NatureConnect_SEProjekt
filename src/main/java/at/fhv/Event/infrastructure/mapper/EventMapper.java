@@ -55,7 +55,7 @@ public class EventMapper {
         );
 
         event.setCancelled(e.getCancelled());
-
+        event.setEndDate(e.getEndDate());
         event.setRecurring(e.isRecurring());
         event.setRecurrenceStart(e.getRecurrenceStart());
         event.setRecurrenceEnd(e.getRecurrenceEnd());
@@ -84,6 +84,7 @@ public class EventMapper {
         e.setOrganizer(domain.getOrganizer());
         e.setCategory(domain.getCategory());
         e.setDate(domain.getDate());
+        e.setEndDate(domain.getEndDate());
         e.setStartTime(domain.getStartTime());
         e.setEndTime(domain.getEndTime());
         e.setLocation(domain.getLocation());
@@ -132,6 +133,7 @@ public class EventMapper {
         e.setOrganizer(domain.getOrganizer());
         e.setCategory(domain.getCategory());
         e.setDate(domain.getDate());
+        e.setEndDate(domain.getEndDate());
         e.setStartTime(domain.getStartTime());
         e.setEndTime(domain.getEndTime());
         e.setLocation(domain.getLocation());

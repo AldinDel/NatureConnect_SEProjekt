@@ -36,7 +36,7 @@ public class SearchEventService {
                             e.getOrganizer(),
                             e.getCategory(),
                             e.isRecurring() ? null : e.getDate(),
-                            e.getStartTime(),
+                            e.isRecurring() ? null : e.getEndDate(),                            e.getStartTime(),
                             e.getEndTime(),
                             e.getLocation(),
                             e.getDifficulty() != null ? e.getDifficulty().toString() : null,

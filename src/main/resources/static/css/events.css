@@ -363,6 +363,7 @@ body.events-page {
 .tag-hiking { background: #e0f2fe; color: #075985; }
 .tag-wildlife-tour { background: #fef9c3; color: #854d0e; }
 .tag-climbing { background: #fee2e2; color: #7f1d1d; }
+.tag-skiing { background: #e9d5ff; color: #5b21b6; }
 .tag-general { background: #f3f4f6; color: #374151; }
 
 
@@ -633,4 +634,12 @@ body.events-page {
 .category-bar button.active {
     background-color: #0f2740 !important;
     color: #ffffff !important;
+}
+
+.event-description {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;   /* Anzahl der Zeilen */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

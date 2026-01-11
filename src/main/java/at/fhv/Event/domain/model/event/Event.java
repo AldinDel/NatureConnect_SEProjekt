@@ -23,6 +23,7 @@ public class Event {
     private String organizer;
     private String category;
     private LocalDate date;
+    private LocalDate endDate;
     private LocalTime startTime;
     private LocalTime endTime;
     private String location;
@@ -211,6 +212,14 @@ public class Event {
         this.date = date;
     }
 
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
+
     public LocalTime getStartTime() {
         return startTime;
     }
@@ -344,7 +353,6 @@ public class Event {
                 ? new HashSet<>()
                 : new HashSet<>(recurrenceDays);
     }
-
 
 
 }

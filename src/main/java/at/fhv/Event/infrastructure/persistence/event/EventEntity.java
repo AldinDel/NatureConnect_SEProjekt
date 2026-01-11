@@ -32,6 +32,7 @@ public class EventEntity {
 
 
     private LocalDate date;
+    private LocalDate endDate;
     private LocalTime startTime;
     private LocalTime endTime;
 
@@ -186,6 +187,14 @@ public class EventEntity {
 
     public void setDate(LocalDate date) {
         this.date = date;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
     }
 
     public LocalTime getStartTime() {

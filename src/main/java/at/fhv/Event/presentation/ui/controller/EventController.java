@@ -264,6 +264,7 @@ public class EventController {
             req.setRecurrenceDays(new HashSet<>(detail.recurrenceDays()));
         }
         req.setDate(detail.date());
+        req.setEndDate(detail.endDate());
         req.setStartTime(detail.startTime());
         req.setEndTime(detail.endTime());
         req.setLocation(detail.location());

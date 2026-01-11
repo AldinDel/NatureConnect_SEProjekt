@@ -331,6 +331,7 @@
                 <option value="Climbing">Climbing</option>
                 <option value="Kayaking">Kayaking</option>
                 <option value="Wildlife Tour">Wildlife Tour</option>
+                <option value="Skiing">Skiing</option>
             </select>
 
             <button type="button" id="openHikeRoutes" class="hike-btn" aria-controls="hikeRoutesModal" title="Select hiking routes">Select hiking routes</button>
@@ -383,13 +384,20 @@
 
         <div class="form-group">
                 <label class="form-label">Recurrence start date:</label>
-                <input type="date" th:field="*{recurrenceStart}" class="form-input">
+            <input
+                    type="date"
+                    class="form-input"
+                    name="recurrenceStart"
+                    th:value="${event.recurrenceStart != null ? #temporals.format(event.recurrenceStart, 'yyyy-MM-dd') : ''}">
             </div>
 
             <div class="form-group">
                 <label class="form-label">Recurrence end date:</label>
-                <input type="date" th:field="*{recurrenceEnd}" class="form-input">
-            </div>
+                <input
+                        type="date"
+                        class="form-input"
+                        name="recurrenceEnd"
+                        th:value="${event.recurrenceEnd != null ? #temporals.format(event.recurrenceEnd, 'yyyy-MM-dd') : ''}">            </div>
 
             <div class="form-group form-span-2">
                 <label class="form-label">Repeats on:</label>
@@ -440,7 +448,18 @@
                     id="date"
                     type="date"
                     class="form-input"
-                    th:field="*{date}">
+                    name="date"
+                    th:value="${event.date != null ? #temporals.format(event.date, 'yyyy-MM-dd') : ''}">
+        </div>
+
+        <div class="form-group">
+            <label for="endDate">End date:</label>
+            <input
+                    id="endDate"
+                    type="date"
+                    class="form-input"
+                    name="endDate"
+                    th:value="${event.endDate != null ? #temporals.format(event.endDate, 'yyyy-MM-dd') : ''}">
         </div>
 
         <!-- Zeit -->
@@ -669,16 +688,21 @@
         const recurringCheckbox = document.getElementById("isRecurring");
         const recurringSection = document.getElementById("recurringSection");
         const dateInput = document.getElementById("date");
+        const endDateInput = document.getElementById('endDate');
 
         function updateRecurringUI() {
             if (recurringCheckbox.checked) {
                 recurringSection.style.display = "grid";
                 dateInput.readOnly = true;
                 dateInput.style.opacity = "0.5";
+                endDateInput.readOnly = true;
+                endDateInput.style.opacity = "0.5";
             } else {
                 recurringSection.style.display = "none";
                 dateInput.readOnly = false;
                 dateInput.style.opacity = "1";
+                endDateInput.readOnly = false;
+                endDateInput.style.opacity = "1";
             }
         }
 

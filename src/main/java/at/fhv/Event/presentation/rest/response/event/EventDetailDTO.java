@@ -16,6 +16,7 @@ public record EventDetailDTO(
         String organizer,
         String category,
         LocalDate date,
+        LocalDate endDate,
         LocalTime startTime,
         LocalTime endTime,
         String location,

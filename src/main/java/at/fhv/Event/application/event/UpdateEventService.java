@@ -55,6 +55,13 @@ public class UpdateEventService {
         event.setOrganizer(req.getOrganizer());
         event.setCategory(req.getCategory());
         event.setDate(req.getDate());
+
+        if (req.isRecurring()) {
+            event.setEndDate(null);
+        } else {
+            event.setEndDate(req.getEndDate() != null ? req.getEndDate() : req.getDate());
+        }
+
         event.setStartTime(req.getStartTime());
         event.setEndTime(req.getEndTime());
         event.setLocation(req.getLocation());
