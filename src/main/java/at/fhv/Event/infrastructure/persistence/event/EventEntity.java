@@ -11,6 +11,7 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
 import java.util.Set;
+import java.time.DayOfWeek;
 
 @Entity
 @Table(name = "event", schema="nature_connect")
@@ -33,6 +34,26 @@ public class EventEntity {
     private LocalDate date;
     private LocalTime startTime;
     private LocalTime endTime;
+
+    @Column(name = "is_recurring", nullable = false)
+    private boolean recurring = false;
+
+    @Column(name = "recurrence_start")
+    private LocalDate recurrenceStart;
+
+    @Column(name = "recurrence_end")
+    private LocalDate recurrenceEnd;
+
+    @ElementCollection(fetch = FetchType.LAZY)
+    @CollectionTable(
+            name = "event_recurrence_day",
+            schema = "nature_connect",
+            joinColumns = @JoinColumn(name = "event_id")
+    )
+    @Enumerated(EnumType.STRING)
+    @Column(name = "day_of_week", length = 10)
+    private Set<DayOfWeek> recurrenceDays = new HashSet<>();
+
 
     private Integer minParticipants;
     private Integer maxParticipants;
@@ -238,5 +259,40 @@ public class EventEntity {
     public void setHikeRouteKeys(Set<String> hikeRouteKeys) {
         this.hikeRouteKeys = (hikeRouteKeys == null) ? new HashSet<>() : new HashSet<>(hikeRouteKeys);
     }
+
+    public boolean isRecurring() {
+        return recurring;
+    }
+
+    public void setRecurring(boolean recurring) {
+        this.recurring = recurring;
+    }
+
+    public LocalDate getRecurrenceStart() {
+        return recurrenceStart;
+    }
+
+    public void setRecurrenceStart(LocalDate recurrenceStart) {
+        this.recurrenceStart = recurrenceStart;
+    }
+
+    public LocalDate getRecurrenceEnd() {
+        return recurrenceEnd;
+    }
+
+    public void setRecurrenceEnd(LocalDate recurrenceEnd) {
+        this.recurrenceEnd = recurrenceEnd;
+    }
+
+    public Set<DayOfWeek> getRecurrenceDays() {
+        return recurrenceDays;
+    }
+
+    public void setRecurrenceDays(Set<DayOfWeek> recurrenceDays) {
+        this.recurrenceDays = (recurrenceDays == null)
+                ? new HashSet<>()
+                : new HashSet<>(recurrenceDays);
+    }
+
 
 }

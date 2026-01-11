@@ -1,8 +1,10 @@
 package at.fhv.Event.presentation.rest.response.event;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 public record EventOverviewDTO(
         Long id,
@@ -21,5 +23,9 @@ public record EventOverviewDTO(
         BigDecimal price,
         String imageUrl,
         String audience,
-        Boolean cancelled
+        Boolean cancelled,
+        boolean recurring,
+        LocalDate recurrenceStart,
+        LocalDate recurrenceEnd,
+        List<DayOfWeek> recurrenceDays
 ) {}

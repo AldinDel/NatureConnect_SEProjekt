@@ -3,6 +3,7 @@ package at.fhv.Event.application.event;
 import at.fhv.Event.domain.model.booking.BookingRepository;
 import at.fhv.Event.domain.model.user.UserAccount;
 import at.fhv.Event.domain.model.user.UserAccountRepository;
+import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
 import at.fhv.Event.presentation.rest.response.event.EventOverviewDTO;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -66,12 +67,69 @@ public class EventAccessService {
         return remaining;
     }
 
-    public boolean isEventExpired(LocalDate eventDate, LocalTime startTime) {
-        LocalDateTime eventStart = LocalDateTime.of(eventDate, startTime);
-        LocalDateTime now = LocalDateTime.now();
+    public boolean isEventExpired(EventOverviewDTO event) {
 
-        return eventStart.isBefore(now);
+        if (event == null) {
+            return false;
+        }
+
+        LocalDateTime endDateTime;
+
+        if (event.recurring()) {
+            if (event.recurrenceEnd() == null || event.endTime() == null) {
+                return false;
+            }
+
+            endDateTime = LocalDateTime.of(
+                    event.recurrenceEnd(),
+                    event.endTime()
+            );
+        } else {
+            if (event.date() == null || event.endTime() == null) {
+                return false;
+            }
+
+            endDateTime = LocalDateTime.of(
+                    event.date(),
+                    event.endTime()
+            );
+        }
+
+        return endDateTime.isBefore(LocalDateTime.now());
     }
+
+    public boolean isEventExpired(EventDetailDTO event) {
+
+        if (event == null) {
+            return false;
+        }
+
+        LocalDateTime endDateTime;
+
+        if (event.recurring()) {
+            if (event.recurrenceEnd() == null || event.endTime() == null) {
+                return false;
+            }
+
+            endDateTime = LocalDateTime.of(
+                    event.recurrenceEnd(),
+                    event.endTime()
+            );
+        } else {
+            if (event.date() == null || event.endTime() == null) {
+                return false;
+            }
+
+            endDateTime = LocalDateTime.of(
+                    event.date(),
+                    event.endTime()
+            );
+        }
+
+        return endDateTime.isBefore(LocalDateTime.now());
+    }
+
+
 
     @Transactional(readOnly = true)
     public String getCurrentUserFullName(Authentication auth) {
@@ -104,11 +162,7 @@ public class EventAccessService {
 
         for (EventOverviewDTO event : events) {
             boolean isCancelled = Boolean.TRUE.equals(event.cancelled());
-            boolean isExpired = false;
-
-            if (event.date() != null) {
-                isExpired = event.date().isBefore(today);
-            }
+            boolean isExpired = isEventExpired(event);
 
             if (!isCancelled && !isExpired) {
                 result.add(event);
@@ -118,13 +172,14 @@ public class EventAccessService {
         return result;
     }
 
-    private boolean isEventVisibleForUser(EventOverviewDTO event, String role, String organizerName, LocalDate today) {
+    private boolean isEventVisibleForUser(
+            EventOverviewDTO event,
+            String role,
+            String organizerName,
+            LocalDate today
+    ) {
         boolean isCancelled = Boolean.TRUE.equals(event.cancelled());
-        boolean isExpired = false;
-
-        if (event.date() != null) {
-            isExpired = event.date().isBefore(today);
-        }
+        boolean isExpired = isEventExpired(event);
 
         if (!isCancelled && !isExpired) {
             return true;
@@ -136,9 +191,7 @@ public class EventAccessService {
 
         if ("ORGANIZER".equals(role) && organizerName != null) {
             String eventOrganizer = event.organizer();
-            if (eventOrganizer != null && eventOrganizer.equalsIgnoreCase(organizerName)) {
-                return true;
-            }
+            return eventOrganizer != null && eventOrganizer.equalsIgnoreCase(organizerName);
         }
 
         return false;

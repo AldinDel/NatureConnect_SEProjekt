@@ -8,10 +8,12 @@ import at.fhv.Event.domain.model.exception.ValidationErrorType;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class EventValidator {
@@ -24,11 +26,23 @@ public class EventValidator {
 
         validateTitle(request.getTitle(), errors);
         validateDescription(request.getDescription(), errors);
-        validateDate(request.getDate(), errors);
+
+        if (!request.isRecurring()) {
+            validateDate(request.getDate(), errors);
+        }
+
         validateTimeRange(request.getStartTime(), request.getEndTime(), errors);
         validateLocation(request.getLocation(), errors);
         validateParticipantRange(request.getMinParticipants(), request.getMaxParticipants(), errors);
         validatePrice(request.getPrice(), errors);
+
+        validateRecurrence(
+                request.isRecurring(),
+                request.getRecurrenceStart(),
+                request.getRecurrenceEnd(),
+                request.getRecurrenceDays(),
+                errors
+        );
 
         return errors;
     }
@@ -38,11 +52,23 @@ public class EventValidator {
 
         validateTitle(request.getTitle(), errors);
         validateDescription(request.getDescription(), errors);
-        validateDate(request.getDate(), errors);
+
+        if (!request.isRecurring() && request.getDate() != null) {
+            validateDate(request.getDate(), errors);
+        }
+
         validateTimeRange(request.getStartTime(), request.getEndTime(), errors);
         validateLocation(request.getLocation(), errors);
         validateParticipantRange(request.getMinParticipants(), request.getMaxParticipants(), errors);
         validatePrice(request.getPrice(), errors);
+
+        validateRecurrence(
+                request.isRecurring(),
+                request.getRecurrenceStart(),
+                request.getRecurrenceEnd(),
+                request.getRecurrenceDays(),
+                errors
+        );
 
         return errors;
     }
@@ -65,6 +91,39 @@ public class EventValidator {
                     date,
                     "Event date cannot be in the past"
             ));
+        }
+    }
+
+    private void validateRecurrence(
+            Boolean recurring,
+            LocalDate start,
+            LocalDate end,
+            Set<DayOfWeek> days,
+            List<ValidationError> errors
+    )
+    {
+        if (Boolean.TRUE.equals(recurring)) {
+
+            if (start == null) {
+                errors.add(ValidationErrorFactory.required("recurrenceStart"));
+            }
+
+            if (end == null) {
+                errors.add(ValidationErrorFactory.required("recurrenceEnd"));
+            }
+
+            if (start != null && end != null && end.isBefore(start)) {
+                errors.add(new ValidationError(
+                        ValidationErrorType.BUSINESS_RULE_VIOLATION,
+                        "recurrenceEnd",
+                        end,
+                        "Recurrence end must be after start"
+                ));
+            }
+
+            if (days == null || days.isEmpty()) {
+                errors.add(ValidationErrorFactory.required("recurrenceDays"));
+            }
         }
     }
 

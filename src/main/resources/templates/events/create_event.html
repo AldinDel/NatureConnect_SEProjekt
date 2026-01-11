@@ -364,23 +364,107 @@
         <!-- Beschreibung -->
         <div class="form-group form-span-2">
             <label class="form-label">Description:</label>
-            <textarea id="description" name="description" th:field="*{description}" class="form-textarea"></textarea>
+            <textarea th:field="*{description}" class="form-textarea"></textarea>
         </div>
 
-        <!-- Datum & Zeit -->
+        <div class="form-group form-span-2">
+            <label>
+                <input type="checkbox"
+                       id="isRecurring"
+                       th:field="*{recurring}">
+                Recurring event
+            </label>
+        </div>
+
+        <!-- Recurring Settings -->
+        <div id="recurringSection"
+             class="form-span-2"
+             style="display:none; gap:20px;">
+
+        <div class="form-group">
+                <label class="form-label">Recurrence start date:</label>
+                <input type="date" th:field="*{recurrenceStart}" class="form-input">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Recurrence end date:</label>
+                <input type="date" th:field="*{recurrenceEnd}" class="form-input">
+            </div>
+
+            <div class="form-group form-span-2">
+                <label class="form-label">Repeats on:</label>
+                <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                    <label>
+                        <input type="checkbox"
+                               th:field="*{recurrenceDays}"
+                               value="MONDAY"> Mon
+                    </label>
+                    <label>
+                        <input type="checkbox"
+                               th:field="*{recurrenceDays}"
+                               value="TUESDAY"> Tue
+                    </label>
+                    <label>
+                        <input type="checkbox"
+                               th:field="*{recurrenceDays}"
+                               value="WEDNESDAY"> Wed
+                    </label>
+                    <label>
+                        <input type="checkbox"
+                               th:field="*{recurrenceDays}"
+                               value="THURSDAY"> Thu
+                    </label>
+                    <label>
+                        <input type="checkbox"
+                               th:field="*{recurrenceDays}"
+                               value="FRIDAY"> Fri
+                    </label>
+                    <label>
+                        <input type="checkbox"
+                               th:field="*{recurrenceDays}"
+                               value="SATURDAY"> Sat
+                    </label>
+                    <label>
+                        <input type="checkbox"
+                               th:field="*{recurrenceDays}"
+                               value="SUNDAY"> Sun
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Datum -->
         <div class="form-group">
             <label class="form-label">Date:</label>
-            <input id="date" name="date" type="date" class="form-input" th:value="${event.date}" required>
+            <input
+                    id="date"
+                    type="date"
+                    class="form-input"
+                    th:field="*{date}">
         </div>
+
+        <!-- Zeit -->
         <div class="form-group">
             <label class="form-label">Time:</label>
             <div class="time-inputs">
-                <input id="startTime" name="startTime" type="time" th:value="${event.startTime}" class="form-input"
-                       required>
+                <input
+                        id="startTime"
+                        type="time"
+                        class="form-input"
+                        th:field="*{startTime}"
+                        required>
+
                 <span>to</span>
-                <input id="endTime" name="endTime" type="time" th:value="${event.endTime}" class="form-input" required>
+
+                <input
+                        id="endTime"
+                        type="time"
+                        class="form-input"
+                        th:field="*{endTime}"
+                        required>
             </div>
         </div>
+
 
         <!-- Ort & Schwierigkeit -->
         <div class="form-group">
@@ -580,6 +664,27 @@
     // Clicking the backdrop closes modal
     const backdrop = document.getElementById('hikeRoutesModalBackdrop');
     if (backdrop) backdrop.addEventListener('click', () => modal.style.display = 'none');
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const recurringCheckbox = document.getElementById("isRecurring");
+        const recurringSection = document.getElementById("recurringSection");
+        const dateInput = document.getElementById("date");
+
+        function updateRecurringUI() {
+            if (recurringCheckbox.checked) {
+                recurringSection.style.display = "grid";
+                dateInput.readOnly = true;
+                dateInput.style.opacity = "0.5";
+            } else {
+                recurringSection.style.display = "none";
+                dateInput.readOnly = false;
+                dateInput.style.opacity = "1";
+            }
+        }
+
+        updateRecurringUI();
+        recurringCheckbox.addEventListener("change", updateRecurringUI);
+    });
 </script>
 
 
