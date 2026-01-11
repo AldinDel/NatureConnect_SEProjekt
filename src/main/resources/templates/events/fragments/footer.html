@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+</head>
+<body>
+
+<th:block th:fragment="footer">
+    <footer class="nc-footer">
+        <div class="nc-container nc-footer-grid">
+
+            <div class="nc-footer-col">
+                <div class="nc-footer-title">NatureConnect</div>
+                <div class="nc-footer-text">
+                    Your platform for outdoor events, bookings and experiences.
+                </div>
+            </div>
+
+            <div class="nc-footer-col">
+                <div class="nc-footer-title">Company</div>
+                <a class="nc-footer-link" th:href="@{/about}">About Us</a>
+                <a class="nc-footer-link" th:href="@{/contact}">Contact</a>
+            </div>
+
+            <div class="nc-footer-col">
+                <div class="nc-footer-title">Legal</div>
+                <a class="nc-footer-link" th:href="@{/imprint}">Imprint</a>
+                <a class="nc-footer-link" th:href="@{/privacy}">Privacy Policy</a>
+                <a class="nc-footer-link" th:href="@{/terms}">Terms</a>
+            </div>
+
+            <div class="nc-footer-col">
+                <div class="nc-footer-title">Support</div>
+                <a class="nc-footer-link" th:href="@{/refunds}">Refund & Cancellation</a>
+                <a class="nc-footer-link" th:href="@{/payment-methods}">Payment Methods</a>
+            </div>
+
+        </div>
+
+        <div class="nc-footer-bottom">
+            <div class="nc-container">
+                © <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2026</span> NatureConnect. All rights reserved.
+            </div>
+        </div>
+    </footer>
+</th:block>
+
+</body>
+</html>

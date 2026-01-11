@@ -6,6 +6,7 @@
     <title>NatureConnect - Events</title>
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}" href="/css/footer.css">
     <link rel="stylesheet" th:href="@{/css/events.css}">  <!-- ALLES IST HIER DRIN -->
     <link rel="icon" type="image/png" th:href="@{/images/NatureConnectLogo.png}" href="/images/NatureConnectLogo.png">
 </head>
@@ -250,6 +251,8 @@
     closeBtn?.addEventListener("click", () => { panel.classList.remove("open"); overlay.classList.remove("active"); });
     overlay?.addEventListener("click", () => { panel.classList.remove("open"); overlay.classList.remove("active"); });
 </script>
+
+<div th:replace="events/fragments/footer :: footer"></div>
 
 </body>
 </html>

@@ -5,6 +5,7 @@
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/bookings-overview.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}" href="/css/footer.css">
 </head>
 
 <body class="bookings-page">
@@ -158,6 +159,8 @@
         });
     }
 </script>
+
+<div th:replace="events/fragments/footer :: footer"></div>
 
 </body>
 </html>
