@@ -7,26 +7,29 @@ import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
 import at.fhv.Event.presentation.rest.response.event.EventOverviewDTO;
 import org.springframework.stereotype.Component;
 
+import java.time.DayOfWeek;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
 public class EventMapperDTO {
-        public EventDetailDTO toDetailDTO(Event e) {
-        if (e == null) {
-            return null;
-        }
+
+    public EventDetailDTO toDetailDTO(Event e) {
+        if (e == null) return null;
 
         List<Long> requiredIds = e.getEventEquipments().stream()
                 .filter(EventEquipment::isRequired)
                 .map(ee -> ee.getEquipment().getId())
-                .collect(Collectors.toList());
+                .toList();
 
         List<Long> optionalIds = e.getEventEquipments().stream()
                 .filter(ee -> !ee.isRequired())
                 .map(ee -> ee.getEquipment().getId())
-                .collect(Collectors.toList());
+                .toList();
+
+        List<DayOfWeek> recurrenceDays =
+                e.getRecurrenceDays() != null ? List.copyOf(e.getRecurrenceDays()) : List.of();
 
         return new EventDetailDTO(
                 e.getId(),
@@ -34,7 +37,7 @@ public class EventMapperDTO {
                 e.getDescription(),
                 e.getOrganizer(),
                 e.getCategory(),
-                e.getDate(),
+                e.isRecurring() ? null : e.getDate(),
                 e.getStartTime(),
                 e.getEndTime(),
                 e.getLocation(),
@@ -48,22 +51,28 @@ public class EventMapperDTO {
                 requiredIds,
                 optionalIds,
                 e.getHikeRouteKeys(),
-                e.getAudience() != null ? e.getAudience().toString() : null
+                e.getAudience() != null ? e.getAudience().toString() : null,
+                e.isRecurring(),
+                e.getRecurrenceStart(),
+                e.getRecurrenceEnd(),
+                recurrenceDays
         );
     }
 
     public EventOverviewDTO toOverviewDTO(Event e, String displayOrganizer) {
-        if (e == null) {
-            return null;
-        }
+        if (e == null) return null;
+
+        List<DayOfWeek> recurrenceDays =
+                e.getRecurrenceDays() != null ? List.copyOf(e.getRecurrenceDays()) : List.of();
+
         return new EventOverviewDTO(
                 e.getId(),
                 e.getTitle(),
                 e.getDescription(),
-                e.getOrganizer(),
+                displayOrganizer,
                 e.getOrganizer(),
                 e.getCategory(),
-                e.getDate(),
+                e.isRecurring() ? null : e.getDate(),
                 e.getStartTime(),
                 e.getEndTime(),
                 e.getLocation(),
@@ -73,12 +82,17 @@ public class EventMapperDTO {
                 e.getPrice(),
                 e.getImageUrl(),
                 e.getAudience() != null ? e.getAudience().toString() : null,
-                e.getCancelled()
+                e.getCancelled(),
+                e.isRecurring(),
+                e.getRecurrenceStart(),
+                e.getRecurrenceEnd(),
+                recurrenceDays
         );
     }
 
     private List<EquipmentDTO> mapEquipments(Set<EventEquipment> ees) {
         if (ees == null) return List.of();
+
         return ees.stream()
                 .map(ee -> new EquipmentDTO(
                         ee.getEquipment().getId(),

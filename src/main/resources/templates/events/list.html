@@ -164,20 +164,29 @@
 
         <div class="event-card"
              th:each="event : ${events}"
-             th:with="eventStart=${event.date.atTime(event.startTime)},
-                      expired=${eventStart.isBefore(#temporals.createNow())}"
+             th:with="
+              eventStart=${event.recurring
+                  ? event.recurrenceEnd.atTime(event.endTime)
+                  : event.date.atTime(event.startTime)},
+              expired=${eventStart.isBefore(#temporals.createNow())}
+            "
+
              th:classappend="${event.cancelled} ? 'cancelled-event' : (expired ? 'expired-event' : '')">
 
             <div class="card-image">
                 <img th:src="${event.imageUrl != null} ? ${event.imageUrl} : @{/images/default_event.jpg}">
+
                 <span class="tag"
                       th:text="${event.category != null ? event.category : 'General'}"
                       th:classappend="|tag-${#strings.replace(#strings.toLowerCase(event.category ?: 'general'), ' ', '-')}|">
-                </span>
+    </span>
+
+                <span th:if="${event.recurring}" class="recurring-badge">RECURRING</span>
 
                 <span th:if="${event.cancelled}" class="cancelled-badge">CANCELLED</span>
                 <span th:if="${!event.cancelled and expired}" class="expired-badge">EXPIRED</span>
             </div>
+
 
             <div class="card-content">
 
@@ -192,7 +201,21 @@
                 <p th:text="${event.description}"></p>
 
                 <ul class="details">
-                    <li><i data-lucide="calendar"></i><span th:text="${#temporals.format(event.date, 'MMMM dd, yyyy')}"></span></li>
+                    <li>
+                        <i data-lucide="calendar"></i>
+
+                        <!-- Single event -->
+                        <span th:if="${!event.recurring}"
+                              th:text="${#temporals.format(event.date, 'MMMM dd, yyyy')}">
+  </span>
+
+                        <!-- Recurring event -->
+                        <span th:if="${event.recurring}">
+      <span th:text="${#temporals.format(event.recurrenceStart, 'dd MMM yyyy')}"></span>
+      –
+      <span th:text="${#temporals.format(event.recurrenceEnd, 'dd MMM yyyy')}"></span>
+  </span>
+                    </li>
                     <li><i data-lucide="clock"></i>
                         <span th:text="${#temporals.format(event.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(event.endTime, 'HH:mm')}"></span>
                     </li>

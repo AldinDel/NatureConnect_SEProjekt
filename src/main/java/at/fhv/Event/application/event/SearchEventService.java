@@ -35,7 +35,7 @@ public class SearchEventService {
                             displayOrganizer,
                             e.getOrganizer(),
                             e.getCategory(),
-                            e.getDate(),
+                            e.isRecurring() ? null : e.getDate(),
                             e.getStartTime(),
                             e.getEndTime(),
                             e.getLocation(),
@@ -45,7 +45,13 @@ public class SearchEventService {
                             e.getPrice(),
                             e.getImageUrl(),
                             e.getAudience() != null ? e.getAudience().toString() : null,
-                            e.getCancelled()
+                            e.getCancelled(),
+                            e.isRecurring(),
+                            e.getRecurrenceStart(),
+                            e.getRecurrenceEnd(),
+                            e.getRecurrenceDays() != null
+                                    ? List.copyOf(e.getRecurrenceDays())
+                                    : List.of()
                     );
                 })
                 .toList();

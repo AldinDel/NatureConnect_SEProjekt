@@ -114,7 +114,7 @@ public class EventController {
             return "redirect:/events/" + id;
         }
 
-        if (accessService.isEventExpired(detail.date(), detail.startTime())) {
+        if (accessService.isEventExpired(detail)) {
             redirect.addFlashAttribute("error", "Event is already expired, you can't edit it anymore.");
             return "redirect:/events/" + id;
         }
@@ -213,7 +213,7 @@ public class EventController {
         int remaining = accessService.calculateRemainingSpots(event.id(), event.minParticipants(), event.maxParticipants());
         model.addAttribute("remainingSpots", remaining);
 
-        boolean expired = accessService.isEventExpired(event.date(), event.startTime());
+        boolean expired = accessService.isEventExpired(event);
         model.addAttribute("expired", expired);
 
         boolean isHiking = event.category() != null && event.category().toLowerCase().contains("hiking");
@@ -236,7 +236,7 @@ public class EventController {
             return "redirect:/events/" + id;
         }
 
-        if (accessService.isEventExpired(detail.date(), detail.startTime())) {
+        if (accessService.isEventExpired(detail)) {
             redirect.addFlashAttribute("error", "Expired events cannot be cancelled.");
             return "redirect:/events/" + id;
         }

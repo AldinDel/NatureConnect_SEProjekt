@@ -95,13 +95,26 @@
                 </div>
 
                 <div class="detail-item">
-                    <h4>Date</h4>
-                    <p th:text="${#temporals.format(event.date, 'dd MMMM yyyy')}">12 December 2026</p>
-                </div>
+                    <h4 th:text="${event.recurring} ? 'Schedule' : 'Date'">Date</h4>
 
-                <div class="detail-item">
-                    <h4>Duration</h4>
-                    <p th:text="${event.startTime} + ' - ' + ${event.endTime}">Time</p>
+                    <p th:if="${!event.recurring}"
+                       th:text="${#temporals.format(event.date, 'dd MMMM yyyy')}">
+                    </p>
+
+                    <div th:if="${event.recurring}">
+                        <p>
+                            Repeats from
+                            <strong th:text="${#temporals.format(event.recurrenceStart, 'dd MMMM yyyy')}"></strong>
+                            to
+                            <strong th:text="${#temporals.format(event.recurrenceEnd, 'dd MMMM yyyy')}"></strong>
+                        </p>
+
+                        <p th:if="${event.recurrenceDays != null}">
+            <span th:each="day, stat : ${event.recurrenceDays}">
+                <span th:text="${day}"></span><span th:if="${!stat.last}">, </span>
+            </span>
+                        </p>
+                    </div>
                 </div>
 
                 <div class="detail-item">
