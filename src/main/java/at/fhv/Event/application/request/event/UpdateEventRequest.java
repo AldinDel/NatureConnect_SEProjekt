@@ -18,7 +18,7 @@ public class UpdateEventRequest {
     private LocalDate date;
     private LocalTime startTime;
     private LocalTime endTime;
-    private Boolean recurring;
+    private boolean recurring;
     private LocalDate recurrenceStart;
     private LocalDate recurrenceEnd;
     private Set<DayOfWeek> recurrenceDays;
@@ -91,7 +91,7 @@ public class UpdateEventRequest {
         this.endTime = endTime;
     }
 
-    public Boolean isRecurring() {
+    public boolean isRecurring() {
         return recurring;
     }
 
@@ -179,7 +179,7 @@ public class UpdateEventRequest {
         this.hikeRouteKeys = hikeRouteKeys;
     }
 
-    public void setRecurring(Boolean recurring) {
+    public void setRecurring(boolean recurring) {
         this.recurring = recurring;
     }
 

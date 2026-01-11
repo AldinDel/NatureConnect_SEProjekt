@@ -431,24 +431,38 @@
             </div>
         </div>
 
-        <!-- Datum & Zeit -->
+        <!-- Datum -->
         <div class="form-group">
             <label class="form-label">Date:</label>
-            <input id="date"
-                   name="date"
-                   type="date"
-                   class="form-input"
-                   th:value="${event.date}">
+            <input
+                    id="date"
+                    type="date"
+                    class="form-input"
+                    th:field="*{date}">
         </div>
+
+        <!-- Zeit -->
         <div class="form-group">
             <label class="form-label">Time:</label>
             <div class="time-inputs">
-                <input id="startTime" name="startTime" type="time" th:value="${event.startTime}" class="form-input"
-                       required>
+                <input
+                        id="startTime"
+                        type="time"
+                        class="form-input"
+                        th:field="*{startTime}"
+                        required>
+
                 <span>to</span>
-                <input id="endTime" name="endTime" type="time" th:value="${event.endTime}" class="form-input" required>
+
+                <input
+                        id="endTime"
+                        type="time"
+                        class="form-input"
+                        th:field="*{endTime}"
+                        required>
             </div>
         </div>
+
 
         <!-- Ort & Schwierigkeit -->
         <div class="form-group">
@@ -657,11 +671,12 @@
         function updateRecurringUI() {
             if (recurringCheckbox.checked) {
                 recurringSection.style.display = "grid";
-                dateInput.disabled = true;
-                dateInput.value = "";
+                dateInput.readOnly = true;
+                dateInput.style.opacity = "0.5";
             } else {
                 recurringSection.style.display = "none";
-                dateInput.disabled = false;
+                dateInput.readOnly = false;
+                dateInput.style.opacity = "1";
             }
         }
 

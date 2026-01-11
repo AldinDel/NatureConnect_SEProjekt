@@ -20,6 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 @Controller
@@ -136,7 +137,10 @@ public class EventController {
                          RedirectAttributes redirect,
                          Authentication auth) {
 
-        if (req.getDate() != null && req.getDate().isBefore(LocalDate.now())) {
+        if (!req.isRecurring()
+                && req.getDate() != null
+                && req.getDate().isBefore(LocalDate.now())) {
+
             redirect.addFlashAttribute("error", "Event date cannot be in the past.");
             return "redirect:/events/" + id + "/edit";
         }
@@ -253,6 +257,12 @@ public class EventController {
         req.setDescription(detail.description());
         req.setOrganizer(detail.organizer());
         req.setCategory(detail.category());
+        req.setRecurring(detail.recurring());
+        req.setRecurrenceStart(detail.recurrenceStart());
+        req.setRecurrenceEnd(detail.recurrenceEnd());
+        if (detail.recurrenceDays() != null) {
+            req.setRecurrenceDays(new HashSet<>(detail.recurrenceDays()));
+        }
         req.setDate(detail.date());
         req.setStartTime(detail.startTime());
         req.setEndTime(detail.endTime());

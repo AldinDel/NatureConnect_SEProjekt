@@ -53,7 +53,7 @@ public class EventValidator {
         validateTitle(request.getTitle(), errors);
         validateDescription(request.getDescription(), errors);
 
-        if (!Boolean.TRUE.equals(request.isRecurring())) {
+        if (!request.isRecurring()) {
             validateDate(request.getDate(), errors);
         }
 
