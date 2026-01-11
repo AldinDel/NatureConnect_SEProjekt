@@ -209,12 +209,14 @@
                               th:text="${#temporals.format(event.date, 'MMMM dd, yyyy')}">
   </span>
 
-                        <!-- Recurring event -->
+                        <!-- Recurring event (short overview text) -->
                         <span th:if="${event.recurring}">
-      <span th:text="${#temporals.format(event.recurrenceStart, 'dd MMM yyyy')}"></span>
-      –
-      <span th:text="${#temporals.format(event.recurrenceEnd, 'dd MMM yyyy')}"></span>
-  </span>
+                            Repeats weekly on
+                            <span th:each="day, stat : ${event.recurrenceDays}">
+                                <span th:text="${#strings.capitalize(day.toString().toLowerCase())}"></span><span th:if="${!stat.last}">, </span>
+                            </span>
+                        </span>
+
                     </li>
                     <li><i data-lucide="clock"></i>
                         <span th:text="${#temporals.format(event.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(event.endTime, 'HH:mm')}"></span>

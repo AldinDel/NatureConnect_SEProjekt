@@ -89,45 +89,64 @@
         <div class="box">
             <h3>Event Details</h3>
             <div class="details-grid">
+
+                <!-- Difficulty -->
                 <div class="detail-item">
                     <h4>Difficulty</h4>
-                    <p th:text="${event.difficulty}">Medium</p>
+                    <p th:text="${event.difficulty}">Beginner</p>
                 </div>
 
-                <div class="detail-item">
-                    <h4 th:text="${event.recurring} ? 'Schedule' : 'Date'">Date</h4>
-
-                    <p th:if="${!event.recurring}"
-                       th:text="${#temporals.format(event.date, 'dd MMMM yyyy')}">
-                    </p>
-
-                    <div th:if="${event.recurring}">
-                        <p>
-                            Repeats from
-                            <strong th:text="${#temporals.format(event.recurrenceStart, 'dd MMMM yyyy')}"></strong>
-                            to
-                            <strong th:text="${#temporals.format(event.recurrenceEnd, 'dd MMMM yyyy')}"></strong>
-                        </p>
-
-                        <p th:if="${event.recurrenceDays != null}">
-            <span th:each="day, stat : ${event.recurrenceDays}">
-                <span th:text="${day}"></span><span th:if="${!stat.last}">, </span>
-            </span>
-                        </p>
-                    </div>
-                </div>
-
+                <!-- Time -->
                 <div class="detail-item">
                     <h4>Time</h4>
                     <p>
-                        <span th:text="${#temporals.format(event.startTime, 'HH:mm')}">10:00</span> –
-                        <span th:text="${#temporals.format(event.endTime, 'HH:mm')}">14:00</span>
+                        <span th:text="${#temporals.format(event.startTime, 'HH:mm')}"></span>
+                        –
+                        <span th:text="${#temporals.format(event.endTime, 'HH:mm')}"></span>
                     </p>
                 </div>
-            </div>
-        </div>
 
-        <div class="box" id="hiking-route-box" th:if="${isHikingEvent}">
+                <!-- Schedule / Date (full row) -->
+                <div class="detail-item" style="grid-column: 1 / -1;">
+                    <h4 th:text="${event.recurring} ? 'Schedule' : 'Date'">Schedule</h4>
+
+                    <!-- Single event -->
+                    <p th:if="${!event.recurring}"
+                       th:text="${#temporals.format(event.date, 'MMMM dd, yyyy')}">
+                    </p>
+
+                    <!-- Recurring -->
+                    <div th:if="${event.recurring}">
+                        <p>
+                            Repeats from
+                            <strong th:text="${#temporals.format(
+                                event.recurrenceStart,
+                                'MMMM dd, yyyy',
+                                T(java.util.Locale).ENGLISH
+                            )}"></strong>
+
+                            to
+                            <strong th:text="${#temporals.format(
+                                event.recurrenceEnd,
+                                'MMMM dd, yyyy',
+                                T(java.util.Locale).ENGLISH
+                            )}"></strong>
+
+                        </p>
+
+                        <p th:if="${event.recurrenceDays != null}">
+    <span th:each="day, stat : ${event.recurrenceDays}">
+        <span th:text="${#strings.capitalize(day.toString().toLowerCase())}"></span><span th:if="${!stat.last}">, </span>
+    </span>
+                    </p>
+
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="box" id="hiking-route-box" th:if="${isHikingEvent}">
             <h3>Hiking Routes</h3>
 
             <p id="no-hike-info">No hiking route available for this event.</p>
