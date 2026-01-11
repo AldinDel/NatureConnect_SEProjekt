@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Add Feedback</title>
+
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/feedback.css}">
+</head>
+
+<body class="feedback-page">
+
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
+
+<div class="page-header">
+    <h1>Add Customer Feedback</h1>
+    <p>Please record the customer's feedback after check-out.</p>
+</div>
+
+<div class="form-wrapper">
+
+    <form th:action="@{/feedback}" method="post" class="feedback-form">
+
+        <!-- CONTEXT (WICHTIG) -->
+        <input type="hidden" name="participantId" th:value="${participantId}">
+        <input type="hidden" name="eventId" th:value="${eventId}">
+
+        <!-- RATING -->
+        <label for="rating">Rating</label>
+        <div class="star-rating">
+            <input type="hidden" name="rating" id="rating" required>
+
+            <span data-value="1">★</span>
+            <span data-value="2">★</span>
+            <span data-value="3">★</span>
+            <span data-value="4">★</span>
+            <span data-value="5">★</span>
+        </div>
+
+        <!-- COMMENT -->
+        <label for="comment" class="mt-2">Comment (optional)</label>
+        <textarea id="comment"
+                  name="comment"
+                  rows="4"
+                  placeholder="Customer feedback..."></textarea>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary-pill">
+                Save Feedback
+            </button>
+
+            <a th:href="@{/event_management/checkout(eventId=${eventId})}"
+               class="btn btn-danger-pill">
+                Cancel
+            </a>
+        </div>
+
+
+    </form>
+
+</div>
+
+<script>
+    const stars = document.querySelectorAll(".star-rating span");
+    const ratingInput = document.getElementById("rating");
+
+    stars.forEach(star => {
+        star.addEventListener("click", () => {
+            const value = star.dataset.value;
+            ratingInput.value = value;
+
+            stars.forEach(s => {
+                s.classList.toggle("active", s.dataset.value <= value);
+            });
+        });
+    });
+</script>
+
+</body>
+</html>
