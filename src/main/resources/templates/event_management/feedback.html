@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Event Feedback</title>
+
+  <link rel="stylesheet" th:href="@{/css/navbar.css}">
+  <link rel="stylesheet" th:href="@{/css/style.css}">
+  <link rel="stylesheet" th:href="@{/css/participants.css}">
+  <link rel="stylesheet" th:href="@{/css/feedback-admin.css}">
+</head>
+
+<body class="feedback-admin-page">
+
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
+
+<div class="page-header">
+  <h1>Event Feedback</h1>
+  <p th:text="'Event ID: ' + ${eventId}"></p>
+</div>
+
+<div class="stats-container">
+  <div class="stat-card">
+    <span class="stat-title">Average Rating</span>
+    <span class="stat-value" th:text="${stats.averageRating}"></span>
+  </div>
+
+  <div class="stat-card">
+    <span class="stat-title">Low Ratings (≤2)</span>
+    <span class="stat-value danger" th:text="${stats.lowRatingCount}"></span>
+  </div>
+
+  <div class="stat-card">
+    <span class="stat-title">Comments</span>
+    <span class="stat-value" th:text="${stats.commentCount}"></span>
+  </div>
+</div>
+
+<form method="get" class="feedback-filter">
+  <input type="hidden" name="eventId" th:value="${eventId}" />
+
+  <select name="rating">
+    <option value="" th:selected="${rating == null}">All ratings</option>
+    <option value="LOW" th:selected="${rating == 'LOW'}">≤ 2 stars</option>
+    <option value="1" th:selected="${rating == '1'}">1 star</option>
+    <option value="2" th:selected="${rating == '2'}">2 stars</option>
+    <option value="3" th:selected="${rating == '3'}">3 stars</option>
+    <option value="4" th:selected="${rating == '4'}">4 stars</option>
+    <option value="5" th:selected="${rating == '5'}">5 stars</option>
+  </select>
+
+
+  <select name="comments">
+    <option value="" th:selected="${comments == null}">All</option>
+    <option value="WITH" th:selected="${comments == 'WITH'}">With comments</option>
+    <option value="WITHOUT" th:selected="${comments == 'WITHOUT'}">Without comments</option>
+  </select>
+
+
+  <select name="sort">
+    <option value="newest" th:selected="${sort == null || sort == 'newest'}">Newest first</option>
+    <option value="oldest" th:selected="${sort == 'oldest'}">Oldest first</option>
+    <option value="rating_desc" th:selected="${sort == 'rating_desc'}">Highest rating</option>
+    <option value="rating_asc" th:selected="${sort == 'rating_asc'}">Lowest rating</option>
+  </select>
+
+  <a th:href="@{/event_management/feedback(eventId=${eventId})}"
+     class="btn ghost">Reset</a>
+</form>
+
+
+<div class="table-wrapper">
+  <table class="participants-table">
+    <thead>
+    <tr>
+      <th>Participant</th>
+      <th>Rating</th>
+      <th>Comment</th>
+      <th>Date</th>
+      <th>Time</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr th:each="f : ${feedbacks}">
+      <td th:text="${f.participantName}"></td>
+      <td>
+        <span class="rating-stars" th:text="${'★'.repeat(f.rating)}"></span>
+      </td>
+      <td th:text="${f.comment}"></td>
+      <td th:text="${#temporals.format(f.createdAt, 'dd.MM.yyyy')}"></td>
+      <td th:text="${#temporals.format(f.createdAt, 'HH:mm')}"></td>
+    </tr>
+    </tbody>
+  </table>
+</div>
+
+<script>
+  document.querySelectorAll(".feedback-filter select").forEach(select => {
+    select.addEventListener("change", () => {
+      select.closest("form").submit();
+    });
+  });
+</script>
+
+</body>
+</html>
