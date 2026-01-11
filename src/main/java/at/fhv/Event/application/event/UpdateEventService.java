@@ -67,13 +67,11 @@ public class UpdateEventService {
 
         if (req.isRecurring()) {
             event.setDate(null);
-
             event.setRecurrenceStart(req.getRecurrenceStart());
             event.setRecurrenceEnd(req.getRecurrenceEnd());
             event.setRecurrenceDays(req.getRecurrenceDays());
         } else {
             event.setDate(req.getDate());
-
             event.setRecurrenceStart(null);
             event.setRecurrenceEnd(null);
             event.setRecurrenceDays(null);
