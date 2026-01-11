@@ -377,7 +377,9 @@
         </div>
 
         <!-- Recurring Settings -->
-        <div id="recurringSection" class="form-span-2" style="gap:20px;">
+        <div id="recurringSection"
+             class="form-span-2"
+             style="display:none; gap:20px;">
 
         <div class="form-group">
                 <label class="form-label">Recurrence start date:</label>
@@ -671,11 +673,12 @@
         function updateRecurringUI() {
             if (recurringCheckbox.checked) {
                 recurringSection.style.display = "grid";
-                dateInput.disabled = true;
-                dateInput.value = "";
+                dateInput.readOnly = true;
+                dateInput.style.opacity = "0.5";
             } else {
                 recurringSection.style.display = "none";
-                dateInput.disabled = false;
+                dateInput.readOnly = false;
+                dateInput.style.opacity = "1";
             }
         }
 

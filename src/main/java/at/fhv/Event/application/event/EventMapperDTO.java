@@ -37,7 +37,7 @@ public class EventMapperDTO {
                 e.getDescription(),
                 e.getOrganizer(),
                 e.getCategory(),
-                e.isRecurring() ? null : e.getDate(),
+                e.getDate(),
                 e.getStartTime(),
                 e.getEndTime(),
                 e.getLocation(),
