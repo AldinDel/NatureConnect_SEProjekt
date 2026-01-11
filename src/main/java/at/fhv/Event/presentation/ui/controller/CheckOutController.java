@@ -4,6 +4,8 @@ import at.fhv.Event.application.event.GetParticipantsForEventService;
 import at.fhv.Event.domain.model.booking.ParticipantCheckInStatus;
 import at.fhv.Event.presentation.rest.response.booking.EventCheckoutStats;
 import at.fhv.Event.presentation.rest.response.booking.ParticipantDTO;
+import at.fhv.Event.presentation.ui.dto.CheckoutParticipant;
+import at.fhv.Event.application.feedback.FeedbackService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,9 +19,11 @@ import java.util.List;
 public class CheckOutController {
 
     private final GetParticipantsForEventService participantsService;
+    private final FeedbackService feedbackService;
 
-    public CheckOutController(GetParticipantsForEventService participantsService) {
+    public CheckOutController(GetParticipantsForEventService participantsService, FeedbackService feedbackService) {
         this.participantsService = participantsService;
+        this.feedbackService = feedbackService;
     }
 
     @GetMapping
@@ -30,15 +34,33 @@ public class CheckOutController {
         model.addAttribute("eventId", eventId);
         model.addAttribute("activeTab", "checkout");
 
-        List<ParticipantDTO> participants =
+        List<CheckoutParticipant> participants =
                 participantsService.getParticipants(eventId).stream()
                         .filter(p -> p.getCheckInStatus() == ParticipantCheckInStatus.CHECKED_IN)
+                        .map(p -> {
+                            CheckoutParticipant dto = new CheckoutParticipant();
+
+                            dto.setParticipantId(p.getParticipantId());
+                            dto.setBookingId(p.getBookingId());
+                            dto.setBookerName(p.getBookerName());
+                            dto.setParticipantName(p.getParticipantName());
+                            dto.setParticipantAge(p.getParticipantAge());
+                            dto.setCheckedOut(p.isCheckedOut());
+
+
+                            dto.setFeedbackExists(
+                                    feedbackService.feedbackExists(p.getParticipantId())
+                            );
+
+                            return dto;
+                        })
                         .toList();
+
 
         long total = participants.size();
 
         long checkedOut = participants.stream()
-                .filter(ParticipantDTO::isCheckedOut)
+                .filter(CheckoutParticipant::isCheckedOut)
                 .count();
 
         long remaining = total - checkedOut;
