@@ -7,6 +7,7 @@
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/events.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}" href="/css/footer.css">
     <link rel="icon" type="image/png" th:href="@{/images/NatureConnectLogo.png}" href="/images/NatureConnectLogo.png">
 </head>
 <body class="events-page">
@@ -125,6 +126,8 @@
     if(closeBtn) closeBtn.addEventListener("click", () => { panel.classList.remove("open"); overlay.classList.remove("active"); });
     if(overlay) overlay.addEventListener("click", () => { panel.classList.remove("open"); overlay.classList.remove("active"); });
 </script>
+
+<div th:replace="events/fragments/footer :: footer"></div>
 
 </body>
 </html>

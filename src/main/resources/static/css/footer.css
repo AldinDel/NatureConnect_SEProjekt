@@ -1,0 +1,73 @@
+.nc-footer {
+    background-color: #0b2545;
+    color: #ffffff;
+    border-top: 1px solid rgba(255,255,255,0.12);
+    margin-top: 200px;
+}
+
+.nc-footer .nc-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 44px 24px 10px;
+}
+
+.nc-footer-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    column-gap: 48px;
+    row-gap: 28px;
+    align-items: start;
+}
+
+.nc-footer-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    color: #ffffff;
+    letter-spacing: 0.3px;
+    cursor: default;
+}
+
+.nc-footer-text {
+    pointer-events: none;
+}
+
+
+.nc-footer-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba(255,255,255,0.85);
+    max-width: 420px;
+}
+
+.nc-footer-link {
+    display: block;
+    font-size: 14px;
+    text-decoration: none;
+    margin: 5px 0;
+    color: rgba(255,255,255,0.85);
+}
+
+.nc-footer-link:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+.nc-footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.12);
+    padding: 6px 16px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.70);
+    text-align: center;
+}
+
+@media (max-width: 600px) {
+    .nc-footer-grid {
+        grid-template-columns: 1fr;
+        gap: 22px;
+    }
+}
+
+.nc-footer {
+    box-shadow: 0 -12px 24px rgba(0,0,0,0.15);
+}

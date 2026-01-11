@@ -8,6 +8,7 @@
 
     <link rel="stylesheet" th:href="@{/css/navbar.css}" href="/css/navbar.css">
     <link rel="stylesheet" th:href="@{/css/style.css}" href="/css/style.css">
+    <link rel="stylesheet" th:href="@{/css/footer.css}" href="/css/footer.css">
     <link rel="icon" type="image/png" th:href="@{/images/NatureConnectLogo.png}" href="/images/NatureConnectLogo.png">
 
     <style>
@@ -312,7 +313,7 @@
 </div>
 
 <div class="footer-text">
-    By signing in, you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+    By signing in, you agree to our <a th:href="@{/terms}">Terms of Service</a> and <a th:href="@{/privacy}">Privacy Policy</a>.
 </div>
 
 <script>
@@ -335,6 +336,8 @@
         }
     }
 </script>
+
+<div th:replace="events/fragments/footer :: footer"></div>
 
 </body>
 </html>

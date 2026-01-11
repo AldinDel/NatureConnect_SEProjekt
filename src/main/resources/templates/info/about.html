@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>About Us</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/static-page.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+</head>
+
+<body class="static_page">
+
+<div th:replace="events/fragments/navbar :: navbar"></div>
+
+<main class="static-container">
+    <h1 class="static-title">About Us</h1>
+    <p class="static-subtitle">Who we are and what NATUREConnect is about</p>
+
+    <section class="static-card">
+        <h2>Our Mission</h2>
+        <p>
+            NATUREConnect connects people with outdoor events and experiences. Our goal is to make discovering,
+            booking and managing outdoor activities simple and transparent.
+        </p>
+
+        <h2>For Participants</h2>
+        <p>
+            Participants can explore events, choose options and manage their bookings in one place.
+        </p>
+
+        <h2>For Organizers</h2>
+        <p>
+            Organizers can publish events, manage capacities and handle bookings efficiently.
+        </p>
+        <p>
+            To become an organizer on NATUREConnect, please contact us. We verify organizer accounts before enabling
+            organizer features to ensure quality and safety for participants.
+        </p>
+
+        <h2>Project Background</h2>
+        <p>
+            NATUREConnect is developed as part of an academic project focusing on event management, usability and
+            clean system design.
+        </p>
+    </section>
+
+
+</main>
+
+<div th:replace="events/fragments/footer :: footer"></div>
+
+</body>
+</html>

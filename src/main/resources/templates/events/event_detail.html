@@ -9,6 +9,7 @@
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/event_detail.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}" href="/css/footer.css">
 </head>
 
 <body>
@@ -291,6 +292,7 @@
 <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js" th:if="${isHikingEvent}"></script>
 <script th:src="@{/js/hiking-routes.js}" th:if="${isHikingEvent}"></script>
 
+<div th:replace="events/fragments/footer :: footer"></div>
 
 </body>
 </html>
