@@ -63,6 +63,10 @@ public class UpdateEventService {
         event.setMaxParticipants(req.getMaxParticipants());
         event.setPrice(req.getPrice());
         event.setImageUrl(req.getImageUrl());
+        event.setRecurring(req.isRecurring());
+        event.setRecurrenceStart(req.getRecurrenceStart());
+        event.setRecurrenceEnd(req.getRecurrenceEnd());
+        event.setRecurrenceDays(req.getRecurrenceDays());
         if (req.getHikeRouteKeys() != null) {
             event.setHikeRouteKeys(req.getHikeRouteKeys());
         }

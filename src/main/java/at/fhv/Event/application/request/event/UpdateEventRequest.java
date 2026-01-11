@@ -3,10 +3,12 @@ package at.fhv.Event.application.request.event;
 import at.fhv.Event.domain.model.event.Difficulty;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class UpdateEventRequest {
     private String title;
@@ -16,6 +18,10 @@ public class UpdateEventRequest {
     private LocalDate date;
     private LocalTime startTime;
     private LocalTime endTime;
+    private Boolean recurring;
+    private LocalDate recurrenceStart;
+    private LocalDate recurrenceEnd;
+    private Set<DayOfWeek> recurrenceDays;
     private String location;
     private Difficulty difficulty;
     private Integer minParticipants;
@@ -83,6 +89,22 @@ public class UpdateEventRequest {
 
     public void setEndTime(LocalTime endTime) {
         this.endTime = endTime;
+    }
+
+    public Boolean isRecurring() {
+        return recurring;
+    }
+
+    public LocalDate getRecurrenceStart() {
+        return recurrenceStart;
+    }
+
+    public LocalDate getRecurrenceEnd() {
+        return recurrenceEnd;
+    }
+
+    public Set<DayOfWeek> getRecurrenceDays() {
+        return recurrenceDays;
     }
 
     public String getLocation() {
@@ -156,4 +178,21 @@ public class UpdateEventRequest {
     public void setHikeRouteKeys(List<String> hikeRouteKeys) {
         this.hikeRouteKeys = hikeRouteKeys;
     }
+
+    public void setRecurring(Boolean recurring) {
+        this.recurring = recurring;
+    }
+
+    public void setRecurrenceStart(LocalDate recurrenceStart) {
+        this.recurrenceStart = recurrenceStart;
+    }
+
+    public void setRecurrenceEnd(LocalDate recurrenceEnd) {
+        this.recurrenceEnd = recurrenceEnd;
+    }
+
+    public void setRecurrenceDays(Set<DayOfWeek> recurrenceDays) {
+        this.recurrenceDays = recurrenceDays;
+    }
+
 }
