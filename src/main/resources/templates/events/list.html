@@ -219,11 +219,21 @@
                                    th:href="@{/events/{id}/edit(id=${event.id})}" class="edit-btn">Edit</a>
                             </th:block>
 
-                            <button type="button"
-                                    class="cancel-btn"
-                                    th:onclick="'openCancelModal(' + ${event.id} + ')'">
-                                Cancel
-                            </button>
+                            <th:block sec:authorize="hasRole('ADMIN')">
+                                <button type="button"
+                                        class="cancel-btn"
+                                        th:onclick="'openCancelModal(' + ${event.id} + ')'">
+                                    Cancel
+                                </button>
+                            </th:block>
+                            <th:block sec:authorize="hasRole('ORGANIZER')">
+                                <button th:if="${currentUserName != null && event.organizer != null && #strings.equalsIgnoreCase(currentUserName, event.organizer)}"
+                                        type="button"
+                                        class="cancel-btn"
+                                        th:onclick="'openCancelModal(' + ${event.id} + ')'">
+                                    Cancel
+                                </button>
+                            </th:block>
                         </th:block>
 
                     </div>

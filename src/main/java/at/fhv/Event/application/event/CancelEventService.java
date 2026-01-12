@@ -9,6 +9,7 @@ import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.domain.model.event.EventRepository;
 import at.fhv.Event.domain.model.exception.EventNotFoundException;
 import at.fhv.Event.domain.model.payment.PaymentStatus;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -57,6 +58,7 @@ public class CancelEventService {
 
 
     @Transactional
+    @CacheEvict(value = "events", key = "#eventId")
     public void cancel(Long eventId, String reason) {
         if (reason == null || reason.isBlank()) {
             throw new IllegalArgumentException("Cancellation reason must not be empty.");

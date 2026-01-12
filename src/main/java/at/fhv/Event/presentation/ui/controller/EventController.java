@@ -11,6 +11,7 @@ import at.fhv.Event.presentation.rest.response.event.EventOverviewDTO;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -59,8 +60,12 @@ public class EventController {
 
     @GetMapping("/new")
     @PreAuthorize("hasAnyRole('ADMIN', 'ORGANIZER')")
-    public String showCreateForm(Model model) {
+    public String showCreateForm(Model model, Authentication auth) {
         CreateEventRequest request = new CreateEventRequest();
+        if (auth != null && !auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))
+                && auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ORGANIZER"))) {
+            userPermissionService.getUserFullName(auth).ifPresent(request::setOrganizer);
+        }
         model.addAttribute("event", request);
         model.addAttribute("equipments", equipmentService.getAll());
         model.addAttribute("eventEquipments", request.getEquipments());
@@ -77,6 +82,11 @@ public class EventController {
         if (req.getDate() != null && req.getDate().isBefore(LocalDate.now())) {
             redirect.addFlashAttribute("error", "Event date cannot be in the past.");
             return "redirect:/events/new";
+        }
+
+        if (auth != null && !auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))
+                && auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ORGANIZER"))) {
+            userPermissionService.getUserFullName(auth).ifPresent(req::setOrganizer);
         }
 
         String imageUrl = cloudinaryService.uploadImage(photo);
