@@ -55,6 +55,18 @@ public class EventEntity {
     @Column(name = "is_cancelled", nullable = false)
     private boolean cancelled = false;
 
+    @Column(name = "cancellation_reason", columnDefinition = "TEXT")
+    private String cancellationReason;
+
+    public String getCancellationReason() {
+        return cancellationReason;
+    }
+
+    public void setCancellationReason(String cancellationReason) {
+        this.cancellationReason = cancellationReason;
+    }
+
+
     public Boolean getCancelled() {
         return cancelled;
     }

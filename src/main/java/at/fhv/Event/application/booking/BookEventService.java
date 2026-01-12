@@ -65,6 +65,18 @@ public class BookEventService {
     @Transactional
     public BookingDTO bookEvent(CreateBookingRequest request) {
         Event event = loadEvent(request.getEventId());
+
+        if (Boolean.TRUE.equals(event.getCancelled())) {
+            throw new IllegalStateException("Cannot book a cancelled event.");
+        }
+
+        if (event.getDate() != null && event.getStartTime() != null) {
+            LocalDateTime start = LocalDateTime.of(event.getDate(), event.getStartTime());
+            if (start.isBefore(LocalDateTime.now())) {
+                throw new IllegalStateException("Cannot book an expired event.");
+            }
+        }
+
         checkEventAvailability(event);
         checkEventCapacity(event, request.getSeats());
 
@@ -205,11 +217,6 @@ public class BookEventService {
     }
 
     @Transactional
-    public void cancelBooking(Long bookingId, String email) {
-        cancelBooking(bookingId, email, false);
-    }
-
-    @Transactional
     public void cancelBooking(Long bookingId, String email, boolean isAdmin) {
 
         Booking booking = getById(bookingId);
@@ -231,15 +238,7 @@ public class BookEventService {
         }
 
         Event event = loadEvent(booking.getEventId());
-        LocalDateTime eventStart = LocalDateTime.of(event.getDate(), event.getStartTime());
-
-        if (eventStart.isBefore(LocalDateTime.now())) {
-            throw new BookingOperationException(
-                    bookingId,
-                    "cancel",
-                    "This event already started and cannot be cancelled"
-            );
-        }
+        event.validateAvailability();
 
         booking.setStatus(BookingStatus.CANCELLED);
         _bookingRepository.save(booking);

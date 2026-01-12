@@ -86,6 +86,7 @@ public class EventMapper {
         e.setPrice(domain.getPrice());
         e.setImageUrl(domain.getImageUrl());
         e.setCancelled(domain.getCancelled());
+        e.setCancellationReason(domain.getCancellationReason());
         e.setAudience(domain.getAudience());
         if (domain.getHikeRouteKeys() != null && !domain.getHikeRouteKeys().isEmpty()) {
             e.getHikeRouteKeys().clear();
@@ -125,6 +126,7 @@ public class EventMapper {
         e.setPrice(domain.getPrice());
         e.setImageUrl(domain.getImageUrl());
         e.setCancelled(domain.getCancelled());
+        e.setCancellationReason(domain.getCancellationReason());
         e.setAudience(domain.getAudience());
 
         if (domain.getHikeRouteKeys() != null) {

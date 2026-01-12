@@ -119,6 +119,7 @@ public class EventController {
             return "redirect:/events/" + id;
         }
 
+
         UpdateEventRequest req = buildUpdateRequest(detail);
         model.addAttribute("event", req);
         model.addAttribute("eventEquipments", req.getEquipments());
@@ -223,28 +224,26 @@ public class EventController {
     }
 
     @PostMapping("/{id}/cancel")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ORGANIZER')")
-    public String cancelEvent(@PathVariable("id") Long id, RedirectAttributes redirect, Authentication auth) {
-        EventDetailDTO detail = detailsService.getEventDetails(id);
-        if (!userPermissionService.canCancel(auth, detail)) {
-            redirect.addFlashAttribute("error", "You are not allowed to cancel this event.");
-            return "redirect:/events/" + id;
+    public String cancelEvent(@PathVariable("id") Long id,
+                              @RequestParam("reason") String reason,
+                              RedirectAttributes redirect,
+                              Authentication auth) {
+
+        try {
+            cancelService.cancel(id, reason);
+            redirect.addFlashAttribute("success", "Event cancelled successfully!");
+        } catch (Exception e) {
+            redirect.addFlashAttribute("error", e.getMessage());
         }
 
-        if (Boolean.TRUE.equals(detail.cancelled())) {
-            redirect.addFlashAttribute("error", "Event is already cancelled.");
-            return "redirect:/events/" + id;
-        }
-
-        if (accessService.isEventExpired(detail.date(), detail.startTime())) {
-            redirect.addFlashAttribute("error", "Expired events cannot be cancelled.");
-            return "redirect:/events/" + id;
-        }
-
-        cancelService.cancel(id);
-        redirect.addFlashAttribute("success", "Event cancelled successfully!");
         return "redirect:/events/" + id;
+    }
 
+
+    @GetMapping("/{id}/refund-count")
+    @ResponseBody
+    public long refundableCount(@PathVariable Long id) {
+        return cancelService.getRefundableCount(id);
     }
 
     private UpdateEventRequest buildUpdateRequest(EventDetailDTO detail) {

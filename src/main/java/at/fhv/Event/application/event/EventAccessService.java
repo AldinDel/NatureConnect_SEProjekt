@@ -11,7 +11,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -66,12 +65,15 @@ public class EventAccessService {
         return remaining;
     }
 
-    public boolean isEventExpired(LocalDate eventDate, LocalTime startTime) {
-        LocalDateTime eventStart = LocalDateTime.of(eventDate, startTime);
-        LocalDateTime now = LocalDateTime.now();
+    public boolean isEventExpired(LocalDate date, LocalTime startTime) {
+        if (date == null || startTime == null) return false;
 
-        return eventStart.isBefore(now);
+        return LocalDateTime
+                .of(date, startTime)
+                .isBefore(LocalDateTime.now());
     }
+
+
 
     @Transactional(readOnly = true)
     public String getCurrentUserFullName(Authentication auth) {
