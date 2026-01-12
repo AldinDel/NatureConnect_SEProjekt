@@ -11,6 +11,7 @@ import at.fhv.Event.presentation.rest.response.event.EventOverviewDTO;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -272,6 +273,7 @@ public class EventController {
     @ResponseBody
     public long refundableCount(@PathVariable Long id) {
         return cancelService.getRefundableCount(id);
+    }
 
     private UpdateEventRequest buildUpdateRequest(EventDetailDTO detail) {
         UpdateEventRequest req = new UpdateEventRequest();
