@@ -86,12 +86,12 @@
                 <a th:href="@{/booking/{id}/edit(id=${dto.id})}"
                    class="btn-edit action-btn">Edit</a>
 
-                <form th:action="@{/booking/{id}/cancel(id=${dto.id})}"
-                      method="post" style="display:inline;">
-                    <button class="btn-small btn-cancel action-btn" type="submit">
-                        Cancel
-                    </button>
-                </form>
+                <button class="btn-small btn-cancel action-btn"
+                        type="button"
+                        th:onclick="|openCancelDialog(${dto.id})|">
+                    Cancel
+                </button>
+
             </td>
 
         </tr>
@@ -158,9 +158,63 @@
             }
         });
     }
+    let selectedBookingId = null;
+
+    function openCancelDialog(id) {
+        console.log("Modal opening for booking:", id);
+        selectedBookingId = id;
+
+        document.getElementById("cancelModal").classList.remove("hidden");
+
+        const info = document.getElementById("refundInfo");
+        info.innerText = "Calculating refund...";
+
+        fetch(`/api/bookings/${id}/refund-preview`)
+                .then(r => r.json())
+            .then(data => {
+                info.innerText = `You will get ${data.refund.toFixed(2)} € refunded.`;
+            })
+            .catch(() => {
+                info.innerText = "Could not calculate refund.";
+            });
+    }
+
+    function closeCancelDialog() {
+        document.getElementById("cancelModal").classList.add("hidden");
+        selectedBookingId = null;
+    }
+
+
+
+    function confirmCancel() {
+        if (!selectedBookingId) return;
+
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = `/booking/${selectedBookingId}/cancel`;
+
+        document.body.appendChild(form);
+        form.submit();
+    }
 </script>
 
 <div th:replace="events/fragments/footer :: footer"></div>
+<div id="cancelModal" class="cancel-modal hidden">
+    <div class="cancel-box">
+        <h3>Cancel Booking</h3>
+
+        <p id="refundInfo" class="refund-text">
+            Calculating refund...
+        </p>
+
+        <p>Are you sure you want to cancel this booking?</p>
+
+        <div class="modal-actions">
+            <button onclick="closeCancelDialog()" class="btn-secondary">No</button>
+            <button onclick="confirmCancel()" class="btn-danger">Yes, cancel</button>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>

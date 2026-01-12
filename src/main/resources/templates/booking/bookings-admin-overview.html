@@ -7,7 +7,7 @@
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/bookings-admin-overview.css}">
-    <link rel="stylesheet" th:href="@{/css/footer.css}" href="/css/footer.css">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
 </head>
 
 <body class="bookings-admin-page">
@@ -30,14 +30,11 @@
     <h1>All Bookings</h1>
 
     <div class="booking-controls">
-
-        <!-- SEARCH -->
         <input type="text"
                placeholder="Search bookings..."
                id="bookingSearch"
                onkeyup="filterBookings()">
 
-        <!-- FILTER -->
         <select id="bookingFilter" onchange="filterBookings()">
             <option value="all">All dates</option>
             <option value="today">Today</option>
@@ -45,7 +42,6 @@
             <option value="past">Past</option>
         </select>
 
-        <!-- SORT -->
         <select id="bookingSort" onchange="sortBookings()">
             <option value="date_desc">Latest first</option>
             <option value="date_asc">Earliest first</option>
@@ -78,16 +74,13 @@
             <th>Time</th>
             <th>Participants</th>
             <th>Total</th>
-            <th sec:authorize="hasAnyRole('ADMIN','CUSTOMER')">Actions</th>
+            <th sec:authorize="hasRole('ADMIN')">Actions</th>
         </tr>
         </thead>
 
         <tbody>
         <tr th:each="b : ${bookings}"
-            th:classappend="
-                ${b.cancelled} ? 'row-inactive cancelled' :
-                (${b.expired} ? 'row-inactive expired' : '')">
-
+            th:classappend="${b.cancelled} ? 'row-inactive cancelled' : (${b.expired} ? 'row-inactive expired' : '')">
             <td th:text="${b.eventId}"></td>
             <td th:text="'#' + ${b.id}"></td>
             <td th:text="${b.bookerFirstName}"></td>
@@ -96,61 +89,76 @@
             <td th:text="${#dates.format(b.createdAt, 'yyyy-MM-dd')}"></td>
             <td th:text="${#dates.format(b.createdAt, 'HH:mm')}"></td>
             <td th:text="${b.seats}"></td>
-
             <td>
                 <span th:text="${#numbers.formatDecimal(b.totalPrice, 1, 2, 'COMMA')} + ' €'"></span>
             </td>
-
             <td class="actions" sec:authorize="hasRole('ADMIN')">
-                <!-- Edit -->
                 <a th:href="@{/booking/{id}/edit(id=${b.id})}"
                    class="btn-edit action-btn">
                     Edit
                 </a>
 
-                <!-- Cancel -->
-                <form th:action="@{/booking/{id}/cancel(id=${b.id})}"
-                      method="post" style="display:inline;">
-                    <button class="btn-small btn-cancel action-btn"
-                            type="submit">
-                        Cancel
-                    </button>
-                </form>
+                <button class="btn-small btn-cancel action-btn"
+                        type="button"
+                        th:onclick="|openCancelDialog(${b.id})|">
+                    Cancel
+                </button>
             </td>
         </tr>
         </tbody>
     </table>
 </div>
 
+<div th:replace="events/fragments/footer :: footer"></div>
+
+<div id="cancelModal" class="cancel-modal hidden">
+    <div class="cancel-box">
+        <h3>Cancel Booking</h3>
+
+        <p id="refundInfo" class="refund-text">
+            Calculating refund...
+        </p>
+
+        <p>Are you sure you want to cancel this booking?</p>
+
+        <div class="modal-actions">
+            <button onclick="closeCancelDialog()" class="btn-secondary">No</button>
+            <button onclick="confirmCancel()" class="btn-danger">Yes, cancel</button>
+        </div>
+    </div>
+</div>
+
 <script>
+    let adminInactiveVisible = false;
+    let selectedBookingId = null;
+
     function filterBookings() {
         const search = document.getElementById("bookingSearch").value.toLowerCase();
         const filter = document.getElementById("bookingFilter").value;
         const rows = document.querySelectorAll(".admin-booking-table tbody tr");
-
         const today = new Date().toISOString().slice(0, 10);
 
         rows.forEach(row => {
-            const event = row.children[0].textContent.toLowerCase();
-            const id = row.children[1].textContent.toLowerCase();
+            const id = row.children[0].textContent.toLowerCase();
+            const event = row.children[1].textContent.toLowerCase();
             const first = row.children[2].textContent.toLowerCase();
             const last = row.children[3].textContent.toLowerCase();
             const email = row.children[4].textContent.toLowerCase();
             const date = row.children[5].textContent;
+            const isInactive = row.classList.contains("row-inactive");
 
             let show = true;
 
-            if (!(event.includes(search)
-                || id.includes(search)
-                || first.includes(search)
-                || last.includes(search)
-                || email.includes(search))) {
+            if (!(event.includes(search) || id.includes(search) || first.includes(search)
+                || last.includes(search) || email.includes(search))) {
                 show = false;
             }
 
-            if (filter === "today" && date !== today) show = false;
-            if (filter === "future" && date <= today) show = false;
-            if (filter === "past" && date >= today) show = false;
+            if (show && filter === "today" && date !== today) show = false;
+            if (show && filter === "future" && date <= today) show = false;
+            if (show && filter === "past" && date >= today) show = false;
+
+            if (show && !adminInactiveVisible && isInactive) show = false;
 
             row.style.display = show ? "" : "none";
         });
@@ -164,16 +172,14 @@
         rows.sort((a, b) => {
             const eventA = a.children[0].textContent.trim();
             const eventB = b.children[0].textContent.trim();
-            const idA = a.children[1].textContent.trim();
-            const idB = b.children[1].textContent.trim();
             const firstA = a.children[2].textContent.trim().toLowerCase();
             const firstB = b.children[2].textContent.trim().toLowerCase();
             const lastA = a.children[3].textContent.trim().toLowerCase();
             const lastB = b.children[3].textContent.trim().toLowerCase();
             const dateA = a.children[5].textContent;
             const dateB = b.children[5].textContent;
-            const priceA = parseFloat(a.children[8].innerText.replace("€", "").trim());
-            const priceB = parseFloat(b.children[8].innerText.replace("€", "").trim());
+            const priceA = parseFloat(a.children[8].innerText.replace("€", "").replace(",", ".").trim());
+            const priceB = parseFloat(b.children[8].innerText.replace("€", "").replace(",", ".").trim());
 
             switch (sort) {
                 case "date_desc": return dateB.localeCompare(dateA);
@@ -198,12 +204,16 @@
         document.getElementById("bookingSort").value = "date_desc";
 
         const rows = document.querySelectorAll(".admin-booking-table tbody tr");
-        rows.forEach(r => r.style.display = "");
+        rows.forEach(r => {
+            if (!adminInactiveVisible && r.classList.contains("row-inactive")) {
+                r.style.display = "none";
+            } else {
+                r.style.display = "";
+            }
+        });
 
         sortBookings();
     }
-
-    let adminInactiveVisible = false;
 
     function toggleAdminInactive() {
         const rows = document.querySelectorAll(".admin-booking-table tbody tr");
@@ -218,14 +228,49 @@
         });
 
         const btn = document.querySelector(".btn-toggle-cancelled");
-        btn.innerText = adminInactiveVisible ? "Hide inactive bookings" : "Show all bookings";
+        btn.innerText = adminInactiveVisible ? "Hide inactive bookings" : "Show inactive bookings";
         btn.classList.toggle("active", adminInactiveVisible);
     }
 
-    window.onload = () => toggleAdminInactive();
-</script>
+    function openCancelDialog(id) {
+        selectedBookingId = id;
 
-<div th:replace="events/fragments/footer :: footer"></div>
+        const modal = document.getElementById("cancelModal");
+        modal.classList.remove("hidden");
+
+        const info = document.getElementById("refundInfo");
+        info.innerText = "Calculating refund...";
+
+        fetch(`/api/bookings/${id}/refund-preview`)
+                .then(r => r.json())
+            .then(data => {
+                info.innerText = `You will get ${data.refund.toFixed(2)} € refunded.`;
+            })
+            .catch(() => {
+                info.innerText = "Could not calculate refund.";
+            });
+    }
+
+    function closeCancelDialog() {
+        document.getElementById("cancelModal").classList.add("hidden");
+        selectedBookingId = null;
+    }
+
+    function confirmCancel() {
+        if (!selectedBookingId) return;
+
+        const form = document.createElement("form");
+        form.method = "POST";
+        form.action = `/booking/${selectedBookingId}/cancel`;
+        document.body.appendChild(form);
+        form.submit();
+    }
+
+    window.onload = () => {
+        toggleAdminInactive();
+        sortBookings();
+    };
+</script>
 
 </body>
 </html>

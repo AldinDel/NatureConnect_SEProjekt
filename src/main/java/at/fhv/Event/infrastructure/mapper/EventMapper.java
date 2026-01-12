@@ -94,6 +94,7 @@ public class EventMapper {
         e.setPrice(domain.getPrice());
         e.setImageUrl(domain.getImageUrl());
         e.setCancelled(domain.getCancelled());
+        e.setCancellationReason(domain.getCancellationReason());
         e.setAudience(domain.getAudience());
 
         e.setRecurring(domain.isRecurring());
@@ -143,6 +144,7 @@ public class EventMapper {
         e.setPrice(domain.getPrice());
         e.setImageUrl(domain.getImageUrl());
         e.setCancelled(domain.getCancelled());
+        e.setCancellationReason(domain.getCancellationReason());
         e.setAudience(domain.getAudience());
 
         e.setRecurring(domain.isRecurring());

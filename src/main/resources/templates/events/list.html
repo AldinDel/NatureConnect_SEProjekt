@@ -12,7 +12,7 @@
 </head>
 
 <body class="events-page">
-<div th:replace="events/fragments/navbar :: navbar"></div>
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
 
 <div th:if="${success != null}" id="success-popup" class="popup-message" th:text="${success}"></div>
 <div th:if="${error != null}" id="error-popup" class="popup-message error" th:text="${error}"></div>
@@ -25,6 +25,8 @@
         if (errorPopup) setTimeout(() => errorPopup.style.display = "none", 3500);
     });
 </script>
+
+
 
 
 <section class="event-overview">
@@ -213,7 +215,6 @@
                 <span th:if="${!event.cancelled and expired}" class="expired-badge">EXPIRED</span>
             </div>
 
-
             <div class="card-content">
 
                 <div class="card-header">
@@ -284,17 +285,21 @@
                                    th:href="@{/events/{id}/edit(id=${event.id})}" class="edit-btn">Edit</a>
                             </th:block>
 
-                            <form sec:authorize="hasRole('ADMIN')" th:action="@{/events/{id}/cancel(id=${event.id})}"
-                                  method="post" style="display:inline;">
-                                <button class="cancel-btn" onclick="return confirm('Cancel event?')">Cancel</button>
-                            </form>
-
-                            <form sec:authorize="hasRole('ORGANIZER')"
-                                  th:if="${currentUserName != null && event.organizer != null && #strings.equalsIgnoreCase(currentUserName, event.organizer)}"
-                                  th:action="@{/events/{id}/cancel(id=${event.id})}"
-                                  method="post" style="display:inline;">
-                                <button class="cancel-btn" onclick="return confirm('Cancel event?')">Cancel</button>
-                            </form>
+                            <th:block sec:authorize="hasRole('ADMIN')">
+                                <button type="button"
+                                        class="cancel-btn"
+                                        th:onclick="'openCancelModal(' + ${event.id} + ')'">
+                                    Cancel
+                                </button>
+                            </th:block>
+                            <th:block sec:authorize="hasRole('ORGANIZER')">
+                                <button th:if="${currentUserName != null && event.organizer != null && #strings.equalsIgnoreCase(currentUserName, event.organizer)}"
+                                        type="button"
+                                        class="cancel-btn"
+                                        th:onclick="'openCancelModal(' + ${event.id} + ')'">
+                                    Cancel
+                                </button>
+                            </th:block>
                         </th:block>
 
                     </div>
@@ -327,9 +332,52 @@
         panel.classList.remove("open");
         overlay.classList.remove("active");
     });
-</script>
+    openBtn?.addEventListener("click", () => { panel.classList.add("open"); overlay.classList.add("active"); });
+    closeBtn?.addEventListener("click", () => { panel.classList.remove("open"); overlay.classList.remove("active"); });
+    overlay?.addEventListener("click", () => { panel.classList.remove("open"); overlay.classList.remove("active"); });
 
-<div th:replace="events/fragments/footer :: footer"></div>
+    window.openCancelModal = function(eventId) {
+        console.log("Opening modal for event:", eventId);
+
+        fetch(`/events/${eventId}/refund-count`)
+            .then(r => r.text())
+            .then(count => {
+                document.getElementById("refundText").innerText =
+                    `${count} bookings will be refunded.`;
+            });
+
+        const form = document.getElementById("cancelForm");
+        form.action = `/events/${eventId}/cancel`;
+
+        document.getElementById("cancelModal").classList.add("open");
+    };
+
+    window.closeModal = function() {
+        document.getElementById("cancelModal").classList.remove("open");
+    };
+</script>
+<div id="cancelModal" class="modal">
+    <div class="modal-box">
+        <h3>Cancel Event</h3>
+        <p id="refundText">Loading...</p>
+
+        <form id="cancelForm" method="post">
+            <textarea
+                    name="reason"
+                    id="cancelReason"
+                    required
+                    placeholder="Reason for cancellation..."></textarea>
+
+            <div class="modal-actions">
+                <button type="button" onclick="closeModal()">Back</button>
+                <button type="submit" class="danger">Confirm Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+<div th:replace="~{events/fragments/footer :: footer}"></div>
 
 </body>
 </html>

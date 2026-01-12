@@ -247,19 +247,18 @@
             </p>
 
             <!-- Buchen Button -->
-            <a class="book-btn"
-               th:href="@{'/booking/event/' + ${event.id}}"
-               th:classappend="${remainingSpots == 0 or event.cancelled} ? ' disabled-link'">
-                <span th:if="${!event.cancelled}">Book now</span>
-                <span th:if="${event.cancelled}">Event Cancelled</span>
+            <a th:if="${!event.cancelled and !expired and remainingSpots > 0}"
+               class="book-btn"
+               th:href="@{'/booking/event/' + ${event.id}}">
+                Book now
             </a>
+
+            <div th:if="${event.cancelled}" style="color:red; font-weight:bold;">
+                This event has been cancelled
+            </div>
 
             <p th:if="${remainingSpots == 0}" style="color:red; margin-top:10px;">
                 This event is fully booked
-            </p>
-
-            <p th:if="${event.cancelled}" style="color:red; margin-top:10px; font-weight: bold;">
-                This event has been cancelled
             </p>
         </div>
 
@@ -275,16 +274,13 @@
                     ✎ Edit Event
                 </a>
 
-                <form th:if="${canCancel}"
-                      th:action="@{/events/{id}/cancel(id=${event.id})}"
-                      method="post">
-                    <button type="submit"
-                            class="cancel-btn"
-                            style="width:100%; background: #ef4444; color: white; padding: 10px; border: none; border-radius: 8px; cursor: pointer;"
-                            onclick="return confirm('Really cancel this event?')">
-                        ✕ Cancel Event
-                    </button>
-                </form>
+                <button th:if="${canCancel and !event.cancelled}"
+                        type="button"
+                        class="cancel-btn"
+                        th:onclick="|openCancelModal(${event.id})|"
+                        style="width:100%; background:#ef4444; color:white; padding:10px; border:none; border-radius:8px;">
+                    ✕ Cancel Event
+                </button>
             </div>
         </div>
 
@@ -311,7 +307,7 @@
                 ? `<span style="color:#b91c1c; font-weight:600;">Mandatory</span>`
                 : "Optional";
 
-            const priceText = eq.rentable ? `€ ${eq.unitPrice ?? 0}` : "—";
+            const priceText = eq.rentable ? `€ ${eq.unitPrice != null ? eq.unitPrice : 0}` : "—";
             const stockText = eq.stock != null ? eq.stock : "—";
 
             const row = document.createElement("div");
@@ -329,6 +325,61 @@
     }
     /*]]>*/
 </script>
+
+<script>
+    function openCancelModal(eventId) {
+        fetch(`/events/${eventId}/refund-count`)
+            .then(r => r.text())
+            .then(count => {
+                document.getElementById("refundText").innerText =
+                    `${count} bookings will be refunded.`;
+            });
+
+        const form = document.getElementById("cancelForm");
+        form.action = `/events/${eventId}/cancel`;
+
+        document.getElementById("cancelModal").classList.add("open");
+    }
+
+    function closeModal() {
+        document.getElementById("cancelModal").classList.remove("open");
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("cancelForm");
+
+        if (!form) return;
+
+        form.addEventListener("submit", e => {
+            const reason = document.getElementById("cancelReason").value.trim();
+            if (!reason) {
+                e.preventDefault();
+                alert("Please provide a reason.");
+                return;
+            }
+            document.getElementById("reasonInput").value = reason;
+        });
+    });
+</script>
+
+
+<div id="cancelModal" class="modal">
+    <div class="modal-box">
+        <h3>Cancel Event</h3>
+        <p id="refundText">Loading...</p>
+
+        <textarea id="cancelReason" placeholder="Reason for cancellation..."></textarea>
+
+        <form id="cancelForm" method="post">
+            <input type="hidden" name="reason" id="reasonInput">
+            <div class="modal-actions">
+                <button type="button" onclick="closeModal()">Back</button>
+                <button type="submit" class="danger">Confirm Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 
 <script th:inline="javascript" th:if="${isHikingEvent}">
     window.selectedHikeKeys = /*[[${event.hikeRouteKeys}]]*/ [];

@@ -4,9 +4,10 @@ import at.fhv.Event.application.event.*;
 import at.fhv.Event.application.request.event.CreateEventRequest;
 import at.fhv.Event.application.request.event.UpdateEventRequest;
 import at.fhv.Event.presentation.rest.response.booking.EventParticipantsStats;
+import at.fhv.Event.presentation.rest.response.equipment.EquipmentDTO;
+import at.fhv.Event.presentation.rest.response.event.CancelEventRequest;
 import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
 import at.fhv.Event.presentation.rest.response.event.EventOverviewDTO;
-import at.fhv.Event.presentation.rest.response.equipment.EquipmentDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -64,10 +65,11 @@ public class EventRestController {
     }
 
     @PostMapping("/{id}/cancel")
-    public ResponseEntity<Void> cancel(@PathVariable Long id) {
-        cancelService.cancel(id);
+    public ResponseEntity<Void> cancel(@PathVariable Long id, @RequestBody CancelEventRequest request) {
+        cancelService.cancel(id, request.reason());
         return ResponseEntity.noContent().build();
     }
+
 
 
     @GetMapping("/{id}/equipment")

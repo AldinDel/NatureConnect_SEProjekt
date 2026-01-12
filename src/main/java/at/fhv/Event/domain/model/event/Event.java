@@ -34,6 +34,7 @@ public class Event {
     private String imageUrl;
     private EventAudience audience;
     private Boolean cancelled = false;
+    private String cancellationReason;
     private Set<EventEquipment> eventEquipments;
     private List<String> hikeRouteKeys;
     private boolean recurring;
@@ -84,12 +85,20 @@ public class Event {
         this.audience = audience;
     }
 
-    public void cancel() {
+    public void cancel(String reason) {
         if (this.cancelled) {
             throw new EventAlreadyCancelledException(id);
         }
+        if (reason == null || reason.isBlank()) {
+            throw new IllegalArgumentException("Cancellation reason required.");
+        }
+
         this.cancelled = true;
+        this.cancellationReason = reason.trim();
     }
+
+
+
 
     public void updateDetails(String title, String description, BigDecimal price) {
         if (title == null || title.trim().isEmpty()) {
@@ -318,6 +327,14 @@ public class Event {
         this.hikeRouteKeys = (hikeRouteKeys == null)
                 ? new ArrayList<>()
                 : new ArrayList<>(hikeRouteKeys);
+    }
+
+    public String getCancellationReason() {
+        return cancellationReason;
+    }
+
+    public void setCancellationReason(String cancellationReason) {
+        this.cancellationReason = cancellationReason;
     }
 
     public boolean isRecurring() {

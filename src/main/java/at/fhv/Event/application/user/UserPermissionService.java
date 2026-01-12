@@ -6,6 +6,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 /**
  * Granular permission service for event operations.
  *
@@ -56,5 +58,14 @@ public class UserPermissionService {
                     .orElse(false);
         }
         return false;
+    }
+
+    public Optional<String> getUserFullName(Authentication auth) {
+        if (auth == null || !auth.isAuthenticated()) {
+            return java.util.Optional.empty();
+        }
+
+        return userRepo.findByEmailIgnoreCase(auth.getName())
+                .map(u -> u.getFirstName() + " " + u.getLastName());
     }
 }
