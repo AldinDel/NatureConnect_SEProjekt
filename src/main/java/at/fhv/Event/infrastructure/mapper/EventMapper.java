@@ -7,6 +7,9 @@ import at.fhv.Event.infrastructure.persistence.equipment.EventEquipmentEntity;
 import at.fhv.Event.infrastructure.persistence.event.EventEntity;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
@@ -48,24 +51,28 @@ public class EventMapper {
                 e.getImageUrl(),
                 e.getAudience(),
                 equipments,
-                new java.util.ArrayList<>(e.getHikeRouteKeys())
+                new ArrayList<>(e.getHikeRouteKeys())
         );
 
-        event.setCancelled(e.getCancelled() != null ? e.getCancelled() : false);
+        event.setCancelled(e.getCancelled());
+        event.setEndDate(e.getEndDate());
+        event.setRecurring(e.isRecurring());
+        event.setRecurrenceStart(e.getRecurrenceStart());
+        event.setRecurrenceEnd(e.getRecurrenceEnd());
+        event.setRecurrenceDays(e.getRecurrenceDays());
+
         return event;
     }
 
-
-    public java.util.List<Event> toDomainList(java.util.List<EventEntity> entities) {
+    public List<Event> toDomainList(List<EventEntity> entities) {
         if (entities == null) {
-            return java.util.Collections.emptyList();
+            return Collections.emptyList();
         }
 
         return entities.stream()
                 .map(this::toDomain)
-                .collect(java.util.stream.Collectors.toList());
+                .collect(Collectors.toList());
     }
-
 
     public EventEntity toEntity(Event domain) {
         if (domain == null) return null;
@@ -77,6 +84,7 @@ public class EventMapper {
         e.setOrganizer(domain.getOrganizer());
         e.setCategory(domain.getCategory());
         e.setDate(domain.getDate());
+        e.setEndDate(domain.getEndDate());
         e.setStartTime(domain.getStartTime());
         e.setEndTime(domain.getEndTime());
         e.setLocation(domain.getLocation());
@@ -87,22 +95,30 @@ public class EventMapper {
         e.setImageUrl(domain.getImageUrl());
         e.setCancelled(domain.getCancelled());
         e.setAudience(domain.getAudience());
-        if (domain.getHikeRouteKeys() != null && !domain.getHikeRouteKeys().isEmpty()) {
+
+        e.setRecurring(domain.isRecurring());
+        e.setRecurrenceStart(domain.getRecurrenceStart());
+        e.setRecurrenceEnd(domain.getRecurrenceEnd());
+        e.setRecurrenceDays(domain.getRecurrenceDays());
+
+        if (domain.getHikeRouteKeys() != null) {
             e.getHikeRouteKeys().clear();
             e.getHikeRouteKeys().addAll(domain.getHikeRouteKeys());
         }
 
         var eeEntities = domain.getEventEquipments().stream()
                 .map(domEE -> {
-                    var equipEntity = equipmentJpa.findById(domEE.getEquipment().getId()).orElseThrow();
+                    var equipEntity = equipmentJpa
+                            .findById(domEE.getEquipment().getId())
+                            .orElseThrow();
+
                     var ee = new EventEquipmentEntity();
                     ee.setEquipment(equipEntity);
                     ee.setRequired(domEE.isRequired());
                     ee.setEvent(e);
                     return ee;
                 })
-                .collect(java.util.stream.Collectors.toCollection(java.util.ArrayList::new));
-
+                .collect(Collectors.toCollection(ArrayList::new));
 
         e.getEventEquipments().clear();
         e.getEventEquipments().addAll(eeEntities);
@@ -111,11 +127,13 @@ public class EventMapper {
     }
 
     public void applyToExistingEntity(Event domain, EventEntity e) {
+
         e.setTitle(domain.getTitle());
         e.setDescription(domain.getDescription());
         e.setOrganizer(domain.getOrganizer());
         e.setCategory(domain.getCategory());
         e.setDate(domain.getDate());
+        e.setEndDate(domain.getEndDate());
         e.setStartTime(domain.getStartTime());
         e.setEndTime(domain.getEndTime());
         e.setLocation(domain.getLocation());
@@ -126,6 +144,15 @@ public class EventMapper {
         e.setImageUrl(domain.getImageUrl());
         e.setCancelled(domain.getCancelled());
         e.setAudience(domain.getAudience());
+
+        e.setRecurring(domain.isRecurring());
+        e.setRecurrenceStart(domain.getRecurrenceStart());
+        e.setRecurrenceEnd(domain.getRecurrenceEnd());
+
+        e.getRecurrenceDays().clear();
+        if (domain.getRecurrenceDays() != null) {
+            e.getRecurrenceDays().addAll(domain.getRecurrenceDays());
+        }
 
         if (domain.getHikeRouteKeys() != null) {
             e.getHikeRouteKeys().clear();
@@ -135,7 +162,9 @@ public class EventMapper {
         e.getEventEquipments().clear();
         if (domain.getEventEquipments() != null) {
             for (var domEE : domain.getEventEquipments()) {
-                var equipEntity = equipmentJpa.findById(domEE.getEquipment().getId()).orElseThrow();
+                var equipEntity = equipmentJpa
+                        .findById(domEE.getEquipment().getId())
+                        .orElseThrow();
 
                 var ee = new EventEquipmentEntity();
                 ee.setEquipment(equipEntity);
@@ -146,5 +175,4 @@ public class EventMapper {
             }
         }
     }
-
 }

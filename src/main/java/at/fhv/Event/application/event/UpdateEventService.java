@@ -55,6 +55,13 @@ public class UpdateEventService {
         event.setOrganizer(req.getOrganizer());
         event.setCategory(req.getCategory());
         event.setDate(req.getDate());
+
+        if (req.isRecurring()) {
+            event.setEndDate(null);
+        } else {
+            event.setEndDate(req.getEndDate() != null ? req.getEndDate() : req.getDate());
+        }
+
         event.setStartTime(req.getStartTime());
         event.setEndTime(req.getEndTime());
         event.setLocation(req.getLocation());
@@ -63,6 +70,20 @@ public class UpdateEventService {
         event.setMaxParticipants(req.getMaxParticipants());
         event.setPrice(req.getPrice());
         event.setImageUrl(req.getImageUrl());
+        event.setRecurring(req.isRecurring());
+
+        if (req.isRecurring()) {
+            event.setDate(null);
+            event.setRecurrenceStart(req.getRecurrenceStart());
+            event.setRecurrenceEnd(req.getRecurrenceEnd());
+            event.setRecurrenceDays(req.getRecurrenceDays());
+        } else {
+            event.setDate(req.getDate());
+            event.setRecurrenceStart(null);
+            event.setRecurrenceEnd(null);
+            event.setRecurrenceDays(null);
+        }
+
         if (req.getHikeRouteKeys() != null) {
             event.setHikeRouteKeys(req.getHikeRouteKeys());
         }
@@ -80,7 +101,6 @@ public class UpdateEventService {
 
         Event saved = eventRepository.save(event);
 
-        // Audit log
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated()) {
             String userEmail = auth.getName();

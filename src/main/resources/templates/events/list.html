@@ -27,8 +27,6 @@
 </script>
 
 
-
-
 <section class="event-overview">
     <a th:href="@{/}" href="/" class="back-link">❮ Home</a>
 
@@ -52,12 +50,28 @@
         </div>
 
         <div class="category-bar">
-            <button type="submit" name="category" value="" th:classappend="${param.category == null || param.category == ''} ? 'active'">All Events</button>
-            <button type="submit" name="category" value="Camping" th:classappend="${param.category == 'Camping'} ? 'active'">Camping</button>
-            <button type="submit" name="category" value="Kayaking" th:classappend="${param.category == 'Kayaking'} ? 'active'">Kayaking</button>
-            <button type="submit" name="category" value="Hiking" th:classappend="${param.category == 'Hiking'} ? 'active'">Hiking</button>
-            <button type="submit" name="category" value="Wildlife Tour" th:classappend="${param.category == 'Wildlife Tour'} ? 'active'">Wildlife Tour</button>
-            <button type="submit" name="category" value="Climbing" th:classappend="${param.category == 'Climbing'} ? 'active'">Climbing</button>
+            <button type="submit" name="category" value=""
+                    th:classappend="${param.category == null || param.category == ''} ? 'active'">All Events
+            </button>
+            <button type="submit" name="category" value="Camping"
+                    th:classappend="${param.category == 'Camping'} ? 'active'">Camping
+            </button>
+            <button type="submit" name="category" value="Kayaking"
+                    th:classappend="${param.category == 'Kayaking'} ? 'active'">Kayaking
+            </button>
+            <button type="submit" name="category" value="Hiking"
+                    th:classappend="${param.category == 'Hiking'} ? 'active'">Hiking
+            </button>
+            <button type="submit" name="category" value="Wildlife Tour"
+                    th:classappend="${param.category == 'Wildlife Tour'} ? 'active'">Wildlife Tour
+            </button>
+            <button type="submit" name="category" value="Climbing"
+                    th:classappend="${param.category == 'Climbing'} ? 'active'">Climbing
+            </button>
+            <button type="submit" name="category" value="Skiing"
+                    th:classappend="${param.category == 'Skiing'} ? 'active'">Skiing
+            </button>
+
 
             <button type="button" id="open-filters" class="filter-btn-inline">More Filters</button>
         </div>
@@ -76,10 +90,14 @@
             <!-- location -->
             <div class="filter-group">
                 <label>Location</label>
-                <input list="location-list" name="location" th:value="${param.location}" placeholder="Enter a location...">
+                <input list="location-list" name="location" th:value="${param.location}"
+                       placeholder="Enter a location...">
                 <datalist id="location-list">
-                    <option value="Vienna"><option value="Salzburg"><option value="Innsbruck">
-                    <option value="Graz"><option value="Dornbirn">
+                    <option value="Vienna">
+                    <option value="Salzburg">
+                    <option value="Innsbruck">
+                    <option value="Graz">
+                    <option value="Dornbirn">
                 </datalist>
             </div>
 
@@ -92,7 +110,9 @@
                     <option value="Camping" th:selected="${param.category == 'Camping'}">Camping</option>
                     <option value="Kayaking" th:selected="${param.category == 'Kayaking'}">Kayaking</option>
                     <option value="Climbing" th:selected="${param.category == 'Climbing'}">Climbing</option>
-                    <option value="Wildlife Tour" th:selected="${param.category == 'Wildlife Tour'}">Wildlife Tour</option>
+                    <option value="Wildlife Tour" th:selected="${param.category == 'Wildlife Tour'}">Wildlife Tour
+                    </option>
+                    <option value="Skiing" th:selected="${param.category == 'Skiing'}">Skiing</option>
                 </select>
             </div>
 
@@ -110,10 +130,14 @@
             <div class="filter-group">
                 <label>Difficulty</label>
                 <div class="checkbox-group">
-                    <label><input type="radio" name="difficulty" value="" th:checked="${param.difficulty == null}">Any</label>
-                    <label><input type="radio" name="difficulty" value="BEGINNER" th:checked="${param.difficulty == 'BEGINNER'}">Beginner</label>
-                    <label><input type="radio" name="difficulty" value="INTERMEDIATE" th:checked="${param.difficulty == 'INTERMEDIATE'}">Intermediate</label>
-                    <label><input type="radio" name="difficulty" value="ADVANCED" th:checked="${param.difficulty == 'ADVANCED'}">Advanced</label>
+                    <label><input type="radio" name="difficulty" value=""
+                                  th:checked="${param.difficulty == null}">Any</label>
+                    <label><input type="radio" name="difficulty" value="BEGINNER"
+                                  th:checked="${param.difficulty == 'BEGINNER'}">Beginner</label>
+                    <label><input type="radio" name="difficulty" value="INTERMEDIATE"
+                                  th:checked="${param.difficulty == 'INTERMEDIATE'}">Intermediate</label>
+                    <label><input type="radio" name="difficulty" value="ADVANCED"
+                                  th:checked="${param.difficulty == 'ADVANCED'}">Advanced</label>
                 </div>
             </div>
 
@@ -165,20 +189,30 @@
 
         <div class="event-card"
              th:each="event : ${events}"
-             th:with="eventStart=${event.date.atTime(event.startTime)},
-                      expired=${eventStart.isBefore(#temporals.createNow())}"
+             th:with="
+              eventEndMoment=${event.recurring
+                  ? event.recurrenceEnd.atTime(event.endTime)
+                  : (event.endDate != null ? event.endDate : event.date).atTime(event.endTime)},
+              expired=${eventEndMoment.isBefore(#temporals.createNow())}
+            "
+
+
              th:classappend="${event.cancelled} ? 'cancelled-event' : (expired ? 'expired-event' : '')">
 
             <div class="card-image">
                 <img th:src="${event.imageUrl != null} ? ${event.imageUrl} : @{/images/default_event.jpg}">
+
                 <span class="tag"
                       th:text="${event.category != null ? event.category : 'General'}"
                       th:classappend="|tag-${#strings.replace(#strings.toLowerCase(event.category ?: 'general'), ' ', '-')}|">
-                </span>
+    </span>
+
+                <span th:if="${event.recurring}" class="recurring-badge">RECURRING</span>
 
                 <span th:if="${event.cancelled}" class="cancelled-badge">CANCELLED</span>
                 <span th:if="${!event.cancelled and expired}" class="expired-badge">EXPIRED</span>
             </div>
+
 
             <div class="card-content">
 
@@ -190,12 +224,44 @@
                     </span>
                 </div>
 
-                <p th:text="${event.description}"></p>
+                <p class="event-description"
+                   th:text="${event.description}">
+                </p>
 
                 <ul class="details">
-                    <li><i data-lucide="calendar"></i><span th:text="${#temporals.format(event.date, 'MMMM dd, yyyy')}"></span></li>
+                    <li>
+                        <i data-lucide="calendar"></i>
+
+                        <!-- Single event -->
+                        <span th:if="${!event.recurring}">
+                            <span th:if="${event.endDate == null or event.endDate.equals(event.date)}"
+                                  th:text="${#temporals.format(event.date, 'MMMM dd, yyyy')}"></span>
+
+                            <span th:if="${event.endDate != null and !event.endDate.equals(event.date)}"
+                                  th:text="${#temporals.format(event.date, 'MMMM dd, yyyy') + ' - ' + #temporals.format(event.endDate, 'MMMM dd, yyyy')}"></span>
+                        </span>
+
+                        <!-- Recurring event (short overview text) -->
+                        <span th:if="${event.recurring}">
+                            Repeats weekly on
+                            <span th:each="day, stat : ${event.recurrenceDays}">
+                                <span th:text="${#strings.capitalize(day.toString().toLowerCase())}"></span><span
+                                    th:if="${!stat.last}">, </span>
+                            </span>
+                        </span>
+
+
+                    </li>
                     <li><i data-lucide="clock"></i>
-                        <span th:text="${#temporals.format(event.startTime, 'HH:mm')} + ' - ' + ${#temporals.format(event.endTime, 'HH:mm')}"></span>
+                        <span th:with="
+                                days=${(!event.recurring and event.endDate != null and event.date != null) ? T(java.time.temporal.ChronoUnit).DAYS.between(event.date, event.endDate) : 0}
+                            "
+                              th:text="${#temporals.format(event.startTime, 'HH:mm')
+                                    + ' - '
+                                    + #temporals.format(event.endTime, 'HH:mm')
+                                    + (days > 0 ? ' (+' + days + ' day' + (days == 1 ? '' : 's') + ')' : '')
+                                }"></span>
+
                     </li>
                     <li><i data-lucide="map-pin"></i><span th:text="${event.location}"></span></li>
                     <li><i data-lucide="users"></i>
@@ -204,12 +270,14 @@
                 </ul>
 
                 <div class="footer">
-                    <span class="price" style="color: black;" th:text="'€ ' + ${#numbers.formatDecimal(event.price, 1, 2)}"></span>
+                    <span class="price" style="color: black;"
+                          th:text="'€ ' + ${#numbers.formatDecimal(event.price, 1, 2)}"></span>
                     <div class="buttons">
                         <a th:href="@{/events/{id}(id=${event.id})}" class="view-btn">View Details</a>
 
                         <th:block th:unless="${event.cancelled or expired}">
-                            <a sec:authorize="hasAnyRole('ADMIN','FRONT')" th:href="@{/events/{id}/edit(id=${event.id})}" class="edit-btn">Edit</a>
+                            <a sec:authorize="hasAnyRole('ADMIN','FRONT')"
+                               th:href="@{/events/{id}/edit(id=${event.id})}" class="edit-btn">Edit</a>
 
                             <th:block sec:authorize="hasRole('ORGANIZER')">
                                 <a th:if="${currentUserName != null && event.organizer != null && #strings.equalsIgnoreCase(currentUserName, event.organizer)}"
@@ -247,9 +315,18 @@
     const panel = document.getElementById("filter-panel");
     const overlay = document.getElementById("overlay");
 
-    openBtn?.addEventListener("click", () => { panel.classList.add("open"); overlay.classList.add("active"); });
-    closeBtn?.addEventListener("click", () => { panel.classList.remove("open"); overlay.classList.remove("active"); });
-    overlay?.addEventListener("click", () => { panel.classList.remove("open"); overlay.classList.remove("active"); });
+    openBtn?.addEventListener("click", () => {
+        panel.classList.add("open");
+        overlay.classList.add("active");
+    });
+    closeBtn?.addEventListener("click", () => {
+        panel.classList.remove("open");
+        overlay.classList.remove("active");
+    });
+    overlay?.addEventListener("click", () => {
+        panel.classList.remove("open");
+        overlay.classList.remove("active");
+    });
 </script>
 
 <div th:replace="events/fragments/footer :: footer"></div>
