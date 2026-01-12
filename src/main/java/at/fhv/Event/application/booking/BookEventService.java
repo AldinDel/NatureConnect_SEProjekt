@@ -244,10 +244,12 @@ public class BookEventService {
         booking.setStatus(BookingStatus.CANCELLED);
         _bookingRepository.save(booking);
 
+        BigDecimal refund = refundService.calculateRefund(booking, event);
+
         refundService.processRefund(
                 booking.getBookerEmail(),
                 booking.getId(),
-                booking.getTotalPrice()
+                refund
         );
 
         // Audit log
@@ -262,6 +264,14 @@ public class BookEventService {
             );
         }
     }
+
+    @Transactional(readOnly = true)
+    public BigDecimal getRefundPreview(Long bookingId) {
+        Booking booking = getById(bookingId);
+        Event event = loadEvent(booking.getEventId());
+        return refundService.calculateRefund(booking, event);
+    }
+
 
     @Transactional
     public BookingDTO updatePaymentMethod(Long bookingId, String paymentMethodName) {
