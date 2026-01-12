@@ -6,6 +6,7 @@ import at.fhv.Event.domain.model.exception.EventDateInPastException;
 import at.fhv.Event.domain.model.exception.EventFullyBookedException;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -22,6 +23,7 @@ public class Event {
     private String organizer;
     private String category;
     private LocalDate date;
+    private LocalDate endDate;
     private LocalTime startTime;
     private LocalTime endTime;
     private String location;
@@ -35,6 +37,12 @@ public class Event {
     private String cancellationReason;
     private Set<EventEquipment> eventEquipments;
     private List<String> hikeRouteKeys;
+    private boolean recurring;
+
+    private LocalDate recurrenceStart;
+    private LocalDate recurrenceEnd;
+
+    private Set<DayOfWeek> recurrenceDays = new HashSet<>();
 
 
     public Event(Long id,
@@ -213,6 +221,14 @@ public class Event {
         this.date = date;
     }
 
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
+
     public LocalTime getStartTime() {
         return startTime;
     }
@@ -319,6 +335,40 @@ public class Event {
 
     public void setCancellationReason(String cancellationReason) {
         this.cancellationReason = cancellationReason;
+    }
+
+    public boolean isRecurring() {
+        return recurring;
+    }
+
+    public void setRecurring(boolean recurring) {
+        this.recurring = recurring;
+    }
+
+    public LocalDate getRecurrenceStart() {
+        return recurrenceStart;
+    }
+
+    public void setRecurrenceStart(LocalDate recurrenceStart) {
+        this.recurrenceStart = recurrenceStart;
+    }
+
+    public LocalDate getRecurrenceEnd() {
+        return recurrenceEnd;
+    }
+
+    public void setRecurrenceEnd(LocalDate recurrenceEnd) {
+        this.recurrenceEnd = recurrenceEnd;
+    }
+
+    public Set<DayOfWeek> getRecurrenceDays() {
+        return recurrenceDays;
+    }
+
+    public void setRecurrenceDays(Set<DayOfWeek> recurrenceDays) {
+        this.recurrenceDays = recurrenceDays == null
+                ? new HashSet<>()
+                : new HashSet<>(recurrenceDays);
     }
 
 

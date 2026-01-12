@@ -8,10 +8,12 @@ import at.fhv.Event.domain.model.exception.ValidationErrorType;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class EventValidator {
@@ -24,11 +26,28 @@ public class EventValidator {
 
         validateTitle(request.getTitle(), errors);
         validateDescription(request.getDescription(), errors);
-        validateDate(request.getDate(), errors);
-        validateTimeRange(request.getStartTime(), request.getEndTime(), errors);
+
+        if (!request.isRecurring()) {
+            validateDate(request.getDate(), errors);
+        }
+
+        if (request.isRecurring()) {
+            validateTimeRange(request.getStartTime(), request.getEndTime(), errors);
+        } else {
+            validateDateTimeRange(request.getDate(), request.getEndDate(), request.getStartTime(), request.getEndTime(), errors);
+        }
+
         validateLocation(request.getLocation(), errors);
         validateParticipantRange(request.getMinParticipants(), request.getMaxParticipants(), errors);
         validatePrice(request.getPrice(), errors);
+
+        validateRecurrence(
+                request.isRecurring(),
+                request.getRecurrenceStart(),
+                request.getRecurrenceEnd(),
+                request.getRecurrenceDays(),
+                errors
+        );
 
         return errors;
     }
@@ -38,11 +57,28 @@ public class EventValidator {
 
         validateTitle(request.getTitle(), errors);
         validateDescription(request.getDescription(), errors);
-        validateDate(request.getDate(), errors);
-        validateTimeRange(request.getStartTime(), request.getEndTime(), errors);
+
+        if (!request.isRecurring() && request.getDate() != null) {
+            validateDate(request.getDate(), errors);
+        }
+
+        if (request.isRecurring()) {
+            validateTimeRange(request.getStartTime(), request.getEndTime(), errors);
+        } else {
+            validateDateTimeRange(request.getDate(), request.getEndDate(), request.getStartTime(), request.getEndTime(), errors);
+        }
+
         validateLocation(request.getLocation(), errors);
         validateParticipantRange(request.getMinParticipants(), request.getMaxParticipants(), errors);
         validatePrice(request.getPrice(), errors);
+
+        validateRecurrence(
+                request.isRecurring(),
+                request.getRecurrenceStart(),
+                request.getRecurrenceEnd(),
+                request.getRecurrenceDays(),
+                errors
+        );
 
         return errors;
     }
@@ -68,6 +104,39 @@ public class EventValidator {
         }
     }
 
+    private void validateRecurrence(
+            Boolean recurring,
+            LocalDate start,
+            LocalDate end,
+            Set<DayOfWeek> days,
+            List<ValidationError> errors
+    )
+    {
+        if (Boolean.TRUE.equals(recurring)) {
+
+            if (start == null) {
+                errors.add(ValidationErrorFactory.required("recurrenceStart"));
+            }
+
+            if (end == null) {
+                errors.add(ValidationErrorFactory.required("recurrenceEnd"));
+            }
+
+            if (start != null && end != null && end.isBefore(start)) {
+                errors.add(new ValidationError(
+                        ValidationErrorType.BUSINESS_RULE_VIOLATION,
+                        "recurrenceEnd",
+                        end,
+                        "Recurrence end must be after start"
+                ));
+            }
+
+            if (days == null || days.isEmpty()) {
+                errors.add(ValidationErrorFactory.required("recurrenceDays"));
+            }
+        }
+    }
+
     private void validateTimeRange(LocalTime start, LocalTime end, List<ValidationError> errors) {
         if (start == null || end == null) {
             errors.add(ValidationErrorFactory.required("start, end"));
@@ -80,6 +149,48 @@ public class EventValidator {
             ));
         }
     }
+
+    private void validateDateTimeRange(
+            LocalDate startDate,
+            LocalDate endDate,
+            LocalTime startTime,
+            LocalTime endTime,
+            List<ValidationError> errors
+    ) {
+        if (startTime == null || endTime == null) {
+            errors.add(ValidationErrorFactory.required("start, end"));
+            return;
+        }
+
+        if (startDate == null) {
+            errors.add(ValidationErrorFactory.required("date"));
+            return;
+        }
+
+        LocalDate effectiveEndDate = (endDate != null) ? endDate : startDate;
+
+        if (endDate != null && endDate.isBefore(startDate)) {
+            errors.add(new ValidationError(
+                    ValidationErrorType.BUSINESS_RULE_VIOLATION,
+                    "endDate",
+                    endDate,
+                    "End date cannot be before start date"
+            ));
+            return;
+        }
+
+        if (effectiveEndDate.equals(startDate)) {
+            if (!startTime.isBefore(endTime)) {
+                errors.add(new ValidationError(
+                        ValidationErrorType.BUSINESS_RULE_VIOLATION,
+                        "time",
+                        startTime + " - " + endTime,
+                        "Start time must be before end time"
+                ));
+            }
+        }
+    }
+
 
     private void validateParticipantRange(Integer min, Integer max, List<ValidationError> errors) {
         if (min == null || max == null) {

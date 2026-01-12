@@ -4,6 +4,7 @@ import at.fhv.Event.domain.model.event.Difficulty;
 import at.fhv.Event.presentation.rest.response.equipment.EquipmentDTO;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
@@ -15,6 +16,7 @@ public record EventDetailDTO(
         String organizer,
         String category,
         LocalDate date,
+        LocalDate endDate,
         LocalTime startTime,
         LocalTime endTime,
         String location,
@@ -28,6 +30,10 @@ public record EventDetailDTO(
         List<Long> requiredEquipmentIds,
         List<Long> optionalEquipmentIds,
         List<String> hikeRouteKeys,
-        String audience
+        String audience,
+        boolean recurring,
+        LocalDate recurrenceStart,
+        LocalDate recurrenceEnd,
+        List<DayOfWeek> recurrenceDays
 
 ) {}

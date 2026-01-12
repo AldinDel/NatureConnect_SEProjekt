@@ -11,7 +11,6 @@ import at.fhv.Event.presentation.rest.response.event.EventOverviewDTO;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 @Controller
@@ -124,11 +124,10 @@ public class EventController {
             return "redirect:/events/" + id;
         }
 
-        if (accessService.isEventExpired(detail.date(), detail.startTime())) {
+        if (accessService.isEventExpired(detail)) {
             redirect.addFlashAttribute("error", "Event is already expired, you can't edit it anymore.");
             return "redirect:/events/" + id;
         }
-
 
         UpdateEventRequest req = buildUpdateRequest(detail);
         model.addAttribute("event", req);
@@ -147,7 +146,10 @@ public class EventController {
                          RedirectAttributes redirect,
                          Authentication auth) {
 
-        if (req.getDate() != null && req.getDate().isBefore(LocalDate.now())) {
+        if (!req.isRecurring()
+                && req.getDate() != null
+                && req.getDate().isBefore(LocalDate.now())) {
+
             redirect.addFlashAttribute("error", "Event date cannot be in the past.");
             return "redirect:/events/" + id + "/edit";
         }
@@ -224,7 +226,7 @@ public class EventController {
         int remaining = accessService.calculateRemainingSpots(event.id(), event.minParticipants(), event.maxParticipants());
         model.addAttribute("remainingSpots", remaining);
 
-        boolean expired = accessService.isEventExpired(event.date(), event.startTime());
+        boolean expired = accessService.isEventExpired(event);
         model.addAttribute("expired", expired);
 
         boolean isHiking = event.category() != null && event.category().toLowerCase().contains("hiking");
@@ -232,12 +234,29 @@ public class EventController {
 
         return "events/event_detail";
     }
-
     @PostMapping("/{id}/cancel")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ORGANIZER')")
     public String cancelEvent(@PathVariable("id") Long id,
                               @RequestParam("reason") String reason,
                               RedirectAttributes redirect,
                               Authentication auth) {
+
+        EventDetailDTO detail = detailsService.getEventDetails(id);
+
+        if (!userPermissionService.canCancel(auth, detail)) {
+            redirect.addFlashAttribute("error", "You are not allowed to cancel this event.");
+            return "redirect:/events/" + id;
+        }
+
+        if (Boolean.TRUE.equals(detail.cancelled())) {
+            redirect.addFlashAttribute("error", "Event is already cancelled.");
+            return "redirect:/events/" + id;
+        }
+
+        if (accessService.isEventExpired(detail)) {
+            redirect.addFlashAttribute("error", "Expired events cannot be cancelled.");
+            return "redirect:/events/" + id;
+        }
 
         try {
             cancelService.cancel(id, reason);
@@ -249,12 +268,10 @@ public class EventController {
         return "redirect:/events/" + id;
     }
 
-
     @GetMapping("/{id}/refund-count")
     @ResponseBody
     public long refundableCount(@PathVariable Long id) {
         return cancelService.getRefundableCount(id);
-    }
 
     private UpdateEventRequest buildUpdateRequest(EventDetailDTO detail) {
         UpdateEventRequest req = new UpdateEventRequest();
@@ -262,7 +279,14 @@ public class EventController {
         req.setDescription(detail.description());
         req.setOrganizer(detail.organizer());
         req.setCategory(detail.category());
+        req.setRecurring(detail.recurring());
+        req.setRecurrenceStart(detail.recurrenceStart());
+        req.setRecurrenceEnd(detail.recurrenceEnd());
+        if (detail.recurrenceDays() != null) {
+            req.setRecurrenceDays(new HashSet<>(detail.recurrenceDays()));
+        }
         req.setDate(detail.date());
+        req.setEndDate(detail.endDate());
         req.setStartTime(detail.startTime());
         req.setEndTime(detail.endTime());
         req.setLocation(detail.location());
