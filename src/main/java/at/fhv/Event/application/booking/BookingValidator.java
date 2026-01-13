@@ -39,6 +39,7 @@ public class BookingValidator {
         validateVoucherCode(request, errors);
         validateEquipment(request, event, equipmentMap, errors);
         validateHikeRouteKey(request, event, errors);
+        validateEventDate(request, event, errors);
         return errors;
     }
 
@@ -310,4 +311,52 @@ public class BookingValidator {
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
     }
+
+    private void validateEventDate(CreateBookingRequest request,
+                                   Event event,
+                                   List<ValidationError> errors) {
+
+        if (request.getEventDate() == null) {
+            errors.add(ValidationErrorFactory.required("eventDate"));
+            return;
+        }
+
+        if (!event.isRecurring()) {
+            if (!request.getEventDate().equals(event.getDate())) {
+                errors.add(new ValidationError(
+                        ValidationErrorType.BUSINESS_RULE_VIOLATION,
+                        "eventDate",
+                        request.getEventDate(),
+                        "Invalid date for this event"
+                ));
+            }
+            return;
+        }
+
+        // recurring
+        if (request.getEventDate().isBefore(event.getRecurrenceStart())
+                || request.getEventDate().isAfter(event.getRecurrenceEnd())) {
+
+            errors.add(new ValidationError(
+                    ValidationErrorType.BUSINESS_RULE_VIOLATION,
+                    "eventDate",
+                    request.getEventDate(),
+                    "Please select a date between "
+                            + event.getRecurrenceStart()
+                            + " and "
+                            + event.getRecurrenceEnd()
+            ));
+            return;
+        }
+
+        if (!event.getRecurrenceDays().contains(request.getEventDate().getDayOfWeek())) {
+            errors.add(new ValidationError(
+                    ValidationErrorType.BUSINESS_RULE_VIOLATION,
+                    "eventDate",
+                    request.getEventDate(),
+                    "This event only takes place on " + event.getRecurrenceDays()
+            ));
+        }
+    }
+
 }

@@ -192,6 +192,15 @@ public class BookingController {
         if (Boolean.TRUE.equals(event.cancelled())) {
             return true;
         }
+
+        if (event.recurring()) {
+            return false;
+        }
+
+        if (event.date() == null || event.startTime() == null) {
+            return false;
+        }
+
         LocalDateTime eventStart = LocalDateTime.of(event.date(), event.startTime());
         return eventStart.isBefore(LocalDateTime.now());
     }
