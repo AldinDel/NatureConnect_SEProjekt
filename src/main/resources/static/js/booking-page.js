@@ -46,7 +46,6 @@ if (removeDiscountBtn) {
 }
 
 
-
 const BASE_PRICE = parseFloat(document.getElementById("eventBasePrice").value) || 0;
 const MIN_PARTICIPANTS = parseInt(document.getElementById("eventMinParticipants").value) || 1;
 const MAX_PARTICIPANTS = parseInt(document.getElementById("eventMaxParticipants").value) || 20;
@@ -91,12 +90,14 @@ function generateParticipants(num) {
     
         <label>Age</label>
         <input class="form-input participant-age" 
-               type="number" 
-               name="participants[${i}].age" 
-               data-participant-index="${i}"
-               min="1" 
-               max="120">
+           type="number" 
+           name="participants[${i}].age" 
+           data-participant-index="${i}"
+           min="1" 
+           max="120"
+           required>
         <span class="error-text participant-age-error" data-participant-index="${i}"></span>
+
     `;
 
         const row = Array.from(existing).find(el => Number(el.dataset.index) === i);
@@ -235,7 +236,6 @@ async function loadEquipmentForEvent(eventId) {
         console.error(err);
     }
 }
-
 
 
 function updateDiscountRow(code, amount) {
@@ -417,7 +417,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     if (isEditMode) {
         const voucherDB = document.getElementById("voucherCodeField");
         const discountField = document.getElementById("discountPercentField");
@@ -452,6 +452,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     const eventId = eventIdEl.value;
 
+    try {
+        const eventRes = await fetch(`/api/events/${eventId}`);
+        if (eventRes.ok) {
+            const event = await eventRes.json();
+            const isHiking = (event.category || "").toLowerCase().includes("hiking");
+
+            if (isHiking) {
+                document.getElementById("hikeRouteSection").style.display = "block";
+                await loadHikeRoutes(event.hikeRouteKeys || []);
+            } else {
+                document.getElementById("hikeRouteSection").style.display = "none";
+            }
+        }
+    } catch (e) {
+        console.error("Failed to load event category", e);
+    }
+
     const currentIsEditMode = document.getElementById("isEdit")?.value === "true";
     console.log("Edit mode check:", currentIsEditMode);
 
@@ -483,4 +500,70 @@ document.addEventListener("DOMContentLoaded", () => {
 
     updatePriceSummary();
 });
+
+async function loadHikeRoutes(allowedKeys) {
+    const res = await fetch("/api/hiking/routes");
+    const routes = await res.json();
+
+    const allowed = new Set((allowedKeys || []).map(k => String(k)));
+    const filteredRoutes = allowed.size === 0
+        ? []
+        : routes.filter(r => allowed.has(String(r.key)));
+
+    const list = document.getElementById("hikeRoutesList");
+    list.innerHTML = "";
+
+    const currentValue = document.getElementById("hikeRouteKey")?.value || "";
+
+    filteredRoutes.forEach(r => {
+        const waypointsText = (r.waypoints || [])
+            .sort((a, b) => a.sequence - b.sequence)
+            .map(w => w.name)
+            .join(" → ");
+
+        const item = document.createElement("div");
+        item.className = "equipment-item";
+
+        item.innerHTML = `
+    <label class="checkbox-label" style="width:100%;">
+        <input type="radio" name="hikeRouteRadio" value="${r.key}">
+        <div class="addon-content" style="flex:1;">
+            <p class="addon-name">${r.name}</p>
+            <p class="addon-desc">${waypointsText}</p>
+        </div>
+    </label>
+`;
+
+
+        const radio = item.querySelector("input[type='radio']");
+        radio.addEventListener("change", (e) => {
+            document.getElementById("hikeRouteKey").value = e.target.value;
+            hideHikeRouteError();
+        });
+
+        if (currentValue && String(currentValue) === String(r.key)) {
+            radio.checked = true;
+        }
+
+        list.appendChild(item);
+    });
+
+    if (filteredRoutes.length === 0) {
+        document.getElementById("hikeRouteSection").style.display = "none";
+    }
+}
+
+function showHikeRouteError(msg) {
+    const el = document.getElementById("hikeRouteError");
+    el.textContent = msg;
+    el.style.display = "block";
+}
+
+
+
+function hideHikeRouteError() {
+    const el = document.getElementById("hikeRouteError");
+    el.style.display = "none";
+}
+
 

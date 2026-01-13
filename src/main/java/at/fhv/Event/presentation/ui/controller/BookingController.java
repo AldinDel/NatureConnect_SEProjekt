@@ -46,7 +46,6 @@ public class BookingController {
         _bookingPrefillService = bookingPrefillService;
     }
 
-
     @GetMapping("/event/{eventId}")
     @PreAuthorize("isAuthenticated()")
     public String showBookingPage(@PathVariable Long eventId,
@@ -62,15 +61,18 @@ public class BookingController {
             return "redirect:/events/" + eventId;
         }
 
-        CreateBookingRequest bookingRequest =
-                _bookingPrefillService.prepareCreateRequestForLoggedInUser(
-                        principal.getName(),
-                        eventId
-                );
+        if (!model.containsAttribute("booking")) {
+            CreateBookingRequest bookingRequest =
+                    _bookingPrefillService.prepareCreateRequestForLoggedInUser(
+                            principal.getName(),
+                            eventId
+                    );
+            model.addAttribute("booking", bookingRequest);
+        }
+
         List<EquipmentDTO> availableEquipment = event.equipments();
 
         model.addAttribute("event", event);
-        model.addAttribute("booking", bookingRequest);
         model.addAttribute("addons", availableEquipment);
         model.addAttribute("availableSeats", Math.max(0, availableSeats));
         model.addAttribute("isEdit", false);
@@ -92,16 +94,35 @@ public class BookingController {
             BookingDTO booking = _bookEventService.bookEvent(request);
             return "redirect:/booking/payment/" + booking.getId();
 
-        } catch (BookingValidationException exception) {
-            return handleValidationErrors(exception, request, model);
 
         } catch (EventFullyBookedException exception) {
             redirectAttributes.addFlashAttribute("error", exception.getMessage());
             return "redirect:/events/" + request.getEventId();
 
-        } catch (Exception exception) {
-            return handleUnexpectedError(exception, request, model);
+        } catch (BookingValidationException exception) {
+
+            Map<String, String> fieldErrors = new HashMap<>();
+            List<String> errorMessages = new ArrayList<>();
+
+            for (ValidationError error : exception.getErrors()) {
+                String field = error.get_field();
+                String message = error.get_message();
+
+                if (fieldErrors.containsKey(field)) {
+                    fieldErrors.put(field, fieldErrors.get(field) + "; " + message);
+                } else {
+                    fieldErrors.put(field, message);
+                }
+                errorMessages.add(message);
+            }
+
+            redirectAttributes.addFlashAttribute("fieldErrors", fieldErrors);
+            redirectAttributes.addFlashAttribute("errors", errorMessages);
+            redirectAttributes.addFlashAttribute("booking", request);
+
+            return "redirect:/booking/event/" + request.getEventId();
         }
+
     }
 
     @GetMapping("/payment/{id}")
@@ -305,6 +326,7 @@ public class BookingController {
 
             List<EquipmentDTO> availableEquipment = event.equipments();
             CreateBookingRequest request = _bookingPrefillService.prepareEditRequest(booking, availableEquipment);
+            request.setHikeRouteKey(booking.getHikeRouteKey());
 
             model.addAttribute("event", event);
             model.addAttribute("booking", request);

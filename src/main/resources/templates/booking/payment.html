@@ -8,6 +8,7 @@
     <link rel="stylesheet" th:href="@{/css/payment.css}">
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}" href="/css/footer.css">
 
 </head>
 <body>
@@ -159,5 +160,8 @@
 </div>
 
 <script th:src="@{/js/payment.js}"></script>
+
+<div th:replace="events/fragments/footer :: footer"></div>
+
 </body>
 </html>

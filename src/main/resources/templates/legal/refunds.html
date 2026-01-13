@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Refund & Cancellation</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/static-page.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+</head>
+
+<body class="static_page">
+
+<div th:replace="events/fragments/navbar :: navbar"></div>
+
+<main class="static-container">
+    <h1 class="static-title">Refund & Cancellation</h1>
+    <p class="static-subtitle">Cancellation rules and refund conditions at NATUREConnect</p>
+
+    <section class="static-card">
+        <h2>Cancellation Deadlines & Fees</h2>
+        <p>
+            A booking can be cancelled up to an agreed cancellation deadline. Depending on the
+            cancellation date, different costs may apply:
+        </p>
+
+        <p>
+            • No costs if cancelled up to four weeks before the event<br>
+            • 25% of the booking price if cancelled up to two weeks before the event<br>
+            • 70% of the booking price if cancelled up to three days before the event<br>
+            • 100% of the booking price if cancelled at short notice (from three days before the event),
+            unless otherwise agreed
+        </p>
+
+        <h2>Event Cancellation</h2>
+        <p>
+            If an event is cancelled, all participants who booked the event will be notified. If a deposit
+            has already been paid, the organizer will refund it (handled via an external system).
+        </p>
+
+        <h2>Refund Processing Time</h2>
+        <p>
+            Refunds are typically processed within 5 business days after approval, depending on the
+            payment method and external processing.
+        </p>
+    </section>
+
+</main>
+
+<div th:replace="events/fragments/footer :: footer"></div>
+
+</body>
+</html>

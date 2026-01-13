@@ -27,6 +27,7 @@ public class BookingMapper {
         entity.setTotalPrice(domain.getTotalPrice());
         entity.setPaidAmount(domain.getPaidAmount());
         entity.setSpecialNotes(domain.getSpecialNotes());
+        entity.setHikeRouteKey(domain.getHikeRouteKey());
         entity.setCreatedAt(domain.getCreatedAt() != null ? domain.getCreatedAt() : java.time.Instant.now());
         entity.setBillingReady(domain.isBillingReady());
 
@@ -78,6 +79,7 @@ public class BookingMapper {
         domain.setTotalPrice(entity.getTotalPrice());
         domain.setPaidAmount(entity.getPaidAmount() == null ? 0.0 : entity.getPaidAmount());
         domain.setSpecialNotes(entity.getSpecialNotes());
+        domain.setHikeRouteKey(entity.getHikeRouteKey());
         domain.setCreatedAt(entity.getCreatedAt());
         domain.setBillingReady(entity.isBillingReady());
 
@@ -129,6 +131,7 @@ public class BookingMapper {
         entity.setTotalPrice(domain.getTotalPrice());
         entity.setPaidAmount(domain.getPaidAmount());
         entity.setSpecialNotes(domain.getSpecialNotes());
+        entity.setHikeRouteKey(domain.getHikeRouteKey());
         entity.setBillingReady(domain.isBillingReady());
 
         entity.getParticipants().clear();

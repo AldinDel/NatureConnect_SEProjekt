@@ -18,15 +18,16 @@ body.event_management {
 }
 
 .checkin-title {
-    font-size: 48px;
+    color: #ffffff;
+    font-size: 60px;
     font-weight: 700;
     margin-bottom: 10px;
 }
 
 .checkin-subtitle {
-    font-size: 26px;
+    font-size: 15px;
     font-weight: 500;
-    color: #ffffff;
+    color: #f0f4f8;
     margin-bottom: 40px;
 }
 

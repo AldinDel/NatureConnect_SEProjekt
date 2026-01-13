@@ -6,6 +6,7 @@
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/event-management-front.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}" href="/css/footer.css">
 </head>
 
 <body class="event_management">
@@ -53,6 +54,8 @@
     </div>
 
 </div>
+
+<div th:replace="events/fragments/footer :: footer"></div>
 
 </body>
 </html>

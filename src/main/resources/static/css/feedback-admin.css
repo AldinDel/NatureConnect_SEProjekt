@@ -1,0 +1,92 @@
+.feedback-admin-page {
+    background-image: url("../images/ManOnMountain.jpg"); /* gleiches Bild */
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+    background-color: rgba(0, 0, 0, 0.65);
+    background-blend-mode: darken;
+    font-family: 'Inter', sans-serif;
+    color: white;
+    padding-bottom: 100px;
+}
+
+.rating-stars {
+    color: #f5b301;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+}
+
+.stat-value.danger {
+    color: #b42318;
+    font-weight: 600;
+}
+
+.stat-value {
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.participants-table th:nth-child(3),
+.participants-table td:nth-child(3) {
+    width: 40%;
+}
+
+.participants-table th:nth-child(4),
+.participants-table td:nth-child(4) {
+    width: 12%;
+}
+
+.participants-table th:nth-child(5),
+.participants-table td:nth-child(5) {
+    width: 10%;
+}
+
+.feedback-filter {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.feedback-filter select {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid #ccc;
+    background: white;
+    font-size: 14px;
+}
+
+.feedback-filter .btn {
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.feedback-filter .btn.primary {
+    background: #0b2c4d;
+    color: white;
+    border: none;
+}
+
+.btn.ghost {
+    background: #0b2c4d;        /* gleiches Blau wie Primary */
+    color: white;
+    border: none;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-radius: 10px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Hover Effekt */
+.btn.ghost:hover {
+    background: #123e6b;        /* etwas heller/dynamischer */
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}

@@ -18,31 +18,33 @@ public class GetHikeRoutesForEventService {
 
     public List<HikeRouteDTO> getAllRoutes() {
         String optimizedQuery = """
-            MATCH (h:Hike)
-            OPTIONAL MATCH (h)-[:STARTS_AT]->(start:Waypoint)
-            OPTIONAL MATCH (start)-[:NEXT*0..]->(wp:Waypoint)
-            WITH h, COLLECT(DISTINCT wp) AS waypoints
-            RETURN h.key AS key,
-                   h.name AS name,
-                   h.difficulty AS difficulty,
-                   h.lengthKm AS lengthKm,
-                   h.durationMinutes AS durationMinutes,
-                   waypoints
-            ORDER BY h.lengthKm ASC
-            """;
+                MATCH (h:Hike)
+                OPTIONAL MATCH (h)-[:STARTS_AT]->(start:Waypoint)
+                OPTIONAL MATCH p=(start)-[:NEXT*0..]->(wp:Waypoint)
+                WITH h, COLLECT(DISTINCT {name: wp.name, sequence: length(p)}) AS waypoints
+                RETURN h.key AS key,
+                h.name AS name,
+                h.difficulty AS difficulty,
+                h.lengthKm AS lengthKm,
+                h.durationMinutes AS durationMinutes,
+                waypoints
+                ORDER BY h.lengthKm ASC
+                """;
 
         Collection<HikeRouteDTO> routes = neo4jClient.query(optimizedQuery)
                 .fetchAs(HikeRouteDTO.class)
                 .mappedBy((ts, record) -> {
                     List<WaypointDTO> waypointDTOs = new ArrayList<>();
                     record.get("waypoints").asList(value -> {
-                        if (value instanceof org.neo4j.driver.types.Node node) {
-                            if (node.containsKey("name") && node.containsKey("sequence")) {
-                                waypointDTOs.add(new WaypointDTO(
-                                        node.get("name").asString(),
-                                        node.get("sequence").asInt()
-                                ));
-                            }
+                        if (value == null || value.isNull()) return null;
+
+                        Map<String, Object> m = value.asMap();
+                        Object n = m.get("name");
+                        Object s = m.get("sequence");
+
+                        if (n != null && s instanceof Number) {
+                            int seq = ((Number) s).intValue();
+                            waypointDTOs.add(new WaypointDTO(n.toString(), seq));
                         }
                         return null;
                     });

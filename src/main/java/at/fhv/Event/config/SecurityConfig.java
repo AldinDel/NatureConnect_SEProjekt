@@ -59,6 +59,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/hiking/**").permitAll()
                         .requestMatchers("/api/events/*/equipment").permitAll()
                         .requestMatchers("/api/events/**").hasAnyRole("ADMIN", "FRONT", "ORGANIZER")
+                        .requestMatchers("/", "/imprint", "/privacy", "/terms", "/about", "/contact", "/refunds", "/payment-methods").permitAll()
 
                         .anyRequest().authenticated()
                 )

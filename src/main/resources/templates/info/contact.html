@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Contact</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/static-page.css}">
+    <link rel="stylesheet" th:href="@{/css/navbar.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}">
+</head>
+
+<body class="static_page">
+
+<div th:replace="events/fragments/navbar :: navbar"></div>
+
+<main class="static-container">
+    <h1 class="static-title">Contact</h1>
+    <p class="static-subtitle">Get in touch with the NATUREConnect team    </p>
+
+    <section class="static-card">
+        <h2>Contact Information</h2>
+
+        <p>
+            NATUREConnect<br>
+            Hochschulstraße 1<br>
+            6850 Dornbirn<br>
+            Austria
+        </p>
+
+        <p>
+            <strong>Availability:</strong><br>
+            Monday – Friday<br>
+            09:00 – 17:00
+        </p>
+
+        <p>
+            General support:
+            <a href="mailto:support@natureconnect.com">support@natureconnect.com</a><br>
+            Organizer inquiries:
+            <a href="mailto:business@natureconnect.com">business@natureconnect.com</a><br>
+            Phone:
+            <a href="phoneNumber">+43 000 000000</a>
+        </p>
+
+        <p th:if="${param.sent}" id="successMessage" class="success-toast">
+            Message received. We usually reply within 3–4 business days.
+        </p>
+
+        <h2>Send us a message</h2>
+
+        <form th:action="@{/contact}" method="post" class="contact-form">
+            <input type="email" name="email" placeholder="Your email" required>
+
+            <textarea name="message" placeholder="Your message" rows="5" required></textarea>
+
+            <button type="submit">Send</button>
+        </form>
+
+    </section>
+
+
+</main>
+
+<script>
+    const msg = document.getElementById("successMessage");
+    if (msg) {
+        setTimeout(() => {
+            msg.style.opacity = "0";
+            msg.style.transform = "translateY(-10px)";
+            msg.style.transition = "all 0.4s ease";
+        }, 3500);
+    }
+</script>
+
+<div th:replace="events/fragments/footer :: footer"></div>
+
+</body>
+</html>

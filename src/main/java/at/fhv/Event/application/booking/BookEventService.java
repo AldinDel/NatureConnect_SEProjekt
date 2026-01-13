@@ -65,6 +65,18 @@ public class BookEventService {
     @Transactional
     public BookingDTO bookEvent(CreateBookingRequest request) {
         Event event = loadEvent(request.getEventId());
+
+        if (Boolean.TRUE.equals(event.getCancelled())) {
+            throw new IllegalStateException("Cannot book a cancelled event.");
+        }
+
+        if (event.getDate() != null && event.getStartTime() != null) {
+            LocalDateTime start = LocalDateTime.of(event.getDate(), event.getStartTime());
+            if (start.isBefore(LocalDateTime.now())) {
+                throw new IllegalStateException("Cannot book an expired event.");
+            }
+        }
+
         checkEventAvailability(event);
         checkEventCapacity(event, request.getSeats());
 
@@ -75,6 +87,13 @@ public class BookEventService {
         BigDecimal totalPrice = calculateTotalPrice(request, event, equipmentMap);
 
         Booking booking = createBooking(request, totalPrice);
+
+        if (isHikingEvent(event)) {
+            booking.setHikeRouteKey(request.getHikeRouteKey());
+        } else {
+            booking.setHikeRouteKey(null);
+        }
+
         booking.setEquipment(processEquipmentBooking(request, equipmentMap));
 
         Booking savedBooking = _bookingRepository.save(booking);
@@ -146,6 +165,12 @@ public class BookEventService {
         booking.setDiscountAmount(discount.doubleValue());
         booking.setTotalPrice(totalPrice.doubleValue());
 
+        if (isHikingEvent(event)) {
+            booking.setHikeRouteKey(request.getHikeRouteKey());
+        } else {
+            booking.setHikeRouteKey(null);
+        }
+
         List<BookingParticipant> participants = new ArrayList<>();
 
         if (request.getParticipants() != null) {
@@ -192,11 +217,6 @@ public class BookEventService {
     }
 
     @Transactional
-    public void cancelBooking(Long bookingId, String email) {
-        cancelBooking(bookingId, email, false);
-    }
-
-    @Transactional
     public void cancelBooking(Long bookingId, String email, boolean isAdmin) {
 
         Booking booking = getById(bookingId);
@@ -218,23 +238,17 @@ public class BookEventService {
         }
 
         Event event = loadEvent(booking.getEventId());
-        LocalDateTime eventStart = LocalDateTime.of(event.getDate(), event.getStartTime());
-
-        if (eventStart.isBefore(LocalDateTime.now())) {
-            throw new BookingOperationException(
-                    bookingId,
-                    "cancel",
-                    "This event already started and cannot be cancelled"
-            );
-        }
+        event.validateAvailability();
 
         booking.setStatus(BookingStatus.CANCELLED);
         _bookingRepository.save(booking);
 
+        BigDecimal refund = refundService.calculateRefund(booking, event);
+
         refundService.processRefund(
                 booking.getBookerEmail(),
                 booking.getId(),
-                booking.getTotalPrice()
+                refund
         );
 
         // Audit log
@@ -249,6 +263,14 @@ public class BookEventService {
             );
         }
     }
+
+    @Transactional(readOnly = true)
+    public BigDecimal getRefundPreview(Long bookingId) {
+        Booking booking = getById(bookingId);
+        Event event = loadEvent(booking.getEventId());
+        return refundService.calculateRefund(booking, event);
+    }
+
 
     @Transactional
     public BookingDTO updatePaymentMethod(Long bookingId, String paymentMethodName) {
@@ -322,21 +344,29 @@ public class BookEventService {
     private BigDecimal calculateEquipmentPrice(CreateBookingRequest req, Map<Long, Equipment> map) {
         BigDecimal total = BigDecimal.ZERO;
 
-        for (var entry : req.getEquipment().entrySet()) {
+        Map<Long, EquipmentSelection> equipmentSelections = req.getEquipment();
+        if (equipmentSelections == null || equipmentSelections.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+
+        for (var entry : equipmentSelections.entrySet()) {
             EquipmentSelection sel = entry.getValue();
 
-            if (!sel.isSelected())
+            if (sel == null || !sel.isSelected()) {
                 continue;
+            }
 
             Equipment equipment = map.get(entry.getKey());
-            if (equipment == null)
+            if (equipment == null) {
                 continue;
+            }
 
             total = total.add(
                     equipment.getUnitPrice()
                             .multiply(BigDecimal.valueOf(sel.getQuantity()))
             );
         }
+
         return total;
     }
 
@@ -362,7 +392,12 @@ public class BookEventService {
     private List<BookingEquipment> processEquipmentBooking(CreateBookingRequest req, Map<Long, Equipment> map) {
         List<BookingEquipment> list = new ArrayList<>();
 
-        for (var entry : req.getEquipment().entrySet()) {
+        Map<Long, EquipmentSelection> selections = req.getEquipment();
+        if (selections == null || selections.isEmpty()) {
+            return list;
+        }
+
+        for (var entry : selections.entrySet()) {
 
             EquipmentSelection sel = entry.getValue();
 
@@ -375,6 +410,7 @@ public class BookEventService {
 
             reduceEquipmentStock(equipment, sel.getQuantity());
             BigDecimal totalPrice = equipment.getUnitPrice().multiply(BigDecimal.valueOf(sel.getQuantity()));
+
             BookingEquipment be = new BookingEquipment(
                     null,
                     equipment.getId(),
@@ -441,4 +477,10 @@ public class BookEventService {
         return _bookingRepository.findByIdWithParticipants(bookingId)
                 .orElseThrow(() -> new BookingNotFoundException(bookingId));
     }
+
+    private boolean isHikingEvent(Event event) {
+        return event.getCategory() != null
+                && event.getCategory().toLowerCase().contains("hiking");
+    }
+
 }

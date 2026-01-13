@@ -6,6 +6,7 @@
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/issue_invoice.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}" href="/css/footer.css">
 </head>
 
 <body class="issue-invoice-page">
@@ -61,5 +62,7 @@
         </tbody>
     </table>
 </div>
+
+<div th:replace="events/fragments/footer :: footer"></div>
 
 </body>

@@ -134,6 +134,12 @@ public class CreateEventService {
                 req.getHikeRouteKeys()
         );
 
+        if (req.isRecurring()) {
+            event.setEndDate(null);
+        } else {
+            event.setEndDate(req.getEndDate() != null ? req.getEndDate() : req.getDate());
+        }
+
         event.setRecurring(req.isRecurring());
         event.setRecurrenceStart(req.isRecurring() ? req.getRecurrenceStart() : null);
         event.setRecurrenceEnd(req.isRecurring() ? req.getRecurrenceEnd() : null);

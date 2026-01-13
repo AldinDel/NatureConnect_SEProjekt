@@ -31,7 +31,12 @@ public class EventValidator {
             validateDate(request.getDate(), errors);
         }
 
-        validateTimeRange(request.getStartTime(), request.getEndTime(), errors);
+        if (request.isRecurring()) {
+            validateTimeRange(request.getStartTime(), request.getEndTime(), errors);
+        } else {
+            validateDateTimeRange(request.getDate(), request.getEndDate(), request.getStartTime(), request.getEndTime(), errors);
+        }
+
         validateLocation(request.getLocation(), errors);
         validateParticipantRange(request.getMinParticipants(), request.getMaxParticipants(), errors);
         validatePrice(request.getPrice(), errors);
@@ -57,7 +62,12 @@ public class EventValidator {
             validateDate(request.getDate(), errors);
         }
 
-        validateTimeRange(request.getStartTime(), request.getEndTime(), errors);
+        if (request.isRecurring()) {
+            validateTimeRange(request.getStartTime(), request.getEndTime(), errors);
+        } else {
+            validateDateTimeRange(request.getDate(), request.getEndDate(), request.getStartTime(), request.getEndTime(), errors);
+        }
+
         validateLocation(request.getLocation(), errors);
         validateParticipantRange(request.getMinParticipants(), request.getMaxParticipants(), errors);
         validatePrice(request.getPrice(), errors);
@@ -139,6 +149,48 @@ public class EventValidator {
             ));
         }
     }
+
+    private void validateDateTimeRange(
+            LocalDate startDate,
+            LocalDate endDate,
+            LocalTime startTime,
+            LocalTime endTime,
+            List<ValidationError> errors
+    ) {
+        if (startTime == null || endTime == null) {
+            errors.add(ValidationErrorFactory.required("start, end"));
+            return;
+        }
+
+        if (startDate == null) {
+            errors.add(ValidationErrorFactory.required("date"));
+            return;
+        }
+
+        LocalDate effectiveEndDate = (endDate != null) ? endDate : startDate;
+
+        if (endDate != null && endDate.isBefore(startDate)) {
+            errors.add(new ValidationError(
+                    ValidationErrorType.BUSINESS_RULE_VIOLATION,
+                    "endDate",
+                    endDate,
+                    "End date cannot be before start date"
+            ));
+            return;
+        }
+
+        if (effectiveEndDate.equals(startDate)) {
+            if (!startTime.isBefore(endTime)) {
+                errors.add(new ValidationError(
+                        ValidationErrorType.BUSINESS_RULE_VIOLATION,
+                        "time",
+                        startTime + " - " + endTime,
+                        "Start time must be before end time"
+                ));
+            }
+        }
+    }
+
 
     private void validateParticipantRange(Integer min, Integer max, List<ValidationError> errors) {
         if (min == null || max == null) {

@@ -1,7 +1,14 @@
 package at.fhv.Event.application.refund;
 
 import at.fhv.Event.application.email.FakeEmailService;
+import at.fhv.Event.domain.model.booking.Booking;
+import at.fhv.Event.domain.model.event.Event;
 import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 @Service
 public class RefundService {
@@ -15,15 +22,41 @@ public class RefundService {
         this.emailService = emailService;
     }
 
-    public void processRefund(String customerEmail, Long bookingId, double amount) {
+    public void processRefund(String customerEmail, Long bookingId, BigDecimal amount) {
 
         // 1) Fake Refund im Payment-System
-        paymentClient.refundPayment(bookingId, amount);
+        paymentClient.refundPayment(bookingId, amount.doubleValue());
 
         // 2) Fake Email an Kunden
         emailService.sendRefundEmail(customerEmail, bookingId);
 
         // 3) (Optional) Logging für Prof
         System.out.println("Refund processed for booking " + bookingId);
+    }
+
+    public BigDecimal calculateRefund(Booking booking, Event event) {
+
+        LocalDateTime eventStart = LocalDateTime.of(event.getDate(), event.getStartTime());
+        LocalDateTime now = LocalDateTime.now();
+
+        long daysUntilEvent = ChronoUnit.DAYS.between(now, eventStart);
+
+        BigDecimal price = BigDecimal.valueOf(booking.getTotalPrice());
+        BigDecimal refund;
+
+        if (daysUntilEvent >= 28) {
+            refund = price;
+        }
+        else if (daysUntilEvent >= 14) {
+            refund = price.multiply(BigDecimal.valueOf(0.75));
+        }
+        else if (daysUntilEvent >= 3) {
+            refund = price.multiply(BigDecimal.valueOf(0.30));
+        }
+        else {
+            refund = BigDecimal.ZERO; // 0%
+        }
+
+        return refund.setScale(2, RoundingMode.HALF_UP);
     }
 }

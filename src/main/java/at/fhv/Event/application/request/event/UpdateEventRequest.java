@@ -16,6 +16,7 @@ public class UpdateEventRequest {
     private String organizer;
     private String category;
     private LocalDate date;
+    private LocalDate endDate;
     private LocalTime startTime;
     private LocalTime endTime;
     private boolean recurring;
@@ -73,6 +74,14 @@ public class UpdateEventRequest {
 
     public void setDate(LocalDate date) {
         this.date = date;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
     }
 
     public LocalTime getStartTime() {

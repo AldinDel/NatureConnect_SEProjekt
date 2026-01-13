@@ -6,9 +6,18 @@
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/participants.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}" href="/css/footer.css">
 </head>
 
 <body class="participants-page">
+
+<div th:if="${feedbackSaved}" class="feedback-popup">
+    Feedback saved successfully!
+</div>
+
+<div th:if="${error}" class="feedback-error">
+    <span th:text="${error}"></span>
+</div>
 
 <div th:replace="~{events/fragments/navbar :: navbar}"></div>
 
@@ -26,6 +35,10 @@
     </a>
     <a th:href="@{/event_management/invoices(eventId=${eventId})}" class="fo-tab">
         Invoices
+    </a>
+
+    <a th:href="@{/event_management/feedback(eventId=${eventId})}" class="fo-tab">
+        Feedback
     </a>
 </div>
 
@@ -65,7 +78,6 @@
 
         <tbody>
         <tr th:each="p : ${participants}"
-            th:data-participant-id="${p.participantId}"
             th:classappend="${p.checkedOut} ? 'checked-out' : ''">
 
             <td th:text="${p.bookingId}"></td>
@@ -80,12 +92,23 @@
                 </span>
             </td>
 
-            <td>
-                <button th:if="${!p.checkedOut}"
+            <td th:data-participant-id="${p.participantId}">
+            <button th:if="${!p.checkedOut}"
                         class="btn success checkout-btn">
                     Check out
                 </button>
+
+                <a th:if="${p.checkedOut && !p.feedbackExists}"
+                   th:href="@{/feedback/new(participantId=${p.participantId}, eventId=${eventId})}"
+                   class="feedback-btn">
+                    Add feedback
+                </a>
+
+                <span th:if="${p.feedbackExists}" class="feedback-done">
+                    Feedback submitted ✔
+                </span>
             </td>
+
         </tr>
         </tbody>
     </table>
@@ -107,7 +130,7 @@
     document.querySelectorAll(".checkout-btn").forEach(btn => {
         btn.addEventListener("click", async () => {
             const row = btn.closest("tr");
-            const participantId = row.dataset.participantId;
+            const participantId = row.querySelector("td[data-participant-id]").dataset.participantId;
 
             const res = await fetch(
                 `/api/events/${eventId}/participants/${participantId}/checkout`,
@@ -130,6 +153,15 @@
 
             btn.remove();
 
+            const actionsCell = row.querySelector("td[data-participant-id]");
+            if (!actionsCell.querySelector(".feedback-btn")) {
+                const feedbackLink = document.createElement("a");
+                feedbackLink.textContent = "Add Feedback";
+                feedbackLink.classList.add("feedback-btn");
+                feedbackLink.href = `/feedback/new?participantId=${participantId}&eventId=${eventId}`;
+                actionsCell.appendChild(feedbackLink);
+            }
+
             const checkedOutEl = document.querySelector(".stat-value.arrived");
             const remainingEl = document.querySelector(".stat-value.not-arrived");
 
@@ -147,7 +179,19 @@
             row.style.display = row.innerText.toLowerCase().includes(query) ? "" : "none";
         });
     });
+
+    setTimeout(() => {
+        const msg = document.querySelector(".feedback-popup");
+        if (msg) {
+            msg.style.opacity = "0";
+            msg.style.transition = "opacity 0.4s ease";
+            setTimeout(() => msg.remove(), 400);
+        }
+    }, 3000);
+
 </script>
+
+<div th:replace="events/fragments/footer :: footer"></div>
 
 </body>
 </html>

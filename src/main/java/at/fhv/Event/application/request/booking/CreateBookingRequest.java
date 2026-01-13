@@ -14,20 +14,23 @@ public class CreateBookingRequest {
     private String bookerFirstName;
     private String bookerLastName;
     private String bookerEmail;
-
     private int seats;
     private AudienceType audience;
-
     private String voucherCode;
     private String specialNotes;
+    private String hikeRouteKey;
     private PaymentMethod paymentMethod;
     private Integer discountPercent;
-
     private List<ParticipantDTO> participants;
     private Map<Long, EquipmentSelection> equipment;
 
-    public Map<Long, EquipmentSelection> getEquipment() { return equipment; }
-    public void setEquipment(Map<Long, EquipmentSelection> equipment) { this.equipment = equipment; }
+    public Map<Long, EquipmentSelection> getEquipment() {
+        return equipment;
+    }
+
+    public void setEquipment(Map<Long, EquipmentSelection> equipment) {
+        this.equipment = equipment;
+    }
 
 
     public Long getEventId() {
@@ -92,6 +95,14 @@ public class CreateBookingRequest {
 
     public void setSpecialNotes(String specialNotes) {
         this.specialNotes = specialNotes;
+    }
+
+    public String getHikeRouteKey() {
+        return hikeRouteKey;
+    }
+
+    public void setHikeRouteKey(String hikeRouteKey) {
+        this.hikeRouteKey = hikeRouteKey;
     }
 
     public List<ParticipantDTO> getParticipants() {

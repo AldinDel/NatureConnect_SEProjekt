@@ -326,9 +326,6 @@ body.participants-page {
     transform: translateY(0);
 }
 
-tr.checked-out {
-    opacity: 0.5;
-}
 
 tr.checked-out .status-badge {
     background-color: #999;
@@ -342,3 +339,57 @@ tr.checked-out .status-badge {
     border-bottom: none;
 }
 
+/* Feedback button (link styled as button) */
+.feedback-btn {
+    text-decoration: none;        /* remove underline */
+    color: #ffffff;               /* readable text */
+    background-color: #1f3a5f;    /* same vibe as your UI */
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+    display: inline-block;
+}
+
+.feedback-btn:hover {
+    background-color: #2c4d7a;    /* subtle hover, not neon */
+    transform: translateY(-1px);
+}
+
+.feedback-btn:active {
+    transform: translateY(0);
+}
+
+.feedback-btn:focus {
+    outline: none;
+}
+
+.feedback-popup {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #1f7a4d;
+    color: white;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-weight: 500;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    z-index: 1000;
+}
+
+.feedback-error {
+    background: #b42318;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+.feedback-done {
+    display: inline-block;
+    padding: 6px 12px;
+    background: #e7f7ef;
+    color: #1f7a4d;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}

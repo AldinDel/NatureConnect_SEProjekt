@@ -23,6 +23,7 @@ public class Event {
     private String organizer;
     private String category;
     private LocalDate date;
+    private LocalDate endDate;
     private LocalTime startTime;
     private LocalTime endTime;
     private String location;
@@ -33,6 +34,7 @@ public class Event {
     private String imageUrl;
     private EventAudience audience;
     private Boolean cancelled = false;
+    private String cancellationReason;
     private Set<EventEquipment> eventEquipments;
     private List<String> hikeRouteKeys;
     private boolean recurring;
@@ -83,12 +85,20 @@ public class Event {
         this.audience = audience;
     }
 
-    public void cancel() {
+    public void cancel(String reason) {
         if (this.cancelled) {
             throw new EventAlreadyCancelledException(id);
         }
+        if (reason == null || reason.isBlank()) {
+            throw new IllegalArgumentException("Cancellation reason required.");
+        }
+
         this.cancelled = true;
+        this.cancellationReason = reason.trim();
     }
+
+
+
 
     public void updateDetails(String title, String description, BigDecimal price) {
         if (title == null || title.trim().isEmpty()) {
@@ -211,6 +221,14 @@ public class Event {
         this.date = date;
     }
 
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
+
     public LocalTime getStartTime() {
         return startTime;
     }
@@ -311,6 +329,14 @@ public class Event {
                 : new ArrayList<>(hikeRouteKeys);
     }
 
+    public String getCancellationReason() {
+        return cancellationReason;
+    }
+
+    public void setCancellationReason(String cancellationReason) {
+        this.cancellationReason = cancellationReason;
+    }
+
     public boolean isRecurring() {
         return recurring;
     }
@@ -344,7 +370,6 @@ public class Event {
                 ? new HashSet<>()
                 : new HashSet<>(recurrenceDays);
     }
-
 
 
 }
