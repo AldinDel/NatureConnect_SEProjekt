@@ -213,7 +213,7 @@ public class BookingValidator {
                 continue;
             }
 
-            String prefix = "equipment[" + equipmentId + "]"; // falls ihr hier "equipments" hattet, besser gleichziehen
+            String prefix = "equipments[" + equipmentId + "]"; // falls ihr hier "equipments" hattet, besser gleichziehen
             EventEquipment eventEquipment = eventEquipmentMap.get(equipmentId);
 
             if (eventEquipment == null) {
