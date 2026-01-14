@@ -24,10 +24,17 @@ public class GetParticipantsForEventServiceImpl implements GetParticipantsForEve
         this.bookingParticipantRepository = bookingParticipantRepository;
     }
 
+    private boolean isActiveBooking(Booking booking) {
+        return booking.getStatus() == BookingStatus.CONFIRMED
+                || booking.getStatus() == BookingStatus.PAID;
+    }
+
     @Override
     public List<ParticipantDTO> getParticipants(Long eventId) {
 
-        List<Booking> bookings = bookingRepository.findByEventId(eventId);
+        List<Booking> bookings = bookingRepository.findByEventId(eventId).stream()
+                .filter(this::isActiveBooking)
+                .toList();
 
         return bookings.stream()
                 .flatMap(b ->
@@ -52,6 +59,7 @@ public class GetParticipantsForEventServiceImpl implements GetParticipantsForEve
 
         List<BookingParticipant> participants =
                 bookingRepository.findByEventId(eventId).stream()
+                        .filter(this::isActiveBooking)
                         .flatMap(b -> bookingParticipantRepository.findByBookingId(b.getId()).stream())
                         .toList();
 
@@ -71,6 +79,7 @@ public class GetParticipantsForEventServiceImpl implements GetParticipantsForEve
 
         boolean billingReady =
                 bookingRepository.findByEventId(eventId).stream()
+                        .filter(this::isActiveBooking)
                         .anyMatch(Booking::isBillingReady);
 
         return new EventParticipantsStats(
@@ -82,11 +91,12 @@ public class GetParticipantsForEventServiceImpl implements GetParticipantsForEve
         );
     }
 
-
+    @Override
     public EventCheckoutStats getCheckoutStats(Long eventId) {
 
         List<BookingParticipant> participants =
                 bookingRepository.findByEventId(eventId).stream()
+                        .filter(this::isActiveBooking)
                         .flatMap(b -> bookingParticipantRepository.findByBookingId(b.getId()).stream())
                         .toList();
 
@@ -104,6 +114,4 @@ public class GetParticipantsForEventServiceImpl implements GetParticipantsForEve
                 remaining
         );
     }
-
-
 }
