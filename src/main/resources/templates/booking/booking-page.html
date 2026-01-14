@@ -10,6 +10,7 @@
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/booking-page.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}" href="/css/footer.css">
 </head>
 
 <body>
@@ -23,7 +24,7 @@
 
 <div class="container">
     <div id="errorPop"></div>
-    <div th:if="${errors != null and !errors.isEmpty()}"
+    <div th:if="${errors != null and !errors.isEmpty() and fieldErrors == null}"
          id="validationErrorBox"
          style="background-color: #fee2e2; border: 1px solid #ef4444; border-radius: 8px; padding: 16px; margin-bottom: 20px; transition: opacity 0.6s ease;">
         <h3 style="color: #dc2626; margin-top: 0; font-size: 18px;">Please fix the following errors:</h3>
@@ -31,8 +32,16 @@
             <li th:each="error : ${errors}" th:text="${error}"></li>
         </ul>
     </div>
+
     <script th:if="${fieldErrors != null}" type="application/json" id="fieldErrorsData" th:inline="text">
-        [[${fieldErrors}]]
+        [
+            [
+                $
+                {
+                    fieldErrors
+                }
+            ]
+        ]
     </script>
     <form th:action="${isEdit} ? @{/booking/{id}(id=${bookingId})} : @{/booking}"
           th:object="${booking}"
@@ -53,17 +62,98 @@
                 <div class="card">
                     <h1 class="title" th:text="${event.title}"></h1>
 
-                    <p class="text-gray">
-                        Organized by <strong th:text="${event.organizer}"></strong>
-                    </p>
-                    <p class="text-gray" th:text="${event.location}"></p>
-                    <p class="text-gray">
+                    <p class="text-gray" th:if="${!event.recurring}">
                         <span th:text="${event.date}"></span>
                         •
                         <span th:text="${event.startTime}"></span> -
                         <span th:text="${event.endTime}"></span>
                     </p>
+
+                    <p class="text-gray" th:if="${event.recurring}">
+                        <strong>Recurring event</strong> •
+                        <span th:text="${event.startTime}"></span> -
+                        <span th:text="${event.endTime}"></span>
+                    </p>
                 </div>
+
+                <div class="card">
+                    <h2 class="card-title">Date</h2>
+
+                    <div th:if="${!isEdit}">
+
+                        <!-- NON-RECURRING -->
+                        <div th:if="${!event.recurring}">
+                            <p class="text-gray">
+                                <strong th:text="${#temporals.format(event.date, 'MMMM dd, yyyy')}"></strong>
+                                •
+                                <span th:text="${event.startTime}"></span> -
+                                <span th:text="${event.endTime}"></span>
+                            </p>
+
+                            <input type="hidden"
+                                   th:field="*{eventDate}"
+                                   th:value="${event.date}">
+                        </div>
+
+                        <div th:if="${event.recurring}">
+
+                            <p class="text-gray">
+                                Repeats from
+                                <strong th:text="${#temporals.format(
+                                    event.recurrenceStart,
+                                    'MMMM dd, yyyy',
+                                    T(java.util.Locale).ENGLISH
+                                )}"></strong>
+                                to
+                                <strong th:text="${#temporals.format(
+                                    event.recurrenceEnd,
+                                    'MMMM dd, yyyy',
+                                    T(java.util.Locale).ENGLISH
+                                )}"></strong>
+                            </p>
+
+                            <!-- DATE -->
+                            <label style="margin-top: 1rem; display: block;">
+                                Select date
+                            </label>
+
+                            <input type="date"
+                                   id="eventDateInput"
+                                   class="form-input"
+                                   th:field="*{eventDate}"
+                                   th:attr="
+                                               min=${#temporals.format(event.recurrenceStart, 'yyyy-MM-dd')},
+                                               max=${#temporals.format(event.recurrenceEnd, 'yyyy-MM-dd')}
+                                           "
+                                   required>
+                        </div>
+
+                        </div>
+
+                        <div th:if="${isEdit}">
+
+                        <p class="text-gray">
+                            Booked date
+                        </p>
+
+                        <p style="font-weight: 600;">
+                            <span th:text="${#temporals.format(booking.eventDate, 'MMMM dd, yyyy')}"></span>
+                            •
+                            <span th:text="${event.startTime}"></span> -
+                            <span th:text="${event.endTime}"></span>
+                        </p>
+
+                        <p class="info-hint"
+                           title="Date cannot be changed. Please cancel this booking and create a new one for a different date.">
+                            Date is not editable. To choose a different date, please cancel this booking and create a new one.
+                        </p>
+
+
+                        <input type="hidden" th:field="*{eventDate}">
+                    </div>
+                </div>
+
+
                 <div class="card">
                     <h2 class="card-title">Your Information</h2>
 
@@ -158,7 +248,7 @@
                                        th:field="*{equipment[__${addon.id}__].selected}"
                                        th:attr="data-price=${addon.unitPrice}"
                                        value="true"
-                                       />
+                                />
 
                                 <div class="addon-content">
                                     <p class="addon-name" th:text="${addon.name}"></p>
@@ -174,16 +264,27 @@
                                                    : 1}"
                                        min="1"
                                        th:max="${addon.stock}"
-                                       style="width: 70px; display: none;" />
+                                       style="width: 70px; display: none;"/>
 
 
                             </label>
                         </div>
                     </div>
 
-
                 </div>
 
+                <div class="card" id="hikeRouteSection" style="display:none;">
+                    <h2 class="card-title">Hiking route</h2>
+
+                    <div id="hikeRoutesList"></div>
+
+                    <span th:if="${fieldErrors?.containsKey('hikeRouteKey')}"
+                          class="error-text"
+                          th:text="${fieldErrors['hikeRouteKey']}">
+                    </span>
+                </div>
+
+                <input type="hidden" th:field="*{hikeRouteKey}" id="hikeRouteKey" value="">
 
                 <div class="card">
                     <h2 class="card-title">Special Notes</h2>
@@ -275,6 +376,10 @@
 
 <script th:src="@{/js/booking-page.js}"></script>
 
+<script th:if="${event.recurring}" th:inline="javascript">
+    const allowedDays = /*[[${event.recurrenceDays}]]*/ [];
+</script>
+
 <script>
     document.addEventListener("DOMContentLoaded", () => {
         const flash = document.getElementById("flashSuccess");
@@ -296,8 +401,35 @@
             }, 3000);
         }
     });
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const dateInput = document.getElementById("eventDateInput");
+        if (!dateInput || typeof allowedDays === "undefined") return;
+
+        dateInput.addEventListener("change", () => {
+            const chosenDate = new Date(dateInput.value);
+            if (isNaN(chosenDate)) return;
+
+            const weekday = chosenDate
+                .toLocaleDateString("en-US", { weekday: "long" })
+                .toUpperCase();
+
+            if (!allowedDays.includes(weekday)) {
+                alert(
+                    "This event only takes place on " +
+                    allowedDays.map(d => d.toLowerCase()).join(", ")
+                );
+                dateInput.value = "";
+            }
+        });
+    });
+
+
+
+
 </script>
 
+<div th:replace="events/fragments/footer :: footer"></div>
 
 </body>
 </html>

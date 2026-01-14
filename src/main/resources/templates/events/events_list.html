@@ -7,6 +7,7 @@
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/events.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}" href="/css/footer.css">
     <link rel="icon" type="image/png" th:href="@{/images/NatureConnectLogo.png}" href="/images/NatureConnectLogo.png">
 </head>
 <body class="events-page">
@@ -94,18 +95,11 @@
 
                         <!-- CANCEL -->
                         <th:block th:unless="${event.cancelled}">
-                            <form sec:authorize="hasRole('ADMIN')"
-                                  th:action="@{/events/{id}/cancel(id=${event.id})}"
-                                  method="post" style="display:inline;">
-                                <button type="submit" class="cancel-btn" onclick="return confirm('Cancel event?')">Cancel</button>
-                            </form>
-
-                            <form sec:authorize="hasRole('ORGANIZER')"
-                                  th:if="${currentUserName != null and event.organizer != null and #strings.equalsIgnoreCase(currentUserName, event.organizer)}"
-                                  th:action="@{/events/{id}/cancel(id=${event.id})}"
-                                  method="post" style="display:inline;">
-                                <button type="submit" class="cancel-btn" onclick="return confirm('Cancel event?')">Cancel</button>
-                            </form>
+                            <button type="button"
+                                    class="cancel-btn"
+                                    th:attr="data-event-id=${event.id}">
+                                Cancel
+                            </button>
                         </th:block>
 
                     </div>
@@ -114,17 +108,75 @@
         </div>
     </div>
 </section>
+<script th:inline="javascript">
+    document.addEventListener("DOMContentLoaded", () => {
 
-<script>
-    const openBtn = document.getElementById("open-filters");
-    const closeBtn = document.getElementById("close-filters");
-    const panel = document.getElementById("filter-panel");
-    const overlay = document.getElementById("overlay");
+        const openBtn = document.getElementById("open-filters");
+        const closeBtn = document.getElementById("close-filters");
+        const panel = document.getElementById("filter-panel");
+        const overlay = document.getElementById("overlay");
+        document.querySelectorAll(".cancel-btn").forEach(btn => {
+            btn.addEventListener("click", () => {
+                const eventId = btn.dataset.eventId;
+                if (!eventId) return;
 
-    if(openBtn) openBtn.addEventListener("click", () => { panel.classList.add("open"); overlay.classList.add("active"); });
-    if(closeBtn) closeBtn.addEventListener("click", () => { panel.classList.remove("open"); overlay.classList.remove("active"); });
-    if(overlay) overlay.addEventListener("click", () => { panel.classList.remove("open"); overlay.classList.remove("active"); });
+                console.log("Opening modal for event:", eventId);
+
+                fetch("/events/" + eventId + "/refund-count")
+                        .then(r => r.text())
+                    .then(count => {
+                        document.getElementById("refundText").innerText =
+                            count + " bookings will be refunded.";
+                    });
+
+                const form = document.getElementById("cancelForm");
+                form.action = "/events/" + eventId + "/cancel";
+
+                document.getElementById("cancelModal").classList.add("open");
+            });
+        });
+
+        window.closeModal = function() {
+            document.getElementById("cancelModal").classList.remove("open");
+        };
+
+        const form = document.getElementById("cancelForm");
+        if (form) {
+            form.addEventListener("submit", e => {
+                const reason = document.getElementById("cancelReason").value.trim();
+                if (!reason) {
+                    e.preventDefault();
+                    alert("Please provide a reason.");
+                }
+            });
+        }
+    });
 </script>
+
+
+<div th:replace="events/fragments/footer :: footer"></div>
+
+<div id="cancelModal" class="modal">
+    <div class="modal-box">
+        <h3>Cancel Event</h3>
+        <p id="refundText">Loading...</p>
+
+        <form id="cancelForm" method="post">
+            <textarea
+                    name="reason"
+                    id="cancelReason"
+                    required
+                    placeholder="Reason for cancellation..."></textarea>
+
+            <div class="modal-actions">
+                <button type="button" onclick="closeModal()">Back</button>
+                <button type="submit" class="danger">Confirm Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
 
 </body>
 </html>

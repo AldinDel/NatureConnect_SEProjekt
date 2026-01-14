@@ -14,6 +14,7 @@ public class BookingMapper {
 
         entity.setId(domain.getId());
         entity.setEventId(domain.getEventId());
+        entity.setEventDate(domain.getEventDate());
         entity.setBookerFirstName(domain.getBookerFirstName());
         entity.setBookerLastName(domain.getBookerLastName());
         entity.setBookerEmail(domain.getBookerEmail());
@@ -27,6 +28,7 @@ public class BookingMapper {
         entity.setTotalPrice(domain.getTotalPrice());
         entity.setPaidAmount(domain.getPaidAmount());
         entity.setSpecialNotes(domain.getSpecialNotes());
+        entity.setHikeRouteKey(domain.getHikeRouteKey());
         entity.setCreatedAt(domain.getCreatedAt() != null ? domain.getCreatedAt() : java.time.Instant.now());
         entity.setBillingReady(domain.isBillingReady());
 
@@ -65,6 +67,7 @@ public class BookingMapper {
 
         domain.setId(entity.getId());
         domain.setEventId(entity.getEventId());
+        domain.setEventDate(entity.getEventDate());
         domain.setBookerFirstName(entity.getBookerFirstName());
         domain.setBookerLastName(entity.getBookerLastName());
         domain.setBookerEmail(entity.getBookerEmail());
@@ -78,6 +81,7 @@ public class BookingMapper {
         domain.setTotalPrice(entity.getTotalPrice());
         domain.setPaidAmount(entity.getPaidAmount() == null ? 0.0 : entity.getPaidAmount());
         domain.setSpecialNotes(entity.getSpecialNotes());
+        domain.setHikeRouteKey(entity.getHikeRouteKey());
         domain.setCreatedAt(entity.getCreatedAt());
         domain.setBillingReady(entity.isBillingReady());
 
@@ -116,6 +120,7 @@ public class BookingMapper {
 
     public void updateEntity(BookingEntity entity, Booking domain) {
         entity.setEventId(domain.getEventId());
+        entity.setEventDate(domain.getEventDate());
         entity.setBookerFirstName(domain.getBookerFirstName());
         entity.setBookerLastName(domain.getBookerLastName());
         entity.setBookerEmail(domain.getBookerEmail());
@@ -129,6 +134,7 @@ public class BookingMapper {
         entity.setTotalPrice(domain.getTotalPrice());
         entity.setPaidAmount(domain.getPaidAmount());
         entity.setSpecialNotes(domain.getSpecialNotes());
+        entity.setHikeRouteKey(domain.getHikeRouteKey());
         entity.setBillingReady(domain.isBillingReady());
 
         entity.getParticipants().clear();

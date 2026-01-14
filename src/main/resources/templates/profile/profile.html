@@ -5,6 +5,7 @@
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/profile.css}">
+    <link rel="stylesheet" th:href="@{/css/footer.css}" href="/css/footer.css">
 </head>
 
 <body class="profile-page">
@@ -20,6 +21,10 @@
         </aside>
 
         <main class="profile-main">
+            <div th:if="${successMessage}" class="success-message">
+                <span th:text="${successMessage}"></span>
+            </div>
+
             <h1>Personal Information</h1>
 
             <div class="profile-card">
@@ -137,5 +142,18 @@
     </div>
 </div>
 
+<div th:replace="events/fragments/footer :: footer"></div>
+
 </body>
+<script>
+    setTimeout(() => {
+    const msg = document.querySelector('.success-message');
+    if (msg) {
+        msg.style.opacity = '0';
+        msg.style.transition = 'opacity 0.4s ease';
+        setTimeout(() => msg.remove(), 400);
+    }
+}, 3000);
+
+</script>
 </html>

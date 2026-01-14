@@ -1,6 +1,8 @@
 package at.fhv.Event.application.event;
 
+import at.fhv.Event.application.audit.AuditLogService;
 import at.fhv.Event.application.request.event.CreateEventRequest;
+import at.fhv.Event.domain.model.audit.ActionType;
 import at.fhv.Event.domain.model.equipment.Equipment;
 import at.fhv.Event.domain.model.equipment.EquipmentRepository;
 import at.fhv.Event.domain.model.equipment.EventEquipment;
@@ -14,137 +16,149 @@ import at.fhv.Event.domain.model.exception.ValidationError;
 import at.fhv.Event.domain.model.exception.ValidationErrorType;
 import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 @Service
 public class CreateEventService {
+
     private final EventRepository eventRepository;
     private final EquipmentRepository equipmentRepository;
     private final EventMapperDTO mapper;
     private final EventValidator eventValidator;
+    private final AuditLogService auditLogService;
 
-    public CreateEventService(EventRepository eventRepository,
-                              EquipmentRepository equipmentRepository,
-                              EventMapperDTO mapper,
-                              EventValidator eventValidator) {
+    public CreateEventService(
+            EventRepository eventRepository,
+            EquipmentRepository equipmentRepository,
+            EventMapperDTO mapper,
+            EventValidator eventValidator,
+            AuditLogService auditLogService
+    ) {
         this.eventRepository = eventRepository;
         this.equipmentRepository = equipmentRepository;
         this.mapper = mapper;
         this.eventValidator = eventValidator;
+        this.auditLogService = auditLogService;
     }
 
     @CacheEvict(value = {"events", "eventBatch"}, allEntries = true)
     @Transactional
     public EventDetailDTO createEvent(CreateEventRequest req) {
+
         List<ValidationError> errors = eventValidator.validate(req);
         if (!errors.isEmpty()) {
             throw new EventValidationException(errors);
         }
 
-        Set<EventEquipment> ees = new HashSet<>();
+        Set<EventEquipment> eventEquipments = new HashSet<>();
 
-        if (req.getEquipments() != null && !req.getEquipments().isEmpty()) {
+        if (req.getEquipments() != null) {
             for (var eqReq : req.getEquipments()) {
+
                 if (eqReq.getName() == null || eqReq.getName().isBlank()) {
                     continue;
                 }
-                if (eqReq.isRentable()) {
-                    if (eqReq.getUnitPrice() == null) {
-                        throw new EventValidationException(List.of(
-                                new ValidationError(
-                                        ValidationErrorType.BUSINESS_RULE_VIOLATION,
-                                        "equipment.unitPrice",
-                                        eqReq.getName(),
-                                        "Unit price is required when equipment is rentable: " + eqReq.getName()
-                                )
-                        ));
-                    }
-                    if (eqReq.getStock() == null) {
-                        throw new EventValidationException(List.of(
-                                new ValidationError(
-                                        ValidationErrorType.BUSINESS_RULE_VIOLATION,
-                                        "equipment.stock",
-                                        eqReq.getName(),
-                                        "Stock is required when equipment is rentable: " + eqReq.getName()
-                                )
-                        ));
-                    }
+
+                if (eqReq.isRentable() &&
+                        (eqReq.getUnitPrice() == null || eqReq.getStock() == null)) {
+
+                    throw new EventValidationException(List.of(
+                            new ValidationError(
+                                    ValidationErrorType.BUSINESS_RULE_VIOLATION,
+                                    "equipment",
+                                    eqReq.getName(),
+                                    "Rentable equipment requires price and stock"
+                            )
+                    ));
                 }
+
                 Equipment equipment;
                 if (eqReq.getId() == null) {
-                    equipment = new Equipment(
-                            null,
-                            eqReq.getName(),
-                            eqReq.getUnitPrice(),
-                            eqReq.isRentable(),
-                            eqReq.getStock()
+                    equipment = equipmentRepository.save(
+                            new Equipment(
+                                    null,
+                                    eqReq.getName(),
+                                    eqReq.getUnitPrice(),
+                                    eqReq.isRentable(),
+                                    eqReq.getStock()
+                            )
                     );
-                    equipment = equipmentRepository.save(equipment);
                 } else {
                     equipment = equipmentRepository.findById(eqReq.getId())
                             .orElseThrow(() -> new EquipmentNotFoundException(eqReq.getId()));
                 }
 
-                EventEquipment eventEquipment = new EventEquipment(equipment, eqReq.isRequired());
-                ees.add(eventEquipment);
+                eventEquipments.add(
+                        new EventEquipment(equipment, eqReq.isRequired())
+                );
             }
         }
 
-        Set<Equipment> required = new HashSet<>();
-        if (req.getRequiredEquipmentIds() != null) {
-            for (Long id : req.getRequiredEquipmentIds()) {
-                Equipment equipment = equipmentRepository.findById(id)
-                        .orElseThrow(() -> new EquipmentNotFoundException(id));
-                required.add(equipment);
-            }
-        }
-
-        Set<Equipment> optional = new HashSet<>();
-        if (req.getOptionalEquipmentIds() != null) {
-            for (Long id : req.getOptionalEquipmentIds()) {
-                Equipment equipment = equipmentRepository.findById(id)
-                        .orElseThrow(() -> new EquipmentNotFoundException(id));
-                optional.add(equipment);
-            }
-        }
-
-        for (Equipment eq : required) {
-            ees.add(new EventEquipment(eq, true));
-        }
-        for (Equipment eq : optional) {
-            ees.add(new EventEquipment(eq, false));
-        }
-
-        Difficulty diff = req.getDifficulty() != null
+        Difficulty difficulty = req.getDifficulty() != null
                 ? Difficulty.valueOf(req.getDifficulty().toUpperCase())
                 : null;
 
-        Event domain = new Event(
+        EventAudience audience = req.getAudience() != null
+                ? EventAudience.valueOf(req.getAudience())
+                : null;
+
+        LocalDate date = req.isRecurring()
+                ? req.getRecurrenceStart()
+                : req.getDate();
+
+        Event event = new Event(
                 null,
                 req.getTitle(),
                 req.getDescription(),
                 req.getOrganizer(),
                 req.getCategory(),
-                req.getDate(),
+                date,
                 req.getStartTime(),
                 req.getEndTime(),
                 req.getLocation(),
-                diff,
+                difficulty,
                 req.getMinParticipants(),
                 req.getMaxParticipants(),
                 req.getPrice(),
                 req.getImageUrl(),
-                EventAudience.valueOf(req.getAudience()),
-                ees,
+                audience,
+                eventEquipments,
                 req.getHikeRouteKeys()
         );
 
-        Event saved = eventRepository.save(domain);
+        if (req.isRecurring()) {
+            event.setEndDate(null);
+        } else {
+            event.setEndDate(req.getEndDate() != null ? req.getEndDate() : req.getDate());
+        }
+
+        event.setRecurring(req.isRecurring());
+        event.setRecurrenceStart(req.isRecurring() ? req.getRecurrenceStart() : null);
+        event.setRecurrenceEnd(req.isRecurring() ? req.getRecurrenceEnd() : null);
+        event.setRecurrenceDays(req.isRecurring() ? req.getRecurrenceDays() : null);
+
+        Event saved = eventRepository.save(event);
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            auditLogService.log(
+                    auth.getName(),
+                    ActionType.CREATE,
+                    "Created event: " + saved.getTitle(),
+                    "Event",
+                    saved.getId(),
+                    "Date: " + saved.getDate() + ", Location: " + saved.getLocation()
+            );
+        }
+
         return mapper.toDetailDTO(saved);
     }
 }

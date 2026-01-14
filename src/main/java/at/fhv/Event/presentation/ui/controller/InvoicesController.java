@@ -111,6 +111,7 @@ public class InvoicesController {
                 );
 
         model.addAttribute("invoice", invoice);
+        model.addAttribute("canEditInvoice", true);
         return "event_management/invoice_view";
     }
 

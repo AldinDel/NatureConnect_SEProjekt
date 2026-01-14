@@ -1,9 +1,11 @@
 package at.fhv.Event.application.booking;
 
+import at.fhv.Event.application.audit.AuditLogService;
 import at.fhv.Event.application.refund.RefundService;
 import at.fhv.Event.application.request.booking.BookingRequestMapper;
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
 import at.fhv.Event.application.request.booking.ParticipantDTO;
+import at.fhv.Event.domain.model.audit.ActionType;
 import at.fhv.Event.domain.model.booking.*;
 import at.fhv.Event.domain.model.equipment.Equipment;
 import at.fhv.Event.domain.model.equipment.EquipmentRepository;
@@ -15,6 +17,8 @@ import at.fhv.Event.domain.model.payment.PaymentMethod;
 import at.fhv.Event.domain.model.payment.PaymentStatus;
 import at.fhv.Event.presentation.rest.response.booking.BookingDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,11 +37,13 @@ public class BookEventService {
     private final BookingValidator _bookingValidator;
     private final RefundService refundService;
     private final EventRepository _eventRepository;
+    private final AuditLogService auditLogService;
 
     @Autowired
     public BookEventService(BookingRepository bookingRepository, EquipmentRepository equipmentRepository,
                             BookingRequestMapper bookingRequestMapper, BookingMapperDTO bookingMapperDTO,
-                            BookingValidator bookingValidator, RefundService refundService, EventRepository eventRepository) {
+                            BookingValidator bookingValidator, RefundService refundService, EventRepository eventRepository,
+                            AuditLogService auditLogService) {
         _bookingRepository = bookingRepository;
         _equipmentRepository = equipmentRepository;
         _bookingRequestMapper = bookingRequestMapper;
@@ -45,6 +51,7 @@ public class BookEventService {
         _bookingValidator = bookingValidator;
         this.refundService = refundService;
         _eventRepository = eventRepository;
+        this.auditLogService = auditLogService;
     }
 
     // Alternativer Konstruktor für Tests (ohne EventRepository)
@@ -52,12 +59,17 @@ public class BookEventService {
                             BookingRequestMapper bookingRequestMapper, BookingMapperDTO bookingMapperDTO,
                             BookingValidator bookingValidator, RefundService refundService) {
         this(bookingRepository, equipmentRepository, bookingRequestMapper, bookingMapperDTO,
-                bookingValidator, refundService, null);
+                bookingValidator, refundService, null, null);
     }
 
     @Transactional
     public BookingDTO bookEvent(CreateBookingRequest request) {
         Event event = loadEvent(request.getEventId());
+
+        if (Boolean.TRUE.equals(event.getCancelled())) {
+            throw new IllegalStateException("Cannot book a cancelled event.");
+        }
+
         checkEventAvailability(event);
         checkEventCapacity(event, request.getSeats());
 
@@ -68,9 +80,47 @@ public class BookEventService {
         BigDecimal totalPrice = calculateTotalPrice(request, event, equipmentMap);
 
         Booking booking = createBooking(request, totalPrice);
+
+        booking.setEventDate(
+                request.getEventDate() != null
+                        ? request.getEventDate()
+                        : event.getDate()
+        );
+
+        if (booking.getEventDate() != null && event.getStartTime() != null) {
+            LocalDateTime bookingStart =
+                    LocalDateTime.of(booking.getEventDate(), event.getStartTime());
+
+            if (bookingStart.isBefore(LocalDateTime.now())) {
+                throw new IllegalStateException("Cannot book an expired event date.");
+            }
+        }
+
+        if (isHikingEvent(event)) {
+            booking.setHikeRouteKey(request.getHikeRouteKey());
+        } else {
+            booking.setHikeRouteKey(null);
+        }
+
         booking.setEquipment(processEquipmentBooking(request, equipmentMap));
 
         Booking savedBooking = _bookingRepository.save(booking);
+
+        // Audit log
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            String userEmail = auth.getName();
+            if (auditLogService != null) {
+                auditLogService.log(
+                        userEmail,
+                        ActionType.CREATE,
+                        "Created booking for event #" + savedBooking.getEventId(),
+                        "Booking",
+                        savedBooking.getId(),
+                        "Seats: " + savedBooking.getSeats() + ", Total: " + savedBooking.getTotalPrice() + "€"
+                );
+            }
+        }
 
         return _bookingMapperDTO.toDTO(savedBooking);
     }
@@ -123,6 +173,12 @@ public class BookEventService {
         booking.setDiscountAmount(discount.doubleValue());
         booking.setTotalPrice(totalPrice.doubleValue());
 
+        if (isHikingEvent(event)) {
+            booking.setHikeRouteKey(request.getHikeRouteKey());
+        } else {
+            booking.setHikeRouteKey(null);
+        }
+
         List<BookingParticipant> participants = new ArrayList<>();
 
         if (request.getParticipants() != null) {
@@ -169,11 +225,6 @@ public class BookEventService {
     }
 
     @Transactional
-    public void cancelBooking(Long bookingId, String email) {
-        cancelBooking(bookingId, email, false);
-    }
-
-    @Transactional
     public void cancelBooking(Long bookingId, String email, boolean isAdmin) {
 
         Booking booking = getById(bookingId);
@@ -195,25 +246,39 @@ public class BookEventService {
         }
 
         Event event = loadEvent(booking.getEventId());
-        LocalDateTime eventStart = LocalDateTime.of(event.getDate(), event.getStartTime());
-
-        if (eventStart.isBefore(LocalDateTime.now())) {
-            throw new BookingOperationException(
-                    bookingId,
-                    "cancel",
-                    "This event already started and cannot be cancelled"
-            );
-        }
+        event.validateAvailability();
 
         booking.setStatus(BookingStatus.CANCELLED);
         _bookingRepository.save(booking);
 
+        BigDecimal refund = refundService.calculateRefund(booking, event);
+
         refundService.processRefund(
                 booking.getBookerEmail(),
                 booking.getId(),
-                booking.getTotalPrice()
+                refund
         );
+
+        // Audit log
+        if (auditLogService != null) {
+            auditLogService.log(
+                    email,
+                    ActionType.CANCEL,
+                    "Cancelled booking #" + bookingId + " for event #" + booking.getEventId(),
+                    "Booking",
+                    bookingId,
+                    "Refund processed: " + booking.getTotalPrice() + "€"
+            );
+        }
     }
+
+    @Transactional(readOnly = true)
+    public BigDecimal getRefundPreview(Long bookingId) {
+        Booking booking = getById(bookingId);
+        Event event = loadEvent(booking.getEventId());
+        return refundService.calculateRefund(booking, event);
+    }
+
 
     @Transactional
     public BookingDTO updatePaymentMethod(Long bookingId, String paymentMethodName) {
@@ -287,21 +352,29 @@ public class BookEventService {
     private BigDecimal calculateEquipmentPrice(CreateBookingRequest req, Map<Long, Equipment> map) {
         BigDecimal total = BigDecimal.ZERO;
 
-        for (var entry : req.getEquipment().entrySet()) {
+        Map<Long, EquipmentSelection> equipmentSelections = req.getEquipment();
+        if (equipmentSelections == null || equipmentSelections.isEmpty()) {
+            return BigDecimal.ZERO;
+        }
+
+        for (var entry : equipmentSelections.entrySet()) {
             EquipmentSelection sel = entry.getValue();
 
-            if (!sel.isSelected())
+            if (sel == null || !sel.isSelected()) {
                 continue;
+            }
 
             Equipment equipment = map.get(entry.getKey());
-            if (equipment == null)
+            if (equipment == null) {
                 continue;
+            }
 
             total = total.add(
                     equipment.getUnitPrice()
                             .multiply(BigDecimal.valueOf(sel.getQuantity()))
             );
         }
+
         return total;
     }
 
@@ -327,7 +400,12 @@ public class BookEventService {
     private List<BookingEquipment> processEquipmentBooking(CreateBookingRequest req, Map<Long, Equipment> map) {
         List<BookingEquipment> list = new ArrayList<>();
 
-        for (var entry : req.getEquipment().entrySet()) {
+        Map<Long, EquipmentSelection> selections = req.getEquipment();
+        if (selections == null || selections.isEmpty()) {
+            return list;
+        }
+
+        for (var entry : selections.entrySet()) {
 
             EquipmentSelection sel = entry.getValue();
 
@@ -340,6 +418,7 @@ public class BookEventService {
 
             reduceEquipmentStock(equipment, sel.getQuantity());
             BigDecimal totalPrice = equipment.getUnitPrice().multiply(BigDecimal.valueOf(sel.getQuantity()));
+
             BookingEquipment be = new BookingEquipment(
                     null,
                     equipment.getId(),
@@ -406,4 +485,10 @@ public class BookEventService {
         return _bookingRepository.findByIdWithParticipants(bookingId)
                 .orElseThrow(() -> new BookingNotFoundException(bookingId));
     }
+
+    private boolean isHikingEvent(Event event) {
+        return event.getCategory() != null
+                && event.getCategory().toLowerCase().contains("hiking");
+    }
+
 }

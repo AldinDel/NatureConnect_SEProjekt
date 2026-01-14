@@ -40,6 +40,7 @@ public class InvoiceRepositoryImpl implements InvoiceRepository {
             InvoiceItemEntity item = new InvoiceItemEntity();
             item.setInvoice(saved);
             item.setEquipmentId(line.getEquipmentId());
+            item.setDescription(line.getDescription());
             item.setQuantity(line.getQuantity());
             item.setUnitPrice(line.getUnitPrice());
             item.setTotalPrice(line.getTotal());
@@ -84,14 +85,23 @@ public class InvoiceRepositoryImpl implements InvoiceRepository {
         List<InvoiceLine> lines =
                 itemJpa.findByInvoice_Id(entity.getId())
                         .stream()
-                        .map(item -> new InvoiceLine(
-                                item.getEquipmentId(),
-                                item.getEquipmentId() == null
+                        .map(item -> {
+
+                            String description = item.getDescription();
+
+                            if (description == null || description.isBlank()) {
+                                description = item.getEquipmentId() == null
                                         ? "Event base price"
-                                        : "Equipment " + item.getEquipmentId(),
-                                item.getQuantity(),
-                                item.getUnitPrice()
-                        ))
+                                        : "Equipment " + item.getEquipmentId();
+                            }
+
+                            return new InvoiceLine(
+                                    item.getEquipmentId(),
+                                    description,
+                                    item.getQuantity(),
+                                    item.getUnitPrice()
+                            );
+                        })
                         .toList();
 
         return Invoice.rehydrate(

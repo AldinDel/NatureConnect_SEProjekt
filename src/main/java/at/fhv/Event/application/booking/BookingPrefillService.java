@@ -55,6 +55,7 @@ public class BookingPrefillService {
         CreateBookingRequest req = new CreateBookingRequest();
 
         req.setEventId(booking.getEventId());
+        req.setEventDate(booking.getEventDate());
         req.setBookerFirstName(booking.getBookerFirstName());
         req.setBookerLastName(booking.getBookerLastName());
         req.setBookerEmail(booking.getBookerEmail());

@@ -7,6 +7,7 @@ import at.fhv.Event.domain.model.payment.PaymentStatus;
 import jakarta.persistence.*;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -63,6 +64,21 @@ public class BookingEntity {
 
     @Column(name = "special_notes")
     private String specialNotes;
+
+    @Column(name = "hike_route_key", length = 50)
+    private String hikeRouteKey;
+
+    @Column(name = "event_date", nullable = false)
+    private LocalDate eventDate;
+
+
+    public String getHikeRouteKey() {
+        return hikeRouteKey;
+    }
+
+    public void setHikeRouteKey(String hikeRouteKey) {
+        this.hikeRouteKey = hikeRouteKey;
+    }
 
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
@@ -249,4 +265,13 @@ public class BookingEntity {
     public void setReservedUntil(Instant reservedUntil) {
         this.reservedUntil = reservedUntil;
     }
+
+    public LocalDate getEventDate() {
+        return eventDate;
+    }
+
+    public void setEventDate(LocalDate eventDate) {
+        this.eventDate = eventDate;
+    }
+
 }

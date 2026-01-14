@@ -6,6 +6,7 @@ import at.fhv.Event.domain.model.user.CustomerProfile;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 
 public class Booking {
@@ -24,15 +25,18 @@ public class Booking {
     private double totalPrice;
     private double paidAmount;
     private String specialNotes;
+    private String hikeRouteKey;
     private Instant createdAt;
     private List<BookingParticipant> participants;
     private List<BookingEquipment> equipment;
     private boolean billingReady;
+    private LocalDate eventDate;
 
 
     public Booking() {
         this.paidAmount = 0.0;
     }
+
     public Booking(
             Long eventId,
             String bookerFirstName,
@@ -144,8 +148,8 @@ public class Booking {
 
     public void prefillFromCustomer(CustomerProfile customer) {
         this.bookerFirstName = customer.getFirstName();
-        this.bookerLastName  = customer.getLastName();
-        this.bookerEmail     = customer.getEmail();
+        this.bookerLastName = customer.getLastName();
+        this.bookerEmail = customer.getEmail();
 
         BookingParticipant p1 = BookingParticipant.createNew(
                 this.id,
@@ -201,8 +205,6 @@ public class Booking {
             makePartialPayment(equipmentTotal);
         }
     }
-
-
 
 
     public Long getId() {
@@ -337,6 +339,14 @@ public class Booking {
         this.specialNotes = specialNotes;
     }
 
+    public String getHikeRouteKey() {
+        return hikeRouteKey;
+    }
+
+    public void setHikeRouteKey(String hikeRouteKey) {
+        this.hikeRouteKey = hikeRouteKey;
+    }
+
     public Instant getCreatedAt() {
         return createdAt;
     }
@@ -344,6 +354,7 @@ public class Booking {
     public void setCreatedAt(Instant createdAt) {
         this.createdAt = createdAt;
     }
+
     public List<BookingParticipant> getParticipants() {
         return participants;
     }
@@ -367,6 +378,15 @@ public class Booking {
     public void setBillingReady(boolean billingReady) {
         this.billingReady = billingReady;
     }
+
+    public LocalDate getEventDate() {
+        return eventDate;
+    }
+
+    public void setEventDate(LocalDate eventDate) {
+        this.eventDate = eventDate;
+    }
+
 
 
 }

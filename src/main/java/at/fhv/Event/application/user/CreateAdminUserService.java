@@ -1,10 +1,14 @@
 package at.fhv.Event.application.user;
 
+import at.fhv.Event.application.audit.AuditLogService;
 import at.fhv.Event.application.request.user.AdminUserEditRequest;
+import at.fhv.Event.domain.model.audit.ActionType;
 import at.fhv.Event.domain.model.exception.DuplicateEmailException;
 import at.fhv.Event.domain.model.exception.InvalidPasswordException;
 import at.fhv.Event.domain.model.exception.RoleNotFoundException;
 import at.fhv.Event.domain.model.user.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,13 +21,16 @@ public class CreateAdminUserService {
     private final RoleRepository roleRepo;
     private final CustomerProfileRepository customerProfileRepo;
     private final PasswordEncoder passwordEncoder;
+    private final AuditLogService auditLogService;
 
     public CreateAdminUserService(UserAccountRepository userRepo, RoleRepository roleRepo,
-            CustomerProfileRepository customerProfileRepo, PasswordEncoder passwordEncoder) {
+            CustomerProfileRepository customerProfileRepo, PasswordEncoder passwordEncoder,
+            AuditLogService auditLogService) {
         this.userRepo = userRepo;
         this.roleRepo = roleRepo;
         this.customerProfileRepo = customerProfileRepo;
         this.passwordEncoder = passwordEncoder;
+        this.auditLogService = auditLogService;
     }
 
     @Transactional
@@ -65,6 +72,21 @@ public class CreateAdminUserService {
             profile.setUpdatedAt(OffsetDateTime.now());
             customerProfileRepo.save(profile);
         }
+
+        // Audit log
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated()) {
+            String adminEmail = auth.getName();
+            auditLogService.log(
+                    adminEmail,
+                    ActionType.CREATE,
+                    "Created new user: " + saved.getFirstName() + " " + saved.getLastName(),
+                    "UserAccount",
+                    saved.getId(),
+                    "Role: " + req.role() + ", Email: " + saved.getEmail()
+            );
+        }
+
         return saved.getId();
     }
 }

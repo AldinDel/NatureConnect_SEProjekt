@@ -4,30 +4,34 @@ import at.fhv.Event.domain.model.booking.AudienceType;
 import at.fhv.Event.domain.model.payment.PaymentMethod;
 import at.fhv.Event.domain.model.equipment.EquipmentSelection;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
 public class CreateBookingRequest {
 
     private Long eventId;
-
+    private LocalDate eventDate;
     private String bookerFirstName;
     private String bookerLastName;
     private String bookerEmail;
-
     private int seats;
     private AudienceType audience;
-
     private String voucherCode;
     private String specialNotes;
+    private String hikeRouteKey;
     private PaymentMethod paymentMethod;
     private Integer discountPercent;
-
     private List<ParticipantDTO> participants;
     private Map<Long, EquipmentSelection> equipment;
 
-    public Map<Long, EquipmentSelection> getEquipment() { return equipment; }
-    public void setEquipment(Map<Long, EquipmentSelection> equipment) { this.equipment = equipment; }
+    public Map<Long, EquipmentSelection> getEquipment() {
+        return equipment;
+    }
+
+    public void setEquipment(Map<Long, EquipmentSelection> equipment) {
+        this.equipment = equipment;
+    }
 
 
     public Long getEventId() {
@@ -36,6 +40,14 @@ public class CreateBookingRequest {
 
     public void setEventId(Long eventId) {
         this.eventId = eventId;
+    }
+
+    public LocalDate getEventDate() {
+        return eventDate;
+    }
+
+    public void setEventDate(LocalDate eventDate) {
+        this.eventDate = eventDate;
     }
 
     public String getBookerFirstName() {
@@ -92,6 +104,14 @@ public class CreateBookingRequest {
 
     public void setSpecialNotes(String specialNotes) {
         this.specialNotes = specialNotes;
+    }
+
+    public String getHikeRouteKey() {
+        return hikeRouteKey;
+    }
+
+    public void setHikeRouteKey(String hikeRouteKey) {
+        this.hikeRouteKey = hikeRouteKey;
     }
 
     public List<ParticipantDTO> getParticipants() {

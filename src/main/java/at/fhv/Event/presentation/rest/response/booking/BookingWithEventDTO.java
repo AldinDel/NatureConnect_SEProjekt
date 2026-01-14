@@ -70,7 +70,7 @@ public class BookingWithEventDTO {
 
 
     public Boolean getExpired() {
-        LocalDate eventDate = event.date(); // Record getter
+        LocalDate eventDate = event.date();
         LocalDate today = LocalDate.now();
         return !eventDate.isAfter(today);
     }

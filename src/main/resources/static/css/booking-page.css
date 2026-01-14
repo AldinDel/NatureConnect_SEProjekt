@@ -468,4 +468,14 @@ body {
     text-align: center;      /* falls nötig */
 }
 
+#hikeRoutesList .equipment-item {
+    display: block;
+    width: 100%;
+}
 
+#hikeRoutesList .checkbox-label {
+    display: flex;
+    width: 100%;
+}
+
+.info-hint { font-size: 0.85rem; color: #6b7280; background: #f1f5f9; padding: 0.6rem 0.8rem; border-radius: 10px; margin-top: 0.6rem; }

@@ -1,6 +1,7 @@
 package at.fhv.Event.presentation.rest.controller;
 
 import at.fhv.Event.application.booking.BookEventService;
+import at.fhv.Event.application.refund.RefundService;
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
 import at.fhv.Event.domain.model.payment.PaymentMethod;
 import at.fhv.Event.presentation.rest.response.booking.BookingDTO;
@@ -8,8 +9,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/bookings")
@@ -17,9 +20,12 @@ import java.util.List;
 public class BookingRestController {
 
     private final BookEventService _bookEventService;
+    private final RefundService _refundService;
 
-    public BookingRestController(BookEventService bookEventService) {
+    public BookingRestController(BookEventService bookEventService, RefundService refundService) {
         _bookEventService = bookEventService;
+        _refundService = refundService;
+
     }
 
     @PostMapping
@@ -42,6 +48,15 @@ public class BookingRestController {
         BookingDTO booking = _bookEventService.updatePaymentMethod(id, paymentMethod);
         return ResponseEntity.ok(booking);
     }
+
+    @GetMapping("/{id}/refund-preview")
+    @ResponseBody
+    public Map<String, BigDecimal> getRefundPreview(@PathVariable Long id) {
+        BigDecimal refund = _bookEventService.getRefundPreview(id);
+        return Map.of("refund", refund);
+    }
+
+
 
     @GetMapping("/payment-methods")
     public ResponseEntity<List<String>> getPaymentMethods() {

@@ -1,5 +1,7 @@
 package at.fhv.Event.application.booking;
 
+import at.fhv.Event.application.audit.AuditLogService;
+import at.fhv.Event.domain.model.audit.ActionType;
 import at.fhv.Event.domain.model.booking.Booking;
 import at.fhv.Event.domain.model.booking.BookingRepository;
 import at.fhv.Event.domain.model.exception.PaymentOperationException;
@@ -21,10 +23,16 @@ public class SplitInvoiceService {
 
     private final BookingRepository bookingRepository;
     private final InvoiceRepository invoiceRepository;
+    private final AuditLogService auditLogService;
 
-    public SplitInvoiceService(BookingRepository bookingRepository, InvoiceRepository invoiceRepository) {
+    public SplitInvoiceService(
+            BookingRepository bookingRepository,
+            InvoiceRepository invoiceRepository,
+            AuditLogService auditLogService
+    ) {
         this.bookingRepository = bookingRepository;
         this.invoiceRepository = invoiceRepository;
+        this.auditLogService = auditLogService;
     }
 
     @Transactional
@@ -36,7 +44,7 @@ public class SplitInvoiceService {
                 bookingId, booking.getTotalPrice(), booking.getPaidAmount(), booking.getPaymentStatus());
 
         if (booking.isFullyPaid()) {
-            throw new PaymentOperationException(bookingId, "Booking is already fully paid");
+            throw new PaymentOperationException(bookingId, "PAYMENT_001", "Booking is already fully paid");
         }
 
         double totalPrice = booking.getTotalPrice();
@@ -79,6 +87,16 @@ public class SplitInvoiceService {
         booking.payFiftyPercent();
         Booking savedBooking = bookingRepository.save(booking);
         logger.info("Booking {} updated - New paid amount: {}", bookingId, savedBooking.getPaidAmount());
+
+        // Audit log
+        auditLogService.log(
+                userEmail,
+                ActionType.PAYMENT,
+                "Paid 50% (" + String.format("%.2f", amountToPay) + "€) for booking #" + bookingId,
+                "Booking",
+                bookingId,
+                "Invoice #" + savedInvoice.getId() + " created"
+        );
     }
 
     @Transactional
@@ -90,7 +108,7 @@ public class SplitInvoiceService {
                 bookingId, booking.getEquipment() != null ? booking.getEquipment().size() : 0);
 
         if (booking.isFullyPaid()) {
-            throw new PaymentOperationException(bookingId, "Booking is already fully paid");
+            throw new PaymentOperationException(bookingId, "PAYMENT_001", "Booking is already fully paid");
         }
 
         if (equipmentIds == null || equipmentIds.isEmpty()) {
@@ -137,6 +155,16 @@ public class SplitInvoiceService {
         booking.payEquipmentItems(equipmentIds);
         Booking savedBooking = bookingRepository.save(booking);
         logger.info("Booking {} updated - New paid amount: {}", bookingId, savedBooking.getPaidAmount());
+
+        // Audit log
+        auditLogService.log(
+                userEmail,
+                ActionType.PAYMENT,
+                "Paid for " + equipmentIds.size() + " equipment item(s) for booking #" + bookingId,
+                "Booking",
+                bookingId,
+                "Invoice #" + savedInvoice.getId() + " created, Total: " + savedInvoice.getTotal() + "€"
+        );
     }
 
     @Transactional
@@ -144,7 +172,7 @@ public class SplitInvoiceService {
         Booking booking = getBookingForUser(bookingId, userEmail);
 
         if (booking.isFullyPaid()) {
-            throw new PaymentOperationException(bookingId, "Booking is already fully paid");
+            throw new PaymentOperationException(bookingId, "PAYMENT_001", "Booking is already fully paid");
         }
 
         double remaining = booking.getRemainingAmount();
@@ -163,11 +191,21 @@ public class SplitInvoiceService {
                     List.of(paymentLine)
             );
 
-            invoiceRepository.save(invoice);
+            Invoice savedInvoice = invoiceRepository.save(invoice);
 
             // Update booking
             booking.makePartialPayment(remaining);
             bookingRepository.save(booking);
+
+            // Audit log
+            auditLogService.log(
+                    userEmail,
+                    ActionType.PAYMENT,
+                    "Paid remaining amount (" + String.format("%.2f", remaining) + "€) for booking #" + bookingId,
+                    "Booking",
+                    bookingId,
+                    "Invoice #" + savedInvoice.getId() + " created, Booking fully paid"
+            );
         }
     }
 
@@ -176,7 +214,7 @@ public class SplitInvoiceService {
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
 
         if (!booking.getBookerEmail().equalsIgnoreCase(userEmail)) {
-            throw new PaymentOperationException(bookingId, "You can only manage your own bookings");
+            throw new PaymentOperationException(bookingId, "PAYMENT_002", "You can only manage your own bookings");
         }
 
         return booking;
