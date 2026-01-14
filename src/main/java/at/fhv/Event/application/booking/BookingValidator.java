@@ -316,13 +316,15 @@ public class BookingValidator {
                                    Event event,
                                    List<ValidationError> errors) {
 
-        if (request.getEventDate() == null) {
+        if (event.isRecurring() && request.getEventDate() == null) {
             errors.add(ValidationErrorFactory.required("eventDate"));
             return;
         }
 
         if (!event.isRecurring()) {
-            if (!request.getEventDate().equals(event.getDate())) {
+            if (request.getEventDate() != null
+                    && !request.getEventDate().equals(event.getDate())) {
+
                 errors.add(new ValidationError(
                         ValidationErrorType.BUSINESS_RULE_VIOLATION,
                         "eventDate",
@@ -332,6 +334,7 @@ public class BookingValidator {
             }
             return;
         }
+
 
         // recurring
         if (request.getEventDate().isBefore(event.getRecurrenceStart())
