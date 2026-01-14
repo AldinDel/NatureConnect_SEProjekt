@@ -32,6 +32,21 @@ public class Invoice {
         return invoice;
     }
 
+    public static Invoice createFinal(
+            Long eventId,
+            Long bookingId,
+            List<InvoiceLine> lines
+    ) {
+        Invoice invoice = new Invoice();
+        invoice.eventId = eventId;
+        invoice.bookingId = bookingId;
+        invoice.status = InvoiceStatus.FINAL;
+        invoice.lines = lines;
+        invoice.createdAt = LocalDateTime.now();
+        invoice.calculateTotal();
+        return invoice;
+    }
+
     public static Invoice rehydrate(
             InvoiceId id,
             Long eventId,
