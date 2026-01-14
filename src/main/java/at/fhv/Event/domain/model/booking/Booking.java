@@ -6,6 +6,7 @@ import at.fhv.Event.domain.model.user.CustomerProfile;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 
 public class Booking {
@@ -29,6 +30,7 @@ public class Booking {
     private List<BookingParticipant> participants;
     private List<BookingEquipment> equipment;
     private boolean billingReady;
+    private LocalDate eventDate;
 
 
     public Booking() {
@@ -376,6 +378,15 @@ public class Booking {
     public void setBillingReady(boolean billingReady) {
         this.billingReady = billingReady;
     }
+
+    public LocalDate getEventDate() {
+        return eventDate;
+    }
+
+    public void setEventDate(LocalDate eventDate) {
+        this.eventDate = eventDate;
+    }
+
 
 
 }

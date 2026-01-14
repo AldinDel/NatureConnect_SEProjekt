@@ -121,6 +121,13 @@ public class BookingController {
             redirectAttributes.addFlashAttribute("booking", request);
 
             return "redirect:/booking/event/" + request.getEventId();
+        } catch (Exception exception) {
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    "Booking failed. Please try again."
+            );
+            redirectAttributes.addFlashAttribute("booking", request);
+            return "redirect:/booking/event/" + request.getEventId();
         }
 
     }
@@ -192,6 +199,15 @@ public class BookingController {
         if (Boolean.TRUE.equals(event.cancelled())) {
             return true;
         }
+
+        if (event.recurring()) {
+            return false;
+        }
+
+        if (event.date() == null || event.startTime() == null) {
+            return false;
+        }
+
         LocalDateTime eventStart = LocalDateTime.of(event.date(), event.startTime());
         return eventStart.isBefore(LocalDateTime.now());
     }

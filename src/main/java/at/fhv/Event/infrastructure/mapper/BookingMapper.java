@@ -14,6 +14,7 @@ public class BookingMapper {
 
         entity.setId(domain.getId());
         entity.setEventId(domain.getEventId());
+        entity.setEventDate(domain.getEventDate());
         entity.setBookerFirstName(domain.getBookerFirstName());
         entity.setBookerLastName(domain.getBookerLastName());
         entity.setBookerEmail(domain.getBookerEmail());
@@ -66,6 +67,7 @@ public class BookingMapper {
 
         domain.setId(entity.getId());
         domain.setEventId(entity.getEventId());
+        domain.setEventDate(entity.getEventDate());
         domain.setBookerFirstName(entity.getBookerFirstName());
         domain.setBookerLastName(entity.getBookerLastName());
         domain.setBookerEmail(entity.getBookerEmail());
@@ -118,6 +120,7 @@ public class BookingMapper {
 
     public void updateEntity(BookingEntity entity, Booking domain) {
         entity.setEventId(domain.getEventId());
+        entity.setEventDate(domain.getEventDate());
         entity.setBookerFirstName(domain.getBookerFirstName());
         entity.setBookerLastName(domain.getBookerLastName());
         entity.setBookerEmail(domain.getBookerEmail());

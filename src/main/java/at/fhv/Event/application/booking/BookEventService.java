@@ -70,13 +70,6 @@ public class BookEventService {
             throw new IllegalStateException("Cannot book a cancelled event.");
         }
 
-        if (event.getDate() != null && event.getStartTime() != null) {
-            LocalDateTime start = LocalDateTime.of(event.getDate(), event.getStartTime());
-            if (start.isBefore(LocalDateTime.now())) {
-                throw new IllegalStateException("Cannot book an expired event.");
-            }
-        }
-
         checkEventAvailability(event);
         checkEventCapacity(event, request.getSeats());
 
@@ -87,6 +80,21 @@ public class BookEventService {
         BigDecimal totalPrice = calculateTotalPrice(request, event, equipmentMap);
 
         Booking booking = createBooking(request, totalPrice);
+
+        booking.setEventDate(
+                request.getEventDate() != null
+                        ? request.getEventDate()
+                        : event.getDate()
+        );
+
+        if (booking.getEventDate() != null && event.getStartTime() != null) {
+            LocalDateTime bookingStart =
+                    LocalDateTime.of(booking.getEventDate(), event.getStartTime());
+
+            if (bookingStart.isBefore(LocalDateTime.now())) {
+                throw new IllegalStateException("Cannot book an expired event date.");
+            }
+        }
 
         if (isHikingEvent(event)) {
             booking.setHikeRouteKey(request.getHikeRouteKey());

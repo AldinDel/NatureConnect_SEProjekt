@@ -4,13 +4,14 @@ import at.fhv.Event.domain.model.booking.AudienceType;
 import at.fhv.Event.domain.model.payment.PaymentMethod;
 import at.fhv.Event.domain.model.equipment.EquipmentSelection;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
 public class CreateBookingRequest {
 
     private Long eventId;
-
+    private LocalDate eventDate;
     private String bookerFirstName;
     private String bookerLastName;
     private String bookerEmail;
@@ -39,6 +40,14 @@ public class CreateBookingRequest {
 
     public void setEventId(Long eventId) {
         this.eventId = eventId;
+    }
+
+    public LocalDate getEventDate() {
+        return eventDate;
+    }
+
+    public void setEventDate(LocalDate eventDate) {
+        this.eventDate = eventDate;
     }
 
     public String getBookerFirstName() {
