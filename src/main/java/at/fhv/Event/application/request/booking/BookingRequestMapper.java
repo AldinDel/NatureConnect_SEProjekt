@@ -16,6 +16,7 @@ public class BookingRequestMapper {
                 req.getBookerFirstName(),
                 req.getBookerLastName(),
                 req.getBookerEmail(),
+                req.getBookerAddress(),
                 req.getSeats(),
                 req.getAudience(),
                 BookingStatus.PENDING,

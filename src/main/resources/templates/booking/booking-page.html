@@ -189,6 +189,16 @@
                     <span th:if="${fieldErrors?.containsKey('bookerEmail')}"
                           class="error-text"
                           th:text="${fieldErrors['bookerEmail']}"></span>
+
+                    <label>Booker Adress</label>
+                    <input type="text"
+                           th:field="*{bookerAddress}"
+                           class="form-input"
+                           maxlength="100"
+                           required>
+                    <span th:if="${fieldErrors?.containsKey('bookerAddress')}"
+                          class="error-text"
+                          th:text="${fieldErrors['bookerAddress']}"></span>
                 </div>
 
                 <div class="card">

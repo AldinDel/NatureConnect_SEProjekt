@@ -31,6 +31,9 @@ public class BookingEntity {
     @Column(name = "booker_email", length = 200)
     private String bookerEmail;
 
+    @Column(name = "booker_address", length = 200)
+    private String bookerAddress;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "audience", length = 30)
     private AudienceType audience;
@@ -274,4 +277,11 @@ public class BookingEntity {
         this.eventDate = eventDate;
     }
 
+    public String getBookerAddress() {
+        return bookerAddress;
+    }
+
+    public void setBookerAddress(String bookerAddress) {
+        this.bookerAddress = bookerAddress;
+    }
 }

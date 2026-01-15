@@ -12,6 +12,7 @@ public class BookingDTO {
     private String bookerFirstName;
     private String bookerLastName;
     private String bookerEmail;
+    private String bookerAddress;
 
     private int seats;
     private double totalPrice;
@@ -26,7 +27,7 @@ public class BookingDTO {
     }
 
     public BookingDTO(Long id, Long eventId,
-                      String bookerFirstName, String bookerLastName, String bookerEmail,
+                      String bookerFirstName, String bookerLastName, String bookerEmail, String bookerAddress,
                       int seats, double totalPrice,
                       BookingStatus status, Instant createdAt,
                       boolean expired) {
@@ -36,6 +37,7 @@ public class BookingDTO {
         this.bookerFirstName = bookerFirstName;
         this.bookerLastName = bookerLastName;
         this.bookerEmail = bookerEmail;
+        this.bookerAddress = bookerAddress;
         this.seats = seats;
         this.totalPrice = totalPrice;
         this.status = status;
@@ -83,6 +85,14 @@ public class BookingDTO {
 
     public void setBookerEmail(String bookerEmail) {
         this.bookerEmail = bookerEmail;
+    }
+
+    public String getBookerAddress() {
+        return bookerAddress;
+    }
+
+    public void setBookerAddress(String bookerAddress) {
+        this.bookerAddress = bookerAddress;
     }
 
     public int getSeats() {

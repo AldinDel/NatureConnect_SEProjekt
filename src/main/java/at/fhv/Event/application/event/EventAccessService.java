@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -57,7 +56,7 @@ public class EventAccessService {
 
         public int calculateRemainingSpots(Long eventId, int minParticipants, int maxParticipants) {
         int confirmed = _bookingRepository.countOccupiedSeatsForEvent(eventId);
-        int baseSlots = maxParticipants - minParticipants;
+        int baseSlots = maxParticipants;
         int remaining = baseSlots - confirmed;
 
         if (remaining < 0) {

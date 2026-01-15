@@ -59,6 +59,7 @@ public class BookingPrefillService {
         req.setBookerFirstName(booking.getBookerFirstName());
         req.setBookerLastName(booking.getBookerLastName());
         req.setBookerEmail(booking.getBookerEmail());
+        req.setBookerAddress(booking.getBookerAddress());
         req.setSeats(booking.getSeats());
         req.setAudience(booking.getAudience());
         req.setVoucherCode(booking.getVoucherCode());
