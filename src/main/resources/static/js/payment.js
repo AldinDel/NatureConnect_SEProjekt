@@ -90,6 +90,13 @@ async function openPayment() {
         return;
     }
 
+    // ON_SITE payment: redirect directly to homepage
+    if (method === 'ON_SITE') {
+        window.location.href = '/';
+        return;
+    }
+
+    // For other payment methods (CREDIT_CARD, PAYPAL, INVOICE): open payment service
     const token = Math.random().toString(36).substring(2);
 
     const paymentUrl =

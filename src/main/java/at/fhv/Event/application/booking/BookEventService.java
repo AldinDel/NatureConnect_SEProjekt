@@ -287,8 +287,19 @@ public class BookEventService {
         PaymentMethod paymentMethod = parsePaymentMethod(bookingId, paymentMethodName);
 
         booking.setPaymentMethod(paymentMethod);
-        booking.setPaymentStatus(PaymentStatus.PAID);
-        booking.setStatus(BookingStatus.CONFIRMED);
+
+        // ON_SITE payment: Booking is confirmed but not paid yet (open payment)
+        // Other methods: Payment is completed immediately
+        if (paymentMethod == PaymentMethod.ON_SITE) {
+            booking.setStatus(BookingStatus.CONFIRMED);
+            booking.setPaymentStatus(PaymentStatus.UNPAID);
+            booking.setPaidAmount(0.0);
+        } else {
+            // CREDIT_CARD, PAYPAL, INVOICE: Mark as paid and confirmed
+            booking.setStatus(BookingStatus.CONFIRMED);
+            booking.setPaymentStatus(PaymentStatus.PAID);
+            booking.setPaidAmount(booking.getTotalPrice());
+        }
 
         return _bookingMapperDTO.toDTO(_bookingRepository.save(booking));
     }
