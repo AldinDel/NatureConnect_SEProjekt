@@ -4,6 +4,7 @@ import at.fhv.Event.application.request.booking.CreateBookingRequest;
 import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.infrastructure.persistence.equipment.EquipmentEntity;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -19,7 +20,7 @@ public interface BookingRepository {
     Event loadEventForBooking(Long eventId);
     Map<Long, EquipmentEntity> loadEquipmentMap(CreateBookingRequest request);
     int countOccupiedSeatsForEvent(Long eventId);
-
+    int countOccupiedSeatsForEventAndDate(Long eventId, LocalDate eventDate);
     void updateStatus(Long bookingId, BookingStatus status);
 
     void markExpiredForEvent(Long eventId);

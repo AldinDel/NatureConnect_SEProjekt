@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,6 +31,18 @@ public interface BookingJpaRepository extends JpaRepository<BookingEntity, Long>
           AND b.status IN ('CONFIRMED', 'PAID')
     """)
     int countOccupiedSeatsForEvent(@Param("eventId") Long eventId);
+
+    @Query("""
+    SELECT COALESCE(SUM(b.seats), 0)
+    FROM BookingEntity b
+    WHERE b.eventId = :eventId
+      AND b.eventDate = :eventDate
+      AND b.status IN ('CONFIRMED', 'PAID')
+""")
+    int countOccupiedSeatsForEventAndDate(
+            @Param("eventId") Long eventId,
+            @Param("eventDate") LocalDate eventDate
+    );
 
     List<BookingEntity> findByStatus(BookingStatus status);
 

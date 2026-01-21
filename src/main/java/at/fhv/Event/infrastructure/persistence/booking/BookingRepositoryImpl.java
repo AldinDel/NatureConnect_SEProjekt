@@ -142,6 +142,11 @@ public class BookingRepositoryImpl implements BookingRepository {
     }
 
     @Override
+    public int countOccupiedSeatsForEventAndDate(Long eventId, LocalDate eventDate) {
+        return jpa.countOccupiedSeatsForEventAndDate(eventId, eventDate);
+    }
+
+    @Override
     public Event loadEventForBooking(Long eventId) {
         return eventJpa.findByIdWithEquipments(eventId)
                 .map(eventMapper::toDomain)

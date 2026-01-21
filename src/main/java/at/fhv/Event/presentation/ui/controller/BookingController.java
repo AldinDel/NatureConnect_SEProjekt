@@ -122,12 +122,8 @@ public class BookingController {
 
             return "redirect:/booking/event/" + request.getEventId();
         } catch (Exception exception) {
-            redirectAttributes.addFlashAttribute(
-                    "error",
-                    "Booking failed. Please try again."
-            );
-            redirectAttributes.addFlashAttribute("booking", request);
-            return "redirect:/booking/event/" + request.getEventId();
+            exception.printStackTrace();
+            throw exception;
         }
 
     }

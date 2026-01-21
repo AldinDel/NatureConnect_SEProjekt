@@ -66,12 +66,37 @@ public class BookEventService {
     public BookingDTO bookEvent(CreateBookingRequest request) {
         Event event = loadEvent(request.getEventId());
 
+        if (event.isRecurring() && request.getEventDate() == null) {
+            if (event.getRecurrenceStart() == null) {
+                throw new IllegalStateException("Recurring event has no recurrenceStart");
+            }
+
+            var date = event.getRecurrenceStart();
+            int safety = 0;
+
+            while (!event.getRecurrenceDays().contains(date.getDayOfWeek())) {
+                date = date.plusDays(1);
+                if (++safety > 7) {
+                    throw new IllegalStateException("No valid recurrence day found within a week");
+                }
+            }
+
+            if (event.getRecurrenceEnd() != null && date.isAfter(event.getRecurrenceEnd())) {
+                throw new IllegalStateException("No upcoming valid occurrence for this event");
+            }
+
+            request.setEventDate(date);
+        }
+
+
         if (Boolean.TRUE.equals(event.getCancelled())) {
             throw new IllegalStateException("Cannot book a cancelled event.");
         }
 
+
+
         checkEventAvailability(event);
-        checkEventCapacity(event, request.getSeats());
+        checkEventCapacity(event, request.getSeats(), request);
 
         Map<Long, Equipment> equipmentMap = loadEquipmentMap(request);
         validateBookingRequest(request, event, equipmentMap);
@@ -306,13 +331,34 @@ public class BookEventService {
         event.validateAvailability();
     }
 
-    private void checkEventCapacity(Event event, int requestedSeats) {
-        int booked = _bookingRepository.countOccupiedSeatsForEvent(event.getId());
+    private void checkEventCapacity(Event event, int requestedSeats, CreateBookingRequest request) {
+        int booked;
+
+        if (event.isRecurring()) {
+            booked = _bookingRepository.countOccupiedSeatsForEventAndDate(
+                    event.getId(),
+                    request.getEventDate()
+            );
+        } else {
+            booked = _bookingRepository.countOccupiedSeatsForEvent(event.getId());
+        }
+
+
         event.validateCapacity(requestedSeats, booked);
     }
 
     private void checkEventCapacityForUpdate(Event event, Booking booking, int newSeats) {
-        int confirmed = _bookingRepository.countOccupiedSeatsForEvent(event.getId());
+        int confirmed;
+
+        if (event.isRecurring()) {
+            confirmed = _bookingRepository.countOccupiedSeatsForEventAndDate(
+                    event.getId(),
+                    booking.getEventDate()
+            );
+        } else {
+            confirmed = _bookingRepository.countOccupiedSeatsForEvent(event.getId());
+        }
+
         int bookedExcludingThis = Math.max(0, confirmed - booking.getSeats());
         event.validateCapacity(newSeats, bookedExcludingThis);
     }
@@ -325,8 +371,21 @@ public class BookEventService {
         return _equipmentRepository.findByIds(ids);
     }
 
-    private void validateBookingRequest(CreateBookingRequest request, Event event, Map<Long, Equipment> equipmentMap) {
-        int booked = _bookingRepository.countOccupiedSeatsForEvent(event.getId());
+    private void validateBookingRequest(CreateBookingRequest request,
+                                        Event event,
+                                        Map<Long, Equipment> equipmentMap) {
+
+        int booked;
+
+        if (event.isRecurring()) {
+            booked = _bookingRepository.countOccupiedSeatsForEventAndDate(
+                    event.getId(),
+                    request.getEventDate()
+            );
+        } else {
+            booked = _bookingRepository.countOccupiedSeatsForEvent(event.getId());
+        }
+
         List<ValidationError> errors =
                 _bookingValidator.validate(request, event, equipmentMap, booked);
 

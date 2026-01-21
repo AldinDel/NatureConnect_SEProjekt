@@ -419,13 +419,12 @@
                     "This event only takes place on " +
                     allowedDays.map(d => d.toLowerCase()).join(", ")
                 );
-                dateInput.value = "";
+                dateInput.value = dateInput.dataset.lastValid || "";
+            } else {
+                dateInput.dataset.lastValid = dateInput.value;
             }
         });
     });
-
-
-
 
 </script>
 
