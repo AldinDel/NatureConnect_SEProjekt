@@ -167,6 +167,7 @@ public class BookEventService {
         booking.setAudience(request.getAudience());
         booking.setBookerFirstName(request.getBookerFirstName());
         booking.setBookerLastName(request.getBookerLastName());
+        booking.setBookerAddress(request.getBookerAddress());
         booking.setBookerEmail(request.getBookerEmail());
         booking.setVoucherCode(request.getVoucherCode());
         booking.setSpecialNotes(request.getSpecialNotes());

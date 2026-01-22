@@ -31,6 +31,7 @@ public class BookingMapperDTO {
                 b.getBookerFirstName(),
                 b.getBookerLastName(),
                 b.getBookerEmail(),
+                b.getBookerAddress(),
                 b.getSeats(),
                 b.getTotalPrice(),
                 b.getStatus(),

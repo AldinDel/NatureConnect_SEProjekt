@@ -15,6 +15,7 @@ public class Booking {
     private String bookerFirstName;
     private String bookerLastName;
     private String bookerEmail;
+    private String bookerAddress;
     private int seats;
     private AudienceType audience;
     private BookingStatus status;
@@ -42,6 +43,7 @@ public class Booking {
             String bookerFirstName,
             String bookerLastName,
             String bookerEmail,
+            String bookerAddress,
             int seats,
             AudienceType audience,
             BookingStatus status,
@@ -58,6 +60,7 @@ public class Booking {
         this.bookerFirstName = bookerFirstName;
         this.bookerLastName = bookerLastName;
         this.bookerEmail = bookerEmail;
+        this.bookerAddress = bookerAddress;
         this.seats = seats;
         this.audience = audience;
         this.status = status;
@@ -387,6 +390,11 @@ public class Booking {
         this.eventDate = eventDate;
     }
 
+    public String getBookerAddress() {
+        return bookerAddress;
+    }
 
-
+    public void setBookerAddress(String bookerAddress) {
+        this.bookerAddress = bookerAddress;
+    }
 }
