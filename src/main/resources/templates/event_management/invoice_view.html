@@ -46,13 +46,6 @@
             </button>
         </form>
 
-        <a class="btn secondary"
-           th:if="${canEditInvoice
-       and invoice.lines != null
-       and invoice.lines.size() > 1}">
-            Split Invoice
-        </a>
-
     </div>
 
     <div class="info-box info"

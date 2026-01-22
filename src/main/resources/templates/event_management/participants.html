@@ -57,13 +57,24 @@
 
     <div class="stat-card">
         <span class="stat-title">Registered</span>
-        <!-- kommt IMMER vom Backend -->
         <span class="stat-value registered" data-stat="registered" th:text="${registeredCount}"></span>
     </div>
 </div>
 
-<div class="search-container">
-    <input type="text" class="search-input" placeholder="Search participant or booking…">
+<!-- ACTION BAR -->
+<div class="search-and-action">
+    <div class="search-container">
+        <input type="text" class="search-input" placeholder="Search participant or booking…">
+    </div>
+
+    <div class="add-participant-wrapper">
+        <button
+                th:if="${activeTab == 'checkin'}"
+                class="btn add-walkin-btn"
+                id="addParticipantBtn">
+            + Add Walk-In Participant
+        </button>
+    </div>
 </div>
 
 <div class="table-wrapper">
@@ -115,10 +126,18 @@
     </table>
 </div>
 
+
+<div id="addParticipantModal" class="modal hidden">
+
+</div>
+
 <script th:inline="javascript">
 
     const eventId = [[${eventId}]];
 
+    function openAddParticipantModal() {
+        document.getElementById("addParticipantModal")?.classList.remove("hidden");
+    }
 
     function updateStats() {
         const rows = document.querySelectorAll("tr[data-participant-id]");
@@ -130,7 +149,6 @@
         document.querySelector("[data-stat='arrived']").textContent = arrived;
         document.querySelector("[data-stat='notArrived']").textContent = notArrived;
     }
-
 
     function reloadStats() {
         fetch(`/api/events/${eventId}/participants/stats`)
@@ -156,7 +174,6 @@
             fetch(url, { method: "POST" }).then(() => {
                 checkInBtn.classList.toggle("active");
                 notArrivedBtn.classList.remove("active");
-                updateStats();
                 reloadStats();
             });
         });
@@ -169,11 +186,15 @@
             fetch(url, { method: "POST" }).then(() => {
                 notArrivedBtn.classList.toggle("active");
                 checkInBtn.classList.remove("active");
-                updateStats();
                 reloadStats();
             });
         });
     });
+
+    document.getElementById("addParticipantBtn")
+        ?.addEventListener("click", () => {
+            openAddParticipantModal();
+        });
 
     const searchInput = document.querySelector(".search-input");
     searchInput.addEventListener("input", () => {
@@ -181,11 +202,10 @@
         document.querySelectorAll("tbody tr").forEach(row => {
             row.style.display = row.innerText.toLowerCase().includes(query) ? "" : "none";
         });
-        updateStats();
     });
+
 </script>
 
-<div th:replace="events/fragments/footer :: footer"></div>
 
 </body>
 </html>
