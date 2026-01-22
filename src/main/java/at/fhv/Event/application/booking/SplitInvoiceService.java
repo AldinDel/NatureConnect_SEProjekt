@@ -61,7 +61,7 @@ public class SplitInvoiceService {
             throw new IllegalStateException("50% or more has already been paid");
         }
 
-        // Create Invoice entity for 50% payment
+        // Create final invoice entity for 50% payment
         InvoiceLine paymentLine = new InvoiceLine(
                 null,
                 "50% Partial Payment",
@@ -69,12 +69,12 @@ public class SplitInvoiceService {
                 BigDecimal.valueOf(amountToPay)
         );
 
-        Invoice invoice = Invoice.createInterim(
+        Invoice invoice = Invoice.createFinal(
                 booking.getEventId(),
                 booking.getId(),
                 List.of(paymentLine)
         );
-        logger.debug("Invoice created for booking {} with total: {}", bookingId, invoice.getTotal());
+        logger.debug("Final invoice created for booking {} with total: {}", bookingId, invoice.getTotal());
 
         Invoice savedInvoice = invoiceRepository.save(invoice);
         logger.info("Invoice {} created for 50% payment of booking {}", savedInvoice.getId(), bookingId);
@@ -140,13 +140,13 @@ public class SplitInvoiceService {
             throw new IllegalArgumentException("No valid equipment items found for the selected IDs");
         }
 
-        // Create Invoice entity for equipment payment
-        Invoice invoice = Invoice.createInterim(
+        // Create final invoice entity for equipment payment
+        Invoice invoice = Invoice.createFinal(
                 booking.getEventId(),
                 booking.getId(),
                 lines
         );
-        logger.debug("Invoice created for booking {} with {} lines, total: {}", bookingId, lines.size(), invoice.getTotal());
+        logger.debug("Final invoice created for booking {} with {} lines, total: {}", bookingId, lines.size(), invoice.getTotal());
 
         Invoice savedInvoice = invoiceRepository.save(invoice);
         logger.info("Invoice {} created for equipment payment of booking {}", savedInvoice.getId(), bookingId);
@@ -177,7 +177,7 @@ public class SplitInvoiceService {
 
         double remaining = booking.getRemainingAmount();
         if (remaining > 0) {
-            // Create Invoice entity for remaining payment
+            // Create final invoice entity for remaining payment
             InvoiceLine paymentLine = new InvoiceLine(
                     null,
                     "Remaining Payment",
@@ -185,7 +185,7 @@ public class SplitInvoiceService {
                     BigDecimal.valueOf(remaining)
             );
 
-            Invoice invoice = Invoice.createInterim(
+            Invoice invoice = Invoice.createFinal(
                     booking.getEventId(),
                     booking.getId(),
                     List.of(paymentLine)

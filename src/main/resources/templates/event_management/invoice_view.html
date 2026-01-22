@@ -92,6 +92,32 @@
         <span th:text="${invoice.total} + ' €'"></span>
     </div>
 
+    <div class="payment-information">
+        <h3>Payment Information</h3>
+        <p class="payment-note">Please transfer the invoice amount to the following bank account:</p>
+
+        <div class="bank-details">
+            <div class="bank-detail-row">
+                <span class="detail-label">Account Holder:</span>
+                <span class="detail-value">NatureConnect GmbH</span>
+            </div>
+            <div class="bank-detail-row">
+                <span class="detail-label">IBAN:</span>
+                <span class="detail-value">AT89 3704 0044 0532 0130</span>
+            </div>
+            <div class="bank-detail-row">
+                <span class="detail-label">BIC:</span>
+                <span class="detail-value">RVVGAT2B404</span>
+            </div>
+            <div class="bank-detail-row">
+                <span class="detail-label">Reference:</span>
+                <span class="detail-value" th:text="'Invoice #' + ${invoice.id}"></span>
+            </div>
+        </div>
+
+        <p class="payment-footer">Please include the invoice number as reference in your transfer.</p>
+    </div>
+
 </div>
 
 </body>

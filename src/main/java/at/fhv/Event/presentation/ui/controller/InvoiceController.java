@@ -71,9 +71,30 @@ public class InvoiceController {
                     })
                     .toList();
 
-            // Load open bookings (not fully paid)
+            // Load open bookings (not fully paid and event not expired)
             List<BookingWithEventDTO> openBookingDTOs = userBookings.stream()
-                    .filter(b -> !b.isFullyPaid() && !b.isCancelled())
+                    .filter(b -> {
+                        // Filter out fully paid and cancelled bookings
+                        if (b.isFullyPaid() || b.isCancelled()) {
+                            return false;
+                        }
+
+                        // Filter out expired events
+                        try {
+                            var event = eventDetailsService.getEventDetails(b.getEventId());
+                            if (event.date() != null && event.startTime() != null) {
+                                var eventDateTime = java.time.LocalDateTime.of(event.date(), event.startTime());
+                                if (eventDateTime.isBefore(java.time.LocalDateTime.now())) {
+                                    logger.debug("Filtering out expired event for booking {}", b.getId());
+                                    return false;
+                                }
+                            }
+                        } catch (Exception e) {
+                            logger.warn("Could not check event date for booking {}: {}", b.getId(), e.getMessage());
+                        }
+
+                        return true;
+                    })
                     .map(b -> {
                         logger.debug("Open booking {} - Total: {}, Paid: {}", b.getId(), b.getTotalPrice(), b.getPaidAmount());
                         return new BookingWithEventDTO(
