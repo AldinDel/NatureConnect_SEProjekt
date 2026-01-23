@@ -10,7 +10,7 @@
     <link rel="stylesheet" th:href="@{/css/footer.css}" href="/css/footer.css">
 </head>
 <body>
-<div th:replace="events/fragments/navbar :: navbar"></div>
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
 <div class="page-wrapper">
     <div class="success-container">
         <div class="success-icon"></div>
@@ -57,7 +57,7 @@
 
 <script th:src="@{/js/confirmation.js}"></script>
 
-<div th:replace="events/fragments/footer :: footer"></div>
+<div th:replace="~{events/fragments/footer :: footer}"></div>
 
 </body>
 </html>
