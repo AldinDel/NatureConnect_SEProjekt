@@ -95,7 +95,7 @@
             <td class="actions" sec:authorize="hasRole('ADMIN')">
                 <a th:href="@{/booking/{id}/edit(id=${b.id})}"
                    class="btn-edit action-btn">
-                    Edit
+                    View/Edit
                 </a>
 
                 <button class="btn-small btn-cancel action-btn"
@@ -109,7 +109,7 @@
     </table>
 </div>
 
-<div th:replace="events/fragments/footer :: footer"></div>
+<div th:replace="~{events/fragments/footer :: footer}"></div>
 
 <div id="cancelModal" class="cancel-modal hidden">
     <div class="cancel-box">

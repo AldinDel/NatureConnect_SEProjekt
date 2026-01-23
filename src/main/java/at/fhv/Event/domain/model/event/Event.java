@@ -151,7 +151,7 @@ public class Event {
 
     public int getAvailableSeats(int currentlyBooked) {
         int min = this.minParticipants != null ? this.minParticipants : 0;
-        int capacity = this.maxParticipants - min;
+        int capacity = this.maxParticipants;
         int remaining = capacity - currentlyBooked;
         return Math.max(0, remaining);
     }

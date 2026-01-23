@@ -189,6 +189,16 @@
                     <span th:if="${fieldErrors?.containsKey('bookerEmail')}"
                           class="error-text"
                           th:text="${fieldErrors['bookerEmail']}"></span>
+
+                    <label>Booker Adress</label>
+                    <input type="text"
+                           th:field="*{bookerAddress}"
+                           class="form-input"
+                           maxlength="100"
+                           required>
+                    <span th:if="${fieldErrors?.containsKey('bookerAddress')}"
+                          class="error-text"
+                          th:text="${fieldErrors['bookerAddress']}"></span>
                 </div>
 
                 <div class="card">
@@ -343,25 +353,35 @@
 
 
                     <div th:if="${isEdit}">
-                        <button
-                                id="updateBookingBtn"
-                                type="button"
-                                class="btn-primary"
-                                th:text="'Update Booking'"
-                                onclick="document.getElementById('changePayment').value='false'; this.form.submit();">
-                            Update Booking
-                        </button>
+                        <div class="booking-actions">
 
-                        <button
-                                id="updateBookingChangePaymentBtn"
-                                type="button"
-                                class="btn-primary"
-                                sec:authorize="hasRole('ADMIN')"
-                                th:utext="'Update Booking <br> & Payment'"
-                                onclick="document.getElementById('changePayment').value='true'; this.form.submit();">
-                            Update Booking and change payment method
-                        </button>
+                            <button
+                                    type="button"
+                                    class="btn btn-secondary btn-block"
+                                    onclick="window.location.href='/bookings'">
+                                Back to Bookings
+                            </button>
+
+                            <button
+                                    id="updateBookingBtn"
+                                    type="button"
+                                    class="btn btn-primary btn-block"
+                                    onclick="document.getElementById('changePayment').value='false'; this.form.submit();">
+                                Update Booking
+                            </button>
+
+                            <button
+                                    id="updateBookingChangePaymentBtn"
+                                    type="button"
+                                    class="btn btn-primary btn-block"
+                                    sec:authorize="hasRole('ADMIN')"
+                                    onclick="document.getElementById('changePayment').value='true'; this.form.submit();">
+                                Update Booking & Payment
+                            </button>
+
+                        </div>
                     </div>
+
 
                     <p id="errorBox" class="hidden text-red"></p>
                 </div>
@@ -429,7 +449,7 @@
 
 </script>
 
-<div th:replace="events/fragments/footer :: footer"></div>
+<div th:replace="~{events/fragments/footer :: footer}"></div>
 
 </body>
 </html>

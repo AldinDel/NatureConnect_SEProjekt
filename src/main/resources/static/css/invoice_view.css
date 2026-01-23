@@ -105,6 +105,70 @@
     font-size: 1.2rem;
     font-weight: 600;
     color: #1f7a4f;
+    margin-bottom: 2rem;
+}
+
+/* ===================== */
+/* PAYMENT INFORMATION */
+/* ===================== */
+.payment-information {
+    margin-top: 3rem;
+    padding: 1.5rem;
+    background: #f8faf9;
+    border-left: 4px solid #1f7a4f;
+    border-radius: 8px;
+}
+
+.payment-information h3 {
+    color: #0b2545;
+    margin-bottom: 0.8rem;
+    font-size: 1.1rem;
+}
+
+.payment-note {
+    color: #4b5563;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+}
+
+.bank-details {
+    background: white;
+    padding: 1.2rem;
+    border-radius: 6px;
+    margin-bottom: 1rem;
+    border: 1px solid #e5e7eb;
+}
+
+.bank-detail-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.bank-detail-row:last-child {
+    border-bottom: none;
+}
+
+.detail-label {
+    font-weight: 600;
+    color: #374151;
+    font-size: 0.95rem;
+}
+
+.detail-value {
+    color: #1f2937;
+    font-family: 'Courier New', monospace;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.payment-footer {
+    color: #6b7280;
+    font-size: 0.85rem;
+    font-style: italic;
+    margin-top: 0.5rem;
+    margin-bottom: 0;
 }
 
 /* ===================== */
@@ -122,4 +186,25 @@
     background-color: #eef6ff;
     border: 1px solid #c7ddff;
     color: #1e3a8a;
+}
+
+.invoice-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.invoice-download {
+    font-size: 1.4rem;
+    text-decoration: none;
+    color: #0b2545;
+    padding: 0.4rem;
+    border-radius: 6px;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.invoice-download:hover {
+    background: #eef6ff;
+    transform: translateY(-1px);
 }

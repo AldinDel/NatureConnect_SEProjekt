@@ -4,6 +4,7 @@ import at.fhv.Event.application.booking.BookEventService;
 import at.fhv.Event.application.booking.BookingPermissionService;
 import at.fhv.Event.application.booking.BookingPrefillService;
 import at.fhv.Event.application.event.GetEventDetailsService;
+import at.fhv.Event.application.invoice.CreateFinalInvoiceService;
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
 import at.fhv.Event.domain.model.booking.Booking;
 import at.fhv.Event.domain.model.booking.BookingEquipment;
@@ -11,9 +12,12 @@ import at.fhv.Event.domain.model.booking.BookingStatus;
 import at.fhv.Event.domain.model.exception.BookingValidationException;
 import at.fhv.Event.domain.model.exception.EventFullyBookedException;
 import at.fhv.Event.domain.model.exception.ValidationError;
+import at.fhv.Event.domain.model.payment.PaymentMethod;
 import at.fhv.Event.presentation.rest.response.booking.BookingDTO;
 import at.fhv.Event.presentation.rest.response.equipment.EquipmentDTO;
 import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -31,19 +35,24 @@ import java.util.stream.Collectors;
 @RequestMapping("/booking")
 public class BookingController {
 
+    private static final Logger logger = LoggerFactory.getLogger(BookingController.class);
+
     private final BookEventService _bookEventService;
     private final GetEventDetailsService _eventDetailsService;
     private final BookingPermissionService _bookingPermissionService;
     private final BookingPrefillService _bookingPrefillService;
+    private final CreateFinalInvoiceService _createFinalInvoiceService;
 
     public BookingController(BookEventService bookEventService,
                              GetEventDetailsService eventDetailsService,
                              BookingPermissionService bookingPermissionService,
-                             BookingPrefillService bookingPrefillService) {
+                             BookingPrefillService bookingPrefillService,
+                             CreateFinalInvoiceService createFinalInvoiceService) {
         _bookEventService = bookEventService;
         _eventDetailsService = eventDetailsService;
         _bookingPermissionService = bookingPermissionService;
         _bookingPrefillService = bookingPrefillService;
+        _createFinalInvoiceService = createFinalInvoiceService;
     }
 
     @GetMapping("/event/{eventId}")
@@ -157,7 +166,21 @@ public class BookingController {
     @PreAuthorize("isAuthenticated()")
     public String updatePaymentMethodFromUI(@PathVariable Long id, @RequestParam("paymentMethod") String paymentMethod, RedirectAttributes redirectAttributes) {
         try {
+            logger.info("Updating payment method for booking {} to {}", id, paymentMethod);
             _bookEventService.updatePaymentMethod(id, paymentMethod);
+
+            // For INVOICE payment, create final invoice immediately
+            if ("INVOICE".equals(paymentMethod)) {
+                try {
+                    logger.info("Creating final invoice for INVOICE payment method, booking {}", id);
+                    _createFinalInvoiceService.createFinalInvoiceForBooking(id);
+                    logger.info("Final invoice created for booking {}", id);
+                } catch (Exception e) {
+                    logger.error("Failed to create final invoice for booking {}: {}", id, e.getMessage(), e);
+                    // Continue anyway, booking is still confirmed
+                }
+            }
+
             return "redirect:/booking/payment/" + id;
 
         } catch (Exception exception) {

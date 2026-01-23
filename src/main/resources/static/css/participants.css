@@ -393,3 +393,43 @@ tr.checked-out .status-badge {
     font-size: 0.8rem;
     font-weight: 600;
 }
+
+.search-and-action {
+    width: 92%;
+    max-width: 1100px;
+    margin: 0 auto 22px;
+}
+
+.search-and-action .search-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 12px;
+}
+
+.add-participant-wrapper {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.add-walkin-btn {
+    display: inline-block;
+    width: auto;
+    min-width: 260px;
+    padding: 12px 28px;
+    background: #0b2545;
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: 0.2s ease;
+
+    margin-left: auto;
+}
+
+.add-walkin-btn:hover {
+    background: #3b3767;
+    transform: translateY(-1px);
+}

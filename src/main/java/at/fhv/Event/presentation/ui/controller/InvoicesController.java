@@ -5,15 +5,24 @@ import at.fhv.Event.application.invoice.CreateInterimInvoiceService;
 import at.fhv.Event.application.event.GetParticipantsForEventService;
 import at.fhv.Event.domain.model.booking.Booking;
 import at.fhv.Event.domain.model.booking.BookingRepository;
+import at.fhv.Event.domain.model.equipment.Equipment;
+import at.fhv.Event.domain.model.equipment.EquipmentRepository;
 import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.domain.model.event.EventRepository;
 import at.fhv.Event.domain.model.invoice.InvoiceRepository;
+import at.fhv.Event.infrastructure.persistence.booking.BookingEquipmentJpaRepository;
 import at.fhv.Event.presentation.rest.response.booking.ParticipantDTO;
+import at.fhv.Event.presentation.ui.dto.InvoiceServiceDTO;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import at.fhv.Event.application.invoice.GenerateInvoicePdfService;
 
 import java.util.List;
 
@@ -26,6 +35,11 @@ public class InvoicesController {
     private final GetParticipantsForEventService participantsService;
     private final BookingRepository bookingRepository;
     private final EventRepository eventRepository;
+    private final BookingEquipmentJpaRepository bookingEquipmentJpaRepository;
+    private final EquipmentRepository equipmentRepository;
+    private final GenerateInvoicePdfService generateInvoicePdfService;
+
+
 
     public InvoicesController(
             CreateInterimInvoiceService createInterimInvoiceService,
@@ -33,7 +47,10 @@ public class InvoicesController {
             GetBookingEquipmentForInvoiceService bookingEquipmentService,
             GetParticipantsForEventService participantsService,
             BookingRepository bookingRepository,
-            EventRepository eventRepository
+            EventRepository eventRepository,
+            BookingEquipmentJpaRepository bookingEquipmentJpaRepository,
+            EquipmentRepository equipmentRepository,
+            GenerateInvoicePdfService generateInvoicePdfService
     ) {
         this.createInterimInvoiceService = createInterimInvoiceService;
         this.invoiceRepository = invoiceRepository;
@@ -41,6 +58,9 @@ public class InvoicesController {
         this.participantsService = participantsService;
         this.bookingRepository = bookingRepository;
         this.eventRepository = eventRepository;
+        this.bookingEquipmentJpaRepository = bookingEquipmentJpaRepository;
+        this.equipmentRepository = equipmentRepository;
+        this.generateInvoicePdfService = generateInvoicePdfService;
     }
 
     @GetMapping("/event_management/invoices")
@@ -85,10 +105,25 @@ public class InvoicesController {
                 invoiceRepository.findByBookingId(bookingId)
         );
 
-        model.addAttribute(
-                "services",
-                bookingEquipmentService.getEquipmentUsedSoFar(bookingId)
-        );
+        List<InvoiceServiceDTO> services =
+
+                bookingEquipmentJpaRepository
+                        .findByBooking_IdAndInvoicedFalse(bookingId)
+                        .stream()
+                        .map(be -> {
+                            Equipment eq = equipmentRepository.findById(be.getEquipmentId())
+                                    .orElseThrow();
+                            return new InvoiceServiceDTO(
+                                    be.getEquipmentId(),
+                                    eq.getName(),
+                                    be.getPricePerUnit()
+                            );
+                        })
+                        .toList();
+
+        model.addAttribute("services", services);
+        model.addAttribute("hasOpenServices", !services.isEmpty());
+
 
         if (Boolean.TRUE.equals(created)) {
             model.addAttribute(
@@ -113,6 +148,26 @@ public class InvoicesController {
         model.addAttribute("invoice", invoice);
         model.addAttribute("canEditInvoice", true);
         return "event_management/invoice_view";
+    }
+
+    @GetMapping("/invoices/{id}/download")
+    public ResponseEntity<byte[]> downloadInvoice(
+            @PathVariable("id") Long invoiceId
+    ) {
+        var invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() ->
+                        new RuntimeException("Invoice not found: " + invoiceId)
+                );
+
+        byte[] pdf = generateInvoicePdfService.generate(invoice);
+
+        return ResponseEntity.ok()
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=invoice_" + invoiceId + ".pdf"
+                )
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 
     @PostMapping("/event_management/invoices/interim")
