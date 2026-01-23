@@ -15,12 +15,14 @@ import at.fhv.Event.infrastructure.persistence.booking.BookingEquipmentJpaReposi
 import org.springframework.stereotype.Service;
 import at.fhv.Event.domain.model.equipment.Equipment;
 import at.fhv.Event.domain.model.equipment.EquipmentRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
+@Transactional
 public class CreateInterimInvoiceService {
 
     private final BookingRepository bookingRepository;
@@ -79,7 +81,7 @@ public class CreateInterimInvoiceService {
             if (alreadyInvoiced) {
                 throw new InvoiceCreationException(
                         bookingId,
-                        "Invoice not found for booking"
+                        "Event base price has already been invoiced"
                 );
             }
 
@@ -95,7 +97,7 @@ public class CreateInterimInvoiceService {
 
         if (equipmentIds != null && !equipmentIds.isEmpty()) {
             List<BookingEquipmentEntity> bookingEquipments =
-                    bookingEquipmentJpaRepository.findNotYetInvoicedByBookingId(bookingId)
+                    bookingEquipmentJpaRepository.findByBooking_IdAndInvoicedFalse(bookingId)
                             .stream()
                             .filter(be -> equipmentIds.contains(be.getEquipmentId()))
                             .toList();
@@ -135,6 +137,18 @@ public class CreateInterimInvoiceService {
                 lines
         );
 
-        return invoiceRepository.save(invoice);
+        Invoice savedInvoice = invoiceRepository.save(invoice);
+
+        savedInvoice.getLines().forEach(line -> {
+            if (line.getEquipmentId() != null) {
+                bookingEquipmentJpaRepository.markAsInvoiced(
+                        bookingId,
+                        line.getEquipmentId()
+                );
+            }
+        });
+
+        return savedInvoice;
+
     }
 }
