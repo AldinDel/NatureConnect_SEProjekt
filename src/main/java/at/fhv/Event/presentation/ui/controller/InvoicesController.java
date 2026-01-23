@@ -18,6 +18,11 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import at.fhv.Event.application.invoice.GenerateInvoicePdfService;
 
 import java.util.List;
 
@@ -32,6 +37,8 @@ public class InvoicesController {
     private final EventRepository eventRepository;
     private final BookingEquipmentJpaRepository bookingEquipmentJpaRepository;
     private final EquipmentRepository equipmentRepository;
+    private final GenerateInvoicePdfService generateInvoicePdfService;
+
 
 
     public InvoicesController(
@@ -42,7 +49,8 @@ public class InvoicesController {
             BookingRepository bookingRepository,
             EventRepository eventRepository,
             BookingEquipmentJpaRepository bookingEquipmentJpaRepository,
-            EquipmentRepository equipmentRepository
+            EquipmentRepository equipmentRepository,
+            GenerateInvoicePdfService generateInvoicePdfService
     ) {
         this.createInterimInvoiceService = createInterimInvoiceService;
         this.invoiceRepository = invoiceRepository;
@@ -52,6 +60,7 @@ public class InvoicesController {
         this.eventRepository = eventRepository;
         this.bookingEquipmentJpaRepository = bookingEquipmentJpaRepository;
         this.equipmentRepository = equipmentRepository;
+        this.generateInvoicePdfService = generateInvoicePdfService;
     }
 
     @GetMapping("/event_management/invoices")
@@ -139,6 +148,26 @@ public class InvoicesController {
         model.addAttribute("invoice", invoice);
         model.addAttribute("canEditInvoice", true);
         return "event_management/invoice_view";
+    }
+
+    @GetMapping("/invoices/{id}/download")
+    public ResponseEntity<byte[]> downloadInvoice(
+            @PathVariable("id") Long invoiceId
+    ) {
+        var invoice = invoiceRepository.findById(invoiceId)
+                .orElseThrow(() ->
+                        new RuntimeException("Invoice not found: " + invoiceId)
+                );
+
+        byte[] pdf = generateInvoicePdfService.generate(invoice);
+
+        return ResponseEntity.ok()
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=invoice_" + invoiceId + ".pdf"
+                )
+                .contentType(MediaType.APPLICATION_PDF)
+                .body(pdf);
     }
 
     @PostMapping("/event_management/invoices/interim")
