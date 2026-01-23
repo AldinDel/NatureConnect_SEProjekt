@@ -12,7 +12,7 @@
 
 </head>
 <body>
-<div th:replace="events/fragments/navbar :: navbar"></div>
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
 
 <div th:if="${success}" class="toast-success">
     <span th:text="${success}"></span>
@@ -161,7 +161,7 @@
 
 <script th:src="@{/js/payment.js}"></script>
 
-<div th:replace="events/fragments/footer :: footer"></div>
+<div th:replace="~{events/fragments/footer :: footer}"></div>
 
 </body>
 </html>
