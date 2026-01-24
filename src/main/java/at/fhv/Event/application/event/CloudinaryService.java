@@ -1,11 +1,11 @@
 package at.fhv.Event.application.event;
 
+import at.fhv.Event.domain.model.exception.ImageUploadException;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.Map;
 
 @Service
@@ -46,9 +46,7 @@ public class CloudinaryService {
 
             return (String) uploadResult.get("secure_url");
         } catch (Exception e) {
-            System.out.println("Error during Cloudinary upload:");
-            e.printStackTrace();
-            return null;
+            throw new ImageUploadException("Failed uploading image");
         }
     }
 

@@ -1,10 +1,12 @@
 package at.fhv.Event.application.checkout;
 
 import at.fhv.Event.domain.model.booking.*;
-import org.springframework.http.HttpStatus;
+import at.fhv.Event.domain.model.exception.BookingNotFoundException;
+import at.fhv.Event.domain.model.exception.ParticipantAlreadyCheckedOutException;
+import at.fhv.Event.domain.model.exception.ParticipantNotCheckedInException;
+import at.fhv.Event.domain.model.exception.ParticipantNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 
@@ -23,14 +25,14 @@ public class CheckOutService {
     public void checkOut(Long participantId) {
 
         BookingParticipant participant = participantRepo.findById(participantId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new ParticipantNotFoundException(participantId));
 
         if (participant.getCheckInStatus() != ParticipantCheckInStatus.CHECKED_IN) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+            throw new ParticipantNotCheckedInException(participantId);
         }
 
         if (participant.getCheckOutStatus() == ParticipantCheckOutStatus.CHECKED_OUT) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Participant already checked out");
+            throw new ParticipantAlreadyCheckedOutException(participantId);
         }
 
         participant.setCheckOutStatus(ParticipantCheckOutStatus.CHECKED_OUT);
@@ -43,7 +45,7 @@ public class CheckOutService {
                 .allMatch(p -> p.getCheckOutStatus() == ParticipantCheckOutStatus.CHECKED_OUT);
 
         if (allCheckedOut) {
-            Booking booking = bookingRepo.findById(bookingId).orElseThrow();
+            Booking booking = bookingRepo.findById(bookingId).orElseThrow(() -> new BookingNotFoundException(bookingId));
             booking.setBillingReady(true);
             bookingRepo.save(booking);
         }

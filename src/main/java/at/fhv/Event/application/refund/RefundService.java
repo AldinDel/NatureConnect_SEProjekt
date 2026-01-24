@@ -35,6 +35,9 @@ public class RefundService {
     }
 
     public BigDecimal calculateRefund(Booking booking, Event event) {
+        if (event.getDate() == null || event.getStartTime() == null) {
+            return BigDecimal.ZERO;
+        }
 
         LocalDateTime eventStart = LocalDateTime.of(event.getDate(), event.getStartTime());
         LocalDateTime now = LocalDateTime.now();

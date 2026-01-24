@@ -1,18 +1,17 @@
 package at.fhv.Event.presentation.ui.controller;
 
 import at.fhv.Event.application.booking.BookEventService;
+import at.fhv.Event.application.booking.BookingCalendarService;
 import at.fhv.Event.application.booking.BookingPermissionService;
 import at.fhv.Event.application.booking.BookingPrefillService;
 import at.fhv.Event.application.event.GetEventDetailsService;
+import at.fhv.Event.application.exception.ErrorMessageService;
 import at.fhv.Event.application.invoice.CreateFinalInvoiceService;
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
 import at.fhv.Event.domain.model.booking.Booking;
 import at.fhv.Event.domain.model.booking.BookingEquipment;
 import at.fhv.Event.domain.model.booking.BookingStatus;
-import at.fhv.Event.domain.model.exception.BookingValidationException;
-import at.fhv.Event.domain.model.exception.EventFullyBookedException;
-import at.fhv.Event.domain.model.exception.ValidationError;
-import at.fhv.Event.domain.model.payment.PaymentMethod;
+import at.fhv.Event.domain.model.exception.*;
 import at.fhv.Event.presentation.rest.response.booking.BookingDTO;
 import at.fhv.Event.presentation.rest.response.equipment.EquipmentDTO;
 import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
@@ -42,17 +41,23 @@ public class BookingController {
     private final BookingPermissionService _bookingPermissionService;
     private final BookingPrefillService _bookingPrefillService;
     private final CreateFinalInvoiceService _createFinalInvoiceService;
+    private final BookingCalendarService _bookingCalendarService;
+    private final ErrorMessageService _errorMessageService;
 
     public BookingController(BookEventService bookEventService,
                              GetEventDetailsService eventDetailsService,
                              BookingPermissionService bookingPermissionService,
                              BookingPrefillService bookingPrefillService,
-                             CreateFinalInvoiceService createFinalInvoiceService) {
+                             CreateFinalInvoiceService createFinalInvoiceService,
+                             BookingCalendarService bookingCalendarService,
+                             ErrorMessageService errorMessageService) {
         _bookEventService = bookEventService;
         _eventDetailsService = eventDetailsService;
         _bookingPermissionService = bookingPermissionService;
         _bookingPrefillService = bookingPrefillService;
         _createFinalInvoiceService = createFinalInvoiceService;
+        _bookingCalendarService = bookingCalendarService;
+        _errorMessageService = errorMessageService;
     }
 
     @GetMapping("/event/{eventId}")
@@ -62,32 +67,46 @@ public class BookingController {
                                   RedirectAttributes redirectAttributes,
                                   Principal principal) {
 
-        EventDetailDTO event = _eventDetailsService.getEventDetails(eventId);
-        int availableSeats = _bookEventService.getAvailableSeats(eventId);
+        try {
+            EventDetailDTO event = _eventDetailsService.getEventDetails(eventId);
+            int availableSeats = _bookEventService.getAvailableSeats(eventId);
 
-        if (isEventUnavailable(event)) {
-            redirectAttributes.addFlashAttribute("error", getUnavailabilityMessage(event));
-            return "redirect:/events/" + eventId;
+            if (isEventUnavailable(event)) {
+                redirectAttributes.addFlashAttribute("error", getUnavailabilityMessage(event));
+                return "redirect:/events/" + eventId;
+            }
+
+            if (!model.containsAttribute("booking")) {
+                CreateBookingRequest bookingRequest =
+                        _bookingPrefillService.prepareCreateRequestForLoggedInUser(
+                                principal.getName(),
+                                eventId
+                        );
+                model.addAttribute("booking", bookingRequest);
+            }
+
+            List<EquipmentDTO> availableEquipment = event.equipments();
+
+            model.addAttribute("event", event);
+            model.addAttribute("addons", availableEquipment);
+            model.addAttribute("availableSeats", Math.max(0, availableSeats));
+            model.addAttribute("isEdit", false);
+            model.addAttribute("bookingId", null);
+            model.addAttribute("allowedDays", _bookingCalendarService.resolveAllowedDays(event));
+
+            return "booking/booking-page";
+        } catch (EventNotFoundException e) {
+            logger.error("Event not found: {}", eventId, e);
+            String message = _errorMessageService.getMessage(e.getErrorCode(), e.getEventId());
+            redirectAttributes.addFlashAttribute("error", message);
+            return "redirect:/events";
+
+        } catch (Exception e) {
+            logger.error("Failed to load booking page for event {}", eventId, e);
+            String message = _errorMessageService.getMessage("UNEXPECTED_ERROR");
+            redirectAttributes.addFlashAttribute("error", message);
+            return "redirect:/events";
         }
-
-        if (!model.containsAttribute("booking")) {
-            CreateBookingRequest bookingRequest =
-                    _bookingPrefillService.prepareCreateRequestForLoggedInUser(
-                            principal.getName(),
-                            eventId
-                    );
-            model.addAttribute("booking", bookingRequest);
-        }
-
-        List<EquipmentDTO> availableEquipment = event.equipments();
-
-        model.addAttribute("event", event);
-        model.addAttribute("addons", availableEquipment);
-        model.addAttribute("availableSeats", Math.max(0, availableSeats));
-        model.addAttribute("isEdit", false);
-        model.addAttribute("bookingId", null);
-
-        return "booking/booking-page";
     }
 
     @PostMapping
@@ -105,11 +124,18 @@ public class BookingController {
 
 
         } catch (EventFullyBookedException exception) {
-            redirectAttributes.addFlashAttribute("error", exception.getMessage());
+            logger.warn("Event fully booked: {}", exception.getMessage());
+            String message = exception.getAvailableSeats() == 0
+                    ? _errorMessageService.getMessage("BOOKING_003_FULLY")
+                    : _errorMessageService.getMessage(
+                    exception.getErrorCode(),
+                    exception.getAvailableSeats(),
+                    exception.getRequestedSeats()
+            );
+            redirectAttributes.addFlashAttribute("error", message);
             return "redirect:/events/" + request.getEventId();
 
         } catch (BookingValidationException exception) {
-
             Map<String, String> fieldErrors = new HashMap<>();
             List<String> errorMessages = new ArrayList<>();
 
@@ -130,15 +156,26 @@ public class BookingController {
             redirectAttributes.addFlashAttribute("booking", request);
 
             return "redirect:/booking/event/" + request.getEventId();
-        } catch (Exception exception) {
-            redirectAttributes.addFlashAttribute(
-                    "error",
-                    "Booking failed. Please try again."
+
+        } catch (InsufficientStockException e) {
+            logger.warn("Insufficient stock: {}", e.getMessage());
+            String message = _errorMessageService.getMessage(
+                    e.getErrorCode(),
+                    e.getEquipmentName(),
+                    e.getAvailableQuantity(),
+                    e.getRequestedQuantity()
             );
+            redirectAttributes.addFlashAttribute("error", message);
+            redirectAttributes.addFlashAttribute("booking", request);
+            return "redirect:/booking/event/" + request.getEventId();
+
+        } catch (Exception exception) {
+            logger.error("Unexpected error during booking submission", exception);
+            String message = _errorMessageService.getMessage("UNEXPECTED_ERROR");
+            redirectAttributes.addFlashAttribute("error", message);
             redirectAttributes.addFlashAttribute("booking", request);
             return "redirect:/booking/event/" + request.getEventId();
         }
-
     }
 
     @GetMapping("/payment/{id}")
@@ -156,8 +193,16 @@ public class BookingController {
             model.addAttribute("paymentMethod", paymentMethod);
 
             return "booking/payment";
+        } catch (BookingNotFoundException e) {
+            logger.error("Booking not found: {}", id, e);
+            String message = _errorMessageService.getMessage(e.getErrorCode(), e.getBookingId());
+            redirectAttributes.addFlashAttribute("error", message);
+            return "redirect:/events";
+
         } catch (Exception exception) {
-            redirectAttributes.addFlashAttribute("error", "Booking not found");
+            logger.error("Failed to load payment page for booking {}", id, exception);
+            String message = _errorMessageService.getMessage("UNEXPECTED_ERROR");
+            redirectAttributes.addFlashAttribute("error", message);
             return "redirect:/events";
         }
     }
@@ -183,16 +228,38 @@ public class BookingController {
 
             return "redirect:/booking/payment/" + id;
 
+        } catch (BookingNotFoundException e) {
+            logger.error("Booking not found for payment update: {}", id, e);
+            String message = _errorMessageService.getMessage(e.getErrorCode(), e.getBookingId());
+            redirectAttributes.addFlashAttribute("error", message);
+            return "redirect:/events";
+
+        } catch (PaymentOperationException e) {
+            logger.error("Payment operation failed: {}", e.getMessage(), e);
+            String message = _errorMessageService.getMessage(
+                    e.getErrorCode(),
+                    e.getBookingId(),
+                    e.getReason()
+            );
+            redirectAttributes.addFlashAttribute("error", message);
+            return "redirect:/booking/payment/" + id;
+
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid payment method: {}", paymentMethod, e);
+            redirectAttributes.addFlashAttribute("error", "Invalid payment method selected.");
+            return "redirect:/booking/payment/" + id;
+
         } catch (Exception exception) {
-            redirectAttributes.addFlashAttribute("error",
-                    "Payment method update failed: " + exception.getMessage());
+            logger.error("Unexpected error updating payment method for booking {}", id, exception);
+            String message = _errorMessageService.getMessage("UNEXPECTED_ERROR");
+            redirectAttributes.addFlashAttribute("error", message);
             return "redirect:/booking/payment/" + id;
         }
     }
 
     @GetMapping("/confirmation/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String showConfirmationPage(@PathVariable Long id, @RequestParam(required = false) String paymentMethod, Model model) {
+    public String showConfirmationPage(@PathVariable Long id, @RequestParam(required = false) String paymentMethod, Model model, RedirectAttributes redirectAttributes) {
         try {
             Booking booking = _bookEventService.getById(id);
             if (booking.getStatus() == BookingStatus.PAYMENT_FAILED) {
@@ -212,131 +279,18 @@ public class BookingController {
 
             return "booking/confirmation";
 
+        } catch (BookingNotFoundException e) {
+            logger.error("Booking not found for confirmation: {}", id, e);
+            String message = _errorMessageService.getMessage(e.getErrorCode(), e.getBookingId());
+            redirectAttributes.addFlashAttribute("error", message);
+            return "redirect:/events";
+
         } catch (Exception exception) {
-            model.addAttribute("error", "Booking not found");
-            return "error/404";
+            logger.error("Failed to load confirmation page for booking {}", id, exception);
+            String message = _errorMessageService.getMessage("UNEXPECTED_ERROR");
+            redirectAttributes.addFlashAttribute("error", message);
+            return "redirect:/events";
         }
-    }
-
-    private boolean isEventUnavailable(EventDetailDTO event) {
-        if (Boolean.TRUE.equals(event.cancelled())) {
-            return true;
-        }
-
-        if (event.recurring()) {
-            return false;
-        }
-
-        if (event.date() == null || event.startTime() == null) {
-            return false;
-        }
-
-        LocalDateTime eventStart = LocalDateTime.of(event.date(), event.startTime());
-        return eventStart.isBefore(LocalDateTime.now());
-    }
-
-    private String getUnavailabilityMessage(EventDetailDTO event) {
-        if (Boolean.TRUE.equals(event.cancelled())) {
-            return "This event is cancelled and cannot be booked.";
-        }
-        return "This event is expired and cannot be booked.";
-    }
-
-    private String handleValidationErrors(BookingValidationException exception, CreateBookingRequest request, Model model) {
-        Map<String, String> fieldErrors = new HashMap<>();
-        List<String> errorMessages = new ArrayList<>();
-        for (ValidationError error : exception.getErrors()) {
-            String field = error.get_field();
-            String message = error.get_message();
-
-            if (fieldErrors.containsKey(field)) {
-                String existing = fieldErrors.get(field);
-                fieldErrors.put(field, existing + "; " + message);
-            } else {
-                fieldErrors.put(field, message);
-            }
-            errorMessages.add(message);
-        }
-
-        EventDetailDTO event = _eventDetailsService.getEventDetails(request.getEventId());
-        List<EquipmentDTO> availableEquipment = event.equipments();
-
-        model.addAttribute("fieldErrors", fieldErrors);
-        model.addAttribute("errors", errorMessages);
-        model.addAttribute("event", event);
-        model.addAttribute("addons", availableEquipment);
-        model.addAttribute("booking", request);
-        model.addAttribute("isEdit", false);
-        model.addAttribute("bookingId", null);
-
-        return "booking/booking-page";
-    }
-
-    private String handleUnexpectedError(Exception exception, CreateBookingRequest request, Model model) {
-        EventDetailDTO event = _eventDetailsService.getEventDetails(request.getEventId());
-        List<EquipmentDTO> availableEquipment = event.equipments();
-
-        model.addAttribute("error", "An unexpected error occurred. Please try again.");
-        model.addAttribute("event", event);
-        model.addAttribute("addons", availableEquipment);
-        model.addAttribute("booking", request);
-        model.addAttribute("isEdit", false);
-        model.addAttribute("bookingId", null);
-
-        return "booking/booking-page";
-    }
-
-    private String handleEditValidationErrors(Long bookingId,
-                                              BookingValidationException exception,
-                                              CreateBookingRequest request,
-                                              Model model) {
-
-        Map<String, String> fieldErrors = new HashMap<>();
-        List<String> errorMessages = new ArrayList<>();
-        for (ValidationError error : exception.getErrors()) {
-            String field = error.get_field();
-            String message = error.get_message();
-
-            if (fieldErrors.containsKey(field)) {
-                String existing = fieldErrors.get(field);
-                fieldErrors.put(field, existing + "; " + message);
-            } else {
-                fieldErrors.put(field, message);
-            }
-            errorMessages.add(message);
-        }
-
-        EventDetailDTO event = _eventDetailsService.getEventDetails(request.getEventId());
-        List<EquipmentDTO> availableEquipment = event.equipments();
-
-        model.addAttribute("fieldErrors", fieldErrors);
-        model.addAttribute("errors", errorMessages);
-        model.addAttribute("event", event);
-        model.addAttribute("addons", availableEquipment);
-        model.addAttribute("booking", request);
-
-        model.addAttribute("isEdit", true);
-        model.addAttribute("bookingId", bookingId);
-
-        return "booking/booking-page";
-    }
-
-    private String handleEditUnexpectedError(Long bookingId,
-                                             Exception exception,
-                                             CreateBookingRequest request,
-                                             Model model) {
-        EventDetailDTO event = _eventDetailsService.getEventDetails(request.getEventId());
-        List<EquipmentDTO> availableEquipment = event.equipments();
-
-        model.addAttribute("error", "An unexpected error occurred. Please try again.");
-        model.addAttribute("event", event);
-        model.addAttribute("addons", availableEquipment);
-        model.addAttribute("booking", request);
-
-        model.addAttribute("isEdit", true);
-        model.addAttribute("bookingId", bookingId);
-
-        return "booking/booking-page";
     }
 
     @GetMapping("/{id}/edit")
@@ -383,8 +337,22 @@ public class BookingController {
 
             return "booking/booking-page";
 
+        } catch (BookingNotFoundException e) {
+            logger.error("Booking not found: {}", id, e);
+            String message = _errorMessageService.getMessage(e.getErrorCode(), e.getBookingId());
+            redirectAttributes.addFlashAttribute("error", message);
+            return "redirect:/bookings";
+
+        } catch (EventNotFoundException e) {
+            logger.error("Event not found for booking: {}", id, e);
+            String message = _errorMessageService.getMessage(e.getErrorCode(), e.getEventId());
+            redirectAttributes.addFlashAttribute("error", message);
+            return "redirect:/bookings";
+
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Booking not found.");
+            logger.error("Failed to load booking edit form: {}", id, e);
+            String message = _errorMessageService.getMessage("UNEXPECTED_ERROR");
+            redirectAttributes.addFlashAttribute("error", message);
             return "redirect:/bookings";
         }
     }
@@ -424,10 +392,34 @@ public class BookingController {
             return handleEditValidationErrors(id, exception, request, model);
 
         } catch (EventFullyBookedException exception) {
-            redirectAttributes.addFlashAttribute("error", exception.getMessage());
+            logger.warn("Event fully booked during update: {}", exception.getMessage());
+            String message = _errorMessageService.getMessage(
+                    exception.getErrorCode(),
+                    exception.getAvailableSeats(),
+                    exception.getRequestedSeats()
+            );
+            redirectAttributes.addFlashAttribute("error", message);
             return "redirect:/booking/" + id + "/edit";
 
+        } catch (InsufficientStockException e) {
+            logger.warn("Insufficient stock during booking update: {}", e.getMessage());
+            String message = _errorMessageService.getMessage(
+                    e.getErrorCode(),
+                    e.getEquipmentName(),
+                    e.getAvailableQuantity(),
+                    e.getRequestedQuantity()
+            );
+            redirectAttributes.addFlashAttribute("error", message);
+            return "redirect:/booking/" + id + "/edit";
+
+        } catch (BookingNotFoundException e) {
+            logger.error("Booking not found for update: {}", id, e);
+            String message = _errorMessageService.getMessage(e.getErrorCode(), e.getBookingId());
+            redirectAttributes.addFlashAttribute("error", message);
+            return "redirect:/bookings";
+
         } catch (Exception exception) {
+            logger.error("Unexpected error updating booking: {}", id, exception);
             return handleEditUnexpectedError(id, exception, request, model);
         }
     }
@@ -452,15 +444,104 @@ public class BookingController {
                     "Refund email has been sent to the customer."
             );
 
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-        }
+        } catch (BookingNotFoundException e) {
+            logger.error("Booking not found for cancellation: {}", id, e);
+            String message = _errorMessageService.getMessage(e.getErrorCode(), e.getBookingId());
+            redirectAttributes.addFlashAttribute("error", message);
 
-        if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
-            return "redirect:/bookings";
+        } catch (BookingOperationException e) {
+            logger.error("Booking cancellation failed: {}", e.getMessage(), e);
+            String message = _errorMessageService.getMessage(
+                    e.getErrorCode(),
+                    e.getOperation(),
+                    e.getReason()
+            );
+            redirectAttributes.addFlashAttribute("error", message);
+
+        } catch (Exception e) {
+            logger.error("Unexpected error cancelling booking: {}", id, e);
+            String message = _errorMessageService.getMessage("UNEXPECTED_ERROR");
+            redirectAttributes.addFlashAttribute("error", message);
         }
 
         return "redirect:/bookings";
+    }
+
+    private boolean isEventUnavailable(EventDetailDTO event) {
+        if (Boolean.TRUE.equals(event.cancelled())) {
+            return true;
+        }
+
+        if (event.recurring()) {
+            return false;
+        }
+
+        if (event.date() == null || event.startTime() == null) {
+            return false;
+        }
+
+        LocalDateTime eventStart = LocalDateTime.of(event.date(), event.startTime());
+        return eventStart.isBefore(LocalDateTime.now());
+    }
+
+    private String getUnavailabilityMessage(EventDetailDTO event) {
+        if (Boolean.TRUE.equals(event.cancelled())) {
+            return "This event is cancelled and cannot be booked.";
+        }
+        return "This event is expired and cannot be booked.";
+    }
+
+    private String handleEditValidationErrors(Long bookingId,
+                                              BookingValidationException exception,
+                                              CreateBookingRequest request,
+                                              Model model) {
+        Map<String, String> fieldErrors = new HashMap<>();
+        List<String> errorMessages = new ArrayList<>();
+        for (ValidationError error : exception.getErrors()) {
+            String field = error.get_field();
+            String message = error.get_message();
+
+            if (fieldErrors.containsKey(field)) {
+                String existing = fieldErrors.get(field);
+                fieldErrors.put(field, existing + "; " + message);
+            } else {
+                fieldErrors.put(field, message);
+            }
+            errorMessages.add(message);
+        }
+
+        EventDetailDTO event = _eventDetailsService.getEventDetails(request.getEventId());
+        List<EquipmentDTO> availableEquipment = event.equipments();
+
+        model.addAttribute("fieldErrors", fieldErrors);
+        model.addAttribute("errors", errorMessages);
+        model.addAttribute("event", event);
+        model.addAttribute("addons", availableEquipment);
+        model.addAttribute("booking", request);
+
+        model.addAttribute("isEdit", true);
+        model.addAttribute("bookingId", bookingId);
+
+        return "booking/booking-page";
+    }
+
+    private String handleEditUnexpectedError(Long bookingId,
+                                             Exception exception,
+                                             CreateBookingRequest request,
+                                             Model model) {
+        EventDetailDTO event = _eventDetailsService.getEventDetails(request.getEventId());
+        List<EquipmentDTO> availableEquipment = event.equipments();
+
+        String message = _errorMessageService.getMessage("UNEXPECTED_ERROR");
+        model.addAttribute("error", message);
+        model.addAttribute("event", event);
+        model.addAttribute("addons", availableEquipment);
+        model.addAttribute("booking", request);
+
+        model.addAttribute("isEdit", true);
+        model.addAttribute("bookingId", bookingId);
+
+        return "booking/booking-page";
     }
 
 }

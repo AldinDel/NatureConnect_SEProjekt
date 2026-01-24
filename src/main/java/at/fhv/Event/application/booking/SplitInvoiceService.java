@@ -4,6 +4,9 @@ import at.fhv.Event.application.audit.AuditLogService;
 import at.fhv.Event.domain.model.audit.ActionType;
 import at.fhv.Event.domain.model.booking.Booking;
 import at.fhv.Event.domain.model.booking.BookingRepository;
+import at.fhv.Event.domain.model.exception.BookingNotFoundException;
+import at.fhv.Event.domain.model.exception.BookingOperationException;
+import at.fhv.Event.domain.model.exception.InvoiceCreationException;
 import at.fhv.Event.domain.model.exception.PaymentOperationException;
 import at.fhv.Event.domain.model.invoice.Invoice;
 import at.fhv.Event.domain.model.invoice.InvoiceLine;
@@ -44,21 +47,32 @@ public class SplitInvoiceService {
                 bookingId, booking.getTotalPrice(), booking.getPaidAmount(), booking.getPaymentStatus());
 
         if (booking.isFullyPaid()) {
-            throw new PaymentOperationException(bookingId, "PAYMENT_001", "Booking is already fully paid");
+            throw new PaymentOperationException(
+                    bookingId,
+                    "payFiftyPercent",
+                    "Booking is already fully paid"
+            );
         }
 
         double totalPrice = booking.getTotalPrice();
         if (totalPrice <= 0) {
             logger.warn("Booking {} has total price of {}", bookingId, totalPrice);
-            throw new IllegalArgumentException("Booking has no amount to pay (total price is 0 or negative)");
-        }
+            throw new BookingOperationException(
+                    bookingId,
+                    "payFiftyPercent",
+                    "Booking has no amount to pay (total price is 0 or negative)"
+            );}
 
         double halfAmount = totalPrice * 0.5;
         double amountToPay = halfAmount - booking.getPaidAmount();
         logger.debug("Amount to pay (50%) for booking {}: {}", bookingId, amountToPay);
 
         if (amountToPay <= 0) {
-            throw new IllegalStateException("50% or more has already been paid");
+            throw new BookingOperationException(
+                    bookingId,
+                    "payFiftyPercent",
+                    "50% or more has already been paid"
+            );
         }
 
         // Create final invoice entity for 50% payment
@@ -80,7 +94,10 @@ public class SplitInvoiceService {
         logger.info("Invoice {} created for 50% payment of booking {}", savedInvoice.getId(), bookingId);
 
         if (savedInvoice == null || savedInvoice.getId() == null) {
-            throw new RuntimeException("Failed to save invoice");
+            throw new InvoiceCreationException(
+                    bookingId,
+                    "Failed to save invoice for 50% payment"
+            );
         }
 
         // Update booking
@@ -108,16 +125,28 @@ public class SplitInvoiceService {
                 bookingId, booking.getEquipment() != null ? booking.getEquipment().size() : 0);
 
         if (booking.isFullyPaid()) {
-            throw new PaymentOperationException(bookingId, "PAYMENT_001", "Booking is already fully paid");
+            throw new PaymentOperationException(
+                    bookingId,
+                    "paySelectedEquipment",
+                    "Booking is already fully paid"
+            );
         }
 
         if (equipmentIds == null || equipmentIds.isEmpty()) {
-            throw new IllegalArgumentException("No equipment items selected");
+            throw new BookingOperationException(
+                    bookingId,
+                    "paySelectedEquipment",
+                    "No equipment items selected"
+            );
         }
 
         if (booking.getEquipment() == null || booking.getEquipment().isEmpty()) {
             logger.warn("Booking {} has no equipment items", bookingId);
-            throw new IllegalArgumentException("This booking has no equipment items to pay for");
+            throw new BookingOperationException(
+                    bookingId,
+                    "paySelectedEquipment",
+                    "This booking has no equipment items to pay for"
+            );
         }
 
         // Create Invoice lines for selected equipment
@@ -137,7 +166,11 @@ public class SplitInvoiceService {
 
         if (lines.isEmpty()) {
             logger.warn("No matching equipment found for booking {} with IDs: {}", bookingId, equipmentIds);
-            throw new IllegalArgumentException("No valid equipment items found for the selected IDs");
+            throw new BookingOperationException(
+                    bookingId,
+                    "paySelectedEquipment",
+                    "No valid equipment items found for the selected IDs"
+            );
         }
 
         // Create final invoice entity for equipment payment
@@ -172,7 +205,11 @@ public class SplitInvoiceService {
         Booking booking = getBookingForUser(bookingId, userEmail);
 
         if (booking.isFullyPaid()) {
-            throw new PaymentOperationException(bookingId, "PAYMENT_001", "Booking is already fully paid");
+            throw new PaymentOperationException(
+                    bookingId,
+                    "payRemainingAmount",
+                    "Booking is already fully paid"
+            );
         }
 
         double remaining = booking.getRemainingAmount();
@@ -211,10 +248,14 @@ public class SplitInvoiceService {
 
     private Booking getBookingForUser(Long bookingId, String userEmail) {
         Booking booking = bookingRepository.findById(bookingId)
-                .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+                .orElseThrow(() -> new BookingNotFoundException(bookingId));
 
         if (!booking.getBookerEmail().equalsIgnoreCase(userEmail)) {
-            throw new PaymentOperationException(bookingId, "PAYMENT_002", "You can only manage your own bookings");
+            throw new PaymentOperationException(
+                    bookingId,
+                    "authorization",
+                    "You can only manage your own bookings"
+            );
         }
 
         return booking;

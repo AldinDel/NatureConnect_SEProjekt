@@ -24,18 +24,9 @@ public class CustomerProfileService {
         this.avatarService = avatarService;
     }
 
-    public CustomerProfile getProfileByUserId(Long userId) {
-        return customerProfileRepository.findByUserId(userId)
-                .orElseThrow(() -> new IllegalStateException("Customer profile not found"));
-    }
 
     public CustomerProfile updateProfile(CustomerProfile profile) {
         return customerProfileRepository.save(profile);
-    }
-
-    public CustomerProfile getProfileByEmail(String email) {
-        return customerProfileRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalStateException("Customer profile not found"));
     }
 
     public CustomerProfile getOrCreateProfileByEmail(String email) {
