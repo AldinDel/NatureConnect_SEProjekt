@@ -3,6 +3,8 @@ package at.fhv.Event.application.checkin;
 import at.fhv.Event.domain.model.booking.BookingParticipant;
 import at.fhv.Event.domain.model.booking.BookingParticipantRepository;
 import at.fhv.Event.domain.model.booking.ParticipantCheckInStatus;
+import at.fhv.Event.domain.model.exception.ParticipantNotCheckedInException;
+import at.fhv.Event.domain.model.exception.ParticipantNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +20,7 @@ public class CheckInService {
 
     public void checkIn(Long participantId) {
         BookingParticipant p = participantRepository.findById(participantId)
-                .orElseThrow(() -> new RuntimeException("Participant not found"));
+                .orElseThrow(() -> new ParticipantNotFoundException(participantId));
 
         p.setCheckInStatus(ParticipantCheckInStatus.CHECKED_IN);
         participantRepository.save(p);
@@ -26,14 +28,14 @@ public class CheckInService {
 
     public void markNotArrived(Long participantId) {
         BookingParticipant p = participantRepository.findById(participantId)
-                .orElseThrow(() -> new RuntimeException("Participant not found"));
+                .orElseThrow(() -> new ParticipantNotCheckedInException(participantId));
 
         p.setCheckInStatus(ParticipantCheckInStatus.NOT_ARRIVED);
         participantRepository.save(p);
     }
     public void resetStatus(Long participantId) {
         BookingParticipant p = participantRepository.findById(participantId)
-                .orElseThrow(() -> new RuntimeException("Participant not found"));
+                .orElseThrow(() -> new ParticipantNotFoundException(participantId));
 
         p.setCheckInStatus(ParticipantCheckInStatus.REGISTERED);
         participantRepository.save(p);

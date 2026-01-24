@@ -84,7 +84,7 @@
 
             <td class="actions">
                 <a th:href="@{/booking/{id}/edit(id=${dto.id})}"
-                   class="btn-edit action-btn">Edit</a>
+                   class="btn-edit action-btn">View/Edit</a>
 
                 <button class="btn-small btn-cancel action-btn"
                         type="button"
@@ -198,7 +198,7 @@
     }
 </script>
 
-<div th:replace="events/fragments/footer :: footer"></div>
+<div th:replace="~{events/fragments/footer :: footer}"></div>
 <div id="cancelModal" class="cancel-modal hidden">
     <div class="cancel-box">
         <h3>Cancel Booking</h3>
@@ -206,6 +206,7 @@
         <p id="refundInfo" class="refund-text">
             Calculating refund...
         </p>
+        <p><a href="refunds" target="_blank">Here</a> you can found our refund policies. </p>
 
         <p>Are you sure you want to cancel this booking?</p>
 

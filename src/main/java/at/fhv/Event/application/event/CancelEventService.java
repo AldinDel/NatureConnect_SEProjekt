@@ -7,7 +7,7 @@ import at.fhv.Event.domain.model.booking.BookingRepository;
 import at.fhv.Event.domain.model.booking.BookingStatus;
 import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.domain.model.event.EventRepository;
-import at.fhv.Event.domain.model.exception.EventNotFoundException;
+import at.fhv.Event.domain.model.exception.*;
 import at.fhv.Event.domain.model.payment.PaymentStatus;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.core.Authentication;
@@ -35,11 +35,11 @@ public class CancelEventService {
 
     private void validateEvent(Event event) {
         if (event == null) {
-            throw new IllegalStateException("Event not found");
+            throw new EventNotFoundException(null);
         }
 
         if (Boolean.TRUE.equals(event.getCancelled())) {
-            throw new IllegalStateException("Event is already cancelled.");
+            throw new EventAlreadyCancelledException(event.getId());
         }
 
         if (event.getDate() == null || event.getStartTime() == null) {
@@ -61,7 +61,9 @@ public class CancelEventService {
     @CacheEvict(value = "events", key = "#eventId")
     public void cancel(Long eventId, String reason) {
         if (reason == null || reason.isBlank()) {
-            throw new IllegalArgumentException("Cancellation reason must not be empty.");
+            throw new EventValidationException(
+                    List.of(new ValidationError(ValidationErrorType.INVALID_INPUT, "eventId", "id", "Cancellation reason must not be empty"))
+            );
         }
 
         Event event = eventRepository.findById(eventId)

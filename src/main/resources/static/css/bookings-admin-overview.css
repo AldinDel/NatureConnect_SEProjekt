@@ -243,7 +243,7 @@ body.bookings-admin-page {
 
 .admin-booking-table th:nth-child(10),
 .admin-booking-table td:nth-child(10) {
-    width: 14%; /* oder was du willst */
+    width: 22%; /* oder was du willst */
 }
 
 .row-inactive {
@@ -417,4 +417,33 @@ body.bookings-admin-page {
     background: #b91c1c;
 }
 
+.admin-booking-table th:last-child {
+    text-align: left;
+    padding-right: 20px;
+}
+
+
+.admin-booking-table td:last-child {
+    text-align: left;
+    padding-right: 18px;
+    white-space: nowrap;
+}
+
+.admin-booking-table td.actions a,
+.admin-booking-table td.actions button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 10px;
+    line-height: 1;
+}
+
+.actions {
+    display: flex; /* Flex statt inline-flex für bessere Kontrolle */
+    gap: 8px;
+    justify-content: flex-start; /* Richtet Buttons linksbündig innerhalb der Zelle aus */
+    margin-right: 0;
+}
 

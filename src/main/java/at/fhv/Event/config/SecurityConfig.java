@@ -16,6 +16,11 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.RememberMeServices;
 import org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices;
 import org.springframework.security.web.savedrequest.SavedRequest;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import java.util.Arrays;
 
 @Profile("!test")
 @Configuration
@@ -34,13 +39,11 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // Role-based access control:
-        // - ADMIN: Full access to all operations
-        // - FRONT: Frontend staff - can edit events but not create/cancel (see UserPermissionService)
-        // - ORGANIZER: Can create and manage their own events
-        // - CUSTOMER: Can view events and make bookings (no event management)
         http
-                .csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/api/**")
+                )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/uploads/**").permitAll()
                         .requestMatchers("/", "/events", "/events/search", "/events/*", "/register", "/login").permitAll()
@@ -50,15 +53,20 @@ public class SecurityConfig {
                         .requestMatchers("/admin/users/**").hasRole("ADMIN")
                         .requestMatchers("/bookings/all").hasAnyRole("ADMIN", "FRONT", "ORGANIZER")
                         .requestMatchers("/events/new", "/events/backoffice").hasAnyRole("ADMIN", "ORGANIZER")
-                        .requestMatchers("/api/bookings").permitAll()
-                        .requestMatchers("/events/*/edit", "/events/*/cancel").hasAnyRole("ADMIN", "FRONT", "ORGANIZER")
-                        .requestMatchers("/event_management/**").hasAnyRole("ADMIN", "FRONT")
+
+                        .requestMatchers("/api/bookings/**").permitAll()
                         .requestMatchers("/api/webhooks/payment").permitAll()
-                        .requestMatchers("/booking/payment/**").authenticated()
-                        .requestMatchers("/booking/confirmation/**").permitAll()
                         .requestMatchers("/api/hiking/**").permitAll()
                         .requestMatchers("/api/events/*/equipment").permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/api/events", "/api/events/*").permitAll()
+
                         .requestMatchers("/api/events/**").hasAnyRole("ADMIN", "FRONT", "ORGANIZER")
+
+                        .requestMatchers("/events/*/edit", "/events/*/cancel").hasAnyRole("ADMIN", "FRONT", "ORGANIZER")
+                        .requestMatchers("/event_management/**").hasAnyRole("ADMIN", "FRONT")
+                        .requestMatchers("/booking/payment/**").authenticated()
+                        .requestMatchers("/booking/confirmation/**").permitAll()
                         .requestMatchers("/", "/imprint", "/privacy", "/terms", "/about", "/contact", "/refunds", "/payment-methods").permitAll()
 
                         .anyRequest().authenticated()
@@ -66,33 +74,25 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/login")
                         .successHandler((req, res, auth) -> {
-
                             String redirect = req.getParameter("redirect");
-
                             if (redirect != null && !redirect.isBlank()) {
                                 res.sendRedirect(redirect);
                                 return;
                             }
-
                             var saved = (SavedRequest) req.getSession()
                                     .getAttribute("SPRING_SECURITY_SAVED_REQUEST");
-
                             if (saved != null) {
                                 res.sendRedirect(saved.getRedirectUrl());
                                 return;
                             }
-
                             res.sendRedirect("/");
                         })
-
                         .permitAll()
                 )
                 .rememberMe(remember -> remember
                         .rememberMeServices(rememberMeServices())
                         .key(rememberMeSecret)
                 )
-
-
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/login?logout")
@@ -103,21 +103,30 @@ public class SecurityConfig {
     }
 
     @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:6060", "http://localhost:6061", "http://localhost:6062", "http://localhost:6063", "http://localhost:5173"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(false);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/api/**", configuration);
+        return source;
+    }
+
+    @Bean
     public RememberMeServices rememberMeServices() {
         TokenBasedRememberMeServices rememberMeServices =
                 new TokenBasedRememberMeServices(
                         rememberMeSecret,
                         userDetailsService
                 );
-
         rememberMeServices.setTokenValiditySeconds(2592000);
         rememberMeServices.setCookieName("remember-me");
         rememberMeServices.setParameter("remember-me");
-
         return rememberMeServices;
     }
-
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -126,11 +135,8 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(passwordEncoder());
         provider.setUserDetailsService(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder());
         return provider;
     }
-
-
 }

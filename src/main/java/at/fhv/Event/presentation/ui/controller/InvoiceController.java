@@ -1,13 +1,18 @@
 package at.fhv.Event.presentation.ui.controller;
 
+import at.fhv.Event.application.booking.BookingStatusService;
 import at.fhv.Event.application.booking.GetUserBookingsService;
 import at.fhv.Event.application.booking.SplitInvoiceService;
 import at.fhv.Event.application.event.GetEventDetailsService;
+import at.fhv.Event.application.exception.ErrorMessageService;
 import at.fhv.Event.domain.model.booking.Booking;
+import at.fhv.Event.domain.model.exception.BookingNotFoundException;
+import at.fhv.Event.domain.model.exception.InvoiceCreationException;
 import at.fhv.Event.domain.model.invoice.Invoice;
 import at.fhv.Event.domain.model.invoice.InvoiceRepository;
 import at.fhv.Event.domain.model.invoice.InvoiceStatus;
 import at.fhv.Event.presentation.rest.response.booking.BookingWithEventDTO;
+import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
 import at.fhv.Event.presentation.rest.response.invoice.InvoiceWithEventDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,17 +34,23 @@ public class InvoiceController {
     private final GetUserBookingsService userBookingsService;
     private final GetEventDetailsService eventDetailsService;
     private final SplitInvoiceService splitInvoiceService;
+    private final BookingStatusService bookingStatusService;
     private final InvoiceRepository invoiceRepository;
+    private final ErrorMessageService errorMessageService;
 
     public InvoiceController(
             GetUserBookingsService userBookingsService,
             GetEventDetailsService eventDetailsService,
             SplitInvoiceService splitInvoiceService,
-            InvoiceRepository invoiceRepository) {
+            BookingStatusService bookingStatusService,
+            InvoiceRepository invoiceRepository,
+            ErrorMessageService errorMessageService) {
         this.userBookingsService = userBookingsService;
         this.eventDetailsService = eventDetailsService;
         this.splitInvoiceService = splitInvoiceService;
+        this.bookingStatusService = bookingStatusService;
         this.invoiceRepository = invoiceRepository;
+        this.errorMessageService = errorMessageService;
     }
 
     @GetMapping
@@ -96,10 +107,18 @@ public class InvoiceController {
                         return true;
                     })
                     .map(b -> {
-                        logger.debug("Open booking {} - Total: {}, Paid: {}", b.getId(), b.getTotalPrice(), b.getPaidAmount());
+                        EventDetailDTO event = eventDetailsService.getEventDetails(b.getEventId());
+
+                        boolean expired = bookingStatusService.isExpired(event);
+                        boolean inactive = bookingStatusService.isInactive(b, event);
+                        boolean cancelled = bookingStatusService.isCancelled(b, event);
+
                         return new BookingWithEventDTO(
                                 b,
-                                eventDetailsService.getEventDetails(b.getEventId())
+                                event,
+                                expired,
+                                inactive,
+                                cancelled
                         );
                     })
                     .toList();
@@ -110,8 +129,9 @@ public class InvoiceController {
             model.addAttribute("openBookings", openBookingDTOs);
             return "profile/my_invoices";
         } catch (Exception e) {
-            logger.error("Error loading invoices for user {}: {}", principal.getName(), e.getMessage(), e);
-            model.addAttribute("error", "Error loading invoices: " + e.getMessage());
+            logger.error("Error loading invoices for user {}", principal.getName(), e);
+            String message = errorMessageService.getMessage("UNEXPECTED_ERROR");
+            model.addAttribute("error", message);
             model.addAttribute("invoices", List.of());
             model.addAttribute("openBookings", List.of());
             return "profile/my_invoices";
@@ -134,9 +154,24 @@ public class InvoiceController {
             splitInvoiceService.payFiftyPercent(bookingId, principal.getName());
             logger.info("50% payment completed successfully for booking {}", bookingId);
             redirectAttributes.addFlashAttribute("success", "50% paid successfully. New invoice created.");
-        } catch (Exception e) {
+        } catch (BookingNotFoundException e) {
+            logger.error("Booking not found for 50% payment: {}", bookingId, e);
+            String message = errorMessageService.getMessage(e.getErrorCode(), e.getBookingId());
+            redirectAttributes.addFlashAttribute("error", message);
+
+        } catch (InvoiceCreationException e) {
+            logger.error("Invoice creation failed: {}", e.getMessage(), e);
+            String message = errorMessageService.getMessage(e.getErrorCode(), e.getBookingId(), e.getReason());
+            redirectAttributes.addFlashAttribute("error", message);
+
+        } catch (IllegalStateException e) {
             logger.error("50% payment failed for booking {}: {}", bookingId, e.getMessage());
-            redirectAttributes.addFlashAttribute("error", "Error: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+
+        } catch (Exception e) {
+            logger.error("Unexpected error during 50% payment for booking {}", bookingId, e);
+            String message = errorMessageService.getMessage("UNEXPECTED_ERROR");
+            redirectAttributes.addFlashAttribute("error", message);
         }
 
         return "redirect:/profile/invoices";
@@ -166,9 +201,20 @@ public class InvoiceController {
             splitInvoiceService.paySelectedEquipment(bookingId, principal.getName(), equipmentIds);
             logger.info("Equipment payment completed successfully for booking {}", bookingId);
             redirectAttributes.addFlashAttribute("success", "Selected equipment paid successfully. New invoice created.");
+        } catch (BookingNotFoundException e) {
+            logger.error("Booking not found for equipment payment: {}", bookingId, e);
+            String message = errorMessageService.getMessage(e.getErrorCode(), e.getBookingId());
+            redirectAttributes.addFlashAttribute("error", message);
+
+        } catch (InvoiceCreationException e) {
+            logger.error("Invoice creation failed: {}", e.getMessage(), e);
+            String message = errorMessageService.getMessage(e.getErrorCode(), e.getBookingId(), e.getReason());
+            redirectAttributes.addFlashAttribute("error", message);
+
         } catch (Exception e) {
-            logger.error("Equipment payment failed for booking {}: {}", bookingId, e.getMessage());
-            redirectAttributes.addFlashAttribute("error", "Error: " + e.getMessage());
+            logger.error("Unexpected error during equipment payment for booking {}", bookingId, e);
+            String message = errorMessageService.getMessage("UNEXPECTED_ERROR");
+            redirectAttributes.addFlashAttribute("error", message);
         }
 
         return "redirect:/profile/invoices";
@@ -187,10 +233,25 @@ public class InvoiceController {
         try {
             splitInvoiceService.payRemainingAmount(bookingId, principal.getName());
             redirectAttributes.addFlashAttribute("success", "Invoice fully paid!");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", e.getMessage());
-        }
+        } catch (BookingNotFoundException e) {
+            logger.error("Booking not found for remaining payment: {}", bookingId, e);
+            String message = errorMessageService.getMessage(e.getErrorCode(), e.getBookingId());
+            redirectAttributes.addFlashAttribute("error", message);
 
+        } catch (InvoiceCreationException e) {
+            logger.error("Invoice creation failed: {}", e.getMessage(), e);
+            String message = errorMessageService.getMessage(e.getErrorCode(), e.getBookingId(), e.getReason());
+            redirectAttributes.addFlashAttribute("error", message);
+
+        } catch (IllegalStateException e) {
+            logger.error("Remaining payment failed for booking {}: {}", bookingId, e.getMessage());
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+
+        } catch (Exception e) {
+            logger.error("Unexpected error during remaining payment for booking {}", bookingId, e);
+            String message = errorMessageService.getMessage("UNEXPECTED_ERROR");
+            redirectAttributes.addFlashAttribute("error", message);
+        }
         return "redirect:/profile/invoices";
 
     }
@@ -199,28 +260,40 @@ public class InvoiceController {
     public String viewInvoice(
             @RequestParam Long invoiceId,
             Principal principal,
-            Model model) {
+            Model model, RedirectAttributes redirectAttributes) {
 
         if (principal == null) {
             return "redirect:/login";
         }
+        try {
 
-        Invoice invoice = invoiceRepository.findById(invoiceId)
-                .orElseThrow(() -> new IllegalArgumentException("Invoice not found"));
+            Invoice invoice = invoiceRepository.findById(invoiceId)
+                    .orElseThrow(() -> new IllegalArgumentException("Invoice not found"));
 
-        boolean belongsToUser = userBookingsService
-                .getBookingsByUserEmail(principal.getName())
-                .stream()
-                .anyMatch(b -> b.getId().equals(invoice.getBookingId()));
+            boolean belongsToUser = userBookingsService
+                    .getBookingsByUserEmail(principal.getName())
+                    .stream()
+                    .anyMatch(b -> b.getId().equals(invoice.getBookingId()));
 
-        if (!belongsToUser) {
-            throw new AccessDeniedException("Access denied");
+            if (!belongsToUser) {
+                throw new AccessDeniedException("Access denied");
+            }
+
+            model.addAttribute("invoice", invoice);
+            model.addAttribute("canEditInvoice", false);
+
+            return "event_management/invoice_view";
+        } catch (IllegalArgumentException e) {
+            logger.error("Invoice not found: {}", invoiceId, e);
+            redirectAttributes.addFlashAttribute("error", "Invoice not found.");
+            return "redirect:/profile/invoices";
+
+        } catch (Exception e) {
+            logger.error("Error viewing invoice {}", invoiceId, e);
+            String message = errorMessageService.getMessage("UNEXPECTED_ERROR");
+            redirectAttributes.addFlashAttribute("error", message);
+            return "redirect:/profile/invoices";
         }
-
-        model.addAttribute("invoice", invoice);
-        model.addAttribute("canEditInvoice", false);
-
-        return "event_management/invoice_view";
     }
 
 }

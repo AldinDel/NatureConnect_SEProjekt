@@ -76,6 +76,7 @@ class BookEventServiceTest {
                 "Max",
                 "Mustermann",
                 "max@example.com",
+                null,              // bookerAddress
                 2,
                 AudienceType.INDIVIDUAL,
                 BookingStatus.PENDING,
@@ -157,7 +158,7 @@ class BookEventServiceTest {
         );
 
         // fehlermeldung checken (damit klar ist, warums crasht)
-        assertTrue(exception.getMessage().contains("Invalid payment method"));
+        assertTrue(exception.getReason().contains("Invalid payment method"));
 
         // then: save darf nicht aufgerufen werden, weil payment ungültig
         verify(bookingRepository, times(1)).findById(bookingId);

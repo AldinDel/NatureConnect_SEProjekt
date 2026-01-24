@@ -89,7 +89,7 @@
 
         <!-- Nothing left to invoice -->
         <div class="info-box info"
-             th:if="${billingReady && services.isEmpty() && !includeEventPrice}">
+             th:if="${billingReady && !hasOpenServices && !includeEventPrice}">
             All services have already been invoiced.
         </div>
 
@@ -119,7 +119,7 @@
                     <input type="checkbox"
                            class="service-checkbox"
                            name="equipmentIds"
-                           th:value="${service.id}"
+                           th:value="${service.equipmentId}"
                            th:data-price="${service.unitPrice}"/>
 
                     <span class="service-name" th:text="${service.name}"></span>
@@ -148,11 +148,11 @@
         <button class="btn primary"
                 type="submit"
                 id="createInvoiceBtn"
-                th:disabled="${services.isEmpty() && !includeEventPrice}"
-                th:title="${services.isEmpty() && !includeEventPrice
-                   ? 'All services have already been invoiced'
-                   : ''}">
-            Create Interim Invoice
+                th:disabled="${!hasOpenServices && !includeEventPrice}"
+                th:title="${!hasOpenServices && !includeEventPrice
+           ? 'All services have already been invoiced'
+           : ''}">
+        Create Interim Invoice
         </button>
     </form>
 

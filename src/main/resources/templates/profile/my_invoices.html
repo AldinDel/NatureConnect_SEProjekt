@@ -46,7 +46,8 @@
                     <p><strong>Remaining:</strong> <span th:text="${#numbers.formatDecimal(booking.totalPrice - booking.paidAmount,1,2,'COMMA')} + ' €'"></span></p>
 
                     <div style="margin-top: 20px;">
-                        <form th:action="@{'/profile/invoices/' + ${booking.id} + '/split/fifty-percent'}" method="post" style="display: inline-block; margin-right: 10px;">
+
+                        <form th:action="@{/profile/invoices/{id}/split/fifty-percent(id=${booking.id})}" method="post" style="display: inline-block; margin-right: 10px;">
                             <button type="submit" class="primary-btn">Pay 50%</button>
                         </form>
 
@@ -272,7 +273,7 @@
 
 </style>
 
-<div th:replace="events/fragments/footer :: footer"></div>
+<div th:replace="~{events/fragments/footer :: footer}"></div>
 
 </body>
 </html>

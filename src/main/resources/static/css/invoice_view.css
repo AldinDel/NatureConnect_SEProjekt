@@ -187,3 +187,24 @@
     border: 1px solid #c7ddff;
     color: #1e3a8a;
 }
+
+.invoice-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.invoice-download {
+    font-size: 1.4rem;
+    text-decoration: none;
+    color: #0b2545;
+    padding: 0.4rem;
+    border-radius: 6px;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.invoice-download:hover {
+    background: #eef6ff;
+    transform: translateY(-1px);
+}
