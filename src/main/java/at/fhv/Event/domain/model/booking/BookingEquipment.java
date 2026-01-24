@@ -1,6 +1,12 @@
 package at.fhv.Event.domain.model.booking;
 
+import at.fhv.Event.domain.model.exception.BookingValidationException;
+import at.fhv.Event.domain.model.exception.ValidationError;
+import at.fhv.Event.domain.model.exception.ValidationErrorType;
+
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 public class BookingEquipment {
     private Long id;
@@ -15,15 +21,37 @@ public class BookingEquipment {
     }
 
     public BookingEquipment(Long bookingId, Long equipmentId, int quantity, BigDecimal pricePerUnit) {
+        List<ValidationError> errors = new ArrayList<>();
+
         if (equipmentId == null) {
-            throw new IllegalArgumentException("equipmentId must not be null");
+            errors.add(new ValidationError(
+                    ValidationErrorType.INVALID_INPUT,
+                    "equipmentId",
+                    null,
+                    "Equipment ID must not be null"
+            ));
         }
         if (quantity < 1) {
-            throw new IllegalArgumentException("Quantity must be >= 1");
+            errors.add(new ValidationError(
+                    ValidationErrorType.INVALID_INPUT,
+                    "quantity",
+                    quantity,
+                    "Quantity must be at least 1"
+            ));
         }
         if (pricePerUnit.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Unit price must be >= 0");
+            errors.add(new ValidationError(
+                    ValidationErrorType.INVALID_INPUT,
+                    "pricePerUnit",
+                    pricePerUnit,
+                    "Unit price must be greater than or equal to 0"
+            ));
         }
+
+        if (!errors.isEmpty()) {
+            throw new BookingValidationException(errors);
+        }
+
         this.bookingId = bookingId;
         this.equipmentId = equipmentId;
         this.quantity = quantity;

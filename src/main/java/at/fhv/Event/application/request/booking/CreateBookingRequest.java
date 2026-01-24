@@ -15,6 +15,7 @@ public class CreateBookingRequest {
     private String bookerFirstName;
     private String bookerLastName;
     private String bookerEmail;
+    private String bookerAddress;
     private int seats;
     private AudienceType audience;
     private String voucherCode;
@@ -72,6 +73,14 @@ public class CreateBookingRequest {
 
     public void setBookerEmail(String bookerEmail) {
         this.bookerEmail = bookerEmail;
+    }
+
+    public String getBookerAddress() {
+        return bookerAddress;
+    }
+
+    public void setBookerAddress(String bookerAddress) {
+        this.bookerAddress = bookerAddress;
     }
 
     public int getSeats() {

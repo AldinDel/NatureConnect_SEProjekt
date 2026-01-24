@@ -487,16 +487,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         initEquipmentListenersForEdit();
     }
 
-    const fieldErrorsElement = document.getElementById('fieldErrorsData');
-    if (fieldErrorsElement) {
-        try {
-            const fieldErrors = JSON.parse(fieldErrorsElement.textContent);
-            displayFieldErrors(fieldErrors);
-        } catch (e) {
-            console.error('Error parsing field errors:', e);
-        }
+    if (typeof fieldErrors !== "undefined" && fieldErrors !== null) {
+        console.log("Field errors from backend:", fieldErrors);
+        displayFieldErrors(fieldErrors);
     }
-
 
     updatePriceSummary();
 });

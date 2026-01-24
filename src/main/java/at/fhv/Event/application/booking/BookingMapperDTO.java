@@ -6,6 +6,8 @@ import at.fhv.Event.presentation.rest.response.booking.BookingDTO;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Component
 public class BookingMapperDTO {
@@ -20,10 +22,18 @@ public class BookingMapperDTO {
         var event = eventRepository.findById(b.getEventId())
                 .orElseThrow();
 
-        LocalDate eventDate = event.getDate(); // oder getStartDate() je nach Modell
-        LocalDate today = LocalDate.now();
+        LocalDate dateToUse =
+                b.getEventDate() != null
+                        ? b.getEventDate()
+                        : event.getDate();
 
-        boolean expired = !eventDate.isAfter(today);
+        LocalTime endTime = event.getEndTime();
+
+        boolean expired = false;
+        if (dateToUse != null && endTime != null) {
+            LocalDateTime endDateTime = LocalDateTime.of(dateToUse, endTime);
+            expired = endDateTime.isBefore(LocalDateTime.now());
+        }
 
         return new BookingDTO(
                 b.getId(),
@@ -31,6 +41,7 @@ public class BookingMapperDTO {
                 b.getBookerFirstName(),
                 b.getBookerLastName(),
                 b.getBookerEmail(),
+                b.getBookerAddress(),
                 b.getSeats(),
                 b.getTotalPrice(),
                 b.getStatus(),

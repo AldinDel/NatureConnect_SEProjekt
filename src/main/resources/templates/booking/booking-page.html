@@ -11,6 +11,9 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/booking-page.css}">
     <link rel="stylesheet" th:href="@{/css/footer.css}" href="/css/footer.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 </head>
 
 <body>
@@ -33,20 +36,23 @@
         </ul>
     </div>
 
-    <script th:if="${fieldErrors != null}" type="application/json" id="fieldErrorsData" th:inline="text">
-        [
-            [
-                $
-                {
-                    fieldErrors
-                }
-            ]
-        ]
+    <script th:if="${fieldErrors != null}"
+            id="fieldErrorsData"
+            th:inline="javascript">
+        const fieldErrors = /*[[${fieldErrors}]]*/ {};
     </script>
-    <form th:action="${isEdit} ? @{/booking/{id}(id=${bookingId})} : @{/booking}"
+
+
+
+    <form id="bookingForm"
+          th:action="${isEdit} ? @{/booking/{id}(id=${bookingId})} : @{/booking}"
           th:object="${booking}"
           method="post">
 
+        <input type="hidden"
+               th:if="${_csrf != null}"
+               th:name="${_csrf.parameterName}"
+               th:value="${_csrf.token}" />
 
         <input type="hidden" id="isEdit" th:value="${isEdit}"/>
 
@@ -189,6 +195,16 @@
                     <span th:if="${fieldErrors?.containsKey('bookerEmail')}"
                           class="error-text"
                           th:text="${fieldErrors['bookerEmail']}"></span>
+
+                    <label>Booker Adress</label>
+                    <input type="text"
+                           th:field="*{bookerAddress}"
+                           class="form-input"
+                           maxlength="100"
+                           required>
+                    <span th:if="${fieldErrors?.containsKey('bookerAddress')}"
+                          class="error-text"
+                          th:text="${fieldErrors['bookerAddress']}"></span>
                 </div>
 
                 <div class="card">
@@ -216,7 +232,7 @@
                     <h2 class="card-title">Participants</h2>
 
                     <label>Number of Participants</label>
-                    <select class="form-input" th:field="*{seats}" id="numParticipants">
+                    <select class="form-input" th:field="*{seats}" name="seats" id="numParticipants">
                         <option th:each="i : ${#numbers.sequence(1, event.maxParticipants)}"
                                 th:value="${i}"
                                 th:text="${i}">
@@ -343,25 +359,35 @@
 
 
                     <div th:if="${isEdit}">
-                        <button
-                                id="updateBookingBtn"
-                                type="button"
-                                class="btn-primary"
-                                th:text="'Update Booking'"
-                                onclick="document.getElementById('changePayment').value='false'; this.form.submit();">
-                            Update Booking
-                        </button>
+                        <div class="booking-actions">
 
-                        <button
-                                id="updateBookingChangePaymentBtn"
-                                type="button"
-                                class="btn-primary"
-                                sec:authorize="hasRole('ADMIN')"
-                                th:utext="'Update Booking <br> & Payment'"
-                                onclick="document.getElementById('changePayment').value='true'; this.form.submit();">
-                            Update Booking and change payment method
-                        </button>
+                            <button
+                                    type="button"
+                                    class="btn btn-secondary btn-block"
+                                    onclick="window.location.href='/bookings'">
+                                Back to Bookings
+                            </button>
+
+                            <button
+                                    id="updateBookingBtn"
+                                    type="button"
+                                    class="btn btn-primary btn-block"
+                                    onclick="document.getElementById('changePayment').value='false'; this.form.submit();">
+                                Update Booking
+                            </button>
+
+                            <button
+                                    id="updateBookingChangePaymentBtn"
+                                    type="button"
+                                    class="btn btn-primary btn-block"
+                                    sec:authorize="hasRole('ADMIN')"
+                                    onclick="document.getElementById('changePayment').value='true'; this.form.submit();">
+                                Update Booking & Payment
+                            </button>
+
+                        </div>
                     </div>
+
 
                     <p id="errorBox" class="hidden text-red"></p>
                 </div>
@@ -377,7 +403,7 @@
 <script th:src="@{/js/booking-page.js}"></script>
 
 <script th:if="${event.recurring}" th:inline="javascript">
-    const allowedDays = /*[[${event.recurrenceDays}]]*/ [];
+    const allowedDays = /*[[${allowedDays}]]*/ [];
 </script>
 
 <script>
@@ -402,34 +428,40 @@
         }
     });
 
-    document.addEventListener("DOMContentLoaded", () => {
+        document.addEventListener("DOMContentLoaded", () => {
         const dateInput = document.getElementById("eventDateInput");
-        if (!dateInput || typeof allowedDays === "undefined") return;
+        if (!dateInput || !Array.isArray(allowedDays)) return;
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const todayISO = today.toISOString().split("T")[0];
+        if (!dateInput.min || dateInput.min < todayISO) {
+        dateInput.min = todayISO;
+    }
 
         dateInput.addEventListener("change", () => {
-            const chosenDate = new Date(dateInput.value);
-            if (isNaN(chosenDate)) return;
+        if (!dateInput.value) return;
 
-            const weekday = chosenDate
-                .toLocaleDateString("en-US", { weekday: "long" })
-                .toUpperCase();
+        const chosenDate = new Date(dateInput.value + "T00:00:00");
+        const weekday = chosenDate
+        .toLocaleDateString("en-US", { weekday: "long" })
+        .toUpperCase();
 
-            if (!allowedDays.includes(weekday)) {
-                alert(
-                    "This event only takes place on " +
-                    allowedDays.map(d => d.toLowerCase()).join(", ")
-                );
-                dateInput.value = "";
-            }
-        });
+        if (!allowedDays.includes(weekday)) {
+        alert(
+        "This event only takes place on: " +
+        allowedDays.map(d => d.toLowerCase()).join(", ")
+        );
+        dateInput.value = "";
+    }
     });
-
-
+    });
 
 
 </script>
 
-<div th:replace="events/fragments/footer :: footer"></div>
+<div th:replace="~{events/fragments/footer :: footer}"></div>
 
 </body>
 </html>

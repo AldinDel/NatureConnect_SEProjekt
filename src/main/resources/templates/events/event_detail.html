@@ -15,7 +15,7 @@
 <body>
 
 <!-- 1. NAVBAR EINBINDEN (Ersetzt den alten statischen Header) -->
-<div th:replace="events/fragments/navbar :: navbar"></div>
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
 
 <!-- 2. POPUPS (für Erfolgs/Fehlermeldungen) -->
 <div th:if="${success != null}" id="success-popup" class="popup-message" th:text="${success}"></div>
@@ -50,23 +50,19 @@
         </div>
 
         <div class="hero-right">
-            <div class="hero-small-img">
-                <img th:if="${event.imageUrl != null}" th:src="${event.imageUrl}" alt="Secondary Event Image">
-                <img th:unless="${event.imageUrl != null}" th:src="@{/images/default_event.jpg}" alt="Placeholder">
-            </div>
-
             <div class="hero-map">
-                <!-- Beispiel Karte (OpenStreetMap) -->
                 <iframe
-                        th:src="'https://www.openstreetmap.org/export/embed.html?bbox=9.73,47.4,9.75,47.42&layer=mapnik&marker=47.41,9.74'"
-                        width="100%"
-                        height="100%"
+                        id="eventMap"
+                        th:attr="data-location=${event.location}"
+                        src="https://www.openstreetmap.org/export/embed.html?layer=mapnik"
                         frameborder="0"
                         title="Map Location">
                 </iframe>
             </div>
         </div>
     </div>
+
+
 </section>
 
 <main class="page">
@@ -154,6 +150,11 @@
                     </span>
                         </p>
                     </div>
+                </div>
+
+                <div class="detail-item" style="grid-column: 1 / -1;">
+                    <h4>Location</h4>
+                    <p th:text="${event.location != null ? event.location : '—'}">—</p>
                 </div>
 
             </div>
@@ -388,7 +389,8 @@
 <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js" th:if="${isHikingEvent}"></script>
 <script th:src="@{/js/hiking-routes.js}" th:if="${isHikingEvent}"></script>
 
-<div th:replace="events/fragments/footer :: footer"></div>
+<div th:replace="~{events/fragments/footer :: footer}"></div>
+<script src="/js/event-map.js"></script>
 
 </body>
 </html>

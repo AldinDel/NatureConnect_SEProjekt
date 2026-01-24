@@ -23,7 +23,7 @@ public class GetBookingEquipmentForInvoiceService {
         this.equipmentRepository = equipmentRepository;
     }
 
-    public List<Equipment> getEquipmentUsedSoFar(Long bookingId) {
+    public List<Equipment> getNotYetInvoicedEquipment(Long bookingId) {
 
         List<BookingEquipment> bookingEquipments =
                 bookingEquipmentRepository.findNotYetInvoicedByBookingId(bookingId);
@@ -34,6 +34,7 @@ public class GetBookingEquipmentForInvoiceService {
 
             Equipment equipment = equipmentRepository.findById(equipmentId)
                     .orElseThrow(() -> new EquipmentNotFoundException(equipmentId));
+
             result.add(equipment);
         }
         return result;

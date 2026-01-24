@@ -67,7 +67,7 @@ public class BookEventService {
         Event event = loadEvent(request.getEventId());
 
         if (Boolean.TRUE.equals(event.getCancelled())) {
-            throw new IllegalStateException("Cannot book a cancelled event.");
+            throw new EventAlreadyCancelledException(event.getId());
         }
 
         checkEventAvailability(event);
@@ -167,6 +167,7 @@ public class BookEventService {
         booking.setAudience(request.getAudience());
         booking.setBookerFirstName(request.getBookerFirstName());
         booking.setBookerLastName(request.getBookerLastName());
+        booking.setBookerAddress(request.getBookerAddress());
         booking.setBookerEmail(request.getBookerEmail());
         booking.setVoucherCode(request.getVoucherCode());
         booking.setSpecialNotes(request.getSpecialNotes());

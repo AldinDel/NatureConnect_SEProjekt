@@ -12,7 +12,7 @@
 </head>
 <body class="events-page">
 
-<div th:replace="events/fragments/navbar :: navbar"></div>
+<div th:replace="~{events/fragments/navbar :: navbar}"></div>
 
 <div th:if="${success != null}" id="success-popup" class="popup-message" th:text="${success}"></div>
 <div th:if="${error != null}" id="error-popup" class="popup-message error" th:text="${error}"></div>
@@ -154,7 +154,7 @@
 </script>
 
 
-<div th:replace="events/fragments/footer :: footer"></div>
+<div th:replace="~{events/fragments/footer :: footer}"></div>
 
 <div id="cancelModal" class="modal">
     <div class="modal-box">

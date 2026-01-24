@@ -2,7 +2,6 @@ package at.fhv.Event.domain.model.invoice;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Invoice {
@@ -78,19 +77,6 @@ public class Invoice {
             sum = sum.add(line.getTotal());
         }
         this.total = sum;
-    }
-
-    public void addLine(InvoiceLine line) {
-        if (this.status == InvoiceStatus.FINAL) {
-            throw new IllegalStateException("Final invoice cannot be changed");
-        }
-
-        if (this.lines == null) {
-            this.lines = new ArrayList<>();
-        }
-
-        this.lines.add(line);
-        calculateTotal();
     }
 
     public Long getEventId() {

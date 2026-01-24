@@ -23,6 +23,8 @@ public class BookingValidator {
     private static final String EMAIL_REGEX = "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
     private static final int MAX_NAME_LENGTH = 50;
     private static final int MAX_EMAIL_LENGTH = 100;
+    private static final int MAX_ADDRESS_LENGTH = 100;
+    private static final int MIN_ADDRESS_LENGTH = 4;
     private static final int MAX_VOUCHER_LENGTH = 50;
     private static final int MAX_NOTES_LENGTH = 250;
     private static final int MIN_AGE = 1;
@@ -33,6 +35,7 @@ public class BookingValidator {
         List<ValidationError> errors = new ArrayList<>();
         validateBookerName(request, errors);
         validateBookerEmail(request, errors);
+        validateBookerAddress(request, errors);
         validateSeats(request, event, alreadyBookedSeats, errors);
         validateParticipants(request, errors);
         validateSpecialNotes(request, errors);
@@ -66,6 +69,21 @@ public class BookingValidator {
             }
             if (!lastName.matches(NAME_REGEX)) {
                 errors.add(ValidationErrorFactory.invalidFormat("bookerLastName", lastName));
+            }
+        }
+    }
+
+    private void validateBookerAddress(CreateBookingRequest request, List<ValidationError> errors) {
+        String address = request.getBookerAddress();
+
+        if (isBlank(address)) {
+            errors.add(ValidationErrorFactory.required("bookerAddress"));
+        } else {
+            if (address.length() > MAX_ADDRESS_LENGTH) {
+                errors.add(ValidationErrorFactory.tooLong("bookerAddress", address, MAX_ADDRESS_LENGTH));
+            }
+            if (address.length() < MIN_ADDRESS_LENGTH) {
+                errors.add(ValidationErrorFactory.tooShort("bookerAddress", address, MIN_ADDRESS_LENGTH));
             }
         }
     }
@@ -242,6 +260,10 @@ public class BookingValidator {
                 && event.getCategory().toLowerCase().contains("hiking");
 
         if (!isHiking) return;
+
+        if (event.getHikeRouteKeys() == null || event.getHikeRouteKeys().isEmpty()) {
+            return;
+        }
 
         if (isBlank(request.getHikeRouteKey())) {
             errors.add(ValidationErrorFactory.required("hikeRouteKey"));

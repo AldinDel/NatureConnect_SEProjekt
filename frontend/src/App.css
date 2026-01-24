@@ -1,0 +1,32 @@
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main {
+  flex: 1;
+  background-color: #ffffff;
+  padding-top: 70px;
+  min-height: calc(100vh - 70px - 60px);
+}
+
+.app-footer {
+  background-color: #1e3a5f;
+  color: white;
+  padding: 1.5rem 0;
+  text-align: center;
+  margin-top: auto;
+}
+
+.app-footer p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .app-main {
+    padding-top: 70px;
+  }
+}

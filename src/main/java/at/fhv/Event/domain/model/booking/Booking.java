@@ -1,5 +1,6 @@
 package at.fhv.Event.domain.model.booking;
 
+import at.fhv.Event.domain.model.exception.BookingOperationException;
 import at.fhv.Event.domain.model.payment.PaymentMethod;
 import at.fhv.Event.domain.model.payment.PaymentStatus;
 import at.fhv.Event.domain.model.user.CustomerProfile;
@@ -15,6 +16,7 @@ public class Booking {
     private String bookerFirstName;
     private String bookerLastName;
     private String bookerEmail;
+    private String bookerAddress;
     private int seats;
     private AudienceType audience;
     private BookingStatus status;
@@ -42,6 +44,7 @@ public class Booking {
             String bookerFirstName,
             String bookerLastName,
             String bookerEmail,
+            String bookerAddress,
             int seats,
             AudienceType audience,
             BookingStatus status,
@@ -58,6 +61,7 @@ public class Booking {
         this.bookerFirstName = bookerFirstName;
         this.bookerLastName = bookerLastName;
         this.bookerEmail = bookerEmail;
+        this.bookerAddress = bookerAddress;
         this.seats = seats;
         this.audience = audience;
         this.status = status;
@@ -82,7 +86,11 @@ public class Booking {
 
     public void cancel() {
         if (this.status == BookingStatus.CANCELLED) {
-            throw new IllegalStateException("Booking cancelled.");
+            throw new BookingOperationException(
+                    this.id,
+                    "cancel",
+                    "Booking is already cancelled"
+            );
         }
 
         this.status = BookingStatus.CANCELLED;
@@ -99,7 +107,11 @@ public class Booking {
 
     public void addPayment(double amount) {
         if (amount < 0) {
-            throw new IllegalArgumentException("Payment amount cannot be negative.");
+            throw new BookingOperationException(
+                    this.id,
+                    "addPayment",
+                    "Payment amount cannot be negative: " + amount
+            );
         }
         this.paidAmount += amount;
         markAsPaid();
@@ -107,7 +119,11 @@ public class Booking {
 
     public void markAsBillingReady() {
         if (this.status != BookingStatus.CONFIRMED) {
-            throw new IllegalStateException("Only confirmed bookings can be billed");
+            throw new BookingOperationException(
+                    this.id,
+                    "markAsBillingReady",
+                    "Only confirmed bookings can be marked as billing ready. Current status: " + this.status
+            );
         }
         this.billingReady = true;
     }
@@ -164,12 +180,20 @@ public class Booking {
 
     public void makePartialPayment(double amount) {
         if (amount <= 0) {
-            throw new IllegalArgumentException("Payment amount must be positive");
+            throw new BookingOperationException(
+                    this.id,
+                    "makePartialPayment",
+                    "Payment amount must be positive. Provided: " + amount
+            );
         }
 
         double remaining = getRemainingAmount();
         if (amount > remaining) {
-            throw new IllegalArgumentException("Payment amount exceeds remaining balance");
+            throw new BookingOperationException(
+                    this.id,
+                    "makePartialPayment",
+                    "Payment amount (" + amount + ") exceeds remaining balance (" + remaining + ")"
+            );
         }
 
         this.paidAmount += amount;
@@ -186,7 +210,11 @@ public class Booking {
         double remainingToHalf = halfAmount - paidAmount;
 
         if (remainingToHalf <= 0) {
-            throw new IllegalStateException("50% or more has already been paid");
+            throw new BookingOperationException(
+                    this.id,
+                    "payFiftyPercent",
+                    "50% or more has already been paid. Paid: " + paidAmount + ", Total: " + totalPrice
+            );
         }
 
         makePartialPayment(remainingToHalf);
@@ -387,6 +415,11 @@ public class Booking {
         this.eventDate = eventDate;
     }
 
+    public String getBookerAddress() {
+        return bookerAddress;
+    }
 
-
+    public void setBookerAddress(String bookerAddress) {
+        this.bookerAddress = bookerAddress;
+    }
 }

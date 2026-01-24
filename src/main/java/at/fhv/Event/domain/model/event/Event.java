@@ -97,45 +97,6 @@ public class Event {
         this.cancellationReason = reason.trim();
     }
 
-
-
-
-    public void updateDetails(String title, String description, BigDecimal price) {
-        if (title == null || title.trim().isEmpty()) {
-            throw new IllegalArgumentException("Title cannot be null or empty.");
-        }
-
-        if (description == null || description.trim().isEmpty()) {
-            throw new IllegalArgumentException("Description cannot be null or empty.");
-        }
-
-        if (price.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException("Price cannot be negative.");
-        }
-
-        this.title = title.trim();
-        this.description = description.trim();
-        this.price = price;
-    }
-
-    public boolean isBookable(int currentBookedSeats) {
-        if (Boolean.TRUE.equals(this.cancelled)) {
-            return false;
-        }
-
-        if (this.date != null && this.startTime != null) {
-            LocalDateTime eventStart = LocalDateTime.of(this.date, this.startTime);
-            if (eventStart.isBefore(LocalDateTime.now())) {
-                return false;
-            }
-        }
-
-        if (currentBookedSeats >= this.maxParticipants) {
-            return false;
-        }
-        return true;
-    }
-
     public void validateAvailability() {
         if (Boolean.TRUE.equals(this.cancelled)) {
             throw new EventAlreadyCancelledException(this.id);
@@ -151,7 +112,7 @@ public class Event {
 
     public int getAvailableSeats(int currentlyBooked) {
         int min = this.minParticipants != null ? this.minParticipants : 0;
-        int capacity = this.maxParticipants - min;
+        int capacity = this.maxParticipants;
         int remaining = capacity - currentlyBooked;
         return Math.max(0, remaining);
     }
