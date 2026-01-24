@@ -628,6 +628,50 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
+    @ExceptionHandler(ImageUploadException.class)
+    public ResponseEntity<ErrorResponse> handleImageUpload(
+            ImageUploadException exception,
+            WebRequest request) {
+
+        String message = errorMessageService.getMessage(exception.getErrorCode());
+
+        Map<String, Object> details = new HashMap<>();
+        details.put("reason", exception.getReason());
+
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                exception.getErrorCode(),
+                message,
+                extractPath(request),
+                details
+        );
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    @ExceptionHandler(AvatarUploadException.class)
+    public ResponseEntity<ErrorResponse> handleAvatarUpload(
+            AvatarUploadException exception,
+            WebRequest request) {
+
+        String message = errorMessageService.getMessage(exception.getErrorCode());
+
+        Map<String, Object> details = new HashMap<>();
+        details.put("reason", exception.getReason());
+
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                exception.getErrorCode(),
+                message,
+                extractPath(request),
+                details
+        );
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
     @ExceptionHandler(ParticipantNotCheckedInException.class)
     public ResponseEntity<ErrorResponse> handleParticipantNotCheckedIn(
             ParticipantNotCheckedInException exception,

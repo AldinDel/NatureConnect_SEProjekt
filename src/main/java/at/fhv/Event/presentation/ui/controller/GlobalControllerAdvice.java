@@ -27,12 +27,14 @@ public class GlobalControllerAdvice {
 
         String firstName = capitalize(profile.getFirstName());
         String lastName  = capitalize(profile.getLastName());
+        String firstInitial = firstName.isEmpty() ? "?" : firstName.substring(0, 1);
+        String lastInitial = lastName.isEmpty() ? "?" : lastName.substring(0, 1);
 
         model.addAttribute("currentUserName", firstName + " " + lastName);
         model.addAttribute("avatarUrl", profile.getAvatarUrl());
         model.addAttribute(
                 "userInitials",
-                (firstName.substring(0, 1) + lastName.substring(0, 1)).toUpperCase()
+                (firstInitial + lastInitial).toUpperCase()
         );
     }
 

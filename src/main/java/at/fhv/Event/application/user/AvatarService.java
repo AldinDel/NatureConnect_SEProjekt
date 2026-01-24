@@ -1,5 +1,6 @@
 package at.fhv.Event.application.user;
 
+import at.fhv.Event.domain.model.exception.AvatarUploadException;
 import com.cloudinary.Cloudinary;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,7 +27,7 @@ public class AvatarService {
             );
             return result.get("secure_url").toString();
         } catch (Exception e) {
-            throw new IllegalStateException("Avatar upload failed", e);
+            throw new AvatarUploadException("Avatar upload failed");
         }
     }
 
@@ -37,6 +38,8 @@ public class AvatarService {
                     .replace(".png", "");
 
             cloudinary.uploader().destroy(publicId, Map.of());
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            throw new AvatarUploadException("Avatar delete failed");
+        }
     }
 }
