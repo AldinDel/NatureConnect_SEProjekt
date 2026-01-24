@@ -1,6 +1,7 @@
 package at.fhv.Event.presentation.ui.controller;
 
 import at.fhv.Event.application.booking.BookEventService;
+import at.fhv.Event.application.booking.BookingCalendarService;
 import at.fhv.Event.application.booking.BookingPermissionService;
 import at.fhv.Event.application.booking.BookingPrefillService;
 import at.fhv.Event.application.event.GetEventDetailsService;
@@ -41,17 +42,21 @@ public class BookingController {
     private final BookingPermissionService _bookingPermissionService;
     private final BookingPrefillService _bookingPrefillService;
     private final CreateFinalInvoiceService _createFinalInvoiceService;
+    private final BookingCalendarService _bookingCalendarService;
 
     public BookingController(BookEventService bookEventService,
                              GetEventDetailsService eventDetailsService,
                              BookingPermissionService bookingPermissionService,
                              BookingPrefillService bookingPrefillService,
-                             CreateFinalInvoiceService createFinalInvoiceService) {
+                             CreateFinalInvoiceService createFinalInvoiceService,
+                             BookingCalendarService bookingCalendarService) {
         _bookEventService = bookEventService;
         _eventDetailsService = eventDetailsService;
         _bookingPermissionService = bookingPermissionService;
         _bookingPrefillService = bookingPrefillService;
         _createFinalInvoiceService = createFinalInvoiceService;
+        _bookingCalendarService = bookingCalendarService;
+
     }
 
     @GetMapping("/event/{eventId}")
@@ -85,6 +90,7 @@ public class BookingController {
         model.addAttribute("availableSeats", Math.max(0, availableSeats));
         model.addAttribute("isEdit", false);
         model.addAttribute("bookingId", null);
+        model.addAttribute("allowedDays", _bookingCalendarService.resolveAllowedDays(event));
 
         return "booking/booking-page";
     }

@@ -603,6 +603,77 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(response);
     }
 
+    @ExceptionHandler(ParticipantNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleParticipantNotFound(
+            ParticipantNotFoundException exception,
+            WebRequest request) {
+
+        String message = errorMessageService.getMessage(
+                exception.getErrorCode(),
+                exception.getParticipantId()
+        );
+
+        Map<String, Object> details = new HashMap<>();
+        details.put("participantId", exception.getParticipantId());
+
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.NOT_FOUND.value(),
+                exception.getErrorCode(),
+                message,
+                extractPath(request),
+                details
+        );
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+    }
+
+    @ExceptionHandler(ParticipantNotCheckedInException.class)
+    public ResponseEntity<ErrorResponse> handleParticipantNotCheckedIn(
+            ParticipantNotCheckedInException exception,
+            WebRequest request) {
+
+        String message = errorMessageService.getMessage(exception.getErrorCode());
+
+        Map<String, Object> details = new HashMap<>();
+        details.put("participantId", exception.getParticipantId());
+
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.CONFLICT.value(),
+                exception.getErrorCode(),
+                message,
+                extractPath(request),
+                details
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    @ExceptionHandler(ParticipantAlreadyCheckedOutException.class)
+    public ResponseEntity<ErrorResponse> handleParticipantAlreadyCheckedOut(
+            ParticipantAlreadyCheckedOutException exception,
+            WebRequest request) {
+
+        String message = errorMessageService.getMessage(exception.getErrorCode());
+
+        Map<String, Object> details = new HashMap<>();
+        details.put("participantId", exception.getParticipantId());
+
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.CONFLICT.value(),
+                exception.getErrorCode(),
+                message,
+                extractPath(request),
+                details
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgument(
             IllegalArgumentException exception,

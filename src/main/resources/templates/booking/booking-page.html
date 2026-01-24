@@ -11,6 +11,9 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/booking-page.css}">
     <link rel="stylesheet" th:href="@{/css/footer.css}" href="/css/footer.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 </head>
 
 <body>
@@ -400,7 +403,7 @@
 <script th:src="@{/js/booking-page.js}"></script>
 
 <script th:if="${event.recurring}" th:inline="javascript">
-    const allowedDays = /*[[${event.recurrenceDays}]]*/ [];
+    const allowedDays = /*[[${allowedDays}]]*/ [];
 </script>
 
 <script>
@@ -425,29 +428,35 @@
         }
     });
 
-    document.addEventListener("DOMContentLoaded", () => {
+        document.addEventListener("DOMContentLoaded", () => {
         const dateInput = document.getElementById("eventDateInput");
-        if (!dateInput || typeof allowedDays === "undefined") return;
+        if (!dateInput || !Array.isArray(allowedDays)) return;
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const todayISO = today.toISOString().split("T")[0];
+        if (!dateInput.min || dateInput.min < todayISO) {
+        dateInput.min = todayISO;
+    }
 
         dateInput.addEventListener("change", () => {
-            const chosenDate = new Date(dateInput.value);
-            if (isNaN(chosenDate)) return;
+        if (!dateInput.value) return;
 
-            const weekday = chosenDate
-                .toLocaleDateString("en-US", { weekday: "long" })
-                .toUpperCase();
+        const chosenDate = new Date(dateInput.value + "T00:00:00");
+        const weekday = chosenDate
+        .toLocaleDateString("en-US", { weekday: "long" })
+        .toUpperCase();
 
-            if (!allowedDays.includes(weekday)) {
-                alert(
-                    "This event only takes place on " +
-                    allowedDays.map(d => d.toLowerCase()).join(", ")
-                );
-                dateInput.value = "";
-            }
-        });
+        if (!allowedDays.includes(weekday)) {
+        alert(
+        "This event only takes place on: " +
+        allowedDays.map(d => d.toLowerCase()).join(", ")
+        );
+        dateInput.value = "";
+    }
     });
-
-
+    });
 
 
 </script>
