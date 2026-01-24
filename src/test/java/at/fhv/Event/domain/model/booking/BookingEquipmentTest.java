@@ -1,5 +1,6 @@
 package at.fhv.Event.domain.model.booking;
 
+import at.fhv.Event.domain.model.exception.BookingValidationException;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
@@ -33,7 +34,7 @@ class BookingEquipmentTest {
     @Test
     void constructor_shouldThrowException_whenQuantityIsZero() {
         assertThrows(
-                IllegalArgumentException.class,
+                BookingValidationException.class,
                 () -> new BookingEquipment(
                         null,
                         1L,
@@ -46,21 +47,21 @@ class BookingEquipmentTest {
 
     @Test
     void constructor_shouldThrowException_whenQuantityIsNegative() {
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(BookingValidationException.class, () ->
                 new BookingEquipment(null, 1L, -1, BigDecimal.valueOf(10.0))
         );
     }
 
     @Test
     void constructor_shouldThrowException_whenUnitPriceIsNegative() {
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(BookingValidationException.class, () ->
                 new BookingEquipment(null, 1L, 2, BigDecimal.valueOf(-5.0))
         );
     }
 
     @Test
     void constructor_shouldThrowException_whenEquipmentIdIsNull() {
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(BookingValidationException.class, () ->
                 new BookingEquipment(null, null, 2, BigDecimal.valueOf(10.0))
         );
     }

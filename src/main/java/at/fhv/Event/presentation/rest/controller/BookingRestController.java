@@ -34,7 +34,7 @@ public class BookingRestController {
         return ResponseEntity.status(HttpStatus.CREATED).body(booking);
     }
 
-    @GetMapping("/event/{id}")
+    @GetMapping("/{id}")
     public ResponseEntity<BookingDTO> getBookingById(@PathVariable Long id) {
         BookingDTO booking = _bookEventService.getDTOById(id);
         return ResponseEntity.ok(booking);
@@ -50,11 +50,16 @@ public class BookingRestController {
     }
 
     @GetMapping("/{id}/refund-preview")
-    @ResponseBody
     public Map<String, BigDecimal> getRefundPreview(@PathVariable Long id) {
         BigDecimal refund = _bookEventService.getRefundPreview(id);
+
+        if (refund == null) {
+            return Map.of("refund", BigDecimal.ZERO);
+        }
+
         return Map.of("refund", refund);
     }
+
 
 
 

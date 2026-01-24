@@ -1,12 +1,10 @@
 package at.fhv.Event.presentation.ui.controller;
 
 import at.fhv.Event.application.user.CustomerProfileService;
+import at.fhv.Event.domain.model.exception.AvatarUploadException;
 import at.fhv.Event.domain.model.user.CustomerProfile;
-import at.fhv.Event.domain.model.user.UserAccount;
 import at.fhv.Event.presentation.ui.dto.ProfileForm;
 import at.fhv.Event.presentation.ui.mapper.ProfileFormMapper;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -65,17 +63,21 @@ public class ProfileController {
 
     @PostMapping("/avatar")
     public String uploadAvatar(@RequestParam("avatar") MultipartFile file) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        try {
+            String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        CustomerProfile profile =
-                customerProfileService.getOrCreateProfileByEmail(email);
+            CustomerProfile profile =
+                    customerProfileService.getOrCreateProfileByEmail(email);
 
-        if (!file.isEmpty()) {
-            customerProfileService.updateAvatar(profile, file);
-            customerProfileService.updateProfile(profile);
+            if (!file.isEmpty()) {
+                customerProfileService.updateAvatar(profile, file);
+                customerProfileService.updateProfile(profile);
+            }
+
+            return "redirect:/profile";
+        } catch (Exception e) {
+            throw new AvatarUploadException(e.getMessage());
         }
-
-        return "redirect:/profile";
     }
 
     @PostMapping("/avatar/remove")

@@ -8,6 +8,7 @@ import at.fhv.Event.domain.model.booking.BookingStatus;
 import at.fhv.Event.domain.model.equipment.EquipmentSelection;
 import at.fhv.Event.domain.model.exception.BookingValidationException;
 import at.fhv.Event.domain.model.exception.EventFullyBookedException;
+import at.fhv.Event.domain.model.payment.PaymentMethod;
 import at.fhv.Event.infrastructure.persistence.booking.BookingEntity;
 import at.fhv.Event.infrastructure.persistence.booking.BookingJpaRepository;
 import at.fhv.Event.infrastructure.persistence.equipment.EquipmentEntity;
@@ -110,6 +111,8 @@ public class BookingIntegrationTest {
         request.setSeats(2);
         request.setAudience(AudienceType.INDIVIDUAL);
         request.setSpecialNotes("Integration test booking");
+        request.setPaymentMethod(PaymentMethod.ON_SITE);
+        request.setParticipants(List.of());
 
         EquipmentSelection selection = new EquipmentSelection();
         selection.setSelected(true);
@@ -252,6 +255,7 @@ public class BookingIntegrationTest {
         initialBooking.setStatus(BookingStatus.PAID);
         initialBooking.setCreatedAt(java.time.Instant.now());
         initialBooking.setPaymentStatus(at.fhv.Event.domain.model.payment.PaymentStatus.PAID);
+        initialBooking.setPaymentMethod(at.fhv.Event.domain.model.payment.PaymentMethod.CREDIT_CARD);
 
         bookingJpaRepository.save(initialBooking);
 
