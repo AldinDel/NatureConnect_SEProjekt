@@ -18,4 +18,8 @@ public class BookingStatusService {
     public boolean isInactive(Booking booking, EventDetailDTO event) {
         return booking.isCancelled() || isExpired(event);
     }
+
+    public boolean isCancelled(Booking booking, EventDetailDTO event) {
+        return booking.isCancelled();
+    }
 }

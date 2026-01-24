@@ -41,7 +41,7 @@ public class FeedbackController {
 
     @PostMapping("/feedback")
     public String saveFeedback(
-            @RequestParam Integer rating,
+            @RequestParam(required = false) Integer rating,
             @RequestParam(required = false) String comment,
             @RequestParam Long eventId,
             @RequestParam Long participantId,

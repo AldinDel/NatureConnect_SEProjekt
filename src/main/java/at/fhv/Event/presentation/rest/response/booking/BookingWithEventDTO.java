@@ -17,12 +17,14 @@ public class BookingWithEventDTO {
 
     private final boolean expired;
     private final boolean inactive;
+    private final boolean cancelled;
 
     public BookingWithEventDTO(
             Booking booking,
             EventDetailDTO event,
             boolean expired,
-            boolean inactive
+            boolean inactive,
+            boolean cancelled
     ) {
         this.id = booking.getId();
         this.seats = booking.getSeats();
@@ -33,7 +35,13 @@ public class BookingWithEventDTO {
         this.event = event;
         this.expired = expired;
         this.inactive = inactive;
+        this.cancelled = cancelled;
     }
+
+    public Boolean getCancelled() {
+        return cancelled;
+    }
+
 
     public boolean isExpired() {
         return expired;

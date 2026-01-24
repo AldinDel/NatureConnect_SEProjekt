@@ -107,12 +107,14 @@ public class UserBookingController {
 
                         boolean expired = bookingStatusService.isExpired(event);
                         boolean inactive = bookingStatusService.isInactive(b, event);
+                        boolean cancelled = bookingStatusService.isCancelled(b, event);
 
                         return new BookingWithEventDTO(
                                 b,
                                 event,
                                 expired,
-                                inactive
+                                inactive,
+                                cancelled
                         );
                     })
                     .toList();
