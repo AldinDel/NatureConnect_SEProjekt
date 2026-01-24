@@ -208,7 +208,6 @@ public class BookingController {
     }
 
     @PostMapping("/payment/{id}")
-    @PreAuthorize("isAuthenticated()")
     public String updatePaymentMethodFromUI(@PathVariable Long id, @RequestParam("paymentMethod") String paymentMethod, RedirectAttributes redirectAttributes) {
         try {
             logger.info("Updating payment method for booking {} to {}", id, paymentMethod);
