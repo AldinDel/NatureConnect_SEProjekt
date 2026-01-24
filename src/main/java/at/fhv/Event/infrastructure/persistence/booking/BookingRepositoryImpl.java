@@ -15,7 +15,6 @@ import at.fhv.Event.infrastructure.persistence.event.EventJpaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -60,53 +59,18 @@ public class BookingRepositoryImpl implements BookingRepository {
         return mapper.toDomain(jpa.save(entity));
     }
 
-
-    // ---------------- EXPIRATION LOGIC ----------------
-
-    private void syncExpiredIfNeeded(Booking booking) {
-        try {
-            Event event = loadEventForBooking(booking.getEventId());
-            if (event == null) return;
-
-            if (event.getDate() == null) return; // wichtig!
-
-            boolean eventInPast = event.getDate().isBefore(LocalDate.now());
-
-            if (eventInPast &&
-                    booking.getStatus() != BookingStatus.CANCELLED &&
-                    booking.getStatus() != BookingStatus.EXPIRED) {
-
-                jpa.updateStatus(booking.getId(), BookingStatus.EXPIRED);
-                booking.setStatus(BookingStatus.EXPIRED);
-            }
-
-        } catch (Exception ex) {
-            // verhindert komplette /bookings 500 error
-            System.err.println("Expired sync skipped for booking " + booking.getId() + ": " + ex);
-        }
-    }
-
-
-
-    private Booking withExpirationSync(Booking booking) {
-        syncExpiredIfNeeded(booking);
-        return booking;
-    }
-
     // ---------------- FIND METHODS ----------------
 
     @Override
     public Optional<Booking> findById(Long id) {
         return jpa.findByIdWithDetails(id)
-                .map(mapper::toDomain)
-                .map(this::withExpirationSync);
+                .map(mapper::toDomain);
     }
 
     @Override
     public List<Booking> findAll() {
         return jpa.findAllWithDetails().stream()
                 .map(mapper::toDomain)
-                .map(this::withExpirationSync)
                 .toList();
     }
 
@@ -115,7 +79,6 @@ public class BookingRepositoryImpl implements BookingRepository {
         return jpa.findByEventIdWithDetails(eventId)
                 .stream()
                 .map(mapper::toDomain)
-                .map(this::withExpirationSync)
                 .toList();
     }
 
@@ -123,7 +86,6 @@ public class BookingRepositoryImpl implements BookingRepository {
     public List<Booking> findByCustomerEmail(String email) {
         return jpa.findByBookerEmail(email).stream()
                 .map(mapper::toDomain)
-                .map(this::withExpirationSync)
                 .toList();
     }
 

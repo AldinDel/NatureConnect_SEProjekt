@@ -33,20 +33,23 @@
         </ul>
     </div>
 
-    <script th:if="${fieldErrors != null}" type="application/json" id="fieldErrorsData" th:inline="text">
-        [
-            [
-                $
-                {
-                    fieldErrors
-                }
-            ]
-        ]
+    <script th:if="${fieldErrors != null}"
+            id="fieldErrorsData"
+            th:inline="javascript">
+        const fieldErrors = /*[[${fieldErrors}]]*/ {};
     </script>
-    <form th:action="${isEdit} ? @{/booking/{id}(id=${bookingId})} : @{/booking}"
+
+
+
+    <form id="bookingForm"
+          th:action="${isEdit} ? @{/booking/{id}(id=${bookingId})} : @{/booking}"
           th:object="${booking}"
           method="post">
 
+        <input type="hidden"
+               th:if="${_csrf != null}"
+               th:name="${_csrf.parameterName}"
+               th:value="${_csrf.token}" />
 
         <input type="hidden" id="isEdit" th:value="${isEdit}"/>
 
@@ -226,7 +229,7 @@
                     <h2 class="card-title">Participants</h2>
 
                     <label>Number of Participants</label>
-                    <select class="form-input" th:field="*{seats}" id="numParticipants">
+                    <select class="form-input" th:field="*{seats}" name="seats" id="numParticipants">
                         <option th:each="i : ${#numbers.sequence(1, event.maxParticipants)}"
                                 th:value="${i}"
                                 th:text="${i}">

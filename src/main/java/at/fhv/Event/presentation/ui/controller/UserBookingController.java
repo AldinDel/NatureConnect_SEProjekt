@@ -1,5 +1,6 @@
 package at.fhv.Event.presentation.ui.controller;
 
+import at.fhv.Event.application.booking.BookingStatusService;
 import at.fhv.Event.application.booking.GetAllBookingsService;
 import at.fhv.Event.application.booking.GetUserBookingsService;
 import at.fhv.Event.application.event.GetEventDetailsService;
@@ -25,12 +26,14 @@ public class UserBookingController {
     private final GetUserBookingsService userBookingsService;
     private final GetEventDetailsService eventDetailsService;
     private final GetAllBookingsService getAllBookingsService;
+    private final BookingStatusService bookingStatusService;
 
 
-    public UserBookingController(GetUserBookingsService userBookingsService,GetEventDetailsService eventDetailsService,GetAllBookingsService getAllBookingsService) {
+    public UserBookingController(GetUserBookingsService userBookingsService,GetEventDetailsService eventDetailsService,GetAllBookingsService getAllBookingsService, BookingStatusService bookingStatusService ) {
         this.userBookingsService = userBookingsService;
         this.eventDetailsService = eventDetailsService;
         this.getAllBookingsService = getAllBookingsService;
+        this.bookingStatusService = bookingStatusService;
     }
 
     @GetMapping("/bookings")
@@ -61,12 +64,18 @@ public class UserBookingController {
 
             bookings.forEach(b -> {
                 var event = eventsById.get(b.getEventId());
-                if (event != null) {
+                if (event != null && event.date() != null && event.startTime() != null) {
+
                     LocalDateTime eventStart = LocalDateTime.of(event.date(), event.startTime());
+
                     boolean editable = !Boolean.TRUE.equals(event.cancelled())
                             && !eventStart.isBefore(LocalDateTime.now());
+
                     b.setEditable(editable);
+                } else {
+                    b.setEditable(false);
                 }
+
             });
 
             model.addAttribute("bookings", bookings);
@@ -84,10 +93,19 @@ public class UserBookingController {
                 .collect(Collectors.toMap(EventDetailDTO::id, e -> e));
 
         List<BookingWithEventDTO> bookingDTOs = userBookings.stream()
-                .map(b -> new BookingWithEventDTO(
-                        b,
-                        userEventsById.get(b.getEventId())
-                ))
+                .map(b -> {
+                    EventDetailDTO event = userEventsById.get(b.getEventId());
+
+                    boolean expired = bookingStatusService.isExpired(event);
+                    boolean inactive = bookingStatusService.isInactive(b, event);
+
+                    return new BookingWithEventDTO(
+                            b,
+                            event,
+                            expired,
+                            inactive
+                    );
+                })
                 .toList();
 
         model.addAttribute("bookings", bookingDTOs);
@@ -128,6 +146,8 @@ public class UserBookingController {
                 boolean editable = !Boolean.TRUE.equals(event.cancelled())
                         && !eventStart.isBefore(LocalDateTime.now());
                 b.setEditable(editable);
+            } else {
+                b.setEditable(false);
             }
         });
 

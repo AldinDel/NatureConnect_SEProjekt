@@ -1,13 +1,16 @@
 package at.fhv.Event.presentation.ui.controller;
 
+import at.fhv.Event.application.booking.BookingStatusService;
 import at.fhv.Event.application.booking.GetUserBookingsService;
 import at.fhv.Event.application.booking.SplitInvoiceService;
 import at.fhv.Event.application.event.GetEventDetailsService;
 import at.fhv.Event.domain.model.booking.Booking;
+import at.fhv.Event.domain.model.booking.BookingRepository;
 import at.fhv.Event.domain.model.invoice.Invoice;
 import at.fhv.Event.domain.model.invoice.InvoiceRepository;
 import at.fhv.Event.domain.model.invoice.InvoiceStatus;
 import at.fhv.Event.presentation.rest.response.booking.BookingWithEventDTO;
+import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
 import at.fhv.Event.presentation.rest.response.invoice.InvoiceWithEventDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,16 +32,19 @@ public class InvoiceController {
     private final GetUserBookingsService userBookingsService;
     private final GetEventDetailsService eventDetailsService;
     private final SplitInvoiceService splitInvoiceService;
+    private final BookingStatusService bookingStatusService;
     private final InvoiceRepository invoiceRepository;
 
     public InvoiceController(
             GetUserBookingsService userBookingsService,
             GetEventDetailsService eventDetailsService,
             SplitInvoiceService splitInvoiceService,
+            BookingStatusService bookingStatusService,
             InvoiceRepository invoiceRepository) {
         this.userBookingsService = userBookingsService;
         this.eventDetailsService = eventDetailsService;
         this.splitInvoiceService = splitInvoiceService;
+        this.bookingStatusService = bookingStatusService;
         this.invoiceRepository = invoiceRepository;
     }
 
@@ -96,10 +102,16 @@ public class InvoiceController {
                         return true;
                     })
                     .map(b -> {
-                        logger.debug("Open booking {} - Total: {}, Paid: {}", b.getId(), b.getTotalPrice(), b.getPaidAmount());
+                        EventDetailDTO event = eventDetailsService.getEventDetails(b.getEventId());
+
+                        boolean expired = bookingStatusService.isExpired(event);
+                        boolean inactive = bookingStatusService.isInactive(b, event);
+
                         return new BookingWithEventDTO(
                                 b,
-                                eventDetailsService.getEventDetails(b.getEventId())
+                                event,
+                                expired,
+                                inactive
                         );
                     })
                     .toList();

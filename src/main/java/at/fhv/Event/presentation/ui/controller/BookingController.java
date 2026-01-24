@@ -12,7 +12,6 @@ import at.fhv.Event.domain.model.booking.BookingStatus;
 import at.fhv.Event.domain.model.exception.BookingValidationException;
 import at.fhv.Event.domain.model.exception.EventFullyBookedException;
 import at.fhv.Event.domain.model.exception.ValidationError;
-import at.fhv.Event.domain.model.payment.PaymentMethod;
 import at.fhv.Event.presentation.rest.response.booking.BookingDTO;
 import at.fhv.Event.presentation.rest.response.equipment.EquipmentDTO;
 import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;

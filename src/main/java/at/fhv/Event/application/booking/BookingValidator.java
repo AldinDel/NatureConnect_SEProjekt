@@ -261,6 +261,10 @@ public class BookingValidator {
 
         if (!isHiking) return;
 
+        if (event.getHikeRouteKeys() == null || event.getHikeRouteKeys().isEmpty()) {
+            return;
+        }
+
         if (isBlank(request.getHikeRouteKey())) {
             errors.add(ValidationErrorFactory.required("hikeRouteKey"));
         }
