@@ -16,6 +16,7 @@ const BookingPage = () => {
     bookerFirstName: '',
     bookerLastName: '',
     bookerEmail: '',
+    bookerAddress: '',
     seats: 1,
     audience: 'INDIVIDUAL',
     voucherCode: '',
@@ -313,6 +314,19 @@ const BookingPage = () => {
                   maxLength="100"
                   required
                 />
+
+
+              <label>Address</label>
+              <input
+                  type="text"
+                  className="form-input"
+                  name="bookerAddress"
+                  value={formData.bookerAddress}
+                  onChange={handleChange}
+                  placeholder="Street, City, Postal Code"
+                  maxLength="200"
+                  required
+              />
               </div>
 
               {/* Audience Type */}
