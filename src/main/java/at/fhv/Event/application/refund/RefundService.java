@@ -35,8 +35,9 @@ public class RefundService {
     }
 
     public BigDecimal calculateRefund(Booking booking, Event event) {
+
         if (event.getDate() == null || event.getStartTime() == null) {
-            return BigDecimal.ZERO;
+            return BigDecimal.valueOf(booking.getTotalPrice());
         }
 
         LocalDateTime eventStart = LocalDateTime.of(event.getDate(), event.getStartTime());
@@ -51,13 +52,13 @@ public class RefundService {
             refund = price;
         }
         else if (daysUntilEvent >= 14) {
-            refund = price.multiply(BigDecimal.valueOf(0.75));
+            refund = price.multiply(new BigDecimal("0.75"));
         }
         else if (daysUntilEvent >= 3) {
-            refund = price.multiply(BigDecimal.valueOf(0.30));
+            refund = price.multiply(new BigDecimal("0.30"));
         }
         else {
-            refund = BigDecimal.ZERO; // 0%
+            refund = BigDecimal.ZERO;
         }
 
         return refund.setScale(2, RoundingMode.HALF_UP);
