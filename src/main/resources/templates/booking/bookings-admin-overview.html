@@ -8,6 +8,9 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/bookings-admin-overview.css}">
     <link rel="stylesheet" th:href="@{/css/footer.css}">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <meta name="_csrf_parameter" th:content="${_csrf.parameterName}"/>
 </head>
 
 <body class="bookings-admin-page">
@@ -263,6 +266,18 @@
         const form = document.createElement("form");
         form.method = "POST";
         form.action = `/booking/${selectedBookingId}/cancel`;
+
+        const csrfToken = document.querySelector('meta[name="_csrf"]');
+        const csrfParam = document.querySelector('meta[name="_csrf_parameter"]');
+
+        if (csrfToken && csrfParam) {
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = csrfParam.content;
+            input.value = csrfToken.content;
+            form.appendChild(input);
+        }
+
         document.body.appendChild(form);
         form.submit();
     }

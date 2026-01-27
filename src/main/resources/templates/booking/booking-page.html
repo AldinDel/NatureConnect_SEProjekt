@@ -460,6 +460,208 @@
 
 
 </script>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("bookingForm");
+        function showFieldError(input, message) {
+            input.classList.add('input-error');
+
+            let errorSpan = input.nextElementSibling;
+
+            while (errorSpan && !errorSpan.classList.contains('error-text')) {
+                errorSpan = errorSpan.nextElementSibling;
+            }
+
+            if (!errorSpan || !errorSpan.classList.contains('error-text')) {
+                errorSpan = document.createElement('span');
+                errorSpan.className = 'error-text';
+                input.insertAdjacentElement('afterend', errorSpan);
+            }
+
+            errorSpan.textContent = message;
+            errorSpan.style.display = 'block';
+        }
+
+        function clearFieldError(input) {
+            input.classList.remove('input-error');
+
+            let errorSpan = input.nextElementSibling;
+            while (errorSpan && !errorSpan.classList.contains('error-text')) {
+                errorSpan = errorSpan.nextElementSibling;
+            }
+
+            if (errorSpan && errorSpan.classList.contains('error-text')) {
+                errorSpan.textContent = '';
+                errorSpan.style.display = 'none';
+            }
+        }
+
+        function validateNameField(field) {
+            const value = field.value.trim();
+            const namePattern = /^[a-zA-ZäöüÄÖÜß\s'-]+$/;
+
+            if (!value) {
+                showFieldError(field, 'This field is required');
+                return false;
+            }
+
+            if (!namePattern.test(value)) {
+                showFieldError(field, 'Only letters, spaces, hyphens and apostrophes are allowed');
+                return false;
+            }
+
+            if (value.length < 2) {
+                showFieldError(field, 'Must be at least 2 characters long');
+                return false;
+            }
+
+            clearFieldError(field);
+            return true;
+        }
+
+        function validateEmailField(field) {
+            const value = field.value.trim();
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!value) {
+                showFieldError(field, 'Email is required');
+                return false;
+            }
+
+            if (!emailPattern.test(value)) {
+                showFieldError(field, 'Please enter a valid email address');
+                return false;
+            }
+
+            clearFieldError(field);
+            return true;
+        }
+
+        function validateAddressField(field) {
+            const value = field.value.trim();
+
+            if (!value) {
+                showFieldError(field, 'Address is required');
+                return false;
+            }
+
+            if (value.length < 5) {
+                showFieldError(field, 'Address must be at least 5 characters long');
+                return false;
+            }
+
+            clearFieldError(field);
+            return true;
+        }
+
+        const firstNameField = document.querySelector('input[name="bookerFirstName"]');
+        if (firstNameField) {
+            firstNameField.addEventListener('blur', () => validateNameField(firstNameField));
+            firstNameField.addEventListener('input', () => {
+                if (firstNameField.classList.contains('input-error')) {
+                    validateNameField(firstNameField);
+                }
+            });
+        }
+
+        const lastNameField = document.querySelector('input[name="bookerLastName"]');
+        if (lastNameField) {
+            lastNameField.addEventListener('blur', () => validateNameField(lastNameField));
+            lastNameField.addEventListener('input', () => {
+                if (lastNameField.classList.contains('input-error')) {
+                    validateNameField(lastNameField);
+                }
+            });
+        }
+
+        const emailField = document.querySelector('input[name="bookerEmail"]');
+        if (emailField) {
+            emailField.addEventListener('blur', () => validateEmailField(emailField));
+            emailField.addEventListener('input', () => {
+                if (emailField.classList.contains('input-error')) {
+                    validateEmailField(emailField);
+                }
+            });
+        }
+
+        const addressField = document.querySelector('input[name="bookerAddress"]');
+        if (addressField) {
+            addressField.addEventListener('blur', () => validateAddressField(addressField));
+            addressField.addEventListener('input', () => {
+                if (addressField.classList.contains('input-error')) {
+                    validateAddressField(addressField);
+                }
+            });
+        }
+
+        form.addEventListener('submit', (e) => {
+            let isValid = true;
+
+            if (firstNameField && !validateNameField(firstNameField)) {
+                isValid = false;
+            }
+
+            if (lastNameField && !validateNameField(lastNameField)) {
+                isValid = false;
+            }
+
+            if (emailField && !validateEmailField(emailField)) {
+                isValid = false;
+            }
+
+            if (addressField && !validateAddressField(addressField)) {
+                isValid = false;
+            }
+
+            if (!isValid) {
+                e.preventDefault();
+
+                const firstError = document.querySelector('.input-error');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstError.focus();
+                }
+
+                const errorPop = document.getElementById('errorPop');
+                if (errorPop) {
+                    errorPop.innerHTML = `
+                    <div style="background-color: #fee2e2; border: 1px solid #ef4444;
+                                border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+                        <h3 style="color: #dc2626; margin-top: 0; font-size: 18px;">
+                            Please fix the errors in the form
+                        </h3>
+                    </div>
+                `;
+                    errorPop.scrollIntoView({ behavior: 'smooth' });
+
+                    setTimeout(() => {
+                        errorPop.style.transition = 'opacity 0.6s ease';
+                        errorPop.style.opacity = '0';
+                        setTimeout(() => errorPop.innerHTML = '', 600);
+                    }, 5000);
+                }
+            }
+        });
+
+        if (typeof fieldErrors !== 'undefined' && fieldErrors) {
+            Object.keys(fieldErrors).forEach(fieldName => {
+                const input = document.querySelector(`input[name="${fieldName}"]`);
+                if (input) {
+                    input.classList.add('input-error');
+                    // Backend-Fehler sind bereits im HTML als span vorhanden
+                }
+            });
+
+            // Scrolle zum ersten Fehler
+            setTimeout(() => {
+                const firstError = document.querySelector('.input-error');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100);
+        }
+    });
+</script>
 
 <div th:replace="~{events/fragments/footer :: footer}"></div>
 

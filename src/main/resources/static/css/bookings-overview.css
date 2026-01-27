@@ -198,8 +198,9 @@ body.bookings-page {
 
 .btn-secondary {
     background: #d63333;
+    color: white;
     border: none;
-    padding: 8px 14px;
+    padding: 10px 14px;
     border-radius: 8px;
     cursor: pointer;
 }
@@ -212,7 +213,7 @@ body.bookings-page {
     background: #0b2545;
     color: white;
     border: none;
-    padding: 8px 14px;
+    padding: 10px 14px;
     border-radius: 8px;
     cursor: pointer;
 }
