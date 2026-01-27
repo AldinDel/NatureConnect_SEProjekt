@@ -515,6 +515,3 @@ body > .hero-box {
     grid-template-columns: repeat(2, 1fr);
     gap: 24px;
 }
-.hero-map iframe {
-    pointer-events: none;
-}
