@@ -12,6 +12,7 @@ const BookingForm = ({ event, onClose }) => {
     bookerFirstName: '',
     bookerLastName: '',
     bookerEmail: '',
+    bookerAddress: '',
     seats: 1,
     audience: 'INDIVIDUAL',
     voucherCode: '',
@@ -120,6 +121,18 @@ const BookingForm = ({ event, onClose }) => {
                     name="bookerEmail"
                     value={formData.bookerEmail}
                     onChange={handleChange}
+                    required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Address *</label>
+                <input
+                    type="text"
+                    name="bookerAddress"
+                    value={formData.bookerAddress}
+                    onChange={handleChange}
+                    placeholder="Street, City, Postal Code"
                     required
                 />
               </div>

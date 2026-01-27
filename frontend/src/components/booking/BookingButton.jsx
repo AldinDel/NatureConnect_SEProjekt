@@ -35,6 +35,7 @@ const BookingButton = ({ event }) => {
         bookerFirstName: formData.bookerFirstName,
         bookerLastName: formData.bookerLastName,
         bookerEmail: formData.bookerEmail,
+        bookerAddress: formData.bookerAddress,
         seats: formData.seats,
         audience: event.audience || 'ADULTS',
         specialNotes: formData.specialNotes,
@@ -51,6 +52,7 @@ const BookingButton = ({ event }) => {
           bookerFirstName: '',
           bookerLastName: '',
           bookerEmail: '',
+          bookerAddress: '',
           seats: 1,
           specialNotes: ''
         });
@@ -156,6 +158,20 @@ const BookingButton = ({ event }) => {
                     value={formData.bookerEmail}
                     onChange={handleInputChange}
                     required
+                  />
+                </div>
+
+                {/* In deiner BookingForm.jsx (React) */}
+
+                <div className="form-group">
+                  <label>Address *</label>
+                  <input
+                      type="text"
+                      name="bookerAddress"
+                      value={formData.bookerAddress}
+                      onChange={handleInputChange}
+                      placeholder="Street, City, Zip"
+                      required
                   />
                 </div>
 

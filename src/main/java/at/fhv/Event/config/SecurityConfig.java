@@ -42,7 +42,7 @@ public class SecurityConfig {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf
-                        .ignoringRequestMatchers("/api/**")
+                        .ignoringRequestMatchers("/api/**", "/booking/payment/**")
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/css/**", "/js/**", "/images/**", "/uploads/**").permitAll()
@@ -65,7 +65,7 @@ public class SecurityConfig {
 
                         .requestMatchers("/events/*/edit", "/events/*/cancel").hasAnyRole("ADMIN", "FRONT", "ORGANIZER")
                         .requestMatchers("/event_management/**").hasAnyRole("ADMIN", "FRONT")
-                        .requestMatchers("/booking/payment/**").authenticated()
+                        .requestMatchers("/booking/payment/**").permitAll()
                         .requestMatchers("/booking/confirmation/**").permitAll()
                         .requestMatchers("/", "/imprint", "/privacy", "/terms", "/about", "/contact", "/refunds", "/payment-methods").permitAll()
 
