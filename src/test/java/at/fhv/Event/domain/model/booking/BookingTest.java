@@ -1,5 +1,6 @@
 package at.fhv.Event.domain.model.booking;
 
+import at.fhv.Event.domain.model.exception.BookingOperationException;
 import at.fhv.Event.domain.model.payment.PaymentMethod;
 import at.fhv.Event.domain.model.payment.PaymentStatus;
 import at.fhv.Event.domain.model.user.CustomerProfile;
@@ -55,6 +56,7 @@ class BookingTest {
                 "Max",
                 "Mustermann",
                 "max@example.com",
+                null,              // bookerAddress
                 1,
                 AudienceType.INDIVIDUAL,
                 BookingStatus.PENDING,
@@ -199,7 +201,7 @@ class BookingTest {
                 0.0
         );
 
-        assertThrows(IllegalStateException.class, booking::markAsBillingReady);
+        assertThrows(BookingOperationException.class, booking::markAsBillingReady);
     }
 
     @Test
@@ -245,7 +247,7 @@ class BookingTest {
                 0.0
         );
 
-        assertThrows(IllegalArgumentException.class, () -> booking.addPayment(-1.0));
+        assertThrows(BookingOperationException.class, () -> booking.addPayment(-1.0));
     }
 
     @Test
@@ -329,7 +331,7 @@ class BookingTest {
 
         booking.cancel();
 
-        assertThrows(IllegalStateException.class, booking::cancel);
+        assertThrows(BookingOperationException.class, booking::cancel);
     }
 
     @Test
@@ -380,7 +382,7 @@ class BookingTest {
         booking.recalculateTotal(); // total = 25
         booking.addPayment(10.0);   // remaining = 15
 
-        assertThrows(IllegalArgumentException.class, () -> booking.makePartialPayment(20.0));
+        assertThrows(BookingOperationException.class, () -> booking.makePartialPayment(20.0));
     }
 
     @Test

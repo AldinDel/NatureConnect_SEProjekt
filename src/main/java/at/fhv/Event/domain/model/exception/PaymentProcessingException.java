@@ -7,7 +7,7 @@ public class PaymentProcessingException extends DomainException {
 
 
     public PaymentProcessingException(Long bookingId, String paymentMethod, String reason) {
-        super("PAYMENT_001", reason);
+        super("PAYMENT_001");
         _bookingId = bookingId;
         _paymentMethod = paymentMethod;
         _reason = reason;

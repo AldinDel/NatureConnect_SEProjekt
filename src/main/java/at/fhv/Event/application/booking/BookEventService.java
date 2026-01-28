@@ -67,7 +67,7 @@ public class BookEventService {
         Event event = loadEvent(request.getEventId());
 
         if (Boolean.TRUE.equals(event.getCancelled())) {
-            throw new IllegalStateException("Cannot book a cancelled event.");
+            throw new EventAlreadyCancelledException(event.getId());
         }
 
         checkEventAvailability(event);

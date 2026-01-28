@@ -2,12 +2,18 @@ package at.fhv.Event.presentation.ui.controller;
 
 import at.fhv.Event.application.equipment.GetAllEquipmentService;
 import at.fhv.Event.application.event.*;
+import at.fhv.Event.application.exception.ErrorMessageService;
 import at.fhv.Event.application.request.event.CreateEventRequest;
 import at.fhv.Event.application.request.event.EventEquipmentUpdateRequest;
 import at.fhv.Event.application.request.event.UpdateEventRequest;
 import at.fhv.Event.application.user.UserPermissionService;
+import at.fhv.Event.domain.model.exception.EventNotFoundException;
+import at.fhv.Event.domain.model.exception.EventValidationException;
+import at.fhv.Event.domain.model.exception.ImageUploadException;
 import at.fhv.Event.presentation.rest.response.event.EventDetailDTO;
 import at.fhv.Event.presentation.rest.response.event.EventOverviewDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -27,6 +33,8 @@ import java.util.List;
 @Controller
 @RequestMapping("/events")
 public class EventController {
+    private static final Logger logger = LoggerFactory.getLogger(EventController.class);
+
     private final CreateEventService createService;
     private final UpdateEventService updateService;
     private final GetEventDetailsService detailsService;
@@ -36,6 +44,7 @@ public class EventController {
     private final UserPermissionService userPermissionService;
     private final EventAccessService accessService;
     private final CloudinaryService cloudinaryService;
+    private final ErrorMessageService errorMessageService;
 
 
     public EventController(CreateEventService createService,
@@ -44,9 +53,10 @@ public class EventController {
                            FilterEventService filterService,
                            GetAllEquipmentService equipmentService,
                            CancelEventService cancelService,
-                           UserPermissionService  userPermissionService,
+                           UserPermissionService userPermissionService,
                            EventAccessService accessService,
-                           CloudinaryService cloudinaryService) {
+                           CloudinaryService cloudinaryService,
+                           ErrorMessageService errorMessageService) {
 
         this.createService = createService;
         this.updateService = updateService;
@@ -57,6 +67,7 @@ public class EventController {
         this.userPermissionService = userPermissionService;
         this.accessService = accessService;
         this.cloudinaryService = cloudinaryService;
+        this.errorMessageService = errorMessageService;
     }
 
     @GetMapping("/new")
@@ -79,33 +90,64 @@ public class EventController {
     public String create(@ModelAttribute("event") CreateEventRequest req,
                          @RequestParam("photo") MultipartFile photo,
                          RedirectAttributes redirect,
-                         Authentication auth) {
-        if (req.getDate() != null && req.getDate().isBefore(LocalDate.now())) {
-            redirect.addFlashAttribute("error", "Event date cannot be in the past.");
-            return "redirect:/events/new";
+                         Authentication auth, Model model) {
+        try {
+            if (req.getDate() != null && req.getDate().isBefore(LocalDate.now())) {
+                redirect.addFlashAttribute("error", "Event date cannot be in the past.");
+                return "redirect:/events/new";
+            }
+
+            if (auth != null && !auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))
+                    && auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ORGANIZER"))) {
+                userPermissionService.getUserFullName(auth).ifPresent(req::setOrganizer);
+            }
+
+            String imageUrl = cloudinaryService.uploadImage(photo);
+
+            if (imageUrl == null && photo != null && !photo.isEmpty()) {
+                // Upload wurde versucht, aber ist fehlgeschlagen
+                redirect.addFlashAttribute("error", "Image upload failed.");
+                return "redirect:/events/new";
+            }
+
+            if (imageUrl != null) {
+                req.setImageUrl(imageUrl);
+            }
+
+            createService.createEvent(req);
+            redirect.addFlashAttribute("success", "Event created successfully!");
+            return "redirect:/events";
+
+        } catch (ImageUploadException e) {
+            logger.error("Image upload failed during event creation", e);
+            String message = errorMessageService.getMessage(e.getErrorCode());
+            model.addAttribute("error", message);
+            model.addAttribute("event", req);
+            model.addAttribute("equipments", equipmentService.getAll());
+            model.addAttribute("eventEquipments", req.getEquipments());
+            model.addAttribute("isEdit", false);
+            return "events/create_event";
+
+        } catch (EventValidationException e) {
+            logger.error("Event validation failed", e);
+            String message = errorMessageService.getMessage(e.getErrorCode());
+            model.addAttribute("error", message);
+            model.addAttribute("event", req);
+            model.addAttribute("equipments", equipmentService.getAll());
+            model.addAttribute("eventEquipments", req.getEquipments());
+            model.addAttribute("isEdit", false);
+            return "events/create_event";
+
+        } catch (Exception e) {
+            logger.error("Failed to create event", e);
+            String message = errorMessageService.getMessage("UNEXPECTED_ERROR");
+            model.addAttribute("error", message);
+            model.addAttribute("event", req);
+            model.addAttribute("equipments", equipmentService.getAll());
+            model.addAttribute("eventEquipments", req.getEquipments());
+            model.addAttribute("isEdit", false);
+            return "events/create_event";
         }
-
-        if (auth != null && !auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ADMIN"))
-                && auth.getAuthorities().contains(new SimpleGrantedAuthority("ROLE_ORGANIZER"))) {
-            userPermissionService.getUserFullName(auth).ifPresent(req::setOrganizer);
-        }
-
-        String imageUrl = cloudinaryService.uploadImage(photo);
-
-        if (imageUrl == null && photo != null && !photo.isEmpty()) {
-            // Upload wurde versucht, aber ist fehlgeschlagen
-            redirect.addFlashAttribute("error", "Image upload failed.");
-            return "redirect:/events/new";
-        }
-
-        if (imageUrl != null) {
-            req.setImageUrl(imageUrl);
-        }
-
-        createService.createEvent(req);
-        redirect.addFlashAttribute("success", "Event created successfully!");
-        return "redirect:/events";
-
     }
 
     @GetMapping("/{id}/edit")
@@ -114,29 +156,42 @@ public class EventController {
                                Model model,
                                RedirectAttributes redirect,
                                Authentication auth) {
-        EventDetailDTO detail = detailsService.getEventDetails(id);
-        if (!userPermissionService.canEdit(auth, detail)) {
-            redirect.addFlashAttribute("error", "You are not allowed to edit this event.");
-            return "redirect:/events/" + id;
+        try {
+            EventDetailDTO detail = detailsService.getEventDetails(id);
+            if (!userPermissionService.canEdit(auth, detail)) {
+                redirect.addFlashAttribute("error", "You are not allowed to edit this event.");
+                return "redirect:/events/" + id;
+            }
+
+            if (Boolean.TRUE.equals(detail.cancelled())) {
+                redirect.addFlashAttribute("error", "Event is already cancelled, you can't edit it anymore.");
+                return "redirect:/events/" + id;
+            }
+
+            if (accessService.isEventExpired(detail)) {
+                redirect.addFlashAttribute("error", "Event is already expired, you can't edit it anymore.");
+                return "redirect:/events/" + id;
+            }
+
+            UpdateEventRequest req = buildUpdateRequest(detail);
+            model.addAttribute("event", req);
+            model.addAttribute("eventEquipments", req.getEquipments());
+            model.addAttribute("isEdit", true);
+            model.addAttribute("id", id);
+
+            return "events/create_event";
+        } catch (EventNotFoundException e) {
+            logger.error("Event not found for editing: {}", id, e);
+            String message = errorMessageService.getMessage(e.getErrorCode(), e.getEventId());
+            redirect.addFlashAttribute("error", message);
+            return "redirect:/events";
+
+        } catch (Exception e) {
+            logger.error("Failed to load event for editing: {}", id, e);
+            String message = errorMessageService.getMessage("UNEXPECTED_ERROR");
+            redirect.addFlashAttribute("error", message);
+            return "redirect:/events";
         }
-
-        if (Boolean.TRUE.equals(detail.cancelled())) {
-            redirect.addFlashAttribute("error", "Event is already cancelled, you can't edit it anymore.");
-            return "redirect:/events/" + id;
-        }
-
-        if (accessService.isEventExpired(detail)) {
-            redirect.addFlashAttribute("error", "Event is already expired, you can't edit it anymore.");
-            return "redirect:/events/" + id;
-        }
-
-        UpdateEventRequest req = buildUpdateRequest(detail);
-        model.addAttribute("event", req);
-        model.addAttribute("eventEquipments", req.getEquipments());
-        model.addAttribute("isEdit", true);
-        model.addAttribute("id", id);
-
-        return "events/create_event";
     }
 
     @PostMapping("/{id}")
@@ -145,44 +200,88 @@ public class EventController {
                          @ModelAttribute("event") UpdateEventRequest req,
                          @RequestParam(value = "photo", required = false) MultipartFile photo,
                          RedirectAttributes redirect,
-                         Authentication auth) {
+                         Authentication auth, Model model) {
 
-        if (!req.isRecurring()
-                && req.getDate() != null
-                && req.getDate().isBefore(LocalDate.now())) {
+        try {
+            if (!req.isRecurring()
+                    && req.getDate() != null
+                    && req.getDate().isBefore(LocalDate.now())) {
 
-            redirect.addFlashAttribute("error", "Event date cannot be in the past.");
-            return "redirect:/events/" + id + "/edit";
-        }
-
-        if (photo != null && !photo.isEmpty()) {
-            String imageUrl = cloudinaryService.uploadImage(photo);
-
-            if (imageUrl == null) {
-                redirect.addFlashAttribute("error", "Image upload failed.");
+                redirect.addFlashAttribute("error", "Event date cannot be in the past.");
                 return "redirect:/events/" + id + "/edit";
             }
 
-            req.setImageUrl(imageUrl);
+            if (photo != null && !photo.isEmpty()) {
+                String imageUrl = cloudinaryService.uploadImage(photo);
 
+                if (imageUrl == null) {
+                    redirect.addFlashAttribute("error", "Image upload failed.");
+                    return "redirect:/events/" + id + "/edit";
+                }
+
+                req.setImageUrl(imageUrl);
+
+            }
+
+            updateService.updateEvent(id, req);
+            redirect.addFlashAttribute("success", "Event updated successfully!");
+            return "redirect:/events";
+        } catch (EventNotFoundException e) {
+            logger.error("Event not found for update: {}", id, e);
+            String message = errorMessageService.getMessage(e.getErrorCode(), e.getEventId());
+            redirect.addFlashAttribute("error", message);
+            return "redirect:/events";
+
+        } catch (ImageUploadException e) {
+            logger.error("Image upload failed during event update", e);
+            String message = errorMessageService.getMessage(e.getErrorCode());
+            model.addAttribute("error", message);
+            model.addAttribute("event", req);
+            model.addAttribute("eventEquipments", req.getEquipments());
+            model.addAttribute("isEdit", true);
+            model.addAttribute("id", id);
+            return "events/create_event";
+
+        } catch (EventValidationException e) {
+            logger.error("Event validation failed during update", e);
+            String message = errorMessageService.getMessage(e.getErrorCode());
+            model.addAttribute("error", message);
+            model.addAttribute("event", req);
+            model.addAttribute("eventEquipments", req.getEquipments());
+            model.addAttribute("isEdit", true);
+            model.addAttribute("id", id);
+            return "events/create_event";
+
+        } catch (Exception e) {
+            logger.error("Failed to update event {}", id, e);
+            String message = errorMessageService.getMessage("UNEXPECTED_ERROR");
+            model.addAttribute("error", message);
+            model.addAttribute("event", req);
+            model.addAttribute("eventEquipments", req.getEquipments());
+            model.addAttribute("isEdit", true);
+            model.addAttribute("id", id);
+            return "events/create_event";
         }
-
-        updateService.updateEvent(id, req);
-        redirect.addFlashAttribute("success", "Event updated successfully!");
-        return "redirect:/events";
 
     }
 
     @GetMapping
-    public String list(Model model, Authentication auth) {
-        List<EventOverviewDTO> events = filterService.filter(
-                null, null, null, null, null, null, null, null, null
-        );
+    public String list(Model model, Authentication auth, RedirectAttributes redirectAttributes) {
+        try {
+            List<EventOverviewDTO> events = filterService.filter(
+                    null, null, null, null, null, null, null, null, null
+            );
 
-        events = accessService.filterVisibleEvents(events, auth);
-        addUserContextToModel(model, auth);
-        model.addAttribute("events", events);
-        return "events/list";
+            events = accessService.filterVisibleEvents(events, auth);
+            addUserContextToModel(model, auth);
+            model.addAttribute("events", events);
+            return "events/list";
+        } catch (Exception e) {
+            logger.error("Failed to load events list", e);
+            String message = errorMessageService.getMessage("UNEXPECTED_ERROR");
+            redirectAttributes.addFlashAttribute("error", message);
+            return "redirect:/";
+        }
     }
 
     @GetMapping("/search")
@@ -198,29 +297,37 @@ public class EventController {
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) String source,
             Model model,
-            Authentication auth
+            Authentication auth, RedirectAttributes redirectAttributes
     ) {
+        try {
+            List<EventOverviewDTO> events;
+            if ("home".equals(source) && startDate != null && endDate == null) {
+                events = filterService.filterExactDate(startDate, sort);
+            } else {
+                events = filterService.filter(q, category, location, difficulty, minPrice, maxPrice, startDate, endDate, sort);
+            }
 
-        List<EventOverviewDTO> events;
-        if ("home".equals(source) && startDate != null && endDate == null) {
-            events = filterService.filterExactDate(startDate, sort);
-        } else {
-            events = filterService.filter(q, category, location, difficulty, minPrice, maxPrice, startDate, endDate, sort);
+            events = accessService.filterVisibleEvents(events, auth);
+
+            addUserContextToModel(model, auth);
+            model.addAttribute("events", events);
+            model.addAttribute("param", createSearchParams(q, category, location, difficulty, minPrice, maxPrice, startDate, endDate));
+            model.addAttribute("sort", sort);
+            model.addAttribute("now", LocalDate.now());
+            return "events/list";
+        } catch (Exception e) {
+            logger.error("Failed to search events", e);
+            String message = errorMessageService.getMessage("UNEXPECTED_ERROR");
+            redirectAttributes.addFlashAttribute("error", message);
+            return "redirect:/events";
         }
-
-        events = accessService.filterVisibleEvents(events, auth);
-
-        addUserContextToModel(model, auth);
-        model.addAttribute("events", events);
-        model.addAttribute("param", createSearchParams(q, category, location, difficulty, minPrice, maxPrice, startDate, endDate));
-        model.addAttribute("sort", sort);
-        model.addAttribute("now", LocalDate.now());
-        return "events/list";
     }
 
     @GetMapping("/{id}")
     public String details(@PathVariable("id") Long id, Model model, RedirectAttributes redirect, Authentication auth) {
-        EventDetailDTO event = detailsService.getEventDetails(id);
+        try {
+            EventDetailDTO event = detailsService.getEventDetails(id);
+
         model.addAttribute("event", event);
         model.addAttribute("canEdit", userPermissionService.canEdit(auth, event));
         model.addAttribute("canCancel", userPermissionService.canCancel(auth, event));
@@ -234,7 +341,20 @@ public class EventController {
         model.addAttribute("isHikingEvent", isHiking);
 
         return "events/event_detail";
+    } catch (EventNotFoundException e) {
+        logger.error("Event not found: {}", id, e);
+        String message = errorMessageService.getMessage(e.getErrorCode(), e.getEventId());
+        redirect.addFlashAttribute("error", message);
+        return "redirect:/events";
+
+    } catch (Exception e) {
+        logger.error("Failed to load event details: {}", id, e);
+        String message = errorMessageService.getMessage("UNEXPECTED_ERROR");
+        redirect.addFlashAttribute("error", message);
+        return "redirect:/events";
     }
+    }
+
     @PostMapping("/{id}/cancel")
     @PreAuthorize("hasAnyRole('ADMIN', 'ORGANIZER')")
     public String cancelEvent(@PathVariable("id") Long id,
@@ -242,28 +362,35 @@ public class EventController {
                               RedirectAttributes redirect,
                               Authentication auth) {
 
-        EventDetailDTO detail = detailsService.getEventDetails(id);
-
-        if (!userPermissionService.canCancel(auth, detail)) {
-            redirect.addFlashAttribute("error", "You are not allowed to cancel this event.");
-            return "redirect:/events/" + id;
-        }
-
-        if (Boolean.TRUE.equals(detail.cancelled())) {
-            redirect.addFlashAttribute("error", "Event is already cancelled.");
-            return "redirect:/events/" + id;
-        }
-
-        if (accessService.isEventExpired(detail)) {
-            redirect.addFlashAttribute("error", "Expired events cannot be cancelled.");
-            return "redirect:/events/" + id;
-        }
-
         try {
+            EventDetailDTO detail = detailsService.getEventDetails(id);
+
+            if (!userPermissionService.canCancel(auth, detail)) {
+                redirect.addFlashAttribute("error", "You are not allowed to cancel this event.");
+                return "redirect:/events/" + id;
+            }
+
+            if (Boolean.TRUE.equals(detail.cancelled())) {
+                redirect.addFlashAttribute("error", "Event is already cancelled.");
+                return "redirect:/events/" + id;
+            }
+
+            if (accessService.isEventExpired(detail)) {
+                redirect.addFlashAttribute("error", "Expired events cannot be cancelled.");
+                return "redirect:/events/" + id;
+            }
             cancelService.cancel(id, reason);
-            redirect.addFlashAttribute("success", "Event cancelled successfully!");
+            String message = errorMessageService.getMessage("EVENT_CANCELLED_SUCCESS");
+            redirect.addFlashAttribute("success", message);
+        } catch (EventNotFoundException e) {
+            logger.error("Event not found for cancellation: {}", id, e);
+            String message = errorMessageService.getMessage(e.getErrorCode(), e.getEventId());
+            redirect.addFlashAttribute("error", message);
+
         } catch (Exception e) {
-            redirect.addFlashAttribute("error", e.getMessage());
+            logger.error("Failed to cancel event: {}", id, e);
+            String message = errorMessageService.getMessage("UNEXPECTED_ERROR");
+            redirect.addFlashAttribute("error", message);
         }
 
         return "redirect:/events/" + id;

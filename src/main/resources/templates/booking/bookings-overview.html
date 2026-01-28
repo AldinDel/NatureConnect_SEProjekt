@@ -6,6 +6,9 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/bookings-overview.css}">
     <link rel="stylesheet" th:href="@{/css/footer.css}" href="/css/footer.css">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <meta name="_csrf_parameter" th:content="${_csrf.parameterName}"/>
 </head>
 
 <body class="bookings-page">
@@ -84,7 +87,7 @@
 
             <td class="actions">
                 <a th:href="@{/booking/{id}/edit(id=${dto.id})}"
-                   class="btn-edit action-btn">Edit</a>
+                   class="btn-edit action-btn">View/Edit</a>
 
                 <button class="btn-small btn-cancel action-btn"
                         type="button"
@@ -193,12 +196,24 @@
         form.method = "POST";
         form.action = `/booking/${selectedBookingId}/cancel`;
 
+        const csrfToken = document.querySelector('meta[name="_csrf"]');
+        const csrfParam = document.querySelector('meta[name="_csrf_parameter"]');
+
+        if (csrfToken && csrfParam) {
+            const input = document.createElement("input");
+            input.type = "hidden";
+            input.name = csrfParam.content;
+            input.value = csrfToken.content;
+            form.appendChild(input);
+        }
+
         document.body.appendChild(form);
         form.submit();
     }
+
 </script>
 
-<div th:replace="events/fragments/footer :: footer"></div>
+<div th:replace="~{events/fragments/footer :: footer}"></div>
 <div id="cancelModal" class="cancel-modal hidden">
     <div class="cancel-box">
         <h3>Cancel Booking</h3>
@@ -206,12 +221,13 @@
         <p id="refundInfo" class="refund-text">
             Calculating refund...
         </p>
+        <p><a href="refunds" target="_blank">Here</a> you can find our refund policies. </p>
 
         <p>Are you sure you want to cancel this booking?</p>
 
         <div class="modal-actions">
+            <button onclick="confirmCancel()" class="btn-danger">Yes</button>
             <button onclick="closeCancelDialog()" class="btn-secondary">No</button>
-            <button onclick="confirmCancel()" class="btn-danger">Yes, cancel</button>
         </div>
     </div>
 </div>

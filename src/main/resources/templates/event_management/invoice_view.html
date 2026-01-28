@@ -6,6 +6,8 @@
     <link rel="stylesheet" th:href="@{/css/navbar.css}">
     <link rel="stylesheet" th:href="@{/css/style.css}">
     <link rel="stylesheet" th:href="@{/css/invoice_view.css}">
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 
 <body class="invoice_view">
@@ -14,7 +16,15 @@
 
 <div class="invoice-view-container">
 
-    <h1 th:text="'Invoice #' + ${invoice.id}"></h1>
+    <div class="invoice-header">
+        <h1 th:text="'Invoice #' + ${invoice.id}"></h1>
+
+        <a th:href="@{/invoices/{id}/download(id=${invoice.id})}"
+           class="invoice-download"
+           title="Download invoice">
+            <i class="fa-solid fa-download"></i>
+        </a>
+    </div>
 
     <div class="invoice-meta">
         <p>
