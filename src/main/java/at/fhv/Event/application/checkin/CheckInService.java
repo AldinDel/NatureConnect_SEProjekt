@@ -21,6 +21,7 @@ import at.fhv.Event.domain.model.exception.ParticipantNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -183,7 +184,8 @@ public class CheckInService {
                         new IllegalArgumentException("Participant not found: " + participantId)
                 );
 
-        participant.setCheckInStatus(ParticipantCheckInStatus.CHECKED_OUT);
+        participant.setCheckOutStatus(ParticipantCheckOutStatus.CHECKED_OUT);
+        participant.setCheckOutTime(LocalDateTime.now());
         participantRepository.save(participant);
     }
 

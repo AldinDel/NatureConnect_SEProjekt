@@ -96,21 +96,27 @@
             </td>
 
             <td th:data-participant-id="${p.participantId}">
-            <button th:if="${!p.checkedOut}"
-                        class="btn success checkout-btn">
+
+                <!-- noch nicht ausgecheckt -->
+                <button th:if="${!p.checkedOut}" class="btn success checkout-btn">
                     Check out
                 </button>
 
-                <a th:if="${p.checkedOut && !p.feedbackExists}"
+                <!-- ausgecheckt, aber kein Feedback -->
+                <a th:if="${p.checkedOut and !p.feedbackExists}"
                    th:href="@{/feedback/new(participantId=${p.participantId}, eventId=${eventId})}"
                    class="feedback-btn">
                     Add feedback
                 </a>
 
-                <span th:if="${p.feedbackExists}" class="feedback-done">
-                    Feedback submitted ✔
+                <!-- Feedback existiert -->
+                <span th:if="${p.checkedOut and p.feedbackExists}"
+                      class="feedback-done">
+                        Feedback submitted ✔
                 </span>
+
             </td>
+
 
         </tr>
         </tbody>
@@ -196,28 +202,35 @@
         showToast("Participant checked out");
     }
 
-    /*  CHECKOUT BUTTON CLICK */
-    document.querySelectorAll(".checkout-btn").forEach(btn => {
-        btn.addEventListener("click", async () => {
-            const row = btn.closest("tr");
-            const participantId =
-                row.querySelector("td[data-participant-id]").dataset.participantId;
-            const bookingId = row.dataset.bookingId;
+    document.addEventListener("click", async (e) => {
+        const btn = e.target.closest(".checkout-btn");
+        if (!btn) return;
 
-            const res = await fetch(
-                `/api/events/${eventId}/participants/${bookingId}/equipment`
-            );
+        const row = btn.closest("tr");
+        const participantId =
+            row.querySelector("td[data-participant-id]").dataset.participantId;
 
-            const equipment = await res.json();
+        const bookingId = row.dataset.bookingId;
 
-            if (equipment.length === 0) {
-                await doCheckout(participantId, row, btn);
-                return;
-            }
+        const res = await fetch(
+            `/api/events/${eventId}/bookings/${bookingId}/equipment`
+        );
 
-            openEquipmentModal(equipment, participantId, row, btn);
-        });
+        if (!res.ok) {
+            showToast("Failed to load equipment", true);
+            return;
+        }
+
+        const equipment = await res.json();
+
+        if (equipment.length === 0) {
+            await doCheckout(participantId, row, btn);
+            return;
+        }
+
+        openEquipmentModal(equipment, participantId, row, btn);
     });
+
 
     /*  SEARCH */
     const searchInput = document.querySelector(".search-input");
@@ -289,8 +302,6 @@
         }
     }, 3000);
 </script>
-
-<div th:replace="~{events/fragments/footer :: footer}"></div>
 
 </body>
 </html>

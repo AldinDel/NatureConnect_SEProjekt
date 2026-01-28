@@ -31,8 +31,17 @@ public class FeedbackController {
     public String showFeedbackForm(
             @RequestParam Long participantId,
             @RequestParam Long eventId,
-            Model model
+            Model model,
+            RedirectAttributes redirectAttributes
     ) {
+        if (feedbackService.feedbackExists(participantId)) {
+            redirectAttributes.addFlashAttribute(
+                    "error",
+                    "Feedback was already submitted for this participant."
+            );
+            return "redirect:/event_management/checkout?eventId=" + eventId;
+        }
+
         model.addAttribute("participantId", participantId);
         model.addAttribute("eventId", eventId);
         return "feedback/feedback";
