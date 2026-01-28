@@ -1,0 +1,481 @@
+/* Booking Page Styles - Matching Thymeleaf Template */
+
+/* Reset and Base */
+.booking-page {
+    min-height: 100vh;
+    background: #f9fafb;
+}
+
+/* Hero Section */
+.hero {
+    position: relative;
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    margin-top: 70px;
+}
+
+.hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.5));
+}
+
+/* Container */
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* Error Alert */
+.alert-error {
+    background: #fee2e2;
+    border: 1px solid #ef4444;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+    color: #dc2626;
+    font-size: 0.95rem;
+}
+
+/* Grid Layout */
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 30px;
+}
+
+/* Card Styles */
+.card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 0 0 10px 0;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 16px 0;
+}
+
+.text-gray {
+    color: #6b7280;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.text-gray strong {
+    color: #374151;
+    font-weight: 600;
+}
+
+/* Form Elements */
+label {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 6px;
+    margin-top: 14px;
+}
+
+label:first-of-type {
+    margin-top: 0;
+}
+
+.form-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: #111827;
+    background: #ffffff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #0b2545;
+    box-shadow: 0 0 0 3px rgba(11, 37, 69, 0.1);
+}
+
+.form-input::placeholder {
+    color: #9ca3af;
+}
+
+textarea.form-input {
+    resize: vertical;
+    min-height: 80px;
+}
+
+/* Radio Group */
+.radio-group {
+    display: flex;
+    gap: 20px;
+    margin-top: 10px;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.95rem;
+    color: #374151;
+    cursor: pointer;
+    margin: 0;
+}
+
+.radio-label input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #0b2545;
+}
+
+/* Participants */
+.participants-container {
+    margin-top: 20px;
+}
+
+.participant-item {
+    background: #f9fafb;
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+.participant-item h4 {
+    margin: 0 0 12px 0;
+    font-size: 1rem;
+    color: #374151;
+    font-weight: 600;
+}
+
+.participant-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr 100px;
+    gap: 12px;
+}
+
+.form-group-inline {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group-inline label {
+    margin: 0 0 6px 0;
+    font-size: 0.85rem;
+}
+
+.form-group-inline .form-input {
+    margin: 0;
+}
+
+/* Equipment */
+.equipment-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.equipment-item {
+    background: #f9fafb;
+    border-radius: 10px;
+    padding: 14px;
+    transition: background 0.2s;
+}
+
+.equipment-item:hover {
+    background: #f3f4f6;
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    margin: 0;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #0b2545;
+    flex-shrink: 0;
+}
+
+.addon-content {
+    flex: 1;
+}
+
+.addon-name {
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 4px 0;
+    font-size: 0.95rem;
+}
+
+.addon-desc {
+    font-size: 0.85rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+.addon-price {
+    font-weight: 600;
+    color: #0b2545;
+    margin-right: 12px;
+}
+
+.equipment-quantity {
+    width: 70px;
+    padding: 6px 8px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
+/* Sidebar */
+.sidebar {
+    position: sticky;
+    top: 100px;
+    height: fit-content;
+}
+
+.price-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+    color: #374151;
+}
+
+.price-row span:last-child {
+    font-weight: 600;
+    color: #111827;
+}
+
+.discount-row {
+    color: #059669;
+}
+
+.discount-amount {
+    color: #059669 !important;
+}
+
+.divider-top {
+    border: none;
+    border-top: 2px solid #e5e7eb;
+    margin: 16px 0;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #111827;
+    margin: 16px 0;
+}
+
+.total-amount {
+    font-size: 1.5rem;
+    color: #0b2545;
+}
+
+/* Voucher */
+.voucher-wrapper-bottom {
+    display: flex;
+    gap: 8px;
+    margin: 16px 0;
+}
+
+.voucher-input-wrapper {
+    position: relative;
+    flex: 1;
+}
+
+.voucher-input {
+    width: 100%;
+    padding: 10px 36px 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+}
+
+.voucher-input:focus {
+    outline: none;
+    border-color: #0b2545;
+    box-shadow: 0 0 0 3px rgba(11, 37, 69, 0.1);
+}
+
+.voucher-remove {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    font-size: 1.2rem;
+    padding: 4px 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s;
+}
+
+.voucher-remove:hover {
+    color: #374151;
+}
+
+.voucher-apply {
+    padding: 10px 20px;
+    background: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+}
+
+.voucher-apply:hover {
+    background: #e5e7eb;
+    border-color: #9ca3af;
+}
+
+.voucher-message {
+    font-size: 0.85rem;
+    margin: 8px 0 12px 0;
+    padding: 8px 12px;
+    border-radius: 6px;
+}
+
+.voucher-message.success {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.voucher-message.error {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+/* Primary Button */
+.btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: #0b2545;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    margin-top: 16px;
+}
+
+.btn-primary:hover {
+    background: #18385c;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(11, 37, 69, 0.3);
+}
+
+.btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Loading and Error States */
+.loading,
+.error {
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 1.2rem;
+    color: #666;
+}
+
+.error {
+    color: #e53935;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .sidebar {
+        position: static;
+        margin-top: 20px;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero {
+        height: 200px;
+    }
+
+    .container {
+        padding: 20px 15px;
+    }
+
+    .card {
+        padding: 18px;
+    }
+
+    .title {
+        font-size: 1.5rem;
+    }
+
+    .participant-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .radio-group {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .voucher-wrapper-bottom {
+        flex-direction: column;
+    }
+
+    .voucher-apply {
+        width: 100%;
+    }
+}

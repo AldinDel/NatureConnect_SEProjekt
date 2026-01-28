@@ -8,6 +8,7 @@ import at.fhv.Event.domain.model.booking.BookingStatus;
 import at.fhv.Event.domain.model.equipment.EquipmentSelection;
 import at.fhv.Event.domain.model.exception.BookingValidationException;
 import at.fhv.Event.domain.model.exception.EventFullyBookedException;
+import at.fhv.Event.domain.model.payment.PaymentMethod;
 import at.fhv.Event.infrastructure.persistence.booking.BookingEntity;
 import at.fhv.Event.infrastructure.persistence.booking.BookingJpaRepository;
 import at.fhv.Event.infrastructure.persistence.equipment.EquipmentEntity;
@@ -107,9 +108,12 @@ public class BookingIntegrationTest {
         request.setBookerFirstName("Max");
         request.setBookerLastName("Mustermann");
         request.setBookerEmail("max@example.com");
+        request.setBookerAddress("Teststreet 1");
         request.setSeats(2);
         request.setAudience(AudienceType.INDIVIDUAL);
         request.setSpecialNotes("Integration test booking");
+        request.setPaymentMethod(PaymentMethod.ON_SITE);
+        request.setParticipants(List.of());
 
         EquipmentSelection selection = new EquipmentSelection();
         selection.setSelected(true);
@@ -240,26 +244,30 @@ public class BookingIntegrationTest {
 
         event = eventJpaRepository.save(event);
 
-        // 1. BUCHUNG: Bucht 2 seats (Event ist jetzt voll)
+        // ensure users exist (falls service darauf angewiesen ist)
+        ensureUser("first@test.at", "First", "Booker");
+        ensureUser("second@test.at", "Second", "Booker");
+
+        // 1) BUCHUNG: belegt alle Plätze (Event ist jetzt voll)
         BookingEntity initialBooking = new BookingEntity();
         initialBooking.setEventId(event.getId());
+        initialBooking.setEventDate(event.getDate()); // wichtig: NOT NULL in DB
         initialBooking.setBookerFirstName("First");
         initialBooking.setBookerLastName("Booker");
         initialBooking.setBookerEmail("first@test.at");
-        initialBooking.setSeats(1);
+        initialBooking.setSeats(2); // belegt maxParticipants komplett
         initialBooking.setAudience(AudienceType.INDIVIDUAL);
-        initialBooking.setTotalPrice(100.0);
+
+        // restliche Pflichtfelder (bei euch teilweise NOT NULL / business default)
+        initialBooking.setTotalPrice(200.0);
         initialBooking.setStatus(BookingStatus.PAID);
         initialBooking.setCreatedAt(java.time.Instant.now());
         initialBooking.setPaymentStatus(at.fhv.Event.domain.model.payment.PaymentStatus.PAID);
+        initialBooking.setPaymentMethod(at.fhv.Event.domain.model.payment.PaymentMethod.CREDIT_CARD);
 
-        bookingJpaRepository.save(initialBooking);
+        bookingJpaRepository.saveAndFlush(initialBooking);
 
-        // Flush durchführen, um sicherzustellen, dass die DB-Zahlen aktuell sind
-        bookingJpaRepository.flush();
-
-
-        // Request für 2. Buchung
+        // WHEN: zweite Buchung will noch 1 seat
         CreateBookingRequest request = new CreateBookingRequest();
         request.setEventId(event.getId());
         request.setBookerFirstName("Second");
@@ -270,23 +278,19 @@ public class BookingIntegrationTest {
         request.setEquipment(Map.of());
         request.setParticipants(List.of());
 
-        ensureUser("first@test.at", "First", "Booker");
-        ensureUser("second@test.at", "Second", "Booker");
-
-        // WHEN + THEN: Der Service sollte EventFullyBookedException werfen
+        // THEN: muss failen
         EventFullyBookedException exception = assertThrows(
                 EventFullyBookedException.class,
                 () -> bookEventService.bookEvent(request),
-                "EventFullyBookedException, da Event voll"
+                "EventFullyBookedException expected because event is full"
         );
 
-        // THEN: Prüfen der Fehlermeldungsdetails
         assertEquals(event.getId(), exception.get_eventId());
         assertEquals(1, exception.get_requestedSeats());
-        assertEquals(0, exception.get_availableSeats(), "0 seats verfügbar");
+        assertEquals(0, exception.get_availableSeats());
 
-        // THEN: Es sollte nur die erste Buchung existieren
+        // und es bleibt bei 1 booking in der DB
         List<BookingEntity> bookings = bookingJpaRepository.findByEventId(event.getId());
-        assertEquals(1, bookings.size(), "nur 1. booking in db");
+        assertEquals(1, bookings.size());
     }
 }

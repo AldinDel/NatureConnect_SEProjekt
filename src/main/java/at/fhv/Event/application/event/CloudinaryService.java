@@ -13,12 +13,17 @@ public class CloudinaryService {
 
     private final Cloudinary cloudinary;
 
-    public CloudinaryService(Cloudinary cloudinary) {
+    public CloudinaryService(@org.springframework.beans.factory.annotation.Autowired(required = false) Cloudinary cloudinary) {
         this.cloudinary = cloudinary;
     }
 
     public String uploadImage(MultipartFile file) {
         System.out.println("=== CloudinaryService.uploadImage START ===");
+
+        if (cloudinary == null) {
+            System.out.println("Cloudinary is not configured - skipping upload");
+            return null;
+        }
 
         if (file == null) {
             System.out.println("File is NULL");

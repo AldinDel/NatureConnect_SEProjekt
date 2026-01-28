@@ -396,26 +396,31 @@ body.bookings-admin-page {
 }
 
 .btn-secondary {
-    background: #e2e8f0;
+    background: #d63333;
+    color: white;
     border: none;
-    padding: 8px 14px;
+    padding: 10px 14px;
     border-radius: 8px;
     cursor: pointer;
+}
+
+.btn-secondary:hover {
+    background: #b91c1c;
 }
 
 .btn-danger {
-    background: #dc2626;
+    background: #0b2545;
     color: white;
     border: none;
-    padding: 8px 14px;
+    padding: 10px 14px;
     border-radius: 8px;
     cursor: pointer;
 }
 
-
 .btn-danger:hover {
-    background: #b91c1c;
+    background: #2a5b97;
 }
+
 
 .admin-booking-table th:last-child {
     text-align: left;

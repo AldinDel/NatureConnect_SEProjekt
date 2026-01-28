@@ -12,11 +12,14 @@ public class AvatarService {
 
     private final Cloudinary cloudinary;
 
-    public AvatarService(Cloudinary cloudinary) {
+    public AvatarService(@org.springframework.beans.factory.annotation.Autowired(required = false) Cloudinary cloudinary) {
         this.cloudinary = cloudinary;
     }
 
     public String upload(MultipartFile file) {
+        if (cloudinary == null) {
+            return null;
+        }
         try {
             Map<?, ?> result = cloudinary.uploader().upload(
                     file.getBytes(),
@@ -32,6 +35,9 @@ public class AvatarService {
     }
 
     public void delete(String url) {
+        if (cloudinary == null) {
+            return;
+        }
         try {
             String publicId = url.substring(url.indexOf("avatars/"))
                     .replace(".jpg", "")

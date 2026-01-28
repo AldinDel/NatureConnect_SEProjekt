@@ -208,7 +208,6 @@ public class BookingController {
     }
 
     @PostMapping("/payment/{id}")
-    @PreAuthorize("isAuthenticated()")
     public String updatePaymentMethodFromUI(@PathVariable Long id, @RequestParam("paymentMethod") String paymentMethod, RedirectAttributes redirectAttributes) {
         try {
             logger.info("Updating payment method for booking {} to {}", id, paymentMethod);
@@ -258,7 +257,6 @@ public class BookingController {
     }
 
     @GetMapping("/confirmation/{id}")
-    @PreAuthorize("isAuthenticated()")
     public String showConfirmationPage(@PathVariable Long id, @RequestParam(required = false) String paymentMethod, Model model, RedirectAttributes redirectAttributes) {
         try {
             Booking booking = _bookEventService.getById(id);
