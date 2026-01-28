@@ -13,11 +13,11 @@
 
 <div th:replace="~{events/fragments/navbar :: navbar}"></div>
 
-<div th:if="${success}" class="toast-success">
+<div th:if="${success}" class="toast toast-success">
     <span th:text="${success}"></span>
 </div>
 
-<div th:if="${error}" class="toast-error">
+<div th:if="${error}" class="toast toast-error">
     <span th:text="${error}"></span>
 </div>
 
@@ -182,6 +182,15 @@
         const modal = document.getElementById('equipmentModal');
         if (e.target === modal) closeEquipmentModal();
     });
+
+    setTimeout(() => {
+        document.querySelectorAll('.toast').forEach(t => {
+            t.style.opacity = '0';
+            t.style.transition = 'opacity 0.4s ease';
+            setTimeout(() => t.remove(), 400);
+        });
+    }, 3000);
+
     /*]]>*/
 </script>
 
@@ -269,6 +278,38 @@
         white-space: nowrap;
     }
 
+    .toast {
+        position: fixed;
+        top: 90px;
+        right: 24px;
+        padding: 0.9rem 1.3rem;
+        border-radius: 10px;
+        font-weight: 500;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        z-index: 2000;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    .toast-success {
+        background: #e6f4ea;
+        color: #1f7a4f;
+    }
+
+    .toast-error {
+        background: #fdecea;
+        color: #7f1d1d;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
 
 
 </style>
