@@ -73,5 +73,14 @@ public class BookingEquipmentRepositoryImpl implements BookingEquipmentRepositor
                 .toList();
     }
 
+    @Override
+    public boolean existsByBookingId(Long bookingId) {
+        return jpaRepository.existsByBookingId(bookingId);
+    }
+
+    @Override
+    public void deleteById(Long bookingEquipmentId) {
+        jpaRepository.deleteById(bookingEquipmentId);
+    }
 
 }

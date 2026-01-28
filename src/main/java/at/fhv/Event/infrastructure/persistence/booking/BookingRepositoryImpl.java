@@ -139,4 +139,13 @@ public class BookingRepositoryImpl implements BookingRepository {
         return jpa.findByIdWithDetails(id).map(mapper::toDomain);
     }
 
+    @Override
+    public BookingEntity findEntityById(Long bookingId) {
+        return jpa.findById(bookingId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("BookingEntity not found: " + bookingId)
+                );
+    }
+
+
 }

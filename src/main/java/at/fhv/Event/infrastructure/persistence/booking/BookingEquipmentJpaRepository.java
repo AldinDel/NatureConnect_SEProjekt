@@ -29,4 +29,6 @@ public interface BookingEquipmentJpaRepository
 
     List<BookingEquipmentEntity> findByBooking_Id(Long bookingId);
     List<BookingEquipmentEntity> findByBooking_IdAndInvoicedFalse(Long bookingId);
+    boolean existsByBookingId(Long bookingId);
+
 }

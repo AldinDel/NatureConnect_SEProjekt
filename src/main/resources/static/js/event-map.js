@@ -29,7 +29,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         const top = lat + dLat;
 
         const embed = `https://www.openstreetmap.org/export/embed.html?bbox=${left},${bottom},${right},${top}&layer=mapnik&marker=${lat},${lon}`;
-        iframe.src = embed;
+
+        if (iframe.contentWindow && iframe.contentWindow.location) {
+            iframe.contentWindow.location.replace(embed);
+        } else {
+            iframe.src = embed;
+        }
     } catch (e) {
+
     }
 });

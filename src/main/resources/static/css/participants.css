@@ -433,3 +433,359 @@ tr.checked-out .status-badge {
     background: #3b3767;
     transform: translateY(-1px);
 }
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    width: 700px;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: white;
+    border-radius: 14px;
+    padding: 24px;
+    color: #222;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 26px;
+    cursor: pointer;
+}
+
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.form-section {
+    background: #f8f9fb;
+    border-radius: 12px;
+    padding: 18px 20px;
+}
+
+.form-section h3 {
+    margin-bottom: 14px;
+    font-size: 1rem;
+    font-weight: 600;
+    color: #0b2545;
+}
+.modal-body input,
+.modal-body select {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    font-size: 0.95rem;
+    background: #ffffff;
+    color: #111827;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.modal-body input:focus,
+.modal-body select:focus {
+    outline: none;
+    border-color: #0b2545;
+    box-shadow: 0 0 0 3px rgba(11, 37, 69, 0.15);
+}
+.modal-body input::placeholder {
+    color: #9ca3af;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 18px;
+    margin-top: 20px;
+}
+
+.modal-footer .btn {
+    padding: 10px 18px;
+}
+
+.modal-footer .btn.success {
+    background: #0b2545;          /* euer Blau */
+    color: #ffffff;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: background 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.modal-footer .btn.success:hover {
+    background: #3b3767;          /* lighter hover */
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(11,37,69,0.25);
+}
+
+.modal-footer .btn.success:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.form-section input,
+.form-section select {
+    margin-bottom: 12px;
+}
+
+.form-section input:last-child,
+.form-section select:last-child {
+    margin-bottom: 0;
+}
+.participant-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.form-section .payment-options {
+    display: flex;
+    gap: 48px;
+    align-items: center;
+    margin-top: 8px;
+    flex-wrap:nowrap;
+}
+
+.form-section .payment-options label {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 14px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.walkin-error {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    margin-bottom: 14px;
+}
+
+.walkin-error.hidden {
+    display: none;
+}
+
+/* LIST */
+.equipment-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* CARD */
+/* CARD */
+.equipment-card {
+    display: grid;
+    background: #fff;
+    gap:0;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    padding: 14px 16px;
+}
+
+/* ROW */
+.equipment-row {
+    display: grid;
+    grid-template-columns: 1fr auto; /* links flexibel, rechts fix */
+    align-items: center;
+    gap: 16px;
+}
+
+/* LEFT */
+.equipment-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.equipment-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.equipment-available {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+/* RIGHT (Preis + Checkbox sauber ausgerichtet) */
+.equipment-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 110px; /* FIX: verhindert Schweben */
+    justify-content: flex-end;
+}
+
+.equipment-price {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+/* CHECKBOX */
+.equipment-check {
+    margin: 0;
+    transform: scale(1.1);
+}
+
+/* QUANTITY */
+.equipment-qty-wrapper {
+    margin-top: 10px;
+    display: none;
+    grid-column: 1 /2;
+}
+
+.equipment-qty {
+    width: 64px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+/* ACTIVE */
+.equipment-card.checked .equipment-qty-wrapper {
+    display: block;
+}
+
+/* SOLD OUT */
+.equipment-card.sold-out {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+
+.modal-body .equipment-qty {
+    width: 72px !important;
+}
+
+.equipment-qty-wrapper {
+    grid-column: 1 / 2;
+    width: fit-content;
+    justify-self: start;
+}
+
+.status-badge.payment.on_site {
+    background-color: #3b82f6; /* blau */
+    color: white;
+}
+/* PAYMENT BADGES */
+.status-badge.payment.paid {
+    background: #6dde8a;
+    color: #1f6b2d;
+}
+
+.status-badge.payment.on-site {
+    background: #f4c46a;   /* gelblich */
+    color: #8a5b00;
+}
+
+.status-badge.payment.invoice {
+    background: #e5e7eb;   /* grau */
+    color: #374151;
+}
+
+/* BOOKING STATUS: CONFIRMED */
+.status-badge.confirmed {
+    background: #6dde8a;
+    color: #1f6b2d;
+}
+
+/* Equipment return modal */
+.equipment-return-card {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    transition: background 0.2s, border 0.2s;
+}
+
+.equipment-return-card:hover {
+    background: #f9fafb;
+    border-color: #cbd5e1;
+}
+
+.equipment-return-card label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.equipment-left {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+
+.equipment-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.equipment-qty {
+    font-size: 0.8rem;
+    color: #6b7280;
+}
+
+
+.equipment-icon {
+    font-size: 22px;
+}
+
+.equipment-checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: #0b3a63;
+}
+
+/* NEU: klare Row */
+.equipment-return-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+/* Checkbox NORMAL */
+.equipment-checkbox {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: #0b3a63;
+}
+
+
+.equipment-return-card label {
+    display: contents;
+}
+
+
+.modal-body input[type="checkbox"] {
+    width: auto !important;
+    padding: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}

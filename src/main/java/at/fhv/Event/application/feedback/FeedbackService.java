@@ -44,6 +44,14 @@ public class FeedbackService {
         feedback.setType(FeedbackType.CUSTOMER);
         feedback.setCreatedAt(LocalDateTime.now());
 
+        BookingParticipantEntity participant =
+                bookingParticipantRepository.findById(bookingParticipantId)
+                        .orElseThrow(() -> new IllegalStateException("Participant not found"));
+
+        feedback.setParticipantName(
+                participant.getFirstName() + " " + participant.getLastName()
+        );
+
 
         feedbackRepository.save(feedback);
 
@@ -140,16 +148,12 @@ public class FeedbackService {
                 .map(f -> {
                     FeedbackAdminRow row = new FeedbackAdminRow();
 
-                    BookingParticipantEntity participant =
-                            bookingParticipantRepository
-                                    .findById(f.getBookingParticipantId())
-                                    .orElse(null);
-
                     row.setParticipantName(
-                            participant != null
-                                    ? participant.getFirstName() + " " + participant.getLastName()
+                            f.getParticipantName() != null
+                                    ? f.getParticipantName()
                                     : "Unknown participant"
                     );
+
 
                     row.setRating(f.getRating());
                     row.setComment(f.getComment());
