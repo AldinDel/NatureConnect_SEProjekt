@@ -15,6 +15,8 @@ public class FeedbackMapper {
         e.setCreatedByUserId(f.getCreatedByUserId());
         e.setType(f.getType());
         e.setCreatedAt(f.getCreatedAt());
+        e.setParticipantName(f.getParticipantName());
+
         return e;
     }
 
@@ -28,6 +30,8 @@ public class FeedbackMapper {
         f.setCreatedByUserId(e.getCreatedByUserId());
         f.setType(e.getType());
         f.setCreatedAt(e.getCreatedAt());
+        f.setParticipantName(e.getParticipantName());
+
         return f;
     }
 }

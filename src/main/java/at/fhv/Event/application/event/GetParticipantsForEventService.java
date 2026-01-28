@@ -10,7 +10,13 @@ public interface GetParticipantsForEventService {
 
     List<ParticipantDTO> getParticipants(Long eventId);
 
+    List<ParticipantDTO> getParticipantsForCheckIn(Long eventId);
+
+
     EventParticipantsStats getStatsForEvent(Long eventId);
 
     EventCheckoutStats getCheckoutStats(Long eventId);
+
+    int getRemainingSpots(Long eventId);
+
 }

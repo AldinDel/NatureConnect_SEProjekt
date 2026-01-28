@@ -2,6 +2,7 @@ package at.fhv.Event.domain.model.booking;
 
 import at.fhv.Event.application.request.booking.CreateBookingRequest;
 import at.fhv.Event.domain.model.event.Event;
+import at.fhv.Event.infrastructure.persistence.booking.BookingEntity;
 import at.fhv.Event.infrastructure.persistence.equipment.EquipmentEntity;
 
 import java.util.List;
@@ -12,6 +13,7 @@ public interface BookingRepository {
 
     Booking save(Booking booking);
     Optional<Booking> findById(Long id);
+    BookingEntity findEntityById(Long bookingId);
     List<Booking> findAll();
     List<Booking> findByEventId(Long eventId);
     List<Booking> findByCustomerEmail(String email);

@@ -11,4 +11,7 @@ public interface BookingEquipmentRepository {
     Optional<BookingEquipment> findById(Long id);
     BookingEquipment save(BookingEquipment bookingEquipment, BookingEntity bookingEntity);
     List<BookingEquipment> saveAll(List<BookingEquipment> equipment, BookingEntity bookingEntity);
+    boolean existsByBookingId(Long bookingId);
+    void deleteById(Long bookingEquipmentId);
+
 }
