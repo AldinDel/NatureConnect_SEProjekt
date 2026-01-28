@@ -3,8 +3,8 @@ package at.fhv.Event.presentation.ui.controller;
 import at.fhv.Event.application.equipment.GetEquipmentForEventService;
 import at.fhv.Event.application.event.GetParticipantsForEventService;
 import at.fhv.Event.application.exception.ErrorMessageService;
+import at.fhv.Event.domain.model.booking.ParticipantCheckInStatus;
 import at.fhv.Event.domain.model.exception.EventNotFoundException;
-import at.fhv.Event.presentation.rest.response.booking.EventParticipantsStats;
 import at.fhv.Event.presentation.rest.response.booking.ParticipantDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,8 +42,8 @@ public class ParticipantsController {
             RedirectAttributes redirectAttributes
     ) {
         try {
-            List<ParticipantDTO> participants = participantsService.getParticipants(eventId);
-            EventParticipantsStats stats = participantsService.getStatsForEvent(eventId);
+            List<ParticipantDTO> participants =
+                    participantsService.getParticipantsForCheckIn(eventId);
             int remainingSpots = participantsService.getRemainingSpots(eventId);
 
             model.addAttribute("participants", participants);
@@ -51,10 +51,26 @@ public class ParticipantsController {
             model.addAttribute("remainingSpots", remainingSpots);
             model.addAttribute("equipment", getEquipmentForEventService.getForEvent(eventId));
 
-            model.addAttribute("totalCount", stats.getTotal());
-            model.addAttribute("arrivedCount", stats.getArrived());
-            model.addAttribute("notArrivedCount", stats.getNotArrived());
-            model.addAttribute("registeredCount", stats.getRegistered());
+            model.addAttribute("totalCount", participants.size());
+
+            model.addAttribute("arrivedCount",
+                    participants.stream()
+                            .filter(p -> p.getCheckInStatus() == ParticipantCheckInStatus.CHECKED_IN)
+                            .count()
+            );
+
+            model.addAttribute("notArrivedCount",
+                    participants.stream()
+                            .filter(p -> p.getCheckInStatus() == ParticipantCheckInStatus.NOT_ARRIVED)
+                            .count()
+            );
+
+            model.addAttribute("registeredCount",
+                    participants.stream()
+                            .filter(p -> p.getCheckInStatus() == ParticipantCheckInStatus.REGISTERED)
+                            .count()
+            );
+
             model.addAttribute("activeTab", "checkin");
 
             return "event_management/participants";

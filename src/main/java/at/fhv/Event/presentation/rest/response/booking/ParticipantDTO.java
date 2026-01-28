@@ -13,6 +13,8 @@ public class ParticipantDTO {
     private String paymentStatus;
     private ParticipantCheckInStatus checkInStatus;
     private boolean checkedOut;
+    private boolean feedbackExists;
+
 
     public ParticipantDTO(
             Long participantId,
@@ -23,7 +25,8 @@ public class ParticipantDTO {
             String bookingStatus,
             String paymentStatus,
             ParticipantCheckInStatus checkInStatus,
-            boolean checkedOut
+            boolean checkedOut,
+            boolean feedbackExists
     ) {
         this.participantId = participantId;
         this.bookingId = bookingId;
@@ -34,7 +37,9 @@ public class ParticipantDTO {
         this.paymentStatus = paymentStatus;
         this.checkInStatus = checkInStatus;
         this.checkedOut = checkedOut;
+        this.feedbackExists = feedbackExists;
     }
+
 
     public Long getParticipantId() {
         return participantId;
@@ -71,4 +76,7 @@ public class ParticipantDTO {
     public boolean isCheckedOut() {
         return checkedOut;
     }
+
+    public boolean isFeedbackExists() {return feedbackExists;}
+
 }

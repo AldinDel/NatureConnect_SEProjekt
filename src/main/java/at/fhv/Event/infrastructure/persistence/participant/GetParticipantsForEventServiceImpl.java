@@ -6,6 +6,7 @@ import at.fhv.Event.domain.model.event.Event;
 import at.fhv.Event.domain.model.event.EventRepository;
 import at.fhv.Event.domain.model.payment.PaymentMethod;
 import at.fhv.Event.domain.model.payment.PaymentStatus;
+import at.fhv.Event.infrastructure.persistence.feedback.FeedbackRepository;
 import at.fhv.Event.presentation.rest.response.booking.EventCheckoutStats;
 import at.fhv.Event.presentation.rest.response.booking.EventParticipantsStats;
 import at.fhv.Event.presentation.rest.response.booking.ParticipantDTO;
@@ -20,17 +21,22 @@ public class GetParticipantsForEventServiceImpl implements GetParticipantsForEve
     private final BookingRepository bookingRepository;
     private final BookingParticipantRepository bookingParticipantRepository;
     private final EventRepository eventRepository;
+    private final FeedbackRepository feedbackRepository;
+
 
 
     public GetParticipantsForEventServiceImpl(
             BookingRepository bookingRepository,
             BookingParticipantRepository bookingParticipantRepository,
-            EventRepository eventRepository
+            EventRepository eventRepository,
+            FeedbackRepository feedbackRepository
     ) {
         this.bookingRepository = bookingRepository;
         this.bookingParticipantRepository = bookingParticipantRepository;
         this.eventRepository = eventRepository;
+        this.feedbackRepository = feedbackRepository;
     }
+
 
     private boolean isActiveBooking(Booking booking) {
         return booking.getStatus() == BookingStatus.CONFIRMED;
@@ -52,21 +58,32 @@ public class GetParticipantsForEventServiceImpl implements GetParticipantsForEve
         return bookings.stream()
                 .flatMap(b ->
                         bookingParticipantRepository.findByBookingId(b.getId()).stream()
-                                .map(p -> new ParticipantDTO(
-                                        p.getId(),
-                                        b.getId(),
-                                        b.getBookerFullName(),
-                                        p.getFullName(),
-                                        p.getAge(),
-                                        b.getStatus().name(),
-                                        (b.getPaymentMethod() == PaymentMethod.ON_SITE)
-                                                ? "PAY ON SITE"
-                                                : (b.getPaymentMethod() == PaymentMethod.INVOICE)
-                                                ? "INVOICE"
-                                                : b.getPaymentStatus().name(),
-                                        p.getCheckInStatus(),
-                                        false
-                                ))
+                                .filter(p -> p.getCheckOutStatus() == ParticipantCheckOutStatus.NOT_CHECKED_OUT)
+                                .map(p -> {
+                                    boolean checkedOut =
+                                            p.getCheckOutStatus() == ParticipantCheckOutStatus.CHECKED_OUT;
+
+                                    boolean feedbackExists =
+                                            feedbackRepository.existsByBookingParticipantId(p.getId());
+
+                                    return new ParticipantDTO(
+                                            p.getId(),
+                                            b.getId(),
+                                            b.getBookerFullName(),
+                                            p.getFullName(),
+                                            p.getAge(),
+                                            b.getStatus().name(),
+                                            (b.getPaymentMethod() == PaymentMethod.ON_SITE)
+                                                    ? "PAY ON SITE"
+                                                    : (b.getPaymentMethod() == PaymentMethod.INVOICE)
+                                                    ? "INVOICE"
+                                                    : b.getPaymentStatus().name(),
+                                            p.getCheckInStatus(),
+                                            checkedOut,
+                                            feedbackExists
+                                    );
+                                })
+
                 )
 
                 .toList();
@@ -82,21 +99,31 @@ public class GetParticipantsForEventServiceImpl implements GetParticipantsForEve
         return bookings.stream()
                 .flatMap(b ->
                         bookingParticipantRepository.findByBookingId(b.getId()).stream()
-                                .map(p -> new ParticipantDTO(
-                                        p.getId(),
-                                        b.getId(),
-                                        b.getBookerFullName(),
-                                        p.getFullName(),
-                                        p.getAge(),
-                                        b.getStatus().name(),
-                                        (b.getPaymentMethod() == PaymentMethod.ON_SITE)
-                                                ? "PAY ON SITE"
-                                                : (b.getPaymentMethod() == PaymentMethod.INVOICE)
-                                                ? "INVOICE"
-                                                : b.getPaymentStatus().name(),
-                                        p.getCheckInStatus(),
-                                        false
-                                ))
+                                .map(p -> {
+                                    boolean checkedOut =
+                                            p.getCheckOutStatus() == ParticipantCheckOutStatus.CHECKED_OUT;
+
+                                    boolean feedbackExists =
+                                            feedbackRepository.existsByBookingParticipantId(p.getId());
+
+                                    return new ParticipantDTO(
+                                            p.getId(),
+                                            b.getId(),
+                                            b.getBookerFullName(),
+                                            p.getFullName(),
+                                            p.getAge(),
+                                            b.getStatus().name(),
+                                            (b.getPaymentMethod() == PaymentMethod.ON_SITE)
+                                                    ? "PAY ON SITE"
+                                                    : (b.getPaymentMethod() == PaymentMethod.INVOICE)
+                                                    ? "INVOICE"
+                                                    : b.getPaymentStatus().name(),
+                                            p.getCheckInStatus(),
+                                            checkedOut,
+                                            feedbackExists
+                                    );
+                                })
+
                 )
                 .collect(Collectors.toList());
     }
