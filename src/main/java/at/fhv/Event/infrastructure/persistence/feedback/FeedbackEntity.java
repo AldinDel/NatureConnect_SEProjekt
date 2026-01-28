@@ -24,6 +24,10 @@ public class FeedbackEntity {
     @Column(name = "booking_participant_id")
     private Long bookingParticipantId;
 
+    @Column(name = "participant_name")
+    private String participantName;
+
+
     @Column(name = "created_by_user_id")
     private Long createdByUserId;
 
@@ -74,6 +78,15 @@ public class FeedbackEntity {
     public void setBookingParticipantId(Long bookingParticipantId) {
         this.bookingParticipantId = bookingParticipantId;
     }
+
+    public String getParticipantName() {
+        return participantName;
+    }
+
+    public void setParticipantName(String participantName) {
+        this.participantName = participantName;
+    }
+
 
     public Long getCreatedByUserId() {
         return createdByUserId;

@@ -2,6 +2,10 @@ package at.fhv.Event.infrastructure.persistence.participant;
 
 import at.fhv.Event.application.event.GetParticipantsForEventService;
 import at.fhv.Event.domain.model.booking.*;
+import at.fhv.Event.domain.model.event.Event;
+import at.fhv.Event.domain.model.event.EventRepository;
+import at.fhv.Event.domain.model.payment.PaymentMethod;
+import at.fhv.Event.domain.model.payment.PaymentStatus;
 import at.fhv.Event.presentation.rest.response.booking.EventCheckoutStats;
 import at.fhv.Event.presentation.rest.response.booking.EventParticipantsStats;
 import at.fhv.Event.presentation.rest.response.booking.ParticipantDTO;
@@ -15,18 +19,57 @@ public class GetParticipantsForEventServiceImpl implements GetParticipantsForEve
 
     private final BookingRepository bookingRepository;
     private final BookingParticipantRepository bookingParticipantRepository;
+    private final EventRepository eventRepository;
+
 
     public GetParticipantsForEventServiceImpl(
             BookingRepository bookingRepository,
-            BookingParticipantRepository bookingParticipantRepository
+            BookingParticipantRepository bookingParticipantRepository,
+            EventRepository eventRepository
     ) {
         this.bookingRepository = bookingRepository;
         this.bookingParticipantRepository = bookingParticipantRepository;
+        this.eventRepository = eventRepository;
     }
 
     private boolean isActiveBooking(Booking booking) {
-        return booking.getStatus() == BookingStatus.CONFIRMED
-                || booking.getStatus() == BookingStatus.PAID;
+        return booking.getStatus() == BookingStatus.CONFIRMED;
+    }
+
+    @Override
+    public List<ParticipantDTO> getParticipantsForCheckIn(Long eventId) {
+
+        List<Booking> bookings = bookingRepository.findByEventId(eventId).stream()
+                .filter(b -> b.getStatus() == BookingStatus.CONFIRMED)
+                .filter(b ->
+                        b.getPaymentStatus() == PaymentStatus.PAID ||
+                                b.getPaymentMethod() == PaymentMethod.ON_SITE ||
+                                b.getPaymentMethod() == PaymentMethod.INVOICE
+                )
+
+                .toList();
+
+        return bookings.stream()
+                .flatMap(b ->
+                        bookingParticipantRepository.findByBookingId(b.getId()).stream()
+                                .map(p -> new ParticipantDTO(
+                                        p.getId(),
+                                        b.getId(),
+                                        b.getBookerFullName(),
+                                        p.getFullName(),
+                                        p.getAge(),
+                                        b.getStatus().name(),
+                                        (b.getPaymentMethod() == PaymentMethod.ON_SITE)
+                                                ? "PAY ON SITE"
+                                                : (b.getPaymentMethod() == PaymentMethod.INVOICE)
+                                                ? "INVOICE"
+                                                : b.getPaymentStatus().name(),
+                                        p.getCheckInStatus(),
+                                        false
+                                ))
+                )
+
+                .toList();
     }
 
     @Override
@@ -46,9 +89,13 @@ public class GetParticipantsForEventServiceImpl implements GetParticipantsForEve
                                         p.getFullName(),
                                         p.getAge(),
                                         b.getStatus().name(),
-                                        b.getPaymentStatus().name(),
+                                        (b.getPaymentMethod() == PaymentMethod.ON_SITE)
+                                                ? "PAY ON SITE"
+                                                : (b.getPaymentMethod() == PaymentMethod.INVOICE)
+                                                ? "INVOICE"
+                                                : b.getPaymentStatus().name(),
                                         p.getCheckInStatus(),
-                                        p.getCheckOutStatus() == ParticipantCheckOutStatus.CHECKED_OUT
+                                        false
                                 ))
                 )
                 .collect(Collectors.toList());
@@ -114,4 +161,19 @@ public class GetParticipantsForEventServiceImpl implements GetParticipantsForEve
                 remaining
         );
     }
+
+    @Override
+    public int getRemainingSpots(Long eventId) {
+
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("Event not found"));
+
+        int maxSeats = event.getMaxParticipants();
+        int occupiedSeats = bookingRepository.countOccupiedSeatsForEvent(eventId);
+
+        return Math.max(0, maxSeats - occupiedSeats);
+    }
+
+
+
 }

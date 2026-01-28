@@ -9,6 +9,7 @@ public class Feedback {
     private String comment;
     private Long eventId;
     private Long bookingParticipantId;
+    private String participantName;
     private Long createdByUserId;
     private FeedbackType type;
     private LocalDateTime createdAt;
@@ -21,6 +22,7 @@ public class Feedback {
             String comment,
             Long eventId,
             Long bookingParticipantId,
+            String participantName,
             FeedbackType type,
             LocalDateTime createdAt
     ) {
@@ -28,6 +30,7 @@ public class Feedback {
         this.comment = comment;
         this.eventId = eventId;
         this.bookingParticipantId = bookingParticipantId;
+        this.participantName = participantName;
         this.type = type;
         this.createdAt = createdAt;
     }
@@ -80,6 +83,15 @@ public class Feedback {
     public void setBookingParticipantId(Long bookingParticipantId) {
         this.bookingParticipantId = bookingParticipantId;
     }
+
+    public String getParticipantName() {
+        return participantName;
+    }
+
+    public void setParticipantName(String participantName) {
+        this.participantName = participantName;
+    }
+
 
     public Long getCreatedByUserId() {
         return createdByUserId;

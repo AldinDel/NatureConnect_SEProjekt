@@ -79,9 +79,11 @@
 
         <tbody>
         <tr th:each="p : ${participants}"
+            th:data-booking-id="${p.bookingId}"
             th:classappend="${p.checkedOut} ? 'checked-out' : ''">
 
-            <td th:text="${p.bookingId}"></td>
+
+        <td th:text="${p.bookingId}"></td>
             <td th:text="${p.bookerName}"></td>
             <td th:text="${p.participantName}"></td>
             <td th:text="${p.participantAge}"></td>
@@ -117,6 +119,26 @@
 
 <div id="toast" class="toast"></div>
 
+<div id="equipmentReturnModal" class="modal hidden">
+    <div class="modal-content small">
+        <div class="modal-header">
+            <h3>Return Equipment</h3>
+            <button class="modal-close" id="closeEquipmentModal">×</button>
+        </div>
+
+        <div class="modal-body">
+            <p>Please confirm returned equipment:</p>
+            <div id="equipmentReturnList"></div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn danger" id="cancelEquipmentReturn">Cancel</button>
+            <button class="btn success" id="confirmEquipmentReturn">Confirm & Check-Out</button>
+        </div>
+    </div>
+</div>
+
+
 <script th:inline="javascript">
     const eventId = [[${eventId}]];
     const toast = document.getElementById("toast");
@@ -128,51 +150,76 @@
         setTimeout(() => toast.classList.remove("show"), 2500);
     }
 
+    /* ZENTRALE UI-UPDATE-FUNKTION (EINMAL, FÜR ALLE CASES) */
+    function updateRowAfterCheckout(row, participantId, btn) {
+        row.classList.add("checked-out");
+
+        const badge = row.querySelector(".status-badge");
+        badge.textContent = "CHECKED OUT";
+        badge.classList.remove("paid");
+        badge.classList.add("expired");
+
+        if (btn) btn.remove();
+
+        const actionsCell = row.querySelector("td[data-participant-id]");
+        if (!actionsCell.querySelector(".feedback-btn")) {
+            const feedbackLink = document.createElement("a");
+            feedbackLink.textContent = "Add feedback";
+            feedbackLink.classList.add("feedback-btn");
+            feedbackLink.href =
+                `/feedback/new?participantId=${participantId}&eventId=${eventId}`;
+            actionsCell.appendChild(feedbackLink);
+        }
+
+        const checkedOutEl = document.querySelector(".stat-value.arrived");
+        const remainingEl = document.querySelector(".stat-value.not-arrived");
+
+        checkedOutEl.textContent = Number(checkedOutEl.textContent) + 1;
+        remainingEl.textContent = Number(remainingEl.textContent) - 1;
+    }
+
+    /*  NORMALER CHECKOUT (OHNE EQUIPMENT) */
+    async function doCheckout(participantId, row, btn) {
+        const res = await fetch(
+            `/api/events/${eventId}/participants/${participantId}/checkout`,
+            { method: "POST" }
+        );
+
+        const text = await res.text();
+
+        if (!res.ok) {
+            showToast(text || "Checkout failed", true);
+            return;
+        }
+
+        updateRowAfterCheckout(row, participantId, btn);
+        showToast("Participant checked out");
+    }
+
+    /*  CHECKOUT BUTTON CLICK */
     document.querySelectorAll(".checkout-btn").forEach(btn => {
         btn.addEventListener("click", async () => {
             const row = btn.closest("tr");
-            const participantId = row.querySelector("td[data-participant-id]").dataset.participantId;
+            const participantId =
+                row.querySelector("td[data-participant-id]").dataset.participantId;
+            const bookingId = row.dataset.bookingId;
 
             const res = await fetch(
-                `/api/events/${eventId}/participants/${participantId}/checkout`,
-                { method: "POST" }
+                `/api/events/${eventId}/participants/${bookingId}/equipment`
             );
 
-            const text = await res.text();
+            const equipment = await res.json();
 
-            if (!res.ok) {
-                showToast(text || "Checkout failed", true);
+            if (equipment.length === 0) {
+                await doCheckout(participantId, row, btn);
                 return;
             }
 
-            row.classList.add("checked-out");
-
-            const badge = row.querySelector(".status-badge");
-            badge.textContent = "CHECKED OUT";
-            badge.classList.remove("paid");
-            badge.classList.add("expired");
-
-            btn.remove();
-
-            const actionsCell = row.querySelector("td[data-participant-id]");
-            if (!actionsCell.querySelector(".feedback-btn")) {
-                const feedbackLink = document.createElement("a");
-                feedbackLink.textContent = "Add Feedback";
-                feedbackLink.classList.add("feedback-btn");
-                feedbackLink.href = `/feedback/new?participantId=${participantId}&eventId=${eventId}`;
-                actionsCell.appendChild(feedbackLink);
-            }
-
-            const checkedOutEl = document.querySelector(".stat-value.arrived");
-            const remainingEl = document.querySelector(".stat-value.not-arrived");
-
-            checkedOutEl.textContent = Number(checkedOutEl.textContent) + 1;
-            remainingEl.textContent = Number(remainingEl.textContent) - 1;
-
-            showToast("Participant checked out");
+            openEquipmentModal(equipment, participantId, row, btn);
         });
     });
 
+    /*  SEARCH */
     const searchInput = document.querySelector(".search-input");
     searchInput.addEventListener("input", () => {
         const query = searchInput.value.toLowerCase();
@@ -181,6 +228,58 @@
         });
     });
 
+    /* EQUIPMENT MODAL */
+    const equipmentModal = document.getElementById("equipmentReturnModal");
+    const equipmentList = document.getElementById("equipmentReturnList");
+
+    function openEquipmentModal(equipment, participantId, row, btn) {
+        equipmentList.innerHTML = "";
+
+        equipment.forEach(e => {
+            equipmentList.innerHTML += `
+                <div class="equipment-return-card">
+                    <div class="equipment-return-row">
+                        <div class="equipment-left">
+                            <div class="equipment-name">${e.name}</div>
+                            <div class="equipment-qty">Quantity: x${e.quantity}</div>
+                        </div>
+
+                        <input
+                            type="checkbox"
+                            class="equipment-checkbox"
+                            checked
+                            data-id="${e.id}"
+                        >
+                    </div>
+                </div>
+            `;
+        });
+
+        equipmentModal.classList.remove("hidden");
+
+        document.getElementById("confirmEquipmentReturn").onclick = async () => {
+            const res = await fetch(
+                `/api/events/${eventId}/participants/${participantId}/checkout-with-equipment?bookingId=${row.dataset.bookingId}`,
+                { method: "POST" }
+            );
+
+            if (!res.ok) {
+                showToast("Checkout with equipment failed", true);
+                return;
+            }
+
+            equipmentModal.classList.add("hidden");
+            updateRowAfterCheckout(row, participantId, btn);
+            showToast("Participant checked out");
+        };
+    }
+
+    document.getElementById("closeEquipmentModal").onclick =
+        document.getElementById("cancelEquipmentReturn").onclick = () => {
+            equipmentModal.classList.add("hidden");
+        };
+
+    /* FEEDBACK POPUP AUTO-HIDE */
     setTimeout(() => {
         const msg = document.querySelector(".feedback-popup");
         if (msg) {
@@ -189,7 +288,6 @@
             setTimeout(() => msg.remove(), 400);
         }
     }, 3000);
-
 </script>
 
 <div th:replace="~{events/fragments/footer :: footer}"></div>

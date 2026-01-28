@@ -38,7 +38,6 @@
     </a>
 </div>
 
-<!-- STATS -->
 <div class="stats-container">
     <div class="stat-card">
         <span class="stat-title">Total</span>
@@ -61,15 +60,13 @@
     </div>
 </div>
 
-<!-- ACTION BAR -->
 <div class="search-and-action">
     <div class="search-container">
         <input type="text" class="search-input" placeholder="Search participant or booking…">
     </div>
 
     <div class="add-participant-wrapper">
-        <button
-                th:if="${activeTab == 'checkin'}"
+        <button th:if="${activeTab == 'checkin'}"
                 class="btn add-walkin-btn"
                 id="addParticipantBtn">
             + Add Walk-In Participant
@@ -94,118 +91,357 @@
         <tbody>
         <tr th:each="p : ${participants}"
             th:data-participant-id="${p.participantId}">
-
             <td th:text="${p.bookingId}"></td>
             <td th:text="${p.bookerName}"></td>
             <td th:text="${p.participantName}"></td>
             <td th:text="${p.participantAge}"></td>
-
             <td>
                 <span th:text="${p.bookingStatus}"
                       th:class="'status-badge ' + ${p.bookingStatus.toLowerCase()}"></span>
             </td>
-
             <td>
                 <span th:text="${p.paymentStatus}"
-                      th:class="'status-badge payment ' + ${p.paymentStatus.toLowerCase()}"></span>
+                      th:class="'status-badge payment ' +
+                        (${p.paymentStatus == 'PAID' || p.paymentStatus == 'CONFIRMED'} ? 'paid' :
+                        (${p.paymentStatus == 'PAY ON SITE'} ? 'on-site' :
+                        (${p.paymentStatus == 'INVOICE'} ? 'invoice' : 'unpaid')))">
+                </span>
+
+
             </td>
 
             <td>
                 <button class="btn success checkin-btn"
-                        th:classappend="${p.checkInStatus.name() == 'CHECKED_IN'} ? ' active' : ''">
-                    ✔
-                </button>
-
+                        th:classappend="${p.checkInStatus.name() == 'CHECKED_IN'} ? ' active' : ''">✔</button>
                 <button class="btn danger notarrived-btn"
-                        th:classappend="${p.checkInStatus.name() == 'NOT_ARRIVED'} ? ' active' : ''">
-                    ✖
-                </button>
+                        th:classappend="${p.checkInStatus.name() == 'NOT_ARRIVED'} ? ' active' : ''">✖</button>
             </td>
         </tr>
         </tbody>
     </table>
 </div>
 
+<div id="walkInModal" class="modal hidden">
+    <div class="modal-content">
 
-<div id="addParticipantModal" class="modal hidden">
+        <div class="modal-header">
+            <h2>Add Walk-In Participant</h2>
+            <button class="modal-close" id="closeWalkInModal">×</button>
+        </div>
 
+        <div class="modal-body">
+            <div id="walkinError" class="walkin-error hidden"></div>
+
+            <div class="form-section">
+                <h3>Your Information</h3>
+                <input type="text" id="bookerFirstName" placeholder="First Name" required>
+                <input type="text" id="bookerLastName" placeholder="Last Name" required>
+                <input type="email" id="bookerEmail" placeholder="Email" required>
+            </div>
+
+            <div class="form-section">
+                <h3>Number of Participants</h3>
+                <select id="participantCount" required></select>
+
+            </div>
+
+            <div id="participantsContainer"></div>
+
+            <div class="form-section">
+                <h3>Equipment</h3>
+
+                <div class="equipment-list">
+                    <div class="equipment-card"
+                         th:each="e : ${equipment}"
+                         th:classappend="${e.stock == 0} ? 'sold-out'">
+
+                        <div class="equipment-row">
+
+                            <div class="equipment-info">
+                                <div class="equipment-name" th:text="${e.name}"></div>
+                                <div class="equipment-available"
+                                     th:text="'Available: ' + ${e.stock}"></div>
+                            </div>
+
+                            <!-- FIXE RECHTE SPALTE -->
+                            <div class="equipment-actions">
+                                <div class="equipment-price"
+                                     th:text="${#numbers.formatDecimal(e.unitPrice,1,2)} + ' €'"></div>
+
+                                <input type="checkbox"
+                                       class="equipment-check"
+                                       th:data-id="${e.id}"
+                                       th:data-max="${e.stock}"
+                                       th:disabled="${e.stock == 0}">
+
+                            </div>
+                        </div>
+
+                        <!-- Quantity -->
+                        <div class="equipment-qty-wrapper">
+                            <input type="number"
+                                   class="equipment-qty"
+                                   min="1"
+                                   value="1"
+                                   disabled>
+                        </div>
+
+                    </div>
+
+            </div>
+
+
+            <div class="form-section">
+                <h3>Payment Method</h3>
+                <div class="payment-options">
+                    <label>
+                        <input type="radio" name="paymentMethod" value="ON_SITE" checked>
+                        On-Site
+                    </label>
+
+                    <label>
+                        <input type="radio" name="paymentMethod" value="CREDIT_CARD">
+                        Card
+                    </label>
+
+                    <label>
+                        <input type="radio" name="paymentMethod" value="INVOICE">
+                        Invoice
+                    </label>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn danger" id="cancelWalkIn">Cancel</button>
+            <button class="btn success" id="confirmWalkIn">Add & Check-In</button>
+        </div>
+
+    </div>
 </div>
+
+<div id="eventFullModal" class="modal hidden">
+    <div class="modal-content small">
+        <div class="modal-header">
+            <h3>Event Full</h3>
+            <button class="modal-close" onclick="closeEventFullModal()">×</button>
+        </div>
+        <div class="modal-body">
+            This event is fully booked. No more participants can be added.
+        </div>
+        <div class="modal-footer">
+            <button class="btn success" onclick="closeEventFullModal()">OK</button>
+        </div>
+    </div>
+</div>
+
+
+<div id="addParticipantModal" class="modal hidden"></div>
 
 <script th:inline="javascript">
 
     const eventId = [[${eventId}]];
+    const remainingSpots = [[${remainingSpots}]];
+    const walkinError = document.getElementById("walkinError");
+
+    function showWalkinError(msg) {
+        walkinError.textContent = msg;
+        walkinError.classList.remove("hidden");
+    }
+
+    function clearWalkinError() {
+        walkinError.textContent = "";
+        walkinError.classList.add("hidden");
+    }
 
     function openAddParticipantModal() {
-        document.getElementById("addParticipantModal")?.classList.remove("hidden");
+        if (remainingSpots <= 0) {
+            document.getElementById("eventFullModal").classList.remove("hidden");
+            return;
+        }
+
+        document.getElementById("walkInModal").classList.remove("hidden");
+        clearWalkinError();
     }
 
-    function updateStats() {
-        const rows = document.querySelectorAll("tr[data-participant-id]");
-        const total = rows.length;
-        const arrived = document.querySelectorAll(".checkin-btn.active").length;
-        const notArrived = document.querySelectorAll(".notarrived-btn.active").length;
-
-        document.querySelector("[data-stat='total']").textContent = total;
-        document.querySelector("[data-stat='arrived']").textContent = arrived;
-        document.querySelector("[data-stat='notArrived']").textContent = notArrived;
+    function closeEventFullModal() {
+        document.getElementById("eventFullModal").classList.add("hidden");
     }
 
-    function reloadStats() {
-        fetch(`/api/events/${eventId}/participants/stats`)
-            .then(res => res.json())
-            .then(stats => {
-                document.querySelector("[data-stat='total']").textContent = stats.total;
-                document.querySelector("[data-stat='arrived']").textContent = stats.arrived;
-                document.querySelector("[data-stat='notArrived']").textContent = stats.notArrived;
-                document.querySelector("[data-stat='registered']").textContent = stats.registered;
-            });
+
+
+
+    document.getElementById("addParticipantBtn")?.addEventListener("click", openAddParticipantModal);
+    document.getElementById("closeWalkInModal")?.addEventListener("click", () => document.getElementById("walkInModal").classList.add("hidden"));
+    document.getElementById("cancelWalkIn")?.addEventListener("click", () => document.getElementById("walkInModal").classList.add("hidden"));
+
+    const participantsContainer = document.getElementById("participantsContainer");
+
+    function renderParticipants(count) {
+        participantsContainer.innerHTML = "";
+        for (let i = 1; i <= count; i++) {
+            participantsContainer.innerHTML += `
+            <div class="participant-card participant-block">
+                <h4>Participant ${i}</h4>
+                <input type="text" class="p-firstname" placeholder="First Name" required>
+                <input type="text" class="p-lastname" placeholder="Last Name" required>
+                <input type="number" class="p-age" placeholder="Age" min="0" required>
+            </div>`;
+        }
     }
 
-    document.querySelectorAll("tr[data-participant-id]").forEach(row => {
-        const participantId = row.dataset.participantId;
-        const checkInBtn = row.querySelector(".checkin-btn");
-        const notArrivedBtn = row.querySelector(".notarrived-btn");
+    function renderParticipantCountOptions() {
+        const select = document.getElementById("participantCount");
+        select.innerHTML = "";
 
-        checkInBtn.addEventListener("click", () => {
-            const url = checkInBtn.classList.contains("active")
-                ? `/api/events/${eventId}/participants/${participantId}/reset`
-                : `/api/events/${eventId}/participants/${participantId}/checkin`;
+        for (let i = 1; i <= remainingSpots; i++) {
+            const option = document.createElement("option");
+            option.value = i;
+            option.textContent = i;
+            select.appendChild(option);
+        }
+    }
 
-            fetch(url, { method: "POST" }).then(() => {
-                checkInBtn.classList.toggle("active");
-                notArrivedBtn.classList.remove("active");
-                reloadStats();
+
+    renderParticipantCountOptions();
+    renderParticipants(Math.min(1, remainingSpots));
+
+
+
+    document.getElementById("participantCount")?.addEventListener("change", e => {
+        renderParticipants(Number(e.target.value));
+        clearWalkinError();
+    });
+
+    document.querySelectorAll(".checkin-btn").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+            const row = e.target.closest("tr");
+            const participantId = row.dataset.participantId;
+
+            await fetch(`/api/events/${eventId}/participants/${participantId}/checkin`, {
+                method: "POST"
             });
-        });
 
-        notArrivedBtn.addEventListener("click", () => {
-            const url = notArrivedBtn.classList.contains("active")
-                ? `/api/events/${eventId}/participants/${participantId}/reset`
-                : `/api/events/${eventId}/participants/${participantId}/not-arrived`;
 
-            fetch(url, { method: "POST" }).then(() => {
-                notArrivedBtn.classList.toggle("active");
-                checkInBtn.classList.remove("active");
-                reloadStats();
-            });
+            location.reload();
         });
     });
 
-    document.getElementById("addParticipantBtn")
-        ?.addEventListener("click", () => {
-            openAddParticipantModal();
-        });
+    document.querySelectorAll(".notarrived-btn").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+            const row = e.target.closest("tr");
+            const participantId = row.dataset.participantId;
 
-    const searchInput = document.querySelector(".search-input");
-    searchInput.addEventListener("input", () => {
-        const query = searchInput.value.toLowerCase();
-        document.querySelectorAll("tbody tr").forEach(row => {
-            row.style.display = row.innerText.toLowerCase().includes(query) ? "" : "none";
+            await fetch(`/api/events/${eventId}/participants/${participantId}/not-arrived`, {
+                method: "POST"
+            });
+
+
+            location.reload();
         });
     });
+
+
+    document.querySelectorAll(".equipment-check").forEach(cb => {
+        cb.addEventListener("change", e => {
+            const card = e.target.closest(".equipment-card");
+            const qty = card.querySelector(".equipment-qty");
+
+            if (e.target.checked) {
+                card.classList.add("checked");
+                qty.disabled = false;
+                qty.max = e.target.dataset.max;
+            } else {
+                card.classList.remove("checked");
+                qty.disabled = true;
+                qty.value = 1;
+            }
+        });
+    });
+
+
+    document.getElementById("confirmWalkIn")?.addEventListener("click", submitWalkIn);
+
+    async function submitWalkIn() {
+
+        clearWalkinError();
+
+        const bookerFirstName = document.getElementById("bookerFirstName").value.trim();
+        const bookerLastName  = document.getElementById("bookerLastName").value.trim();
+        const email           = document.getElementById("bookerEmail").value.trim();
+
+        if (!bookerFirstName || !bookerLastName || !email) {
+            showWalkinError("Please fill in all booker fields");
+            alert("Please fill in all booker fields");
+            return;
+        }
+
+        const paymentMethod = document.querySelector("input[name='paymentMethod']:checked").value;
+        const participants = [];
+
+
+        for (const block of document.querySelectorAll(".participant-block")) {
+            const firstName = block.querySelector(".p-firstname").value.trim();
+            const lastName  = block.querySelector(".p-lastname").value.trim();
+            const ageValue  = block.querySelector(".p-age").value;
+
+            if (!firstName || !lastName || ageValue === "") {
+                showWalkinError("Please fill in all participant fields");
+                alert("Please fill in all participant fields");
+                return;
+            }
+
+            const age = parseInt(ageValue);
+            if (age < 0) {
+                showWalkinError("Age cannot be negative");
+                alert("Age cannot be negative");
+                return;
+            }
+
+            participants.push({ firstName, lastName, age });
+        }
+
+        const equipment = [];
+
+        document.querySelectorAll(".equipment-card.checked").forEach(card => {
+            const checkbox = card.querySelector(".equipment-check");
+            const qtyInput = card.querySelector(".equipment-qty");
+
+            equipment.push({
+                equipmentId: parseInt(checkbox.dataset.id),
+                quantity: parseInt(qtyInput.value)
+            });
+        });
+
+
+        const payload = {
+            bookerFirstName,
+            bookerLastName,
+            email,
+            paymentMethod,
+            participants,
+            equipment
+        };
+
+
+        const res = await fetch(`/api/events/${eventId}/participants/walkin`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+            showWalkinError("Walk-In failed");
+            alert("Walk-In failed");
+            return;
+        }
+
+        document.getElementById("walkInModal").classList.add("hidden");
+        location.reload();
+    }
 
 </script>
-
 
 </body>
 </html>
